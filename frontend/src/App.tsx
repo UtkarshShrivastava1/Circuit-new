@@ -1,12 +1,24 @@
-import './App.css'
+import { Routes, Route } from "react-router-dom";
+import AppLayout from "./components/layout/AppLayout";
+import PageContainer from "./components/layout/PageContainer";
 
-function App() {
+export default function App() {
   return (
-    <div className="app-container">
-      <h1>Hello World!</h1>
-      <p>Your new project is ready.</p>
-    </div>
-  )
+    <AppLayout>
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={<PageContainer title="Dashboard">Dashboard</PageContainer>}
+        />
+        <Route
+          path="/attendance"
+          element={<PageContainer title="Attendance">Attendance</PageContainer>}
+        />
+        <Route
+          path="/projects"
+          element={<PageContainer title="Projects">Projects</PageContainer>}
+        />
+      </Routes>
+    </AppLayout>
+  );
 }
-
-export default App
