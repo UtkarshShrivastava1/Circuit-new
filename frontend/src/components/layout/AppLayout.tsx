@@ -11,7 +11,8 @@ export default function AppLayout({ children }: Props) {
   const permissions = ["view_dashboard", "attendance", "projects"];
 
   return (
-    <div className="drawer lg:drawer-open">
+    <div className="drawer lg:drawer-open bg-base-100">
+      
       <input id="drawer" type="checkbox" className="drawer-toggle" />
 
       <div className="drawer-content flex flex-col">
