@@ -2,18 +2,26 @@ import StatusBadge from "../ui/StatusBadge";
 import type { Project } from "../../type/project";
 import { useNavigate } from "react-router-dom";
 
-
 interface Props {
   project: Project;
-  onOpen: () => void; // ✅ ADD THIS
+  onOpen: () => void;
+  onDelete?: (id: string) => void;
+  canDelete?: boolean;
 }
 
-export default function ProjectCard({ project, onOpen }: Props) {
-const navigate = useNavigate();
+export default function ProjectCard({
+  project,
+  onOpen,
+  onDelete,
+  canDelete = false,
+}: Props) {
+  const navigate = useNavigate();
 
   return (
-    <div className="bg-base-200 border border-base-300 rounded-xl p-5 hover:shadow-lg transition">
-      {/* Header */}
+    <div className="group bg-base-200 border border-base-300 rounded-xl p-5 hover:shadow-lg transition relative">
+
+     
+      {/* HEADER */}
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-base-content">
           {project.name}
@@ -21,19 +29,37 @@ const navigate = useNavigate();
 
         <StatusBadge
           status={
-            project.status === "active"
-              ? "approved"
-              : project.status === "completed"
+            project.status === "active" || project.status === "completed"
               ? "approved"
               : "pending"
           }
         />
+
+         {/* DELETE (TOP RIGHT) */}
+      {canDelete && onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm(`Delete project "${project.name}"?`)) {
+              onDelete(project.id);
+            }
+          }}
+          className="absolute top-3 right-3 btn btn-xs btn-ghost text-error 
+                     opacity-0 group-hover:opacity-100 transition"
+          title="Delete project"
+        >
+          🗑️
+        </button>
+      )}
+
       </div>
 
+      {/* MANAGER */}
       <p className="text-sm text-base-content/60 mt-1">
         Manager: <span className="font-medium">{project.manager}</span>
       </p>
 
+      {/* PROGRESS */}
       <div className="mt-4">
         <div className="flex justify-between text-xs text-base-content/60 mb-1">
           <span>Progress</span>
@@ -47,25 +73,27 @@ const navigate = useNavigate();
         />
       </div>
 
+      {/* META */}
       <div className="flex items-center justify-between mt-4 text-sm text-base-content/70">
         <span>👥 {project.teamCount} members</span>
         <span>📅 {project.dueDate}</span>
       </div>
 
+      {/* ACTIONS */}
       <div className="mt-5 grid grid-cols-2 gap-2">
-        <button className="btn btn-sm btn-outline text-base-content"
-         onClick={onOpen}
-        disabled={!onOpen} // optional UX improvement
+        <button
+          className="btn btn-sm btn-outline"
+          onClick={onOpen}
         >
           View
-          </button>
-       <button
-        className="btn btn-sm btn-primary"
-        onClick={() => navigate(`/projects/${project.id}`)}
-      >
-        Open
-      </button>
+        </button>
 
+        <button
+          className="btn btn-sm btn-primary"
+          onClick={() => navigate(`/projects/${project.id}`)}
+        >
+          Open
+        </button>
       </div>
     </div>
   );

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import StatusBadge from "../ui/StatusBadge";
 import TaskStatusSelect from "./TaskStatusSelect";
+import Pagination from "../ui/Pagination";
+// import { Task } from "../../type/task";
+import {usePagination} from "../../hooks/usePagination";
+import NewTaskModal from "./NewTaskModal";
 
 /* ================= TYPES ================= */
 
@@ -19,96 +23,83 @@ type Role = "admin" | "manager" | "employee";
 
 /* ================= MOCK DATA ================= */
 
-const initialTasks: Task[] = [
-  {
-    id: "1",
-    title: "Design dashboard UI",
-    assignee: "Ankit",
-    status: "completed",
-    dueDate: "20 Jan 2026",
-    description: "Create clean dashboard layout",
-  },
-  {
-    id: "2",
-    title: "Attendance API",
-    assignee: "Rahul",
-    status: "in-progress",
-    dueDate: "02 Feb 2026",
-  },
-  {
-    id: "3",
-    title: "Role permissions",
-    assignee: "Alex",
-    status: "pending",
-    dueDate: "10 Feb 2026",
-  },
-];
-/*==================== Update task status optimistically ==================== */
+const initialTasks: Task[] = Array.from({ length: 30 }).map((_, i) => ({
+  id: String(i + 1),
+  title: `Task ${i + 1}`,
+  assignee: ["Alex", "Rahul", "Ankit"][i % 3],
+  status:
+    i % 3 === 0
+      ? "pending"
+      : i % 3 === 1
+      ? "in-progress"
+      : "completed",
+  dueDate: `0${(i % 9) + 1} Feb 2026`,
+}));
 
 
 /* ================= NEW TASK MODAL ================= */
 
-function NewTaskModal({
-  onClose,
-  onCreate,
-}: {
-  onClose: () => void;
-  onCreate: (task: Task) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [assignee, setAssignee] = useState("");
-  const [dueDate, setDueDate] = useState("");
+// function NewTaskModal({
+//   onClose,
+//   onCreate,
+// }: {
+//   onClose: () => void;
+//   onCreate: (task: Task) => void;
+// }) {
+//   const [title, setTitle] = useState("");
+//   const [assignee, setAssignee] = useState("");
+//   const [dueDate, setDueDate] = useState("");
 
-  return (
-    <div className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-semibold mb-4">New Task</h3>
+//   return (
+//     <div className="modal modal-open">
+//       <div className="modal-box">
+//         <h3 className="font-semibold mb-4">New Task</h3>
 
-        <input
-          className="input input-bordered w-full mb-3"
-          placeholder="Task title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+//         <input
+//           className="input input-bordered w-full mb-3"
+//           placeholder="Task title"
+//           value={title}
+//           onChange={(e) => setTitle(e.target.value)}
+//         />
 
-        <input
-          className="input input-bordered w-full mb-3"
-          placeholder="Assignee"
-          value={assignee}
-          onChange={(e) => setAssignee(e.target.value)}
-        />
+//         <input
+//           className="input input-bordered w-full mb-3"
+//           placeholder="Assignee"
+//           value={assignee}
+//           onChange={(e) => setAssignee(e.target.value)}
+//         />
 
-        <input
-          type="date"
-          className="input input-bordered w-full"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+//         <input
+//           type="date"
+//           className="input input-bordered w-full"
+//           value={dueDate}
+//           onChange={(e) => setDueDate(e.target.value)}
+//         />
 
-        <div className="modal-action">
-          <button className="btn btn-ghost" onClick={onClose}>
-            Cancel
-          </button>
-          <button
-            className="btn btn-primary"
-            disabled={!title || !assignee || !dueDate}
-            onClick={() =>
-              onCreate({
-                id: crypto.randomUUID(),
-                title,
-                assignee,
-                dueDate,
-                status: "pending",
-              })
-            }
-          >
-            Create
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+//         <div className="modal-action">
+//           <button className="btn btn-ghost" onClick={onClose}>
+//             Cancel
+//           </button>
+//           <button
+//             className="btn btn-primary"
+//             disabled={!title || !assignee || !dueDate}
+//             onClick={() =>
+//               onCreate({
+//                 id: crypto.randomUUID(),
+//                 title,
+//                 assignee,
+//                 dueDate,
+//                 status: "pending",
+//               })
+//             }
+//           >
+//             Create
+//           </button>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 /* ================= TASK DRAWER ================= */
 
@@ -185,6 +176,16 @@ export default function ProjectTasks() {
     setSelectedTask(null);
   };
 
+ 
+  /* ---------- Pagination ---------- */
+  const {
+    page,
+    setPage,
+    totalPages,
+    paginatedData,
+  } = usePagination(tasks, 5);
+  
+
   return (
     <>
       {/* TASK LIST */}
@@ -216,7 +217,7 @@ export default function ProjectTasks() {
           </thead>
 
           <tbody>
-            {tasks.map((task) => (
+               {paginatedData.map((task) => (
               <tr
                 key={task.id}
                 className="text-base-content hover:bg-base-200 cursor-pointer"
@@ -225,7 +226,7 @@ export default function ProjectTasks() {
                 <td>{task.title}</td>
                 <td>{task.assignee}</td>
 
-                {/* STATUS */}
+                {/* STATUS  */}
                 <td onClick={(e) => e.stopPropagation()}>
                   {canEdit ? (
                     // <select
@@ -264,7 +265,7 @@ export default function ProjectTasks() {
 
                 <td>{task.dueDate}</td>
 
-                {/* ACTION */}
+                {/*  ACTION  */}
                 <td
                   className="text-right"
                   onClick={(e) => e.stopPropagation()}
@@ -279,9 +280,18 @@ export default function ProjectTasks() {
                   )}
                 </td>
               </tr>
-            ))}
+            ))} 
           </tbody>
         </table>
+
+        
+                      <div className="flex justify-end mt-4 ">
+                        <Pagination
+                          page={page}
+                          totalPages={totalPages}
+                          onChange={setPage}
+                        />
+                      </div>
       </div>
 
       {/* NEW TASK */}

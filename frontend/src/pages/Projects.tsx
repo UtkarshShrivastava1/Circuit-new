@@ -61,8 +61,9 @@ export default function Projects() {
         <div className="space-y-4">
           <ProjectFilters value={filter} onChange={setFilter} />
           <ProjectGrid
-            projects={filteredProjects}
-            onOpen={(project) => setSelectedProject(project)}
+               projects={filteredProjects} // ✅ FIX
+            onOpen={(project) =>
+              setSelectedProject(project)}
           />
         </div>
       )}

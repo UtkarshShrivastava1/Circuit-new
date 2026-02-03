@@ -1,10 +1,48 @@
-import type { InputHTMLAttributes } from "react";
+import type { InputHTMLAttributes, ReactNode } from "react";
+import clsx from "clsx";
+import { fieldSizeClasses } from "./sizes";
+import type { FieldSize } from "./sizes";
 
-export default function Input(props: InputHTMLAttributes<HTMLInputElement>) {
+
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  iconLeft?: ReactNode;
+  iconRight?: ReactNode;
+  size?: FieldSize;
+}
+
+export default function Input({
+  iconLeft,
+  iconRight,
+  size = "md",
+  className,
+  ...props
+}: InputProps) {
   return (
-    <input
-      {...props}
-      className="input input-bordered w-full"
-    />
+    <div className="relative w-full">
+      {iconLeft && (
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 
+          text-base-content/60 pointer-events-none">
+          {iconLeft}
+        </span>
+      )}
+
+      <input
+        {...props}
+        className={clsx(
+          "input input-bordered w-full",
+          fieldSizeClasses[size],
+          iconLeft && "pl-10",
+          iconRight && "pr-10",
+          className
+        )}
+      />
+
+      {iconRight && (
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 
+          text-base-content/60">
+          {iconRight}
+        </span>
+      )}
+    </div>
   );
 }
