@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 interface TableProps {
-  headers: string[];
-  children: ReactNode;
+  headers: ReactNode[];
+  children: ReactNode; 
 }
 
 export default function Table({ headers, children }: TableProps) {
@@ -11,8 +11,8 @@ export default function Table({ headers, children }: TableProps) {
       <table className="table table-zebra w-full">
         <thead>
           <tr>
-            {headers.map((h) => (
-              <th key={h}>{h}</th>
+            {headers.map((h,i) => (
+                <th key={i}>{h}</th> 
             ))}
           </tr>
         </thead>

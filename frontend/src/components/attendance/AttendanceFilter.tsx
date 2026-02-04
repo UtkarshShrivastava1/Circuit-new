@@ -22,7 +22,7 @@ export default function AttendanceFilters({
   isAdmin = false,
 }: Props) {
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-end">
+    <div className="hidden md:flex bg-base-100 border border-base-300 rounded-lg p-4  flex-col md:flex-row gap-4 items-end">
       {/* Name search (Admin only) */}
       {isAdmin && (
         <div className="flex flex-col gap-1 w-full md:w-1/3">
