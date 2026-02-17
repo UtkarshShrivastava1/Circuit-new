@@ -1,15 +1,33 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
 import PageContainer from "./components/layout/PageContainer";
 import Dashboard from "./pages/Dashboard";
 import Attendance from "./pages/Attendance";
 import Projects from "./pages/Projects";
 import ProjectWorkspace from "./pages/ProjectWorkspace";
+import Members from "./pages/Members";
+import MemberDetails from "./pages/MemberDetails";
+import AdminProfile from "./pages/AdminProfile";
+import AddMember from "./pages/AddMember";
+import {CreateProject} from "./pages/CreateProject";
+import Login from "./pages/Login";
 
-export default function App() {
+function LayoutWrapper() {
   return (
     <AppLayout>
-      <Routes>
+      <Outlet />
+    </AppLayout>
+  );
+}
+export default function App() {
+  return (
+    <Routes>
+
+      {/*Public Route (NO Layout) */}
+      <Route path="/login" element={<Login />} />
+
+      <Route element={<LayoutWrapper />}>
+
         <Route
           path="/dashboard"
           element={
@@ -21,6 +39,7 @@ export default function App() {
             </PageContainer>
           }
         />
+
         <Route
           path="/attendance"
           element={
@@ -35,6 +54,7 @@ export default function App() {
             </PageContainer>
           }
         />
+
         <Route
           path="/projects"
           element={
@@ -47,8 +67,59 @@ export default function App() {
           }
         />
 
+        <Route
+          path="/members"
+          element={
+            <PageContainer
+              title="Members"
+              subtitle="Manage your team members"
+            >
+              <Members />
+            </PageContainer>
+          }
+        />
+
+        <Route
+          path="/members/:id"
+          element={
+            <PageContainer>
+              <MemberDetails />
+            </PageContainer>
+          }
+        />
+
         <Route path="/projects/:id" element={<ProjectWorkspace />} />
-      </Routes>
-    </AppLayout>
+
+        <Route
+          path="/adminProfile/:id"
+          element={
+            <PageContainer>
+              <AdminProfile />
+            </PageContainer>
+          }
+        />
+
+        <Route
+          path="/addMember"
+          element={
+            <PageContainer>
+              <AddMember />
+            </PageContainer>
+          }
+        />
+
+        <Route
+          path="/createProject"
+          element={
+            <PageContainer>
+              <CreateProject />
+            </PageContainer>
+          }
+        />
+
+      </Route>
+
+    </Routes>
   );
 }
+

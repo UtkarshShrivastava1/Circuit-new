@@ -8,6 +8,7 @@ import {
   MdTask,
   MdChevronLeft,
 } from "react-icons/md";
+import { FolderKanban, UserPlus, UserPlus2 } from "lucide-react";
 
 type MenuItem = {
   id: string;
@@ -50,6 +51,18 @@ const managementMenu: MenuItem[] = [
     path: "/tasks",
     icon: <MdTask size={20} />,
   },
+  {
+    id:"addMember",
+    label:"Add Member",
+    path:"/addMember",
+    icon:<UserPlus size={20}/>
+  },
+  {
+    id:"createProject",
+    label:"Create Project",
+    path:"/createProject",
+    icon:<FolderKanban size={20}/>
+  }
 ];
 
 export default function ERPSidebar() {

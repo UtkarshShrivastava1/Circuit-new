@@ -1,14 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
-
+ const navigate=useNavigate();
   const isDark = theme === "dark";
 
   const toggleTheme = () => {
     setTheme(isDark ? "corporate" : "dark");
   };
-
+  const handleLogout=()=>{
+    navigate("/login");
+  }
   return (
     <header className="navbar bg-base-100 border-b border-base-300 px-4">
       {/* LEFT: Logo */}
@@ -102,13 +105,15 @@ export default function Header() {
             <li className="menu-title">
               <span>Admin</span>
             </li>
-            <li>
+            <li onClick={()=>navigate("/adminProfile/1")}>
               <a>Profile</a>
             </li>
             <li>
               <a>Settings</a>
             </li>
-            <li>
+            <li onClick={()=>{
+              handleLogout()
+            }}>
               <a className="text-error">Logout</a>
             </li>
           </ul>
