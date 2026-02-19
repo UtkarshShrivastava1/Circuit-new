@@ -40,32 +40,35 @@ const CreateProjectForm: React.FC<Props> = ({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-[#0f172a] rounded-xl text-white p-6 space-y-4 text-sm"
-    >
+  <form
+  onSubmit={handleSubmit}
+  className="bg-gray-50 rounded-2xl p-6 space-y-6 border border-gray-200 text-gray-700"
+>
+
       {/* Project Name */}
       <div>
-        <label className="block mb-1 text-gray-300">Project Name</label>
+        <label className="block mb-1 text-gray-500">Project Name</label>
         <input
           required
           type="text"
           name="projectName"
           value={projectData.projectName}
           onChange={handleChange}
-          className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10 outline-none focus:border-white/30"
+         className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
         />
       </div>
 
       {/* Project State */}
       <div>
-        <label className="block mb-1 text-gray-300">Project State</label>
+        <label className="block mb-1 text-gray-500">Project State</label>
         <select
           required
           name="projectState"
           value={projectData.projectState}
           onChange={handleChange}
-          className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10"
+         className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
         >
           <option value="ongoing">Ongoing</option>
           <option value="completed">Completed</option>
@@ -76,39 +79,42 @@ const CreateProjectForm: React.FC<Props> = ({
       {/* Dates */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 text-gray-300">Start Date</label>
+          <label className="block mb-1 text-gray-500">Start Date</label>
           <input
             required
             type="date"
             name="startDate"
             value={projectData.startDate}
             onChange={handleChange}
-            className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10"
+           className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
           />
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-300">End Date</label>
+          <label className="block mb-1 text-gray-500">End Date</label>
           <input
             required
             type="date"
             name="endDate"
             value={projectData.endDate}
             onChange={handleChange}
-            className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10"
+           className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
           />
         </div>
       </div>
 
       {/* Domain */}
       <div>
-        <label className="block mb-1 text-gray-300">Project Domain</label>
+        <label className="block mb-1 text-gray-500">Project Domain</label>
         <select
           required
           name="domain"
           value={projectData.domain}
           onChange={handleChange}
-          className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10"
+         className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
         >
           <option value="">Select Domain</option>
           <option value="web">Web Development</option>
@@ -126,24 +132,26 @@ const CreateProjectForm: React.FC<Props> = ({
 
       {/* Description */}
       <div>
-        <label className="block mb-1 text-gray-300">Description</label>
+        <label className="block mb-1 text-gray-500">Description</label>
         <textarea
           required
           name="description"
           value={projectData.description}
           onChange={handleChange}
           rows={3}
-          className="w-full p-2 rounded-md bg-[#1e293b] border border-white/10"
+        className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+
         />
       </div>
 
       {/* Submit */}
       <button
-        type="submit"
-        className="w-full font-semibold bg-white text-black py-2 rounded-md hover:opacity-90 transition"
-      >
-        Add Participants
-      </button>
+  type="submit"
+  className="w-full font-semibold bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition shadow-sm"
+>
+  Add Participants
+</button>
+
     </form>
   );
 };

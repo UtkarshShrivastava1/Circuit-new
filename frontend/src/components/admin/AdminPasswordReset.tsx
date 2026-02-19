@@ -1,51 +1,6 @@
-// import React, { useState } from "react";
-
-// interface AdminPasswordProps {
-//   id: string;
-// }
-
-// const AdminPasswordReset = ({ id }: AdminPasswordProps) => {
-//   const [password, setPassword] = useState("");
-
-//   const handleReset = async () => {
-//     console.log("Resetting password for admin:", id);
-//     console.log("New password:", password);
-
-//     // later API call here
-    
-//   };
-
-//   return (
-//     <div className="bg-base-200 border border-base-300 rounded-xl p-4 w-72 flex flex-col items-center">
-      
-//       <h3 className="text-md font-semibold text-center mb-3">
-//         Reset Your Password
-//       </h3>
-
-//       <input
-//         type="password"
-//         placeholder="Enter new password"
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//         className="w-full px-2 py-3 text-sm rounded-md bg-base-300 outline-none mb-3"
-
-//       />
-      
-//       <button
-//         onClick={handleReset}
-//         className=" bg-blue-600 hover:bg-blue-500 text-white text-md px-6 py-1 rounded-md transition cursor-pointer"
-//       >
-//         Reset
-//       </button>
-
-//     </div>
-//   );
-// };
-
-// export default AdminPasswordReset;
 
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 interface AdminPasswordProps {
   id: string;

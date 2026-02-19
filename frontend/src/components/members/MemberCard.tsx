@@ -4,18 +4,19 @@ import { useNavigate } from "react-router";
 type MemberCardProps = {
   member: Member;
   isAdmin?: boolean;
+   onDelete?: (id: string) => void;
 };
 
 
 
 
-const MemberCard = ({ member, isAdmin }: MemberCardProps) => {
+const MemberCard = ({ member, isAdmin,onDelete }: MemberCardProps) => {
   const navigate = useNavigate();
   return (
     <div className="relative bg-white rounded-xl shadow-md border border-gray-100 w-full overflow-hidden">
 
       {/* Header */}
-      <div className="relative h-20 bg-gradient-to-r from-sky-700 to-indigo-500">
+      <div className="relative h-20 bg-blue-400">
         <span
           className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium
             ${
@@ -31,7 +32,8 @@ const MemberCard = ({ member, isAdmin }: MemberCardProps) => {
         <div className="absolute -bottom-8 left-5">
           <div className="relative">
             <img
-              src={member.imgUrl || "/avatar.png"}
+             src={member.imgUrl?.trim() ? member.imgUrl : "/user1.png"}
+
               className="w-16 h-16 rounded-full border-4 border-white object-cover bg-white"
             />
             <span
@@ -76,7 +78,7 @@ const MemberCard = ({ member, isAdmin }: MemberCardProps) => {
             <button onClick={()=>navigate(`/members/${member.id}`)} className="cursor-pointer px-4 py-2 text-sm bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition">
               Manage
             </button>
-            <button className="cursor-pointer px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+            <button  onClick={() => onDelete?.(member.id)} className="cursor-pointer px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
               Delete
             </button>
           </div>

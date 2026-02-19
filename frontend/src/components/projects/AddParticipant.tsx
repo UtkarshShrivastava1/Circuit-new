@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { MdDelete } from "react-icons/md";
 
 interface User {
   id: string;
@@ -84,7 +85,8 @@ setParticipants([...participants, form]);
   };
 
   return (
-    <div className="bg-[#0f172a] text-white p-6 rounded-xl space-y-4 text-sm">
+   <div className="bg-gray-50 p-6 rounded-2xl space-y-6 border border-gray-200">
+
       <h2 className="text-xl font-semibold mb-4">Add Participant</h2>
 
       {/* User Dropdown */}
@@ -92,7 +94,8 @@ setParticipants([...participants, form]);
         name="userId"
         value={form.userId}
         onChange={handleChange}
-        className="w-full p-2 mb-3 rounded bg-[#1e293b] outline-none"
+        className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
+
       >
         <option value="">Select User</option>
         {users.map((user) => (
@@ -107,7 +110,8 @@ setParticipants([...participants, form]);
         name="role"
         value={form.role}
         onChange={handleChange}
-        className="w-full p-2 mb-3 rounded bg-[#1e293b] outline-none"
+      className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
+
       >
         <option value="">Select Role</option>
         <option value="Member">Project Member</option>
@@ -119,7 +123,8 @@ setParticipants([...participants, form]);
         name="responsibility"
         value={form.responsibility}
         onChange={handleChange}
-        className="w-full p-2 mb-3 rounded bg-[#1e293b] outline-none"
+       className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
+
       >
         <option value="">Select Responsibility</option>
         <option value="Development">Development</option>
@@ -138,12 +143,13 @@ setParticipants([...participants, form]);
       
      
       {/* Add Button */}
-      <button
-        onClick={handleAdd}
-        className="w-full font-semibold bg-white text-black py-2 rounded hover:opacity-90 transition"
-      >
-        Add Participant
-      </button>
+     <button
+  onClick={handleAdd}
+  className="w-full font-semibold bg-gray-800 text-white py-3 rounded-xl hover:bg-black transition"
+>
+  Add Participant
+</button>
+
 
       {/* Participants List */}
     {/* Participants Section */}
@@ -156,10 +162,11 @@ setParticipants([...participants, form]);
     </p>
   ) : (
     participants.map((p: Participant, index: number) => (
-      <div
-        key={index}
-        className="bg-[#1e293b] p-3 rounded flex justify-between items-start"
-      >
+     <div
+  key={index}
+  className="bg-white border border-gray-200 p-4 rounded-2xl flex justify-between items-start shadow-sm"
+>
+
         <div>
           <p className="font-medium">
             {getUserName(p.userId)}
@@ -174,20 +181,19 @@ setParticipants([...participants, form]);
 
         <button
           onClick={() => handleDelete(index)}
-          className="text-red-400 text-sm"
+          className="text-red-400 text-sm cursor-pointer"
         >
-          Delete
+         <MdDelete size={18}/>
         </button>
       </div>
     ))
   )}
 </div>
 
-
 <button
   onClick={handleCreate}
   disabled={creating}
-  className="w-full cursor-pointer font-semibold mt-6 bg-white text-black py-2 rounded disabled:opacity-60"
+  className="w-full font-semibold mt-6 bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition shadow-sm disabled:opacity-60"
 >
   {creating ? "Creating Project..." : "Create Project"}
 </button>

@@ -1,4 +1,7 @@
-import { Routes, Route, Outlet } from "react-router-dom";
+import { Routes, Route, Outlet ,Navigate} from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import AppLayout from "./components/layout/AppLayout";
 import PageContainer from "./components/layout/PageContainer";
 import Dashboard from "./pages/Dashboard";
@@ -20,8 +23,9 @@ function LayoutWrapper() {
   );
 }
 export default function App() {
-  return (
+  return (<>
     <Routes>
+       <Route path="/" element={<Navigate to="/login" replace />} />
 
       {/*Public Route (NO Layout) */}
       <Route path="/login" element={<Login />} />
@@ -118,8 +122,10 @@ export default function App() {
         />
 
       </Route>
-
+      
     </Routes>
+      <ToastContainer />
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 type UserRole = "member" | "manager" | "admin";
 
@@ -87,6 +88,7 @@ const AddMember = () => {
 
     
       console.log("Form Submitted:", formData);
+      toast.success("Member Added Successfully");
       setFormData({
         name: "",
         email: "",
@@ -108,69 +110,273 @@ const AddMember = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen  flex items-center justify-center p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white w-full max-w-3xl p-6 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6"
-      >
-        <h2 className="col-span-full text-2xl font-semibold text-center">
-          Add Member
-        </h2>
+  // return (
+  //   <div className="min-h-screen  flex items-center justify-center p-4">
+  //     <form
+  //       onSubmit={handleSubmit}
+  //       className="bg-white w-full max-w-3xl p-6 rounded-xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6"
+  //     >
+  //       <h2 className="col-span-full text-2xl font-semibold text-center">
+  //         Add Member
+  //       </h2>
 
-        {/* Name */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Full Name *</label>
+  //       {/* Name */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Full Name *</label>
+  //         <input
+  //           type="text"
+  //           name="name"
+  //           value={formData.name}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //         {errors.name && (
+  //           <span className="text-red-500 text-sm">{errors.name}</span>
+  //         )}
+  //       </div>
+
+  //       {/* Email */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Email *</label>
+  //         <input
+  //           type="email"
+  //           name="email"
+  //           value={formData.email}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //         {errors.email && (
+  //           <span className="text-red-500 text-sm">{errors.email}</span>
+  //         )}
+  //       </div>
+
+  //       {/* Password */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Password *</label>
+  //         <input
+  //           type="password"
+  //           name="password"
+  //           value={formData.password}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //         {errors.password && (
+  //           <span className="text-red-500 text-sm">{errors.password}</span>
+  //         )}
+  //       </div>
+
+  //       {/* Role */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Role</label>
+  //         <select
+  //           name="role"
+  //           value={formData.role}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         >
+  //           <option value="member">Member</option>
+  //           <option value="manager">Manager</option>
+  //           <option value="admin">Admin</option>
+  //         </select>
+  //       </div>
+
+  //       {/* DOB */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Date of Birth</label>
+  //         <input
+  //           type="date"
+  //           name="dateOfBirth"
+  //           value={formData.dateOfBirth}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //       </div>
+
+  //       {/* Phone */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Phone</label>
+  //         <input
+  //           maxLength={10}
+  //           type="text"
+  //           name="phone"
+  //           value={formData.phone}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //         {errors.phone && (
+  //           <span className="text-red-500 text-sm">{errors.phone}</span>
+  //         )}
+  //       </div>
+
+  //       {/* Gender */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Gender</label>
+  //         <select
+  //           name="gender"
+  //           value={formData.gender}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         >
+  //           <option value="">Select</option>
+  //           <option value="female">Female</option>
+  //           <option value="male">Male</option>
+  //           <option value="other">Other</option>
+  //         </select>
+  //       </div>
+
+  //       {/* Status */}
+  //       <div className="flex flex-col">
+  //         <label className="font-medium mb-1">Status</label>
+  //         <select
+  //           name="status"
+  //           value={formData.status}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         >
+  //           <option value="active">Active</option>
+  //           <option value="inactive">Inactive</option>
+  //         </select>
+  //       </div>
+
+  //       {/* Address */}
+  //       <div className="flex flex-col md:col-span-2">
+  //         <label className="font-medium mb-1">Address</label>
+  //         <textarea
+  //           name="address"
+  //           value={formData.address}
+  //           onChange={handleChange}
+  //           className="border p-2 rounded"
+  //         />
+  //       </div>
+
+   
+  //       {/* Image Upload */}
+  //       <div className="flex flex-col md:col-span-2">
+  //         <label className="font-medium mb-2">Profile Image</label>
+
+  //         <input
+  //           type="file"
+  //           accept="image/*"
+  //           onChange={handleImageChange}
+  //           className="hidden"
+  //           id="imageUpload"
+  //         />
+
+  //         <label
+  //           htmlFor="imageUpload"
+  //           className="cursor-pointer border-2 border-dashed border-gray-300 
+  //   p-6 rounded-lg text-center hover:border-blue-500 transition"
+  //         >
+  //           <p className="text-gray-600">
+  //             {image ? "Change Image" : "Click to Upload Image"}
+  //           </p>
+         
+  //         </label>
+
+  //         {preview && (
+  //           <img
+  //             src={preview}
+  //             alt="Preview"
+  //             className="mt-4 w-32 h-32 object-cover rounded-lg border"
+  //           />
+  //         )}
+  //       </div>
+
+  //       <button
+  //         type="submit"
+  //         disabled={adding}
+  //         className="col-span-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  //       >
+  //         {adding ? "Adding..." : "Add Member"}
+  //       </button>
+  //     </form>
+  //   </div>
+  // );
+
+return (
+  <div className="min-h-screen  flex items-center justify-center p-6">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white w-full max-w-4xl p-8 rounded-2xl shadow-md border border-gray-200 space-y-8"
+    >
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-800">
+          Add New Member
+        </h2>
+        <p className="text-sm text-gray-500 mt-1">
+          Fill in the member details below
+        </p>
+      </div>
+
+      {/* Grid */}
+      <div className="grid md:grid-cols-2 gap-6">
+
+        {/* Full Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Full Name *
+          </label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
           {errors.name && (
-            <span className="text-red-500 text-sm">{errors.name}</span>
+            <p className="text-red-500 text-sm mt-1">{errors.name}</p>
           )}
         </div>
 
         {/* Email */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Email *</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Email *
+          </label>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
           {errors.email && (
-            <span className="text-red-500 text-sm">{errors.email}</span>
+            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
           )}
         </div>
 
         {/* Password */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Password *</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Password *
+          </label>
           <input
             type="password"
             name="password"
             value={formData.password}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
           {errors.password && (
-            <span className="text-red-500 text-sm">{errors.password}</span>
+            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}
         </div>
 
         {/* Role */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Role</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Role
+          </label>
           <select
             name="role"
             value={formData.role}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="member">Member</option>
             <option value="manager">Manager</option>
@@ -179,41 +385,50 @@ const AddMember = () => {
         </div>
 
         {/* DOB */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Date of Birth</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Date of Birth
+          </label>
           <input
             type="date"
             name="dateOfBirth"
             value={formData.dateOfBirth}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
         </div>
 
         {/* Phone */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Phone</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Phone
+          </label>
           <input
             maxLength={10}
             type="text"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
           {errors.phone && (
-            <span className="text-red-500 text-sm">{errors.phone}</span>
+            <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
           )}
         </div>
 
         {/* Gender */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Gender</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Gender
+          </label>
           <select
             name="gender"
             value={formData.gender}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="">Select</option>
             <option value="female">Female</option>
@@ -223,73 +438,88 @@ const AddMember = () => {
         </div>
 
         {/* Status */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1">Status</label>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Status
+          </label>
           <select
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="border p-2 rounded"
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           >
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
 
-        {/* Address */}
-        <div className="flex flex-col md:col-span-2">
-          <label className="font-medium mb-1">Address</label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="border p-2 rounded"
+      </div>
+
+      {/* Address */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Address
+        </label>
+        <textarea
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          rows={3}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
+          focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition resize-none"
+        />
+      </div>
+
+      {/* Image Upload */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Profile Image
+        </label>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="hidden"
+          id="imageUpload"
+        />
+
+        <label
+          htmlFor="imageUpload"
+          className="flex items-center justify-center border-2 border-dashed 
+          border-gray-300 rounded-xl p-8 text-gray-500 cursor-pointer 
+          hover:border-indigo-500 hover:text-indigo-600 transition"
+        >
+          {image ? "Change Image" : "Click to Upload Image"}
+        </label>
+
+        {preview && (
+          <img
+            src={preview}
+            alt="Preview"
+            className="mt-4 w-32 h-32 object-cover rounded-xl border border-gray-300"
           />
-        </div>
+        )}
+      </div>
 
-   
-        {/* Image Upload */}
-        <div className="flex flex-col md:col-span-2">
-          <label className="font-medium mb-2">Profile Image</label>
-
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="hidden"
-            id="imageUpload"
-          />
-
-          <label
-            htmlFor="imageUpload"
-            className="cursor-pointer border-2 border-dashed border-gray-300 
-    p-6 rounded-lg text-center hover:border-blue-500 transition"
-          >
-            <p className="text-gray-600">
-              {image ? "Change Image" : "Click to Upload Image"}
-            </p>
-         
-          </label>
-
-          {preview && (
-            <img
-              src={preview}
-              alt="Preview"
-              className="mt-4 w-32 h-32 object-cover rounded-lg border"
-            />
-          )}
-        </div>
-
+      {/* Submit Button */}
+      <div className="flex justify-end">
         <button
           type="submit"
           disabled={adding}
-          className="col-span-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 rounded-xl bg-indigo-600 text-white font-medium
+          hover:bg-indigo-700 transition shadow-sm
+          disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {adding ? "Adding..." : "Add Member"}
         </button>
-      </form>
-    </div>
-  );
+      </div>
+    </form>
+  </div>
+);
+
+
 };
 
 export default AddMember;
