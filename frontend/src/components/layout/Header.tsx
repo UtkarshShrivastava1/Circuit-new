@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 import { MdNotifications ,MdMenu } from "react-icons/md";
 import type { Notification } from "@/type/notification";
@@ -13,6 +14,7 @@ export default function Header() {
 
   const currentUserId = "1"; // from auth later
 
+ const navigate=useNavigate();
   const isDark = theme === "dark";
 
   const toggleTheme = () => {
@@ -44,6 +46,9 @@ export default function Header() {
 
   
 
+  const handleLogout=()=>{
+    navigate("/login");
+  }
   return (
     <header className="navbar bg-base-100 border-b border-base-300 px-3 md:px-6">
 
@@ -185,6 +190,17 @@ export default function Header() {
             <li><a>Profile</a></li>
             <li><a>Settings</a></li>
             <li><a className="text-error">Logout</a></li>
+            <li onClick={()=>navigate("/adminProfile/1")}>
+              <a>Profile</a>
+            </li>
+            <li>
+              <a>Settings</a>
+            </li>
+            <li onClick={()=>{
+              handleLogout()
+            }}>
+              <a className="text-error">Logout</a>
+            </li>
           </ul>
         </div>
       </div>

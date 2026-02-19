@@ -13,6 +13,7 @@ import {
   MdReceiptLong,
   MdHistory,
 } from "react-icons/md";
+import { FolderKanban, UserPlus, UserPlus2 } from "lucide-react";
 
 type MenuItem = {
   id: string;
@@ -66,6 +67,17 @@ const managementMenu: MenuItem[] = [
     path: "/leaves",
     icon: <MdTask size={20} />,
   },
+   { id:"addMember",
+    label:"Add Member",
+    path:"/addMember",
+    icon:<UserPlus size={20}/>
+  },
+  {
+    id:"createProject",
+    label:"Create Project",
+    path:"/createProject",
+    icon:<FolderKanban size={20}/>
+  }
 ];
 
 const payrollSubMenu: MenuItem[] = [
