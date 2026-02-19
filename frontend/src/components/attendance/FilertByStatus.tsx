@@ -1,11 +1,14 @@
+
+import  Button  from "../ui/Button";
 type Status = "all" | "approved" | "pending" | "rejected";
+
 
 interface Props {
   value: Status;
   onChange: (value: Status) => void;
 }
 
-export function StatusPills({ value, onChange }: Props) {
+ function StatusPills({ value, onChange }: Props) {
   const items: { id: Status; label: string }[] = [
     { id: "all", label: "All" },
     { id: "approved", label: "Approved" },
@@ -16,19 +19,26 @@ export function StatusPills({ value, onChange }: Props) {
   return (
     <div className="flex gap-2 flex-wrap">
       {items.map((item) => (
-        <button
+        <Button
           key={item.id}
           onClick={() => onChange(item.id)}
-          className={`px-3 py-1.5 rounded-full text-sm border transition
-            ${
-              value === item.id
-                ? "bg-primary text-primary-content border-primary"
-                : "bg-base-100 border-base-300 hover:bg-base-200"
-            }`}
+          variant={value === item.id ? "primary" : "ghost"}
         >
           {item.label}
-        </button>
+        </Button>
       ))}
     </div>
   );
 }
+
+export default StatusPills;
+//                 ? "bg-primary text-primary-content border-primary"
+//                 : "bg-base-100 border-base-300 hover:bg-base-200"
+//             }`}
+//         >
+//           {item.label}
+//         </button>
+//       ))}
+//     </div>
+//   );
+// }

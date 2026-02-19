@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { useTheme } from "../../context/use-theme";
+import { MdNotifications ,MdMenu } from "react-icons/md";
+import type { Notification } from "@/type/notification";
+
+
+
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
+  const [notifications, setNotifications] =
+    useState<Notification[]>([]);
+
+  const currentUserId = "1"; // from auth later
 
   const isDark = theme === "dark";
 
@@ -9,85 +19,147 @@ export default function Header() {
     setTheme(isDark ? "corporate" : "dark");
   };
 
+  const visibleNotifications = notifications.filter(
+    (n) =>
+      n.targetUserIds.length === 0 ||
+      n.targetUserIds.includes(currentUserId)
+  );
+
+  const unreadCount = visibleNotifications.filter(
+    (n) => !n.readBy.includes(currentUserId)
+  ).length;
+
+  const markAsRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) =>
+        n.id === id
+          ? {
+              ...n,
+              readBy: [...n.readBy, currentUserId],
+            }
+          : n
+      )
+    );
+  };
+
+  
+
   return (
-    <header className="navbar bg-base-100 border-b border-base-300 px-4">
-      {/* LEFT: Logo */}
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary text-primary-content flex items-center justify-center font-bold">
-            C
-          </div>
-          <span className="text-lg font-semibold tracking-wide text-base-content">
-            Covalenz ERP
-          </span>
+    <header className="navbar bg-base-100 border-b border-base-300 px-3 md:px-6">
+
+      {/* ================= LEFT ================= */}
+      <div className="flex-1 flex items-center gap-2 min-w-0">
+        {/* Hamburger - Mobile Only */}
+{/* <button
+    onClick={() => {
+    const checkbox = document.getElementById("drawer") as HTMLInputElement;
+    if (checkbox) checkbox.checked = true;
+  }}
+  className="btn btn-ghost btn-circle lg:hidden"
+  
+>
+  <MdMenu size={22} />
+</button> */}
+
+<label
+  htmlFor="drawer"
+  className="btn btn-ghost btn-circle lg:hidden"
+>
+  <MdMenu size={22} />
+</label>
+
+
+        {/* Logo */}
+        <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold shrink-0">
+          C
         </div>
+
+        {/* Hide text on very small screens */}
+        <span className="hidden sm:block text-base md:text-lg font-semibold truncate">
+          Covalenz ERP
+        </span>
       </div>
 
-      {/* RIGHT: Actions */}
-      <div className="flex items-center gap-4">
-       {/* Theme Toggle */}
-<div className="flex items-center bg-base-200 rounded-full px-2 py-1">
-  <label className="toggle text-base-content cursor-pointer">
-    <input
-      type="checkbox"
-      checked={isDark}
-      onChange={toggleTheme}
-    />
+      {/* ================= RIGHT ================= */}
+      <div className="flex items-center gap-2 md:gap-4">
 
-    {/* Sun */}
-    <svg
-      aria-label="sun"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      className="h-4 w-4"
-    >
-      <g
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        strokeWidth="2"
-        fill="none"
-        stroke="currentColor"
-      >
-        <circle cx="12" cy="12" r="4" />
-        <path d="M12 2v2" />
-        <path d="M12 20v2" />
-        <path d="m4.93 4.93 1.41 1.41" />
-        <path d="m17.66 17.66 1.41 1.41" />
-        <path d="M2 12h2" />
-        <path d="M20 12h2" />
-        <path d="m6.34 17.66-1.41 1.41" />
-        <path d="m19.07 4.93-1.41 1.41" />
-      </g>
-    </svg>
+        {/* ========== NOTIFICATIONS ========== */}
+        <div className="dropdown dropdown-end">
+          <label
+            tabIndex={0}
+            className="btn btn-ghost btn-circle relative"
+          >
+            <MdNotifications size={20} />
 
-    {/* Moon */}
-    <svg
-      aria-label="moon"
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      className="h-4 w-4"
-    >
-      <g
-        strokeLinejoin="round"
-        strokeLinecap="round"
-        strokeWidth="2"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-      </g>
-    </svg>
-  </label>
-</div>
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 badge badge-error badge-xs">
+                {unreadCount}
+              </span>
+            )}
+          </label>
 
+          <div className="
+            dropdown-content 
+            mt-3 
+            w-[90vw] sm:w-80
+            bg-base-100 
+            shadow-xl 
+            rounded-xl 
+            border border-base-300 
+            p-3 
+            space-y-2 
+            max-h-96 
+            overflow-y-auto
+          ">
 
-        {/* Profile Dropdown */}
+            {visibleNotifications.length === 0 && (
+              <p className="text-xs text-base-content/60">
+                No notifications
+              </p>
+            )}
+
+            {visibleNotifications.map((n) => (
+              <div
+                key={n.id}
+                onClick={() => markAsRead(n.id)}
+                className={`p-3 rounded-lg border cursor-pointer transition
+                  ${
+                    n.readBy.includes(currentUserId)
+                      ? "bg-base-100"
+                      : "bg-base-200"
+                  }`}
+              >
+                <p className="text-sm font-semibold truncate">
+                  {n.title}
+                </p>
+                <p className="text-xs text-base-content/60 line-clamp-2">
+                  {n.message}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ========== THEME TOGGLE ========== */}
+        <div className="hidden sm:flex items-center bg-base-200 rounded-full px-2 py-1">
+          <label className="toggle text-base-content cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isDark}
+              onChange={toggleTheme}
+            />
+            <span className="hidden md:inline">🌞</span>
+            <span className="hidden md:inline">🌙</span>
+          </label>
+        </div>
+
+        {/* ========== PROFILE ========== */}
         <div className="dropdown dropdown-end">
           <label
             tabIndex={0}
             className="btn btn-ghost btn-circle avatar"
           >
-            <div className="w-9 rounded-full">
+            <div className="w-8 md:w-9 rounded-full">
               <img
                 src="https://i.pravatar.cc/100?img=12"
                 alt="User avatar"
@@ -97,20 +169,22 @@ export default function Header() {
 
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52 text-base-content"
+            className="
+              menu menu-sm 
+              dropdown-content 
+              mt-3 p-2 
+              shadow-lg 
+              bg-base-100 
+              rounded-xl 
+              w-48 md:w-52
+            "
           >
             <li className="menu-title">
               <span>Admin</span>
             </li>
-            <li>
-              <a>Profile</a>
-            </li>
-            <li>
-              <a>Settings</a>
-            </li>
-            <li>
-              <a className="text-error">Logout</a>
-            </li>
+            <li><a>Profile</a></li>
+            <li><a>Settings</a></li>
+            <li><a className="text-error">Logout</a></li>
           </ul>
         </div>
       </div>

@@ -155,3 +155,31 @@
   animation: spin 2s linear infinite;
 }
 
+/* LIGHT MODE */
+.neu {
+  background: var(--fallback-b1, oklch(var(--b1)));
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.12),
+    -6px -6px 12px rgba(255, 255, 255, 0.7);
+}
+
+/* Pressed */
+.neu-inset {
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.12),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+}
+
+/* DARK MODE */
+[data-theme="dark"] .neu {
+  box-shadow:
+    6px 6px 12px rgba(0, 0, 0, 0.5),
+    -6px -6px 12px rgba(255, 255, 255, 0.04);
+}
+
+[data-theme="dark"] .neu-inset {
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.6),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.05);
+}
+

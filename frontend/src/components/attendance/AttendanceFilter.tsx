@@ -40,7 +40,9 @@ export default function AttendanceFilters({
               })
             }
             placeholder=" Search by name"
-            className="input input-bordered w-full border border-b"
+            className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
+                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
+                focus:outline-none"
           />
         </div>
       )}
@@ -61,7 +63,9 @@ export default function AttendanceFilters({
               toDate,
             })
           }
-          className="input input-bordered w-full border border-b"
+          className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
+                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
+                focus:outline-none"
         />
       </div>
 
@@ -80,13 +84,16 @@ export default function AttendanceFilters({
               toDate: e.target.value,
             })
           }
-          className="input input-bordered w-full border border-b"
+          className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
+                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
+                focus:outline-none"
         />
       </div>
 
       {/* Clear */}
       <Button
-        className="btn btn-ghost border border-base-300  btn-md"
+        // className="btn btn-ghost border border-base-300      shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
+        //         focus:outline-none"
         onClick={() => onChange({})}
       >
         Reset
