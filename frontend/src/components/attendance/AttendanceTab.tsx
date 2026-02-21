@@ -1,3 +1,5 @@
+import {Clock ,NotepadText } from "lucide-react"
+
 type AttendanceTab = "records" | "mark";
 
 interface Props {
@@ -16,24 +18,9 @@ export default function AttendanceTabs({ value, onChange }: Props) {
         "
       >
         <button
-          onClick={() => onChange("records")}
-          className={`
-            px-4 py-2 rounded-lg text-sm font-medium
-            transition-all
-            ${
-              value === "records"
-                ? "bg-base-100 shadow text-primary"
-                : "text-base-content/70 hover:bg-base-100/60"
-            }
-          `}
-        >
-          📋 Records
-        </button>
-
-        <button
           onClick={() => onChange("mark")}
           className={`
-            px-4 py-2 rounded-lg text-sm font-medium
+           flex gap-2 px-4 py-2 rounded-lg text-sm font-medium
             transition-all
             ${
               value === "mark"
@@ -42,8 +29,25 @@ export default function AttendanceTabs({ value, onChange }: Props) {
             }
           `}
         >
-          🕒 Mark Attendance
+          <Clock/> Mark Attendance
         </button>
+
+        <button
+          onClick={() => onChange("records")}
+          className={`
+            flex gap-2 px-4 py-2 rounded-lg text-sm font-medium
+            transition-all
+            ${
+              value === "records"
+                ? "bg-base-100 shadow text-primary"
+                : "text-base-content/70 hover:bg-base-100/60"
+            }
+          `}
+        >
+          <NotepadText/> Records
+        </button>
+
+        
       </div>
     </div>
   );

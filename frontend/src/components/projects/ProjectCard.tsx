@@ -192,10 +192,7 @@ export default function ProjectCard({
       <div className="flex items-center justify-between mt-4 text-xs text-base-content/70">
         <span className="flex items-center gap-1" ><FaUser/> {project.teamCount} </span>
         <span className="flex items-center gap-1"><FaCalendarAlt/> {project.dueDate}</span>
-      <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-base-content/70 mb-4">
-        <span>👥 {project.teamCount} members</span>
-        <span>📅 {project.dueDate}</span>
-      </div>
+
 
       {/* ACTIONS */}
       <div className="flex flex-col sm:flex-row gap-3">

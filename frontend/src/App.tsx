@@ -1,45 +1,33 @@
-import { Routes, Route } from "react-router-dom";
-import React,{ useState  } from "react";
+import React, { Suspense } from "react";
+import { Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+/* ---------- Lazy Pages ---------- */
+
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
 const PageContainer = React.lazy(() => import("./components/layout/PageContainer"));
 
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Attendance = React.lazy(() => import("./pages/Attendance"));
-
 const Projects = React.lazy(() => import("./pages/Projects"));
 const ProjectWorkspace = React.lazy(() => import("./pages/ProjectWorkspace"));
-
 const TaskDashboard = React.lazy(() => import("./pages/Tasks"));
-
 const LeaveDashboard = React.lazy(() => import("./pages/LeaveDashboard"));
 
+const SalaryStructure = React.lazy(() => import("./pages/SalaryStructure"));
+const PayrollDashboard = React.lazy(() => import("./components/salary/PayrollDashboard"));
+const GeneratePaySlip = React.lazy(() => import("./components/salary/GeneratePaySlip"));
+const PayHistory = React.lazy(() => import("./components/salary/Payhistory"));
 
-// Salary 
-const SalaryStructureModal = React.lazy (() => import  ("./pages/SalaryStructure"));
-const PayrollDashboard = React.lazy (() => import  ("./components/salary/PayrollDashboard"));
-const GeneratePaySlip  = React.lazy (() => import  ("./components/salary/GeneratePaySlip"));
-const Payhistory = React.lazy (() => import  ("./components/salary/Payhistory"));
+const Members = React.lazy(() => import("./pages/Members"));
+const MemberDetails = React.lazy(() => import("./pages/MemberDetails"));
+const AdminProfile = React.lazy(() => import("./pages/AdminProfile"));
+const AddMember = React.lazy(() => import("./pages/AddMember"));
+const CreateProject = React.lazy(() => import("./pages/CreateProject"));
+const Login = React.lazy(() => import("./pages/Login"));
 
-// import AdminDashboard from "./pages/adminDashboard";
-export default function App() {
-  const [notifications, setNotifications] =
-  useState<Notification[]>([]);
-import { Routes, Route, Outlet ,Navigate} from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
-import AppLayout from "./components/layout/AppLayout";
-import PageContainer from "./components/layout/PageContainer";
-import Dashboard from "./pages/Dashboard";
-import Attendance from "./pages/Attendance";
-import Projects from "./pages/Projects";
-import ProjectWorkspace from "./pages/ProjectWorkspace";
-import Members from "./pages/Members";
-import MemberDetails from "./pages/MemberDetails";
-import AdminProfile from "./pages/AdminProfile";
-import AddMember from "./pages/AddMember";
-import {CreateProject} from "./pages/CreateProject";
-import Login from "./pages/Login";
+/* ---------- Layout Wrapper ---------- */
 
 function LayoutWrapper() {
   return (
@@ -48,180 +36,137 @@ function LayoutWrapper() {
     </AppLayout>
   );
 }
+
 export default function App() {
-  return (<>
-    <Routes>
-       <Route path="/" element={<Navigate to="/login" replace />} />
+  return (
+    <Suspense fallback={<div className="p-6">Loading...</div>}>
+      <Routes>
 
-      {/*Public Route (NO Layout) */}
-      <Route path="/login" element={<Login />} />
+        {/* Redirect root to login */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-      <Route element={<LayoutWrapper />}>
+        {/* Public Route */}
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/"
-          element={
-            <PageContainer
-              title="Dashboard"
-              subtitle="Overview of your organization"
-            >
-              <Dashboard />
-            </PageContainer>
-          }
-        />
+        {/* Protected Layout Routes */}
+        <Route element={<LayoutWrapper />}>
 
-        <Route
-          path="/attendance"
-          element={
-            <PageContainer
-              title="Attendance"
-              subtitle="Validate daily attendance"
-              action={
-                <button className="btn btn-primary btn-sm">Export</button>
-              }
-            >
-              <Attendance />
-            </PageContainer>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <PageContainer title="Dashboard" subtitle="Overview">
+                <Dashboard />
+              </PageContainer>
+            }
+          />
 
-        
-        <Route
-          path="/projects"
-          element={
-            <PageContainer
-              title="Projects"
-              subtitle="Track ongoing and completed projects"
-            >
-              <Projects />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="/tasks"
-          element={
-            <PageContainer
-              title="Tasks"
-              subtitle="Track ongoing and completed tasks"
-            >
-              <TaskDashboard />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="/leaves"
-          element={
-            <PageContainer
-              title="Leaves"
-              subtitle="Track ongoing and completed leaves"
-            >
-              <LeaveDashboard  />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="/payroll/salary-structure"
-          element={
-            <PageContainer
-              title="Salary Structure"
-              subtitle="Manage salary structures"
-            >
-              <SalaryStructureModal />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="/payroll/dashboard"
-          element={
-            <PageContainer
-              title="Payroll Dashboard"
-              subtitle="Track ongoing and completed payroll activities"
-            >
-              <PayrollDashboard  />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="payroll/generate"
-          element={
-            <PageContainer
-              title="Generate Pay Slip"
-              subtitle="Pay Slip"
-            >
-              <GeneratePaySlip  />
-            </PageContainer>
-          }
-        />
-        <Route
-          path="payroll/history"
-          element={
-            <PageContainer
-              title=" Pay History"
-              subtitle="Monthly pays of the employee"
-            >
-              <Payhistory  />
-            </PageContainer>
-          }
-        />
+          <Route
+            path="/attendance"
+            element={
+              <PageContainer title="Attendance" subtitle="Daily validation">
+                <Attendance />
+              </PageContainer>
+            }
+          />
 
-        <Route
-          path="/members"
-          element={
-            <PageContainer
-              title="Members"
-              subtitle="Manage your team members"
-            >
-              <Members />
-            </PageContainer>
-          }
-        />
+          <Route
+            path="/projects"
+            element={
+              <PageContainer title="Projects">
+                <Projects />
+              </PageContainer>
+            }
+          />
 
-        <Route
-          path="/members/:id"
-          element={
+          <Route
+            path="/tasks"
+            element={
+              <PageContainer title="Tasks">
+                <TaskDashboard />
+              </PageContainer>
+            }
+          />
+
+          <Route
+            path="/leaves"
+            element={
+              <PageContainer title="Leaves">
+                <LeaveDashboard />
+              </PageContainer>
+            }
+          />
+
+          {/* Payroll */}
+          <Route
+            path="/payroll/dashboard"
+            element={
+              <PageContainer title="Payroll Dashboard">
+                <PayrollDashboard />
+              </PageContainer>
+            }
+          />
+
+          <Route
+            path="/payroll/salary-structure"
+            element={
+              <PageContainer title="Salary Structure">
+                <SalaryStructure />
+              </PageContainer>
+            }
+          />
+
+          <Route
+            path="/payroll/generate"
+            element={
+              <PageContainer title="Generate Pay Slip">
+                <GeneratePaySlip />
+              </PageContainer>
+            }
+          />
+
+          <Route
+            path="/payroll/history"
+            element={
+              <PageContainer title="Payroll History">
+                <PayHistory />
+              </PageContainer>
+            }
+          />
+
+          {/* Members */}
+          <Route
+            path="/members"
+            element={
+              <PageContainer title="Members">
+                <Members />
+              </PageContainer>
+            }
+          />
+
+          <Route
+            path="/members/:id"
+            element={
+              <PageContainer>
+                <MemberDetails />
+              </PageContainer>
+            }
+          />
+
+          <Route path="/projects/:id" element={<ProjectWorkspace />} />
+          <Route path="/adminProfile/:id" element={<AdminProfile />} />
+          <Route path="/addMember" element={<AddMember />} />
+          <Route path="/createProject" element={
             <PageContainer>
-              <MemberDetails />
-            </PageContainer>
-          }
-        />
+                <CreateProject />
+              </PageContainer>
+            
+            } />
 
-        <Route path="/projects/:id" element={<ProjectWorkspace />} />
-        {/* <Route path="/Dashboard" element={<AdminDashboard />} /> */}
+        </Route>
+
       </Routes>
-    </AppLayout>
 
-        <Route
-          path="/adminProfile/:id"
-          element={
-            <PageContainer>
-              <AdminProfile />
-            </PageContainer>
-          }
-        />
-
-        <Route
-          path="/addMember"
-          element={
-            <PageContainer>
-              <AddMember />
-            </PageContainer>
-          }
-        />
-
-        <Route
-          path="/createProject"
-          element={
-            <PageContainer>
-              <CreateProject />
-            </PageContainer>
-          }
-        />
-
-      </Route>
-      
-    </Routes>
       <ToastContainer />
-    </>
+    </Suspense>
   );
 }
-

@@ -5,9 +5,11 @@ import { MdNotifications ,MdMenu } from "react-icons/md";
 import type { Notification } from "@/type/notification";
 
 
+interface HeaderProps {
+  onMenuClick: () => void;
+}
 
-
-export default function Header() {
+export default function Header({ onMenuClick }: HeaderProps)  {
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] =
     useState<Notification[]>([]);
@@ -55,23 +57,23 @@ export default function Header() {
       {/* ================= LEFT ================= */}
       <div className="flex-1 flex items-center gap-2 min-w-0">
         {/* Hamburger - Mobile Only */}
-{/* <button
-    onClick={() => {
+<button
+  onClick={onMenuClick}
+  className="btn btn-ghost btn-circle lg:hidden"
+>
+  <MdMenu size={22} />
+</button>
+
+{/* <label
+  htmlFor="drawer"
+  className="btn btn-ghost btn-circle lg:hidden"
+   onClick={() => {
     const checkbox = document.getElementById("drawer") as HTMLInputElement;
     if (checkbox) checkbox.checked = true;
   }}
-  className="btn btn-ghost btn-circle lg:hidden"
-  
 >
   <MdMenu size={22} />
-</button> */}
-
-<label
-  htmlFor="drawer"
-  className="btn btn-ghost btn-circle lg:hidden"
->
-  <MdMenu size={22} />
-</label>
+</label> */}
 
 
         {/* Logo */}
@@ -187,9 +189,6 @@ export default function Header() {
             <li className="menu-title">
               <span>Admin</span>
             </li>
-            <li><a>Profile</a></li>
-            <li><a>Settings</a></li>
-            <li><a className="text-error">Logout</a></li>
             <li onClick={()=>navigate("/adminProfile/1")}>
               <a>Profile</a>
             </li>

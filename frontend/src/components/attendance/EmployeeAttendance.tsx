@@ -2,7 +2,7 @@ import React,{useState ,useMemo} from 'react'
 const EmptyState = React.lazy(()=> import("../ui/EmptyState")) 
 const  AttendanceFilters = React.lazy (()=> import('./AttendanceFilter') ) ;
 const StatusPills = React.lazy(()=> import("./FilertByStatus"));
-const AttendanceTable = React.lazy(()=> import("../attendance/AttendanceFilterDrawer"))
+const AttendanceTable = React.lazy(()=> import("../attendance/AttendanceTable"))
 const MarkAttendanceCard = React.lazy(()=> import("../attendance/MarkAttendanceCard"))
 const CenteredContainer =React.lazy(()=> import("@/components/ui/CenteredContainer"))
 const AttendanceTabs = React.lazy(()=> import("../attendance/AttendanceTab"))
@@ -22,7 +22,7 @@ const EmployeeAttendance = () => {
 
     const role: UserRole = "employee"; // change to "employee"
   
-    const [activeTab, setActiveTab] = useState<AttendanceTab>("records");
+    const [activeTab, setActiveTab] = useState<AttendanceTab>("mark");
      const [statusFilter, setStatusFilter] = useState<Status>("all");
   
       const [filters, setFilters] = useState<{
@@ -45,6 +45,8 @@ const EmployeeAttendance = () => {
              };
            },
          );
+
+         
   
          
          
@@ -81,29 +83,6 @@ const EmployeeAttendance = () => {
                 />
               ) : (
                 <>
-                  {/* TABS */}
-                  {/* <div className="mb-4">
-                    <div className="tabs tabs-boxed bg-base-200 inline-flex">
-                      <button
-                        className={`tab ${
-                          activeTab === "records" ? "tab-active" : ""
-                        }`}
-                        onClick={() => setActiveTab("records")}
-                      >
-                        📋 Records
-                      </button>
-    
-                      <button
-                        className={`tab ${
-                          activeTab === "mark" ? "tab-active" : ""
-                        }`}
-                        onClick={() => setActiveTab("mark")}
-                      >
-                        🕒 Mark Attendance
-                      </button>
-                    </div>
-                  </div> */}
-    
                   <AttendanceTabs
                       value={activeTab}
                       onChange={setActiveTab}
@@ -111,7 +90,16 @@ const EmployeeAttendance = () => {
     
     
                   {/* TAB CONTENT */}
-                  {activeTab === "records" && (
+                  { activeTab === "mark" && (
+                    <div className="min-h-[60vh] flex items-start justify-center pt-8">
+                      <CenteredContainer maxWidth="lg">
+                        <MarkAttendanceCard />
+                      </CenteredContainer>
+                    </div>
+                  )}
+    
+                  {
+                 activeTab === "records" && (
                     <>
                       {/* FILTER BAR */}
                       <div className="bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
@@ -130,7 +118,7 @@ const EmployeeAttendance = () => {
                       </div>
     
                       <div className="mt-4">
-                        <AttendanceTable records={paginatedData} role={role} />
+                        <AttendanceTable records={filteredRecords} role={role} />
                       </div>
     
                       <div className="flex justify-end mt-4">
@@ -141,14 +129,6 @@ const EmployeeAttendance = () => {
                         />
                       </div>
                     </>
-                  )}
-    
-                  {activeTab === "mark" && (
-                    <div className="min-h-[60vh] flex items-start justify-center pt-8">
-                      <CenteredContainer maxWidth="lg">
-                        <MarkAttendanceCard />
-                      </CenteredContainer>
-                    </div>
                   )}
                 </>
               )}

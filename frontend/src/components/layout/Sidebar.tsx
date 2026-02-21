@@ -67,21 +67,22 @@ const managementMenu: MenuItem[] = [
     path: "/leaves",
     icon: <MdTask size={20} />,
   },
-   { id:"addMember",
-    label:"Add Member",
-    path:"/addMember",
-    icon:<UserPlus size={20}/>
+  {
+    id: "addMember",
+    label: "Add Member",
+    path: "/addMember",
+    icon: <UserPlus size={20} />,
   },
   {
-    id:"createProject",
-    label:"Create Project",
-    path:"/createProject",
-    icon:<FolderKanban size={20}/>
-  }
+    id: "createProject",
+    label: "Create Project",
+    path: "/createProject",
+    icon: <FolderKanban size={20} />,
+  },
 ];
 
 const payrollSubMenu: MenuItem[] = [
-   {
+  {
     id: "payroll-dashboard",
     label: "Payroll Dashboard",
     path: "/payroll/dashboard",
@@ -107,10 +108,10 @@ const payrollSubMenu: MenuItem[] = [
   },
 ];
 
-export default function ERPSidebar({isOpen ,onClose} : Props) {
+export default function ERPSidebar({ isOpen, onClose }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [payrollOpen, setPayrollOpen] = useState(false);
-  
+
   const location = useLocation();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -125,7 +126,7 @@ export default function ERPSidebar({isOpen ,onClose} : Props) {
 
   return (
     <>
-     <div
+      <div
         onClick={onClose}
         className={`
           fixed inset-0 bg-black/40 z-40 lg:hidden
@@ -133,162 +134,167 @@ export default function ERPSidebar({isOpen ,onClose} : Props) {
           ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
         `}
       />
-    <aside
-  className={`
+      {/* <aside
+        className={`
     h-screen bg-base-200 border-r border-base-300 flex flex-col
     transition-all duration-300 ease-in-out
     ${collapsed ? "w-25" : "w-64"}
     ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
-  
+      > */}
+
+      <aside
+  className={`
+    fixed lg:static
+    z-50
+    h-screen bg-base-200 border-r border-base-300 flex flex-col
+    transition-all duration-300 ease-in-out
+    ${collapsed ? "w-20" : "w-64"}
+    ${isOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:translate-x-0
+  `}
 >
+        {/* HEADER */}
+        <div className="flex items-center gap-3 px-4 py-4 border-2 border-base-300">
+          <div
+            className={`w-9 p-1 h-9 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-lg transition-all duration-300 ease-in-out ${collapsed ? "w-9" : "w-12"}`}
+          >
+            CA
+          </div>
 
-      {/* HEADER */}
-      <div className="flex items-center gap-3 px-4 py-4 border-2 border-base-300">
-        <div className={`w-9 p-1 h-9 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-lg transition-all duration-300 ease-in-out ${collapsed ? "w-9" : "w-12"}`}>
-          CA
-        </div>
-
-        <div
-          className={`
+          <div
+            className={`
             flex-1 overflow-hidden transition-all duration-300 ease-in-out
             ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}
           `}
-        >
-          <p className="font-semibold text-base-content whitespace-nowrap">
-            Covalenz
-          </p>
-          <p className="text-xs text-base-content/60 whitespace-nowrap">
-            Office ERP
-          </p>
-        </div>
-
-
-        <button
-          className="btn btn-ghost btn-xs border-2 border-base-300 rounded-md p-1 hidden lg:block"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <MdChevronLeft
-            className={`transition-transform ${
-              collapsed ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* NAV */}
-      <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-6">
-        {/* CORE */}
-        <div>
-          {!collapsed && (
-            <p className="px-3 mb-2 text-xs font-semibold uppercase text-base-content/50">
-              Core
+          >
+            <p className="font-semibold text-base-content whitespace-nowrap">
+              Covalenz
             </p>
-          )}
-
-          <div className="space-y-1">
-            {coreMenu.map((item) => (
-              <NavLink key={item.id} to={item.path} className={linkClass}>
-                {item.icon}
-                {!collapsed && <span>{item.label}</span>}
-              </NavLink>
-            ))}
+            <p className="text-xs text-base-content/60 whitespace-nowrap">
+              Office ERP
+            </p>
           </div>
+
+          <button
+            className="btn btn-ghost btn-xs border-2 border-base-300 rounded-md p-1 hidden lg:block"
+            onClick={() => setCollapsed(!collapsed)}
+          >
+            <MdChevronLeft
+              className={`transition-transform ${
+                collapsed ? "rotate-180" : ""
+              }`}
+            />
+          </button>
         </div>
 
-        {/* MANAGEMENT */}
-        <div>
-          {!collapsed && (
-            <p className="px-3 mb-2 text-xs font-semibold uppercase text-base-content/50">
-              Management
-            </p>
-          )}
+        {/* NAV */}
+        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-6">
+          {/* CORE */}
+          <div>
+            {!collapsed && (
+              <p className="px-3 mb-2 text-xs font-semibold uppercase text-base-content/50">
+                Core
+              </p>
+            )}
 
-          <div className="space-y-1">
-            {managementMenu.map((item) => (
-              <NavLink key={item.id} to={item.path} className={linkClass}>
-                {item.icon}
-                {!collapsed && <span>{item.label}</span>}
-              </NavLink>
-            ))}
+            <div className="space-y-1">
+              {coreMenu.map((item) => (
+                <NavLink key={item.id} to={item.path} className={linkClass}>
+                  {item.icon}
+                  {!collapsed && <span>{item.label}</span>}
+                </NavLink>
+              ))}
+            </div>
+          </div>
 
-            {/* PAYROLL PARENT */}
-            <button
-              onClick={() => setPayrollOpen(!payrollOpen)}
-              className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
-                isPayrollActive
-                  ? "bg-base-300 font-semibold text-base-content"
-                  : "text-base-content/70 hover:bg-base-300"
-              }`}
-            >
-              <MdPayments size={20} />
-              {/* {!collapsed && (
+          {/* MANAGEMENT */}
+          <div>
+            {!collapsed && (
+              <p className="px-3 mb-2 text-xs font-semibold uppercase text-base-content/50">
+                Management
+              </p>
+            )}
+
+            <div className="space-y-1">
+              {managementMenu.map((item) => (
+                <NavLink key={item.id} to={item.path} className={linkClass}>
+                  {item.icon}
+                  {!collapsed && <span>{item.label}</span>}
+                </NavLink>
+              ))}
+
+              {/* PAYROLL PARENT */}
+              <button
+                onClick={() => setPayrollOpen(!payrollOpen)}
+                className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
+                  isPayrollActive
+                    ? "bg-base-300 font-semibold text-base-content"
+                    : "text-base-content/70 hover:bg-base-300"
+                }`}
+              >
+                <MdPayments size={20} />
+                {/* {!collapsed && (
                 <>
                   <span className="flex-1 text-left">Payroll</span>
                   {payrollOpen ? <MdExpandLess /> : <MdExpandMore />}
                 </>
               )} */}
-              {!collapsed && (
-  <>
-    <span className="flex-1 text-left">Payroll</span>
-    <MdExpandMore
-      className={`transition-transform duration-300 ${
-        payrollOpen ? "rotate-180" : ""
-      }`}
-    />
-  </>
-)}
+                {!collapsed && (
+                  <>
+                    <span className="flex-1 text-left">Payroll</span>
+                    <MdExpandMore
+                      className={`transition-transform duration-300 ${
+                        payrollOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </>
+                )}
+              </button>
 
-            </button>
-
-            {/* PAYROLL SUBMENU */}
-<div
-  className={`
+              {/* PAYROLL SUBMENU */}
+              <div
+                className={`
     overflow-hidden transition-all duration-300 ease-in-out
-    ${payrollOpen && !collapsed
-      ? "max-h-40 opacity-100 mt-1"
-      : "max-h-0 opacity-0"}
+    ${
+      payrollOpen && !collapsed
+        ? "max-h-40 opacity-100 mt-1"
+        : "max-h-0 opacity-0"
+    }
   `}
->
-  <div className="ml-8 space-y-1 pb-1">
-    {payrollSubMenu.map((item) => (
-      <NavLink
-        key={item.id}
-        to={item.path}
-        className={linkClass}
-      >
-        {item.icon}
-        <span>{item.label}</span>
-      </NavLink>
-    ))}
-  </div>
-</div>
-
-          </div>
-        </div>
-      </nav>
-
-      {/* FOOTER */}
-      <div className="border-t border-base-300 p-3">
-        <div className="flex items-center gap-3">
-          <div className="avatar placeholder">
-            <div className="bg-primary text-primary-content rounded-full w-9 flex items-center justify-center">
-              AK
+              >
+                <div className="ml-8 space-y-1 pb-1">
+                  {payrollSubMenu.map((item) => (
+                    <NavLink key={item.id} to={item.path} className={linkClass}>
+                      {item.icon}
+                      <span>{item.label}</span>
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+        </nav>
 
-          {!collapsed && (
-            <div>
-              <p className="text-sm font-semibold">Alex Kumar</p>
-              <p className="text-xs text-base-content/60">
-                Administrator
-              </p>
+        {/* FOOTER */}
+        <div className="border-t border-base-300 p-3">
+          <div className="flex items-center gap-3">
+            <div className="avatar placeholder">
+              <div className="bg-primary text-primary-content rounded-full w-9 flex items-center justify-center">
+                AK
+              </div>
             </div>
-          )}
+
+            {!collapsed && (
+              <div>
+                <p className="text-sm font-semibold">Alex Kumar</p>
+                <p className="text-xs text-base-content/60">Administrator</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
     </>
   );
 }

@@ -137,9 +137,9 @@ export default function TaskDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* ================= STATS ================= */}
-      <section className="grid grid-cols-2 md:grid-cols-5 gap-4">
+ <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           title="Total Tasks"
           value={tasks.length}
@@ -195,45 +195,47 @@ export default function TaskDashboard() {
       </section>
 
       {/* ================= FILTER + VIEW ================= */}
-      <section className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+      {/* <section className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between"> */}
+      <section className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <TaskFilters
           value={activeFilter}
           onChange={setActiveFilter}
         />
 
-        <div className="flex gap-2">
-            <Button
-        variant="primary"
-        onClick={() => setOpen(true)}
-      >
-        + New Task
-      </Button>
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+  <Button
+    variant="primary"
+    onClick={() => setOpen(true)}
+    className="flex-1 sm:flex-none"
+  >
+    + New Task
+  </Button>
 
+  <Button
+    size="sm"
+    variant={view === "table" ? "primary" : "outline"}
+    onClick={() => setView("table")}
+    className="flex-1 sm:flex-none"
+  >
+    <MdViewList size={18} className="mr-1" />
+    Table
+  </Button>
 
-          <Button
-            size="sm"
-            variant={view === "table" ? "primary" : "outline"}
-            onClick={() => setView("table")}
-          >
-            <MdViewList size={18} className="mr-1" />
-            Table
-          </Button>
-
-          <Button
-            size="sm"
-            variant={
-              view === "kanban" ? "primary" : "outline"
-            }
-            onClick={() => setView("kanban")}
-          >
-            <MdDashboard size={18} className="mr-1" />
-            Kanban
-          </Button>
-        </div>
+  <Button
+    size="sm"
+    variant={view === "kanban" ? "primary" : "outline"}
+    onClick={() => setView("kanban")}
+    className="flex-1 sm:flex-none"
+  >
+    <MdDashboard size={18} className="mr-1" />
+    Kanban
+  </Button>
+</div>
       </section>
 
       {/* ================= CONTENT ================= */}
-      <section className="bg-base-100 border border-base-300 rounded-xl p-4">
+      {/* <section className="bg-base-100 border border-base-300 rounded-xl p-4 overflow-x-scroll"> */}
+      <section className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-5">
         {view === "table" && (
           <>
             <TaskTable
@@ -242,8 +244,10 @@ export default function TaskDashboard() {
             />
 
             {totalPages > 1 && (
-              <div className="flex justify-end mt-4">
-                <div className="join">
+              // <div className="flex justify-end mt-4">
+              <div className="flex justify-center sm:justify-end mt-4">
+                {/* <div className="join"> */}
+                <div className="join w-full sm:w-auto">
                   <button
                     className="btn btn-sm join-item"
                     disabled={page === 1}
@@ -274,11 +278,14 @@ export default function TaskDashboard() {
         )}
 
         {view === "kanban" && (
-          <TaskKanban
-            tasks={filteredTasks}
-            setTasks={setTasks}
-            onTaskSelect={setSelectedTask}
-          />
+          <div className="overflow-x-auto">
+
+            <TaskKanban
+              tasks={filteredTasks}
+              setTasks={setTasks}
+              onTaskSelect={setSelectedTask}
+            />
+          </div>
         )}
       </section>
 

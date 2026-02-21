@@ -2,19 +2,17 @@
 // import EmptyState from "../components/ui/EmptyState";
 // import AttendanceTable from "../components/attendance/AttendanceTable";
 // import Pagination from "../components/ui/Pagination";
-import { usePagination } from "../hooks/usePagination";
+// import { usePagination } from "../hooks/usePagination";
 // import CenteredContainer from "@/components/ui/CenteredContainer";
 // import { StatusPills } from "@/components/attendance/FilertByStatus";
 
 import React from "react";
 
 import type {
-  AttendanceRecord,
-  AttendanceStatus,
   UserRole,
 } from "../type/attendance";
 // import MarkAttendanceCard from "@/components/attendance/MarkAttendanceCard";
-import { useState,useMemo } from "react";
+// import { useState,useMemo } from "react";
 // import AttendanceFilters from "@/components/attendance/AttendanceFilter";
 // import { useAttendanceFilters } from "@/components/attendance/UseAttendanceFilter";
 // import AttendanceFilterDrawer from "@/components/attendance/AttendanceFilterDrawer";

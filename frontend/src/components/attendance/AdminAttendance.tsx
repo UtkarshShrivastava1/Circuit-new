@@ -2,17 +2,19 @@ import React, { useState ,useMemo ,Suspense } from 'react'
 const  AttendanceFilters = React.lazy (()=> import('./AttendanceFilter') ) ;
 const EmptyState = React.lazy(()=> import("../ui/EmptyState"))
 const AttendanceSummaryCards = React.lazy(()=> import("../attendance/AttendanceSummaryCards"))
-const AttendanceFilterDrawer = React.lazy(()=> import("../attendance/AttendanceFilterDrawer"))
+// const AttendanceFilterDrawer = React.lazy(()=> import("../attendance/AttendanceFilterDrawer"))
+import AttendanceFilterDrawer from '../attendance/AttendanceFilterDrawer';
 
 const StatusPills = React.lazy(()=> import("./FilertByStatus"));
  import AttendanceMobileTopBar from "../attendance/AttendanceFilterDrawer"
- import AttendanceTable from "../attendance/AttendanceFilterDrawer";
+ import AttendanceTable from "../attendance/AttendanceTable";
 
 import useAttendanceFilters from "../attendance/UseAttendanceFilter";
 import  {usePagination}  from "../../hooks/usePagination";
 const Pagination = React.lazy(()=>import("../ui/Pagination"))
 import type { AttendanceRecord } from '@/type/attendance';
 import type { AttendanceStatus } from '@/type/attendance';
+import {Clock ,NotepadText } from "lucide-react"
 
 
 
@@ -69,8 +71,7 @@ const AdminAttendance = () => {
 
    const filteredRecords = useAttendanceFilters(records, filters, statusFilter);
 
-   const { page, setPage, totalPages, paginatedData } = usePagination(filteredRecords, 10,
-         );
+   const { page, setPage, totalPages, paginatedData } = usePagination(filteredRecords, 10);
 
   // return (
   //    <>
@@ -187,17 +188,17 @@ const AdminAttendance = () => {
         <div className="mb-4">
           <div className="tabs tabs-boxed bg-base-200 inline-flex">
             <button
-              className={`tab ${activeTab === "records" ? "tab-active" : ""}`}
+              className={`tab ${activeTab === "records" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("records")}
             >
-              📋 Records
+              <NotepadText/> Records
             </button>
 
             <button
-              className={`tab ${activeTab === "mark" ? "tab-active" : ""}`}
+              className={`tab ${activeTab === "mark" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("mark")}
             >
-              🕒 Attendance Summary
+              <Clock/> Attendance Summary
             </button>
           </div>
         </div>

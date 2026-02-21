@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import StatusBadge from "../ui/StatusBadge";
 import Button from "../ui/Button";
+import {
+  MdBusiness,
+  MdHomeWork,
+  MdAccessTime
+} from "react-icons/md";
 
 type AttendanceMode = "office" | "wfh" | "half-day";
 type AttendanceStatus = "not-marked" | "pending" | "approved";
@@ -81,9 +86,9 @@ export default function MarkAttendanceCard() {
 
         <div className="grid grid-cols-3 gap-3">
           {[
-            { id: "office", label: "Office", icon: "🏢" },
-            { id: "wfh", label: "WFH", icon: "🏠" },
-            { id: "half-day", label: "Half Day", icon: "⏳" },
+            { id: "office", label: "Office", icon: <MdBusiness/>},
+            { id: "wfh", label: "WFH", icon: <MdHomeWork/> },
+            { id: "half-day", label: "Half Day", icon: <MdAccessTime/> },
           ].map((item) => (
             <button
               key={item.id}

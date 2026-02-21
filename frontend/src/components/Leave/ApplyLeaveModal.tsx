@@ -139,7 +139,7 @@ export default function ApplyLeaveModal({
                 onChange={(e) =>
                   setLeave({ ...leave, reason: e.target.value })
                 }
-                className="textarea textarea-bordered w-full pl-10 resize-none"
+                className="textarea textarea-bordered w-full pl-10 resize-none border-2"
                 rows={4}
               />
             </div>

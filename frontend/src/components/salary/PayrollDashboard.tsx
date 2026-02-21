@@ -56,7 +56,7 @@ const navigate = useNavigate();
 
   return (
     <div>
-       <div className="stats shadow bg-base-100 w-full mb-6">
+       <div className="stats stats-vertical sm:stats-horizontal shadow bg-base-100 w-full mb-6">
   {/* This Month Revenue */}
   <div className="stat">
     <div className="stat-figure text-primary">
@@ -95,9 +95,9 @@ const navigate = useNavigate();
 </div>
 
 
-<div className="flex items-center justify-between p-6 bg-base-100/80 backdrop-blur-sm border-b border-base-300 rounded-xl mb-6 shadow-sm">
+<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-base-100/80 backdrop-blur-sm border border-base-300 rounded-xl mb-6 shadow-sm">
   {/* Title Section */}
-  <div className="flex items-center gap-3">
+  <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-3 p-3 bg-base-200/50 backdrop-blur-sm rounded-xl border border-base-300 shadow-md">
     <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -128,6 +128,7 @@ const navigate = useNavigate();
   </div>
 </div>
 
+{/* <div className="overflow-x-auto">
 
       <Table headers={["Employee", "Month","Salary","Status","Quick Action"]}
 
@@ -135,7 +136,7 @@ const navigate = useNavigate();
  {records.map((r) => (
           <tr key={r.id} className="text-base-content">
 
-            {/* ✅ Checkbox only for admin */}
+            {/* ✅ Checkbox only for admin 
             {/* {isAdmin && (
               <td>
                 <input
@@ -145,7 +146,7 @@ const navigate = useNavigate();
                   onChange={() => toggleSelect(r.id)}
                 />
               </td>
-            )} */}
+            )} 
 
             <td>{r.employee}</td>
             <td>{r.date}</td>
@@ -156,10 +157,10 @@ const navigate = useNavigate();
               <StatusBadge status={r.status}  />
             </td>
 
-            {/* ✅ Action column only for admin */}
+            {/* ✅ Action column only for admin 
             {isAdmin && (
               <td className="text-right">
-                {/* {r.status === "Paid" || r.status === "Unpaid" && ( */}
+                {/* {r.status === "Paid" || r.status === "Unpaid" && ( 
                   <div className="flex justify-left gap-2">
                     <Button size="xs" variant="primary"
                     onClick={() => navigate(`/payroll/${r.id}`)}
@@ -167,7 +168,7 @@ const navigate = useNavigate();
                       Manage
                     </Button>
                   </div>
-                {/* )} */}
+                {/* )} 
                
               </td>
             )}
@@ -176,7 +177,66 @@ const navigate = useNavigate();
 
 
       </Table>
+</div> */}
+{/* Desktop Table */}
+<div className="hidden md:block">
+  <div className="overflow-x-auto">
+    <Table headers={["Employee", "Month", "Salary", "Status", "Quick Action"]}>
+      {records.map((r) => (
+        <tr key={r.id}>
+          <td>{r.employee}</td>
+          <td>{r.date}</td>
+          <td>{r.amount}</td>
+          <td><StatusBadge status={r.status} /></td>
+          {isAdmin && (
+            <td>
+              <Button
+                size="xs"
+                variant="primary"
+                onClick={() => navigate(`/payroll/${r.id}`)}
+              >
+                Manage
+              </Button>
+            </td>
+          )}
+        </tr>
+      ))}
+    </Table>
+  </div>
+</div>
 
+{/* Mobile Card Layout */}
+<div className="md:hidden space-y-4">
+  {records.map((r) => (
+    <div
+      key={r.id}
+      className="bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm"
+    >
+      <div className="flex justify-between items-start mb-2">
+        <h3 className="font-semibold">{r.employee}</h3>
+        <StatusBadge status={r.status} />
+      </div>
+
+      <div className="text-sm text-base-content/60 space-y-1">
+        <p><span className="font-medium">Month:</span> {r.date}</p>
+        <p><span className="font-medium">Salary:</span> {r.amount}</p>
+      </div>
+
+      {isAdmin && (
+        <div className="mt-3">
+          <Button
+            size="sm"
+            variant="primary"
+            className="w-full"
+            onClick={() => navigate(`/payroll/${r.id}`)}
+          >
+            Manage Payroll
+          </Button>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
       
     </div>
   )
