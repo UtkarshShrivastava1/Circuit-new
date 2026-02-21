@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import {FaEye } from 'react-icons/fa';
 
 type UserRole = "member" | "manager" | "admin";
 
@@ -351,7 +352,7 @@ return (
         {/* Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Password *
+            Password * 
           </label>
           <input
             type="password"
@@ -361,6 +362,7 @@ return (
             className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
           />
+           <i className="fa-solid fa-eye" id="eye"></i>
           {errors.password && (
             <p className="text-red-500 text-sm mt-1">{errors.password}</p>
           )}

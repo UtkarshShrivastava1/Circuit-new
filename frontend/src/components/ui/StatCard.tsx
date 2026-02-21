@@ -1,8 +1,10 @@
 interface StatCardProps {
   title: string;
   value: string | number;
+ 
   icon?: React.ReactNode;
   helperText?: string;
+  variant?: "success" | "warning" | "info" | "error";
 }
 
 export default function StatCard({
@@ -10,9 +12,15 @@ export default function StatCard({
   value,
   icon,
   helperText,
+
+   variant,
 }: StatCardProps) {
+
+  const variantClass = variant
+    ? `border-${variant} text-${variant}`
+    : "border-base-300";
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg p-4">
+    <div className={`bg-base-100 border ${variantClass} rounded-lg p-4`}>
       <div className="flex items-center justify-between">
         <p className="text-sm text-base-content/60">{title}</p>
         {icon && <div className="text-primary">{icon}</div>}

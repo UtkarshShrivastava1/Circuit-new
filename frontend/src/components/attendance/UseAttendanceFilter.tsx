@@ -2,7 +2,7 @@ import type { AttendanceRecord } from "@/type/attendance";
 
 type Status = "all" | "approved" | "pending" | "rejected";
 
-export function useAttendanceFilters(
+ function useAttendanceFilters(
   records: AttendanceRecord[],
   filters: {
     name?: string;
@@ -43,3 +43,5 @@ export function useAttendanceFilters(
     return true;
   });
 }
+
+export default useAttendanceFilters;

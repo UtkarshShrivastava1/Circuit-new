@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function usePagination<T>(
+ export function usePagination<T>(
   data: T[],
   pageSize: number
 ) {

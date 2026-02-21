@@ -102,6 +102,7 @@
 import StatusBadge from "../ui/StatusBadge";
 import type { Project } from "../../type/project";
 import { useNavigate } from "react-router-dom";
+import { FaUser ,FaCalendarAlt ,FaTrash } from 'react-icons/fa';
 
 interface Props {
   project: Project;
@@ -134,6 +135,23 @@ export default function ProjectCard({
               : "pending"
           }
         />
+
+         {/* DELETE (TOP RIGHT) */}
+      {canDelete && onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm(`Delete project "${project.name}"?`)) {
+              onDelete(project.id);
+            }
+          }}
+          className="absolute top-3 right-3 btn btn-xs btn-ghost text-error 
+                     opacity-0 group-hover:opacity-100 transition"
+          title="Delete project"
+        >
+          <FaTrash className="w-4 h-4" />
+        </button>
+      )}
 
         {/* DELETE BUTTON */}
         {canDelete && onDelete && (
@@ -171,10 +189,10 @@ export default function ProjectCard({
       </div>
 
       {/* META */}
-      <div className="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-base-content/70 mb-4">
-        <span>👥 {project.teamCount} members</span>
-        <span>📅 {project.dueDate}</span>
-      </div>
+      <div className="flex items-center justify-between mt-4 text-xs text-base-content/70">
+        <span className="flex items-center gap-1" ><FaUser/> {project.teamCount} </span>
+        <span className="flex items-center gap-1"><FaCalendarAlt/> {project.dueDate}</span>
+
 
       {/* ACTIONS */}
       <div className="flex flex-col sm:flex-row gap-3">
@@ -193,5 +211,10 @@ export default function ProjectCard({
         </button>
       </div>
     </div>
+</div>
+
   );
-}
+  }
+
+
+

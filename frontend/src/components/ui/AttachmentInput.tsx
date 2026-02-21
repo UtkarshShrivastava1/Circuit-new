@@ -1,5 +1,5 @@
 import { useRef } from "react";
-
+import {Paperclip} from "lucide-react";
 interface Props {
   files: File[];
   onChange: (files: File[]) => void;
@@ -23,10 +23,13 @@ export default function AttachmentInput({
   return (
     <div className="space-y-2">
       <div
-        className="border border-dashed border-base-300 rounded-lg p-4 text-center cursor-pointer hover:bg-base-200"
+        className=" border-dashed border-base-300 rounded-lg p-4 text-center cursor-pointer hover:bg-base-200 border-2"
         onClick={() => inputRef.current?.click()}
       >
-        📎 Attach files
+        <div className="flex justify-center">
+
+        <Paperclip /> Attach files
+        </div>
         <p className="text-xs text-base-content/60">
           Click to upload (multiple files supported)
         </p>

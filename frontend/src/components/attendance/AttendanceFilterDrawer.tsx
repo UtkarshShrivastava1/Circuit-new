@@ -1,6 +1,6 @@
 import Button from "../ui/Button";
 import AttendanceFilters from "./AttendanceFilter";
-import { StatusPills } from "./FilertByStatus";
+import  StatusPills  from "./FilertByStatus";
 
 interface Props {
   open: boolean;
