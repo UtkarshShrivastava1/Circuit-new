@@ -17,6 +17,7 @@ import TaskDrawer from "@/components/task/TaskDrawer";
 import TaskFilters from "@/components/task/TaskFilter";
 import type { Task } from "@/type/task";
 import TaskModal from "@/components/task/TaskModal";
+import MobileTabs from "@/components/task/MobileTabs";
 
 /* ---------------- TYPES ---------------- */
 
@@ -66,6 +67,24 @@ const MOCK_TASKS: Task[] = [
     createdAt: "2026-01-18",
     tags: ["Auth", "RBAC"],
   },
+  {
+    id: "4",
+    title: "Login Page",
+    description:
+      "Define role-based permissions for admin, manager and employee.",
+    assignee: "Mark",
+    status: "pending",
+    priority: "low",
+    dueDate: "2026-02-10",
+    createdAt: "2026-01-18",
+    tags: ["Auth", "RBAC"],
+  },
+  
+  
+  
+ 
+  
+  
 ];
 
 /* ---------------- CONSTANTS ---------------- */
@@ -83,6 +102,10 @@ export default function TaskDashboard() {
     useState<Task | null>(null);
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
+  const [active, setActive] =
+    useState< "table" | "kanban" >(
+      "table"
+    );
 
   /* ---------------- FILTER LOGIC ---------------- */
 
@@ -109,6 +132,7 @@ export default function TaskDashboard() {
     }
   });
 }, [tasks, activeFilter]);
+
 
 
   /* ---------------- PAGINATION ---------------- */
@@ -202,41 +226,41 @@ export default function TaskDashboard() {
           onChange={setActiveFilter}
         />
 
-        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-  <Button
-    variant="primary"
-    onClick={() => setOpen(true)}
-    className="flex-1 sm:flex-none"
-  >
-    + New Task
-  </Button>
+                <div className="md:flex flex-wrap gap-2 w-full lg:w-auto hidden">
+          <Button
+            variant="primary"
+            onClick={() => setOpen(true)}
+            className="flex-1 sm:flex-none"
+          >
+            + New Task
+          </Button>
 
-  <Button
-    size="sm"
-    variant={view === "table" ? "primary" : "outline"}
-    onClick={() => setView("table")}
-    className="flex-1 sm:flex-none"
-  >
-    <MdViewList size={18} className="mr-1" />
-    Table
-  </Button>
+          <Button
+            size="sm"
+            variant={active === "table" ? "primary" : "outline"}
+            onClick={() => setActive("table")}
+            className="flex-1 sm:flex-none"
+          >
+            <MdViewList size={18} className="mr-1" />
+            Table
+          </Button>
 
-  <Button
-    size="sm"
-    variant={view === "kanban" ? "primary" : "outline"}
-    onClick={() => setView("kanban")}
-    className="flex-1 sm:flex-none"
-  >
-    <MdDashboard size={18} className="mr-1" />
-    Kanban
-  </Button>
-</div>
+          <Button
+            size="sm"
+            variant={active === "kanban" ? "primary" : "outline"}
+            onClick={() => setActive("kanban")}
+            className="flex-1 sm:flex-none"
+          >
+            <MdDashboard size={18} className="mr-1" />
+            Kanban
+          </Button>
+                 </div>
       </section>
 
       {/* ================= CONTENT ================= */}
       {/* <section className="bg-base-100 border border-base-300 rounded-xl p-4 overflow-x-scroll"> */}
       <section className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-5">
-        {view === "table" && (
+        {active === "table" && (
           <>
             <TaskTable
               tasks={paginatedTasks}
@@ -277,7 +301,7 @@ export default function TaskDashboard() {
           </>
         )}
 
-        {view === "kanban" && (
+        {active === "kanban" && (
           <div className="overflow-x-auto">
 
             <TaskKanban
@@ -310,6 +334,9 @@ export default function TaskDashboard() {
           setSelectedTask(updatedTask);
         }}
       />
+
+      <MobileTabs  active={active}
+  onChange={setActive} />
 
        <TaskModal
         open={open}

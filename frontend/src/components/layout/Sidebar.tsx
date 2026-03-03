@@ -13,6 +13,7 @@ import {
   MdReceiptLong,
   MdHistory,
   MdNotifications,
+  MdClose
 } from "react-icons/md";
 import { FolderKanban, UserPlus, UserPlus2 } from "lucide-react";
 
@@ -133,14 +134,14 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
   return (
     <>
-      <div
-        onClick={onClose}
-        className={`
-          fixed inset-0 bg-black/40 z-40 lg:hidden
-          transition-opacity duration-300
-          ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
-        `}
-      />
+              <div
+          onClick={onClose}
+          className={`
+            fixed inset-0 bg-black/40 z-40 lg:hidden
+            transition-opacity duration-300
+            ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
+          `}
+        />
       {/* <aside
         className={`
     h-screen bg-base-200 border-r border-base-300 flex flex-col
@@ -151,23 +152,24 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         `}
       > */}
 
-      <aside
-  className={`
-    fixed lg:static
-    z-50
-    h-screen bg-base-200 border-r border-base-300 flex flex-col
-    transition-all duration-300 ease-in-out
-    ${collapsed ? "w-20" : "w-64"}
-    ${isOpen ? "translate-x-0" : "-translate-x-full"}
-    lg:translate-x-0
-  `}
->
+            <aside
+          className={`
+            fixed lg:static
+            top-0 left-0
+            z-50
+            h-screen bg-base-200 border-r border-base-300 flex flex-col
+            transition-all duration-300 ease-in-out
+            ${collapsed ? "w-20" : "w-64"}
+            ${isOpen ? "translate-x-0" : "-translate-x-full"}
+            lg:translate-x-0
+          `}
+        >
         {/* HEADER */}
         <div className="flex items-center gap-3 px-4 py-4 border-2 border-base-300">
           <div
             className={`w-9 p-1 h-9 rounded-lg bg-primary text-primary-content flex items-center justify-center font-bold text-lg transition-all duration-300 ease-in-out ${collapsed ? "w-9" : "w-12"}`}
           >
-            CA
+            C
           </div>
 
           <div
@@ -177,12 +179,19 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           `}
           >
             <p className="font-semibold text-base-content whitespace-nowrap">
-              Covalenz
+              Circuit
             </p>
             <p className="text-xs text-base-content/60 whitespace-nowrap">
               Office ERP
             </p>
           </div>
+
+          <button className="text-lg btn btn-ghost btn-xs border-2 border-base-content-400 rounded-ee-none flex items-center justify-center lg:hidden"
+           onClick={onClose}
+          >
+            <MdClose className={`transition-transform 
+              `}/> 
+          </button>
 
           <button
             className="btn btn-ghost btn-xs border-2 border-base-300 rounded-md p-1 hidden lg:block"

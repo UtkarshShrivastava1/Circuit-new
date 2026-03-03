@@ -2,88 +2,228 @@ import { useState } from "react";
 import Button from "@/components/ui/Button";
 import ApplyLeaveModal from "@/components/Leave/ApplyLeaveModal";
 import LeaveCards from "@/components/Leave/LeaveCards";
-// import InfoCard from "@/components/Leave/TestCard";
+import LeaveDrawer from "@/components/Leave/LeaveDrawer";
+import LeaveStats from "@/components/Leave/LeaveStats";
+import LeaveBalanceDashboard from "@/components/Leave/LeaveBalanceDashboard";
 import type { LeaveRequest } from "@/type/leave";
+import LeaveCalendar from "./LeaveCalendar";
+import LeavePolicy from "./LeavePolicy";
+import MobileLeaveTabs from "@/components/Leave/MobileLeaveTabs";
+import { useNotifications } from "@/context/NotificationContext";
+import {
+  MdDashboard,
+  MdAssignment,
+  MdAccountBalanceWallet,
+  MdCalendarMonth,
+  MdMenuBook,
+} from "react-icons/md";
 
-const MOCK_LEAVES: LeaveRequest[] = [
+
+/* ================= DUMMY DATA ================= */
+
+const DUMMY_REQUESTS: LeaveRequest[] = [
   {
     id: "1",
-    employee: "Abhay Kumar",
+    employee: "Vinay Kumar",
     type: "casual",
-    fromDate: "12 Feb 2026",
-    toDate: "14 Feb 2026",
-    reason: "Family function",
-    status: "pending",
+    fromDate: "2026-02-10",
+    toDate: "2026-02-12",
+    reason: "Family Function",
+    status: "approved",
   },
   {
     id: "2",
-    employee: "V.Vinay Kumar",
-    type: "casual",
-    fromDate: "15 Feb 2026",
-    toDate: "16 Feb 2026",
-    reason: " function",
+    employee: "Vinay Kumar",
+    type: "sick",
+    fromDate: "2026-03-02",
+    toDate: "2026-03-02",
+    reason: "Fever",
     status: "pending",
   },
   {
     id: "3",
-    employee: "Alex Kumar",
-    type: "casual",
-    fromDate: "12 Feb 2026",
-    toDate: "14 Feb 2026",
-    reason: "High fever",
-    status: "pending",
-  },
-  {
-    id: "4",
-    employee: "Jhon doe ",
-    type: "casual",
-    fromDate: "20 Feb 2026",
-    toDate: "28 Feb 2026",
-    reason: "Family function",
-    status: "pending",
+    employee: "Vinay Kumar",
+    type: "paid",
+    fromDate: "2026-04-01",
+    toDate: "2026-04-03",
+    reason: "Vacation",
+    status: "rejected",
   },
 ];
-
 
 export default function EmployeeLeaveDashboard() {
   const [open, setOpen] = useState(false);
   const [requests, setRequests] =
-      useState<LeaveRequest[]>(MOCK_LEAVES);
+    useState<LeaveRequest[]>(DUMMY_REQUESTS);
 
-      
+  const [selectedLeave, setSelectedLeave] =
+    useState<LeaveRequest | null>(null);
+
+    const { addNotification } = useNotifications();
+
+
+  const [active, setActive] =
+    useState<"overview" | "my-leaves" | "balance" | "calendar" | "policy">(
+      "overview"
+    );
+
+   
 
   return (
-    <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">My Leaves</h2>
-          <p className="text-sm text-base-content/60">
-            Track your leave requests
-          </p>
-        </div>
+    <div className="space-y-6 pb-20 md:pb-0">
 
-        <Button variant="primary" onClick={() => setOpen(true)}>
+      {/* ================= HEADER ================= */}
+      <div className="flex justify-between items-center">
+       
+
+        <Button
+          variant="primary"
+          onClick={() => setOpen(true)}
+        >
           Apply Leave
         </Button>
       </div>
 
-      {/* CARDS */}
-      <LeaveCards
-       requests={requests}
-/>
+      {/* ================= TABS ================= */}
+      <div className="hidden md:block">
+      <div className="tabs tabs-boxed w-fit">
+        <button
+          onClick={() => setActive("overview")}
+          className={`tab  gap-1 ${
+            active === "overview" ? "tab-active" : ""
+          }`}
+        >
+        <MdDashboard/>  Overview
+        </button>
+
+        <button
+          onClick={() => setActive("my-leaves")}
+          className={`tab gap-1 ${
+            active === "my-leaves"
+              ? "tab-active"
+              : ""
+          }`}
+        >
+       <MdAssignment/>   My Leaves
+        </button>
+
+        <button
+          onClick={() => setActive("balance")}
+          className={`tab gap-1 ${
+            active === "balance" ? "tab-active" : ""
+          }`}
+        >
+        <MdAccountBalanceWallet/>  Leave Balance
+        </button>
+        <button
+          onClick={() => setActive("calendar")}
+          className={`tab gap-1 ${
+            active === "calendar" ? "tab-active" : ""
+          }`}
+        >
+         <MdCalendarMonth/> Leave Calendar
+        </button>
+        <button
+          onClick={() => setActive("policy")}
+          className={`tab gap-1 ${
+            active === "policy" ? "tab-active" : ""
+          }`}
+        >
+       <MdMenuBook/>   Leave Policy
+        </button>
+      </div>
+      </div>
+
+      {/* ================= TAB CONTENT ================= */}
+
+      {active === "overview" && (
+        <>
+          <LeaveBalanceDashboard
+            requests={requests}
+          />
+
+          <LeaveStats requests={requests} />
+        </>
+      )}
+
+      {active === "my-leaves" && (
+        <LeaveCards
+          requests={requests}
+          onView={(leave) =>
+            setSelectedLeave(leave)
+          }
+          onDelete={(id) =>
+            setRequests((prev) =>
+              prev.filter((r) => r.id !== id)
+            )
+          }
+        />
+      )}
+
+      {active === "balance" && (
+        <LeaveBalanceDashboard
+          requests={requests}
+        />
+      )}
+      {active === "calendar" && (
+        <LeaveCalendar
+          requests={requests}
+        />
+      )}
+      {active === "policy" && (
+        <LeavePolicy
+        
+        />
+      )}
 
 
-      {/* APPLY MODAL */}
-      <ApplyLeaveModal
-        open={open}
-        onClose={() => setOpen(false)}
-        onSubmit={(leave) => {
-          console.log("Employee leave:", leave);
-        }}
+
+      {/* ================= DRAWER ================= */}
+
+      <LeaveDrawer
+        leave={selectedLeave}
+        onClose={() => setSelectedLeave(null)}
+        onUpdate={(updated) =>
+          setRequests((prev) =>
+            prev.map((r) =>
+              r.id === updated.id ? updated : r
+            )
+          )
+        }
       />
 
-      {/* <InfoCard/> */}
+      {/* ================= APPLY MODAL ================= */}
+
+      <ApplyLeaveModal
+  open={open}
+  onClose={() => setOpen(false)}
+  onSubmit={(leave) => {
+    const newLeave: LeaveRequest = {
+      id: Date.now().toString(),
+      employee: "Vinay Kumar",
+      ...leave,
+    };
+
+    setRequests((prev) => [
+      newLeave,
+      ...prev,
+    ]);
+
+    // ✅ ADD NOTIFICATION HERE
+    addNotification({
+      title: "Leave Applied",
+      message: `Your ${leave.type} leave has been submitted.`,
+      type: "info",
+    });
+
+    setOpen(false);
+  }}
+/>
+
+<MobileLeaveTabs
+  active={active}
+  onChange={setActive}
+/>
     </div>
   );
 }

@@ -8,6 +8,8 @@ export type Notification = {
   title: string;
   message: string;
   attachmentUrl?: string;
+  type: "success" | "error" | "warning" | "info";
+  read: boolean;
   priority: NotificationPriority;
   targetUserIds: string[]; // [] = broadcast
   createdBy: string;

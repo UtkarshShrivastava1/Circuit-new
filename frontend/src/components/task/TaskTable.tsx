@@ -16,14 +16,14 @@ interface Props {
   }
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-      <table className="table table-zebra w-full">
+    <div className="bg-base-100 border border-base-300 rounded-lg overflow-x-scroll">
+      <table className="table table-zebra w-full min-w-150 ">
         <thead>
           <tr>
-            <th>Task</th>
-            <th>Assignee</th>
-            <th>Status</th>
-            <th>Due</th>
+             <th className="whitespace-nowrap">Task</th>
+             <th className="whitespace-nowrap">Assignee</th>
+             <th className="whitespace-nowrap">Status</th>
+            <th className="whitespace-nowrap">Due</th>
           </tr>
         </thead>
 
@@ -34,7 +34,7 @@ interface Props {
               className="cursor-pointer hover:bg-base-200 text-base-content"
               onClick={() => onOpenTask(task)}
             >
-              <td className="font-medium">{task.title}</td>
+              <td className="font-medium ">{task.title}</td>
               <td>{task.assignee}</td>
               <td>
                 <StatusBadge

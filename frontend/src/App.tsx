@@ -49,7 +49,7 @@ function LayoutWrapper() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div className="p-6">Loading...</div>}>
+    <Suspense fallback={<div className="p-6 flex justify-center items-center mt-10">Loading...</div>}>
       <Routes>
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -98,7 +98,7 @@ export default function App() {
           <Route
             path="/leaves"
             element={
-              <PageContainer title="Leaves">
+              <PageContainer title=" My Leaves"  subtitle="Track your leave requests">
                 <LeaveDashboard />
               </PageContainer>
             }
