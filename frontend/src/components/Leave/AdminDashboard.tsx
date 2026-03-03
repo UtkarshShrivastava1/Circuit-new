@@ -194,13 +194,14 @@
 import { useState } from "react";
 import StatCard from "@/components/ui/StatCard";
 import LeaveRequestTable from "@/components/Leave/LeaveRequestTable";
-import LeaveFilters from "@/components/Leave/LeaveFilters";
+// import LeaveFilters from "@/components/Leave/LeaveFilters";
 import {
   MdBeachAccess,
   MdPendingActions,
   MdCancel,
   MdCheckCircle,
 } from "react-icons/md";
+
 
 import type { LeaveRequest } from "@/type/leave";
 
@@ -272,7 +273,7 @@ export default function AdminLeaveDashboard() {
       </section>
 
       {/* FILTERS */}
-      <LeaveFilters />
+      {/* <LeaveFilters /> */}
 
       {/* TABLE */}
       <LeaveRequestTable
@@ -280,6 +281,7 @@ export default function AdminLeaveDashboard() {
         onApprove={approve}
         onReject={reject}
       />
+      
     </div>
   );
 }

@@ -15,6 +15,7 @@ const Pagination = React.lazy(()=>import("../ui/Pagination"))
 import type { AttendanceRecord } from '@/type/attendance';
 import type { AttendanceStatus } from '@/type/attendance';
 import {Clock ,NotepadText } from "lucide-react"
+import MobileTabs from '../attendance/MobileTabs';
 
 
 
@@ -186,7 +187,7 @@ const AdminAttendance = () => {
       <>
         {/* TABS */}
         <div className="mb-4">
-          <div className="tabs tabs-boxed bg-base-200 inline-flex">
+          <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden ">
             <button
               className={`tab ${activeTab === "records" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("records")}
@@ -202,6 +203,8 @@ const AdminAttendance = () => {
             </button>
           </div>
         </div>
+
+
 
         {activeTab === "records" && (
           <>
@@ -258,6 +261,8 @@ const AdminAttendance = () => {
         )}
       </>
     )}
+
+    <MobileTabs active={activeTab} onChange={setActiveTab}/>
   </Suspense>
 );
 

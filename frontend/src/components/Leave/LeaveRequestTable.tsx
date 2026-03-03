@@ -11,34 +11,6 @@ interface Props {
 }
 
 
-// const MOCK_LEAVE_REQUESTS: LeaveRequest[] = [
-//   {
-//     id: "1",
-//     employee: "Alex Kumar",
-//     type: "casual",
-//     fromDate: "12 Feb 2026",
-//     toDate: "14 Feb 2026",
-//     reason: "Family function",
-//     status: "pending",
-//   },
-//   {
-//     id: "2",
-//     employee: "Rahul Sharma",
-//     type: "sick",
-//     fromDate: "10 Feb 2026",
-//     reason: "Fever",
-//     status: "approved",
-//   },
-//   {
-//     id: "3",
-//     employee: "Neha Singh",
-//     type: "half-day",
-//     fromDate: "08 Feb 2026",
-//     reason: "Personal work",
-//     status: "pending",
-//   },
-// ];
-
 export default function LeaveRequestTable({
   requests,
   onApprove,
@@ -52,9 +24,8 @@ export default function LeaveRequestTable({
     );
   }
 
+  const [select ,isSelect] = useState('');
 
-    // const [requests, setRequests] =
-    //   useState<LeaveRequest[]>(MOCK_LEAVE_REQUESTS);
 
   return (
     <>
@@ -63,6 +34,11 @@ export default function LeaveRequestTable({
         <table className="table table-zebra w-full text-base-content">
           <thead>
             <tr>
+              <th>
+                <input type="checkbox" 
+                className=""
+                />
+              </th>
               <th>Employee</th>
               <th>Leave Type</th>
               <th>Dates</th>
@@ -71,11 +47,15 @@ export default function LeaveRequestTable({
             </tr>
           </thead>
 
-          <tbody>
+          <tbody> 
             {requests.map((r) => {
               const Icon = leaveTypeIcon[r.type];
               return (
                 <tr key={r.id}>
+                  <td className="font-medium">
+
+                    <input type="checkbox"/>
+                  </td>
                   <td className="font-medium">{r.employee}</td>
 
                   <td className="flex items-center gap-2">

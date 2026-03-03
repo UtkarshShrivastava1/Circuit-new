@@ -21,7 +21,7 @@ export default function AttachmentInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 text-base-content">
       <div
         className=" border-dashed border-base-300 rounded-lg p-4 text-center cursor-pointer hover:bg-base-200 border-2"
         onClick={() => inputRef.current?.click()}

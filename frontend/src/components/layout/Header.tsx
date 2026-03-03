@@ -57,12 +57,12 @@ export default function Header({ onMenuClick }: HeaderProps)  {
       {/* ================= LEFT ================= */}
       <div className="flex-1 flex items-center gap-2 min-w-0">
         {/* Hamburger - Mobile Only */}
-<button
-  onClick={onMenuClick}
-  className="btn btn-ghost btn-circle lg:hidden"
->
-  <MdMenu size={22} />
-</button>
+            <button
+              onClick={onMenuClick}
+              className="btn btn-ghost btn-circle lg:hidden"
+            >
+              <MdMenu size={22} />
+            </button>
 
 {/* <label
   htmlFor="drawer"
@@ -83,7 +83,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
 
         {/* Hide text on very small screens */}
         <span className="hidden sm:block text-base md:text-lg font-semibold truncate">
-          Covalenz ERP
+          Circuit 
         </span>
       </div>
 

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Lottie from "lottie-react";
 import loginAnimation from "../assets/loginAnimation.json";
 import { LockIcon, User2Icon } from "lucide-react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Login = () => {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +99,7 @@ const Login = () => {
 
             {/* Password */}
             {/* Password */}
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               <label className="text-sm text-blue-200 mb-1">Password</label>
 
               <div className="relative">
@@ -115,7 +117,41 @@ const Login = () => {
                   className="w-full p-3 pl-10 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 placeholder-blue-200 text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition"
                 />
               </div>
-            </div>
+            </div> */}
+
+            <div>
+          <label className="text-sm text-blue-200 mb-4">
+            Password 
+          </label>
+
+  <div className="relative">
+     <LockIcon
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 text-blue-200"
+                />
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      value={formData.password}
+      onChange={handleChange}
+      className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-gray-50
+      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition pl-10"
+    />
+
+    {/* Eye Icon */}
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+    >
+      {showPassword ? <FaEyeSlash /> : <FaEye />}
+    </button>
+  </div>
+
+  {/* {errors.password && (
+    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+  )} */}
+        </div>
 
             {/* Error */}
             {error && <p className="text-red-300 text-sm">{error}</p>}
