@@ -2,11 +2,17 @@ import React, { Suspense } from "react";
 import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Notifications from "./pages/Notifications";
+import ProjectChat from "./components/projects/ProjectChat";
+import SettingsPage from "./pages/Settings";
+import Settings from "./pages/Settings";
 
 /* ---------- Lazy Pages ---------- */
 
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
-const PageContainer = React.lazy(() => import("./components/layout/PageContainer"));
+const PageContainer = React.lazy(
+  () => import("./components/layout/PageContainer"),
+);
 
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Attendance = React.lazy(() => import("./pages/Attendance"));
@@ -16,8 +22,12 @@ const TaskDashboard = React.lazy(() => import("./pages/Tasks"));
 const LeaveDashboard = React.lazy(() => import("./pages/LeaveDashboard"));
 
 const SalaryStructure = React.lazy(() => import("./pages/SalaryStructure"));
-const PayrollDashboard = React.lazy(() => import("./components/salary/PayrollDashboard"));
-const GeneratePaySlip = React.lazy(() => import("./components/salary/GeneratePaySlip"));
+const PayrollDashboard = React.lazy(
+  () => import("./components/salary/PayrollDashboard"),
+);
+const GeneratePaySlip = React.lazy(
+  () => import("./components/salary/GeneratePaySlip"),
+);
 const PayHistory = React.lazy(() => import("./components/salary/Payhistory"));
 
 const Members = React.lazy(() => import("./pages/Members"));
@@ -41,7 +51,6 @@ export default function App() {
   return (
     <Suspense fallback={<div className="p-6">Loading...</div>}>
       <Routes>
-
         {/* Redirect root to login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
@@ -50,7 +59,6 @@ export default function App() {
 
         {/* Protected Layout Routes */}
         <Route element={<LayoutWrapper />}>
-
           <Route
             path="/dashboard"
             element={
@@ -152,18 +160,30 @@ export default function App() {
             }
           />
 
-          <Route path="/projects/:id" element={<ProjectWorkspace />} />
+          <Route path="/projects/:id" element={<ProjectWorkspace />}>
+            <Route path="chat" element={<ProjectChat />} />
+          </Route>
           <Route path="/adminProfile/:id" element={<AdminProfile />} />
           <Route path="/addMember" element={<AddMember />} />
-          <Route path="/createProject" element={
-            <PageContainer>
+
+          <Route
+            path="/createProject"
+            element={
+              <PageContainer>
                 <CreateProject />
               </PageContainer>
-            
-            } />
-
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <PageContainer>
+                <Notifications />
+              </PageContainer>
+            }
+          />
+          <Route path="/settings" element={<Settings />} />
         </Route>
-
       </Routes>
 
       <ToastContainer />

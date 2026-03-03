@@ -192,7 +192,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
             <li onClick={()=>navigate("/adminProfile/1")}>
               <a>Profile</a>
             </li>
-            <li>
+            <li onClick={()=>navigate("/settings")}>
               <a>Settings</a>
             </li>
             <li onClick={()=>{

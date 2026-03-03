@@ -7,6 +7,7 @@ export type Notification = {
   id: string;
   title: string;
   message: string;
+  attachmentUrl?: string;
   priority: NotificationPriority;
   targetUserIds: string[]; // [] = broadcast
   createdBy: string;
