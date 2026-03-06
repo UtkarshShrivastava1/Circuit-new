@@ -25,14 +25,14 @@ export default function SendNotificationModal({
   members,
   currentAdminId,
 }: Props) {
-  if (!open) return null;
-
+  const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
-  const [priority, setPriority] =
-    useState<"low" | "normal" | "urgent">("normal");
+  const [priority, setPriority] = useState<"low" | "normal" | "urgent">(
+    "normal",
+  );
   const [target, setTarget] = useState("all");
-
+  if (!open) return null;
   const handleSend = () => {
     const newNotification: Notification = {
       id: crypto.randomUUID(),
@@ -43,73 +43,140 @@ export default function SendNotificationModal({
       createdBy: currentAdminId,
       createdAt: new Date().toISOString(),
       readBy: [],
+      attachmentUrl: file ? URL.createObjectURL(file) : undefined,
     };
 
     onSend(newNotification);
+    setTitle("");
+    setMessage("");
+    setPriority("normal");
+    setTarget("all");
+    setFile(null);
     onClose();
   };
-
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-base-100 w-full max-w-lg rounded-2xl p-6 border border-base-300 shadow-xl space-y-4">
-
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="bg-white w-full max-w-lg rounded-xl p-8 shadow-2xl border border-gray-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+        {/* Header */}
         <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">
-            Send Notification
-          </h3>
-          <button onClick={onClose}>
-            <MdClose size={20} />
+          <div>
+            <h3 className="text-xl font-semibold text-gray-800">
+              New Notification
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Send a message to employees
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+          >
+            <MdClose size={20} className="text-gray-500" />
           </button>
         </div>
 
-        <Input
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        {/* Title */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">Title</label>
+          <Input
+            placeholder="Enter notification title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
 
-        <textarea
-          className="textarea textarea-bordered w-full"
-          placeholder="Message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
+        {/* Message */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">Message</label>
+          <textarea
+            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+            rows={4}
+            placeholder="Write your message here..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+        </div>
+        {/* Attachment */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            Attachment (optional)
+          </label>
 
-        <Select
-          value={priority}
-          onChange={(e) =>
-            setPriority(e.target.value as any)
-          }
-        >
-          <option value="low">Low</option>
-          <option value="normal">Normal</option>
-          <option value="urgent">Urgent</option>
-        </Select>
+          {!file ? (
+            <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-black transition text-sm text-gray-500">
+              Click to upload file
+              <input
+                type="file"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFile(e.target.files[0]);
+                  }
+                }}
+              />
+            </label>
+          ) : (
+            <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm">
+              <div className="flex flex-col">
+                <span className="font-medium text-gray-700">{file.name}</span>
+                <span className="text-xs text-gray-500">
+                  {(file.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
 
-        <Select
-          value={target}
-          onChange={(e) => setTarget(e.target.value)}
-        >
-          <option value="all">All Employees</option>
-          {members.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </Select>
+              <button
+                onClick={() => setFile(null)}
+                className="text-gray-400 hover:text-red-500 transition"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
 
-        <div className="flex justify-end gap-2 pt-2">
+        {/* Priority + Target */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Priority
+            </label>
+            <Select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as any)}
+            >
+              <option value="low">Low</option>
+              <option value="normal">Normal</option>
+              <option value="urgent">Urgent</option>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Send To</label>
+            <Select value={target} onChange={(e) => setTarget(e.target.value)}>
+              <option value="all">All Employees</option>
+              {members.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
           <Button variant="ghost" onClick={onClose}>
             Cancel
           </Button>
 
-          <Button
-            variant="primary"
-            disabled={!title || !message}
+          <button
+            disabled={!title.trim() || !message.trim()}
             onClick={handleSend}
+            className="px-5 py-2.5 rounded-xl bg-black text-white text-sm font-medium hover:bg-gray-800 transition disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Send
-          </Button>
+            Send Notification
+          </button>
         </div>
       </div>
     </div>

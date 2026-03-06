@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import PageContainer from "../components/ui/PageContainer";
 
@@ -6,12 +6,17 @@ import PageContainer from "../components/ui/PageContainer";
 import ProjectTasks from "../components/projects/ProjectTasks";
 import ProjectMembers from "../components/projects/ProjectMembers";
 import ProjectActivity from "../components/projects/ProjectActivity";
+import ProjectChat from "@/components/projects/ProjectChat";
 
-type ProjectTab = "overview" | "tasks" | "members" | "activity";
+type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat";
 
 export default function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<ProjectTab>("overview");
+  const [searchParams] = useSearchParams();
+const tabFromUrl = searchParams.get("tab") as ProjectTab | null;
+const [activeTab, setActiveTab] = useState<ProjectTab>(
+  tabFromUrl || "overview"
+);
 
   const project = {
     id,
@@ -33,13 +38,71 @@ export default function ProjectWorkspace() {
       "Tasks module in progress",
       "New member added to project",
     ],
+    tasks: [
+      {
+        id: "1",
+        title: "Fix Payroll Bug",
+        status: "in-progress",
+        priority: "high",
+        due: "2026-02-25",
+      },
+      {
+        id: "2",
+        title: "Client Demo Prep",
+        status: "todo",
+        priority: "medium",
+        due: "2026-02-22",
+      },
+      {
+        id: "3",
+        title: "Attendance API",
+        status: "completed",
+        priority: "low",
+        due: "2026-02-18",
+      },
+      {
+        id: "4",
+        title: "Dashboard UI",
+        status: "in-progress",
+        priority: "high",
+        due: "2026-02-20",
+      },
+      {
+        id: "5",
+        title: "Form Ui",
+        status: "pending",
+        priority: "high",
+        due: "2026-02-19",
+      },
+    ],
   };
+
+  const latestTasks = [...project.tasks]
+    .sort((a, b) => new Date(b.due).getTime() - new Date(a.due).getTime())
+    .slice(0, 3);
+  const totalTasks = project.tasks.length;
+  const completedTasks = project.tasks.filter(
+    (t) => t.status === "completed",
+  ).length;
+  const inProgressTasks = project.tasks.filter(
+    (t) => t.status === "in-progress",
+  ).length;
+  const highPriorityTasks = project.tasks.filter((t) => t.priority === "high");
+  const pendingTasks = project.tasks.filter(
+    (t) => t.status === "pending",
+  ).length;
+
+  const today = new Date();
+  const overdueTasks = project.tasks.filter(
+    (t) => new Date(t.due) < today && t.status !== "completed",
+  );
 
   const tabs: { key: ProjectTab; label: string }[] = [
     { key: "overview", label: "Overview" },
     { key: "tasks", label: "Tasks" },
     { key: "members", label: "Members" },
     { key: "activity", label: "Activity" },
+    { key: "chat", label: "Chat" },
   ];
 
   return (
@@ -73,71 +136,153 @@ export default function ProjectWorkspace() {
 
       {/* OVERVIEW */}
       {activeTab === "overview" && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* LEFT */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
-            <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-              <h3 className="font-semibold text-base-content mb-2">
-                Description
-              </h3>
-              <p className="text-sm text-base-content/70">
-                {project.description}
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+              <p className="text-xs text-base-content/60">Total Tasks</p>
+              <p className="text-lg font-semibold">{totalTasks}</p>
+            </div>
+
+            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+              <p className="text-xs text-base-content/60">Completed</p>
+              <p className="text-lg font-semibold text-success">
+                {completedTasks}
               </p>
             </div>
 
-            {/* Progress */}
-            <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-              <div className="flex justify-between text-sm text-base-content mb-2">
-                <span>Progress</span>
-                <span>{project.progress}%</span>
+            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+              <p className="text-xs text-base-content/60">In Progress</p>
+              <p className="text-lg font-semibold text-primary">
+                {inProgressTasks}
+              </p>
+            </div>
+
+            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+              <p className="text-xs text-base-content/60">Pending</p>
+              <p className="text-lg font-semibold text-primary">
+                {pendingTasks}
+              </p>
+            </div>
+
+            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+              <p className="text-xs text-base-content/60">High Priority</p>
+              <p className="text-lg font-semibold text-error">
+                {highPriorityTasks.length}
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* LEFT */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Description */}
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <h3 className="font-semibold text-base-content mb-2">
+                  Description
+                </h3>
+                <p className="text-sm text-base-content/70">
+                  {project.description}
+                </p>
+              </div>
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <h3 className="font-semibold mb-3">High Priority Tasks</h3>
+
+                {highPriorityTasks.length === 0 ? (
+                  <p className="text-sm text-base-content/60">
+                    No high priority tasks 🎉
+                  </p>
+                ) : (
+                  <ul className="space-y-2 text-sm">
+                    {highPriorityTasks.slice(0, 3).map((task) => (
+                      <li key={task.id} className="flex justify-between">
+                        <span>{task.title}</span>
+                        <span className="text-error text-xs">High</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
-              <progress
-                className="progress progress-primary w-full"
-                value={project.progress}
-                max={100}
-              />
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <h3 className="font-semibold mb-3">Latest Tasks</h3>
+
+                <ul className="space-y-2 text-sm">
+                  {latestTasks.map((task) => (
+                    <li key={task.id} className="flex justify-between">
+                      <span>{task.title}</span>
+                      <span className="text-base-content/60 text-xs">
+                        {task.due}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Progress */}
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <div className="flex justify-between text-sm text-base-content mb-2">
+                  <span>Progress</span>
+                  <span>{project.progress}%</span>
+                </div>
+
+                <progress
+                  className="progress progress-primary w-full"
+                  value={project.progress}
+                  max={100}
+                />
+              </div>
+            </div>
+
+            {/* RIGHT */}
+            <div className="space-y-6">
+              {overdueTasks.length > 0 && (
+                <div className="bg-error/10 border border-error rounded-lg p-4">
+                  <h3 className="font-semibold text-error mb-2">
+                    ⚠ {overdueTasks.length} Overdue Tasks
+                  </h3>
+
+                  <ul className="text-sm space-y-1">
+                    {overdueTasks.slice(0, 3).map((task) => (
+                      <li key={task.id}>{task.title}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {/* Team */}
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <h3 className="font-semibold text-base-content mb-3">
+                  Team Members
+                </h3>
+
+                <ul className="space-y-2 text-sm">
+                  {project.team.map((member) => (
+                    <li
+                      key={member.id}
+                      className="flex justify-between text-base-content"
+                    >
+                      <span>{member.name}</span>
+                      <span className="text-base-content/60">
+                        {member.role}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Activity */}
+              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+                <h3 className="font-semibold text-base-content mb-3">
+                  Recent Activity
+                </h3>
+
+                <ul className="space-y-2 text-sm text-base-content/70">
+                  {project.activity.map((item, i) => (
+                    <li key={i}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
-
-          {/* RIGHT */}
-          <div className="space-y-6">
-            {/* Team */}
-            <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-              <h3 className="font-semibold text-base-content mb-3">
-                Team Members
-              </h3>
-
-              <ul className="space-y-2 text-sm">
-                {project.team.map((member) => (
-                  <li
-                    key={member.id}
-                    className="flex justify-between text-base-content"
-                  >
-                    <span>{member.name}</span>
-                    <span className="text-base-content/60">
-                      {member.role}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Activity */}
-            <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-              <h3 className="font-semibold text-base-content mb-3">
-                Recent Activity
-              </h3>
-
-              <ul className="space-y-2 text-sm text-base-content/70">
-                {project.activity.map((item, i) => (
-                  <li key={i}>• {item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        </>
       )}
 
       {/* TASKS */}
@@ -148,6 +293,7 @@ export default function ProjectWorkspace() {
 
       {/* ACTIVITY */}
       {activeTab === "activity" && <ProjectActivity />}
+      {activeTab === "chat" && <ProjectChat />}
     </PageContainer>
   );
 }

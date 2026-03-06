@@ -12,36 +12,66 @@ export default function Projects() {
   const loading = false; // later from API
   const [filter, setFilter] = useState<ProjectFilter >("all");
 
-  const projects: Project[] = [
-    {
-      id: "1",
-      name: "Office ERP System",
-      status: "active",
-      progress: 65,
-      manager: "Alex Kumar",
-      teamCount: 6,
-      dueDate: "15 Feb 2026",
-    },
-    {
-      id: "2",
-      name: "Client Portal",
-      status: "on-hold",
-      progress: 30,
-      manager: "Rahul Sharma",
-      teamCount: 3,
-      dueDate: "10 Mar 2026",
-    },
-    {
-      id: "3",
-      name: "Mobile App",
-      status: "completed",
-      progress: 100,
-      manager: "Ankit Verma",
-      teamCount: 5,
-      dueDate: "05 Jan 2026",
-    },
-  ];
+  // const projects: Project[] = [
+  //   {
+  //     id: "1",
+  //     name: "Office ERP System",
+  //     status: "active",
+  //     progress: 65,
+  //     manager: "Alex Kumar",
+  //     teamCount: 6,
+  //     dueDate: "15 Feb 2026",
+  //   },
+  //   {
+  //     id: "2",
+  //     name: "Client Portal",
+  //     status: "on-hold",
+  //     progress: 30,
+  //     manager: "Rahul Sharma",
+  //     teamCount: 3,
+  //     dueDate: "10 Mar 2026",
+  //   },
+  //   {
+  //     id: "3",
+  //     name: "Mobile App",
+  //     status: "completed",
+  //     progress: 100,
+  //     manager: "Ankit Verma",
+  //     teamCount: 5,
+  //     dueDate: "05 Jan 2026",
+  //   },
+  // ];
 
+
+  const [projects, setProjects] = useState<Project[]>([
+  {
+    id: "1",
+    name: "Office ERP System",
+    status: "active",
+    progress: 65,
+    manager: "Alex Kumar",
+    teamCount: 6,
+    dueDate: "15 Feb 2026",
+  },
+  {
+    id: "2",
+    name: "Client Portal",
+    status: "on-hold",
+    progress: 30,
+    manager: "Rahul Sharma",
+    teamCount: 3,
+    dueDate: "10 Mar 2026",
+  },
+  {
+    id: "3",
+    name: "Mobile App",
+    status: "completed",
+    progress: 100,
+    manager: "Ankit Verma",
+    teamCount: 5,
+    dueDate: "05 Jan 2026",
+  },
+]);
   const filteredProjects =
     filter === "all" ? projects : projects.filter((p) => p.status === filter);
 
@@ -64,6 +94,10 @@ export default function Projects() {
                projects={filteredProjects} // ✅ FIX
             onOpen={(project) =>
               setSelectedProject(project)}
+              onDelete={(id) =>
+    setProjects((prev) => prev.filter((p) => p.id !== id))
+  }
+  canDelete={true}
           />
         </div>
       )}

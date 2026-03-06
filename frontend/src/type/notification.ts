@@ -7,6 +7,7 @@ export type Notification = {
   id: string;
   title: string;
   message: string;
+  attachmentUrl?: string;
   type: "success" | "error" | "warning" | "info";
   read: boolean;
   priority: NotificationPriority;
