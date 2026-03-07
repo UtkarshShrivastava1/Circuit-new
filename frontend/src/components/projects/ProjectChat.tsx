@@ -104,17 +104,17 @@ export default function ProjectChat() {
             }`}
           >
             <div
-              className={`max-w-xs px-4 py-2 rounded-lg text-sm ${
-                msg.senderId === currentUserId
-                  ? "bg-primary text-primary-content"
-                  : "bg-base-200"
+             className={`max-w-xs px-4 py-2 rounded-2xl shadow-sm text-sm  ${
+               msg.senderId === currentUserId
+  ? "bg-primary text-primary-content"
+  : "bg-base-200 text-base-content"
               }`}
             >
               <div className="flex justify-between items-center mb-1">
-                <p className="font-medium text-xs">
+              <p className="font-medium text-xs text-base-content/60">
                   {msg.senderName}
                 </p>
-                <p className="text-[10px] opacity-70">
+              <p className="text-[10px] text-base-content/60">
                   {formatTime(msg.createdAt)}
                 </p>
               </div>

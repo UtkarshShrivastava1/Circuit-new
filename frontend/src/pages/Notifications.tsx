@@ -24,16 +24,17 @@ export default function Notifications() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 text-base-content">
 
       <div className="flex justify-between items-center">
        
-<h1 className="text-2xl font-bold text-gray-800">Notifications</h1>
+<h1 className="text-2xl font-semibold text-base-content">Notifications</h1>
         {currentUserRole === "admin" && (
           <button
-            className="flex items-center gap-2 px-4 py-2.5 
-  rounded-xl bg-black text-white text-sm font-medium 
-  hover:bg-gray-800 transition shadow-sm"
+            className="flex items-center gap-2 px-4 py-2.5
+rounded-xl bg-primary text-primary-content
+text-sm font-medium hover:bg-primary/90
+transition shadow-sm"
             onClick={() => setOpen(true)}
           >
              <MdSend size={18} />

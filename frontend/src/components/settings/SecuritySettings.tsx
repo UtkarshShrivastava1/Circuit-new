@@ -55,53 +55,54 @@ const SecuritySettings = () => {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-gray-800">
-        Change Password
-      </h2>
+ return (
+  <div className="space-y-6">
+    <h2 className="text-lg font-semibold text-base-content">
+      Change Password
+    </h2>
 
-      <div className="grid gap-4 max-w-md">
-        <input
-          type="password"
-          name="currentPassword"
-          placeholder="Current Password"
-          value={form.currentPassword}
-          onChange={handleChange}
-          className="bg-gray-50 p-3 rounded-md border border-gray-200"
-        />
+    <div className="grid gap-4 max-w-md">
+      <input
+        type="password"
+        name="currentPassword"
+        placeholder="Current Password"
+        value={form.currentPassword}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+      />
 
-        <input
-          type="password"
-          name="newPassword"
-          placeholder="New Password"
-          value={form.newPassword}
-          onChange={handleChange}
-          className="bg-gray-50 p-3 rounded-md border border-gray-200"
-        />
+      <input
+        type="password"
+        name="newPassword"
+        placeholder="New Password"
+        value={form.newPassword}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+      />
 
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={form.confirmPassword}
-          onChange={handleChange}
-          className="bg-gray-50 p-3 rounded-md border border-gray-200"
-        />
+      <input
+        type="password"
+        name="confirmPassword"
+        placeholder="Confirm Password"
+        value={form.confirmPassword}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+      />
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {message && <p className="text-green-600 text-sm">{message}</p>}
+      {error && (
+        <p className="text-error text-sm">{error}</p>
+      )}
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition disabled:opacity-50"
-        >
-          {loading ? "Updating..." : "Update Password"}
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="btn btn-primary w-full"
+      >
+        {loading ? "Updating..." : "Update Password"}
+      </button>
     </div>
-  );
+  </div>
+);
 };
 
 export default SecuritySettings;

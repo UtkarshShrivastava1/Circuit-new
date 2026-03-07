@@ -121,9 +121,9 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
               onClick={() => setActiveTab(tab.key)}
               className={`px-4 py-2 text-sm font-medium transition
                 ${
-                  isActive
-                    ? "border-b-2 border-primary text-primary"
-                    : "text-base-content/60 hover:text-base-content"
+                 isActive
+  ? "border-b-2 border-primary text-primary bg-primary/5"
+  : "text-base-content/60 hover:text-base-content hover:bg-base-200"
                 }`}
             >
               {tab.label}
@@ -140,7 +140,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">Total Tasks</p>
-              <p className="text-lg font-semibold">{totalTasks}</p>
+              <p className="text-lg font-semibold text-white">{totalTasks}</p>
             </div>
 
             <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
@@ -159,7 +159,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
 
             <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">Pending</p>
-              <p className="text-lg font-semibold text-primary">
+              <p className="text-lg font-semibold text-warning">
                 {pendingTasks}
               </p>
             </div>
@@ -184,7 +184,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
                 </p>
               </div>
               <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold mb-3">High Priority Tasks</h3>
+                <h3 className="font-semibold mb-3 text-base-content">High Priority Tasks</h3>
 
                 {highPriorityTasks.length === 0 ? (
                   <p className="text-sm text-base-content/60">
@@ -194,7 +194,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
                   <ul className="space-y-2 text-sm">
                     {highPriorityTasks.slice(0, 3).map((task) => (
                       <li key={task.id} className="flex justify-between">
-                        <span>{task.title}</span>
+                       <span className="text-base-content">{task.title}</span>
                         <span className="text-error text-xs">High</span>
                       </li>
                     ))}
@@ -203,12 +203,12 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
               </div>
 
               <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold mb-3">Latest Tasks</h3>
+                <h3 className="font-semibold mb-3 text-base-content">Latest Tasks</h3>
 
                 <ul className="space-y-2 text-sm">
                   {latestTasks.map((task) => (
                     <li key={task.id} className="flex justify-between">
-                      <span>{task.title}</span>
+                   <span className="text-base-content">{task.title}</span>
                       <span className="text-base-content/60 text-xs">
                         {task.due}
                       </span>
@@ -235,7 +235,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
             {/* RIGHT */}
             <div className="space-y-6">
               {overdueTasks.length > 0 && (
-                <div className="bg-error/10 border border-error rounded-lg p-4">
+                <div className="bg-error/5 border border-error/30 rounded-lg p-4 text-base-content">
                   <h3 className="font-semibold text-error mb-2">
                     ⚠ {overdueTasks.length} Overdue Tasks
                   </h3>
