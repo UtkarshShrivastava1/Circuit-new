@@ -56,10 +56,11 @@ const navigate = useNavigate();
 
   return (
     <div>
-       <div className="stats stats-vertical sm:stats-horizontal shadow bg-base-100 w-full mb-6">
+       {/* <div className="stats stats-vertical sm:stats-horizontal shadow bg-base-100 w-full mb-6"> */}
+       <div className="stats stats-vertical sm:stats-horizontal bg-base-200 border border-base-content/10 shadow-md w-full mb-6">
   {/* This Month Revenue */}
   <div className="stat">
-    <div className="stat-figure text-primary">
+    <div className="stat-figure text-primary/90">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-8 h-8">
         <path stroke="currentColor" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
@@ -95,7 +96,7 @@ const navigate = useNavigate();
 </div>
 
 
-<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-base-100/80 backdrop-blur-sm border border-base-300 rounded-xl mb-6 shadow-sm">
+<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 bg-base-100 border border-base-content/10 rounded-xl mb-6 shadow-sm">
   {/* Title Section */}
   <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-3 p-3 bg-base-200/50 backdrop-blur-sm rounded-xl border border-base-300 shadow-md">
     <div className="w-12 h-12 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-xl flex items-center justify-center shadow-lg">
@@ -104,13 +105,13 @@ const navigate = useNavigate();
       </svg>
     </div>
     <div>
-      <h1 className="text-2xl font-bold bg-gradient-to-r from-base-content to-primary bg-clip-text text-transparent">Payroll Dashboard</h1>
+      <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Payroll Dashboard</h1>
       <p className="text-sm text-base-content/60">Manage employee payments & track disbursements</p>
     </div>
   </div>
 
   {/* Progress Chip */}
-  <div className="flex items-center gap-3 p-3 bg-base-200/50 backdrop-blur-sm rounded-xl border border-base-300 shadow-md hover:shadow-lg transition-all duration-200 group">
+  <div className="flex items-center gap-3 p-3 bg-base-200 border border-base-content/10 shadow-md hover:shadow-lg transition-all duration-200 group">
     <div className="flex items-center gap-2">
       <span className="text-xs font-medium text-base-content/80 group-hover:text-base-content transition-colors">Overall Progress</span>
       <div className="flex items-center gap-1.5">
@@ -184,9 +185,9 @@ const navigate = useNavigate();
     <Table headers={["Employee", "Month", "Salary", "Status", "Quick Action"]}>
       {records.map((r) => (
         <tr key={r.id}>
-          <td>{r.employee}</td>
-          <td>{r.date}</td>
-          <td>{r.amount}</td>
+          <td className="text-base-content">{r.employee}</td>
+          <td className="text-base-content">{r.date}</td>
+          <td className="text-base-content">{r.amount}</td>
           <td><StatusBadge status={r.status} /></td>
           {isAdmin && (
             <td>

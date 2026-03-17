@@ -84,7 +84,7 @@ const CreateProject = () => {
 
   return (
     <div className="min-h-screen bg-base-100 px-4 py-6 sm:py-10 flex justify-center">
-      <div className="w-full max-w-3xl bg-base-200/40 backdrop-blur-md border border-base-300 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8">
+      <div className="w-full max-w-3xl bg-base-200/40 backdrop-blur-md border border-base-200 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8">
         {/* ================= HEADING ================= */}
         <div className="mb-8 text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-base-content">

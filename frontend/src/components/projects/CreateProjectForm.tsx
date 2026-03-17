@@ -39,7 +39,7 @@ const CreateProjectForm: React.FC<Props> = ({
     >
       {/* Project Name */}
       <div>
-        <label className="block mb-1 text-gray-500">Project Name</label>
+        <label className="block mb-1 text-base-content/90">Project Name</label>
         <input
           required
           type="text"
@@ -47,20 +47,20 @@ const CreateProjectForm: React.FC<Props> = ({
           value={projectData.projectName}
           onChange={handleChange}
           //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         />
       </div>
 
       {/* Project State */}
       <div>
-        <label className="block mb-1 text-gray-500">Project State</label>
+        <label className="block mb-1 text-base-content/90">Project State</label>
         <select
           required
           name="projectState"
           value={projectData.projectState}
           onChange={handleChange}
           //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content "
         >
           <option value="ongoing">Ongoing</option>
           <option value="completed">Completed</option>
@@ -71,7 +71,7 @@ const CreateProjectForm: React.FC<Props> = ({
       {/* Dates */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 text-gray-500">Start Date</label>
+          <label className="block mb-1 text-base-content/90">Start Date</label>
           <input
             required
             type="date"
@@ -79,12 +79,12 @@ const CreateProjectForm: React.FC<Props> = ({
             value={projectData.startDate}
             onChange={handleChange}
             //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+            className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
           />
         </div>
 
         <div>
-          <label className="block mb-1 text-gray-500">End Date</label>
+          <label className="block mb-1 text-base-content/90">End Date</label>
           <input
             required
             type="date"
@@ -92,14 +92,14 @@ const CreateProjectForm: React.FC<Props> = ({
             value={projectData.endDate}
             onChange={handleChange}
             //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+            className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
           />
         </div>
       </div>
 
       {/* Domain */}
       <div>
-        <label className="block mb-1 text-gray-500">Project Domain</label>
+        <label className="block mb-1 text-base-content/90">Project Domain</label>
         <select
           required
           name="domain"
@@ -112,7 +112,7 @@ const CreateProjectForm: React.FC<Props> = ({
               customDomain: value === "other" ? "" : prev.customDomain,
             }));
           }}
-          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         >
           <option value="">Select Domain</option>
           <option value="web">Web Development</option>
@@ -137,14 +137,14 @@ const CreateProjectForm: React.FC<Props> = ({
                 customDomain: e.target.value,
               }))
             }
-            className="w-full mt-3 px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+            className="w-full mt-3 px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
           />
         )}
       </div>
 
       {/* Description */}
       <div>
-        <label className="block mb-1 text-gray-500">Description</label>
+        <label className="block mb-1 text-base-content/90">Description</label>
         <textarea
           required
           name="description"
@@ -152,7 +152,7 @@ const CreateProjectForm: React.FC<Props> = ({
           onChange={handleChange}
           rows={3}
           // className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         />
       </div>
 

@@ -111,7 +111,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
       subtitle={`Managed by ${project.manager}`}
     >
       {/* ===== Tabs (ClickUp-style) ===== */}
-      <div className="flex gap-2 border-b border-base-300 mb-6">
+      <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
 
@@ -119,7 +119,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 text-sm font-medium transition
+             className={`px-4 py-2 text-sm font-medium transition flex-shrink-0
                 ${
                  isActive
   ? "border-b-2 border-primary text-primary bg-primary/5"
@@ -137,34 +137,34 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
       {/* OVERVIEW */}
       {activeTab === "overview" && (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">Total Tasks</p>
-              <p className="text-lg font-semibold text-white">{totalTasks}</p>
+              <p className="text-lg font-semibold text-base-content">{totalTasks}</p>
             </div>
 
-            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">Completed</p>
               <p className="text-lg font-semibold text-success">
                 {completedTasks}
               </p>
             </div>
 
-            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">In Progress</p>
               <p className="text-lg font-semibold text-primary">
                 {inProgressTasks}
               </p>
             </div>
 
-            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">Pending</p>
               <p className="text-lg font-semibold text-warning">
                 {pendingTasks}
               </p>
             </div>
 
-            <div className="bg-base-100 border border-base-300 rounded-lg p-4 text-center">
+            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
               <p className="text-xs text-base-content/60">High Priority</p>
               <p className="text-lg font-semibold text-error">
                 {highPriorityTasks.length}
@@ -175,7 +175,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
             {/* LEFT */}
             <div className="lg:col-span-2 space-y-6">
               {/* Description */}
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <h3 className="font-semibold text-base-content mb-2">
                   Description
                 </h3>
@@ -183,7 +183,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
                   {project.description}
                 </p>
               </div>
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <h3 className="font-semibold mb-3 text-base-content">High Priority Tasks</h3>
 
                 {highPriorityTasks.length === 0 ? (
@@ -202,7 +202,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
                 )}
               </div>
 
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <h3 className="font-semibold mb-3 text-base-content">Latest Tasks</h3>
 
                 <ul className="space-y-2 text-sm">
@@ -218,7 +218,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
               </div>
 
               {/* Progress */}
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <div className="flex justify-between text-sm text-base-content mb-2">
                   <span>Progress</span>
                   <span>{project.progress}%</span>
@@ -248,7 +248,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
                 </div>
               )}
               {/* Team */}
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <h3 className="font-semibold text-base-content mb-3">
                   Team Members
                 </h3>
@@ -269,7 +269,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
               </div>
 
               {/* Activity */}
-              <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
                 <h3 className="font-semibold text-base-content mb-3">
                   Recent Activity
                 </h3>

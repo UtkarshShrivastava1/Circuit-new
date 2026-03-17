@@ -154,9 +154,10 @@ export default function SalaryStructureDashboard() {
                 </label>
 
                 <Input
+                
                   type="number"
                   placeholder="Enter amount"
-                  className="w-full"
+                  className="w-full placeholder:text-base-content/60 text-base-content"
                 />
               </div>
             </div>

@@ -6,7 +6,7 @@ const AttendanceSummaryCards = React.lazy(()=> import("../attendance/AttendanceS
 import AttendanceFilterDrawer from '../attendance/AttendanceFilterDrawer';
 
 const StatusPills = React.lazy(()=> import("./FilertByStatus"));
- import AttendanceMobileTopBar from "../attendance/AttendanceFilterDrawer"
+//  import AttendanceMobileTopBar from "../attendance/AttendanceFilterDrawer"
  import AttendanceTable from "../attendance/AttendanceTable";
 
 import useAttendanceFilters from "../attendance/UseAttendanceFilter";
@@ -16,6 +16,7 @@ import type { AttendanceRecord } from '@/type/attendance';
 import type { AttendanceStatus } from '@/type/attendance';
 import {Clock ,NotepadText } from "lucide-react"
 import MobileTabs from '../attendance/MobileTabs';
+import AttendanceMobileTopBar from './AttendanceMobileTopBar';
 
 
 
@@ -178,6 +179,7 @@ const AdminAttendance = () => {
 
   return (
   <Suspense fallback={<div className="p-6">Loading...</div>}>
+    {/* <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4"> */}
     {filteredRecords.length === 0 ? (
       <EmptyState
         title="No attendance records"
@@ -188,6 +190,7 @@ const AdminAttendance = () => {
         {/* TABS */}
         <div className="mb-4">
           <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden ">
+          {/* <div className="hidden md:flex tabs tabs-boxed bg-base-200 w-fit"> */}
             <button
               className={`tab ${activeTab === "records" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("records")}
@@ -232,6 +235,8 @@ const AdminAttendance = () => {
                 onChange={setStatusFilter}
               />
             </div>
+           
+
 
             <AttendanceMobileTopBar
               isAdmin={role === "admin"}
@@ -253,6 +258,7 @@ const AdminAttendance = () => {
                 onChange={setPage}
               />
             </div>
+
           </>
         )}
 
@@ -263,6 +269,7 @@ const AdminAttendance = () => {
     )}
 
     <MobileTabs active={activeTab} onChange={setActiveTab}/>
+    {/* </div> */}
   </Suspense>
 );
 
