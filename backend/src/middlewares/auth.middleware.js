@@ -1,36 +1,93 @@
-const jwt = require('jsonwebtoken');
-const config = require('../config');
-const User = require('../models/User.model');
+const jwt = require("jsonwebtoken");
+const config = require("../config");
+const User = require("../models/User.model");
+const logger = require("../common/libs/logger");
 
 const auth = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    let token;
+
+    // ------------------------------
+    // 1️⃣ Extract Token (Header > Cookie)
+    // ------------------------------
     
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'Authentication required' });
+    // Check Authorization Header
+    console.log("Authorization Header:", req.headers);
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer ")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    } 
+    // Check Cookies
+    else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+      
+      // FIX: Remove surrounding quotes if the cookie was serialized as a string
+      if (typeof token === 'string' && token.startsWith('"') && token.endsWith('"')) {
+        token = token.slice(1, -1);
+      }
     }
 
-    const token = authHeader.split(' ')[1];
+    // ------------------------------
+    // 2️⃣ Verify Existence
+    // ------------------------------
     if (!token) {
-      return res.status(401).json({ message: 'Authentication token missing' });
+      logger.warn("Authentication failed: token missing");
+      return res.status(401).json({
+        message: "Authentication required"
+      });
     }
 
-    const decoded = jwt.verify(token, config.JWT_SECRET);
+    // ------------------------------
+    // 3️⃣ Verify Token
+    // ------------------------------
+    const secret = process.env.JWT_SECRET || config.JWT_SECRET;
     
-    // Find user and populate basic info
-    const user = await User.findById(decoded.id);
-    
+    if (!secret) {
+      logger.error("JWT_SECRET is missing in environment");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      secret
+    );
+
+    // ------------------------------
+    // 4️⃣ Find User
+    // ------------------------------
+    // Support both 'userId' (new) and 'id' (legacy) if necessary
+    const userId = decoded.userId || decoded.id;
+
+    const user = await User.findById(userId).select("-password");
+
     if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+      logger.warn("Authentication failed: user not found", {
+        userId: userId
+      });
+      return res.status(401).json({
+        message: "User not found"
+      });
     }
 
+    // ------------------------------
+    // 5️⃣ Attach User
+    // ------------------------------
     req.user = user;
-    // Explicitly set tenantId on user object for the tenant middleware to pick up
     req.user.tenantId = user.organization; 
 
     next();
+
   } catch (error) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    logger.error("Auth middleware error", {
+      error: error.message
+    });
+
+    return res.status(401).json({
+      message: "Invalid or expired token",
+      error: error.message 
+    });
   }
 };
 

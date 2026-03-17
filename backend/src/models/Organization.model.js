@@ -13,9 +13,13 @@ const organizationSchema = new mongoose.Schema({
     trim: true,
     lowercase: true
   },
-  email: {
+  // email: {
+  //   type: String,
+  //   required: true,
+  // },
+  ownerEmail: {
     type: String,
-    required: true,
+    required: true
   },
   address: {
     type: String,

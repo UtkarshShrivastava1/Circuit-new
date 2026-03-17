@@ -4,6 +4,9 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const compression = require("compression");
 const routes = require("./routes");
+const authRoutes = require("./routes/auth.routes");
+const memberRoutes = require("./routes/member.routes");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
@@ -30,11 +33,19 @@ app.use(compression());
 // Body Parsers
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
 
 // ------------------------------------------------------------
 // ROUTES
 // ------------------------------------------------------------
 app.use("/", routes);
+app.use("/api/auth", authRoutes);
+app.use("/api", memberRoutes);
+
+// Define a simple GET API endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'Hello from the backend!' });
+});
 
 // ------------------------------------------------------------
 // ERROR HANDLING

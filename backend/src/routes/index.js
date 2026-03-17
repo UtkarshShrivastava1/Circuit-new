@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/auth.middleware');
-const tenantResolver = require('../middlewares/tenant.middleware');
+// const auth = require('../middlewares/auth.middleware');
+// const tenantResolver = require('../middlewares/tenant.middleware');
 
 // Public Routes
 router.get('/health', (req, res) => {
@@ -10,7 +10,7 @@ router.get('/health', (req, res) => {
 
 // --- PROTECTED ROUTES ---
 // All routes below this line are protected and multi-tenant aware
-router.use('/api', auth, tenantResolver);
+// router.use('/api', auth, tenantResolver);
 
 // Example: Get Current User Profile
 router.get('/api/me', (req, res) => {
