@@ -40,7 +40,7 @@ export default function AttendanceTable({ records, role }: Props) {
 
   return (
     <div className="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-
+     <div className="overflow-x-auto">
       {/* ✅ Bulk Action Bar (ADMIN ONLY) */}
       {isAdmin && selectedIds.length > 0 && (
         <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-4 py-3 flex justify-between items-center">
@@ -74,7 +74,7 @@ export default function AttendanceTable({ records, role }: Props) {
         ]}
       >
         {records.map((r) => (
-          <tr key={r.id} className="text-base-content">
+          <tr key={r.id} className="text-base-content text-sm">
 
             {/* ✅ Checkbox only for admin */}
             {isAdmin && (
@@ -128,6 +128,7 @@ export default function AttendanceTable({ records, role }: Props) {
           </tr>
         ))}
       </Table>
+      </div>
     </div>
   );
 }

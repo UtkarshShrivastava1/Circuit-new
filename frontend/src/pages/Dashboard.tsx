@@ -61,7 +61,7 @@ export default function Dashboard() {
     email: "rahul@example.com",
     designation:"UI Designer",
     role: "employee",
-    dateOfBirth: "2002-02-21",
+    dateOfBirth: "2002-03-10",
   }
   ,
   {
@@ -70,7 +70,7 @@ export default function Dashboard() {
     email: "rahul@example.com",
     designation:"UI Designer",
     role: "employee",
-    dateOfBirth: "2002-02-21",
+    dateOfBirth: "2002-03-10",
   }
 ];
 

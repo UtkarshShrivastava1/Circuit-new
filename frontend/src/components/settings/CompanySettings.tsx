@@ -46,59 +46,60 @@ const CompanySettings = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-md">
-      <h2 className="text-lg font-semibold text-gray-800">
-        Company Information
-      </h2>
+  <div className="space-y-6 max-w-md">
+    <h2 className="text-lg font-semibold text-base-content">
+      Company Information
+    </h2>
 
+    <input
+      type="text"
+      name="name"
+      placeholder="Company Name"
+      value={form.name}
+      onChange={handleChange}
+      className="input input-bordered w-full"
+    />
+
+    <input
+      type="text"
+      name="address"
+      placeholder="Office Address"
+      value={form.address}
+      onChange={handleChange}
+      className="input input-bordered w-full"
+    />
+
+    <div className="flex gap-4">
       <input
-        type="text"
-        name="name"
-        placeholder="Company Name"
-        value={form.name}
+        type="time"
+        name="startTime"
+        value={form.startTime}
         onChange={handleChange}
-        className="bg-gray-50 p-3 rounded-md border border-gray-200 w-full focus:ring-2 focus:ring-blue-500"
+        className="input input-bordered w-full"
       />
 
       <input
-        type="text"
-        name="address"
-        placeholder="Office Address"
-        value={form.address}
+        type="time"
+        name="endTime"
+        value={form.endTime}
         onChange={handleChange}
-        className="bg-gray-50 p-3 rounded-md border border-gray-200 w-full focus:ring-2 focus:ring-blue-500"
+        className="input input-bordered w-full"
       />
-
-      <div className="flex gap-4">
-        <input
-          type="time"
-          name="startTime"
-          value={form.startTime}
-          onChange={handleChange}
-          className="bg-gray-50 p-3 rounded-md border border-gray-200 w-full focus:ring-2 focus:ring-blue-500"
-        />
-
-        <input
-          type="time"
-          name="endTime"
-          value={form.endTime}
-          onChange={handleChange}
-          className="bg-gray-50 p-3 rounded-md border border-gray-200 w-full focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      {message && <p className="text-green-600 text-sm">{message}</p>}
-
-      <button
-        onClick={handleSubmit}
-        disabled={loading}
-        className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md w-full transition disabled:opacity-50"
-      >
-        {loading ? "Saving..." : "Save Changes"}
-      </button>
     </div>
-  );
+
+    {error && (
+      <p className="text-error text-sm">{error}</p>
+    )}
+
+    <button
+      onClick={handleSubmit}
+      disabled={loading}
+      className="btn btn-primary w-full"
+    >
+      {loading ? "Saving..." : "Save Changes"}
+    </button>
+  </div>
+);
 };
 
 export default CompanySettings;

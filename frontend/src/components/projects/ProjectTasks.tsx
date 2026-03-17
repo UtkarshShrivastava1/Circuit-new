@@ -111,13 +111,13 @@ function TaskDrawer({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 bg-black/30 flex justify-end z-50">
+   <div className="fixed inset-0 bg-base-content/30 backdrop-blur-sm flex justify-end z-50">
       <div className="w-full max-w-md bg-base-100 h-full p-6 border-l border-base-300">
         <div className="flex justify-between mb-4">
           <h3 className="font-semibold text-base-content">
             {task.title}
           </h3>
-          <button className="btn btn-sm btn-ghost" onClick={onClose}>
+          <button className="btn btn-sm btn-circle" onClick={onClose}>
             ✕
           </button>
         </div>
@@ -189,15 +189,15 @@ export default function ProjectTasks() {
   return (
     <>
       {/* TASK LIST */}
-      <div className="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-base-300 flex justify-between items-center">
+      <div className="bg-base-200  border border-base-content/10 rounded-lg overflow-hidden">
+       <div className="p-4 border-b border-base-300 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
           <h3 className="font-semibold text-base-content">
             Tasks
           </h3>
 
           {canEdit && (
             <button
-              className="btn btn-sm btn-primary"
+  className="btn btn-sm btn-primary w-full sm:w-auto"
               onClick={() => setShowNewTask(true)}
             >
               + New Task
@@ -205,9 +205,10 @@ export default function ProjectTasks() {
           )}
         </div>
 
-        <table className="table">
+      <div className="overflow-x-auto">
+  <table className="table min-w-[600px]">
           <thead>
-            <tr className="text-base-content/60">
+            <tr className=" text-base-content/60">
               <th>Task</th>
               <th>Assignee</th>
               <th>Status</th>
@@ -220,7 +221,7 @@ export default function ProjectTasks() {
                {paginatedData.map((task) => (
               <tr
                 key={task.id}
-                className="text-base-content hover:bg-base-200 cursor-pointer"
+                className="text-base-content hover:bg-base-300 cursor-pointer"
                 onClick={() => setSelectedTask(task)}
               >
                 <td>{task.title}</td>
@@ -283,9 +284,10 @@ export default function ProjectTasks() {
             ))} 
           </tbody>
         </table>
+        </div>
 
         
-                      <div className="flex justify-end mt-4 ">
+                    <div className="flex justify-center sm:justify-end p-4 border-t border-base-300">
                         <Pagination
                           page={page}
                           totalPages={totalPages}

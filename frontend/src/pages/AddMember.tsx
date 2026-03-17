@@ -754,15 +754,15 @@ const AddMember = () => {
   };
 
   const inputStyle =
-    "w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition";
+  "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center p-6">
+  <div className="min-h-screen  flex justify-center p-6">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-5xl bg-white p-8 rounded-2xl shadow-md space-y-10"
+        className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10"
       >
-        <h2 className="text-2xl font-semibold">Employee Onboarding</h2>
+        <h2 className="text-2xl text-base-content font-semibold">Employee Onboarding</h2>
 
         {/* PROFILE IMAGE */}
         <div className="flex justify-center">
@@ -805,7 +805,7 @@ const AddMember = () => {
 
         {/* ================= PERSONAL INFO ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
+          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Personal Information
           </h3>
 
@@ -864,8 +864,7 @@ const AddMember = () => {
                   }));
                 }
               }}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
-              focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className={inputStyle}
             />
 
             <input
@@ -879,9 +878,9 @@ const AddMember = () => {
             <select
               name="gender"
               onChange={handleChange}
-              className={inputStyle}
+              className={`${inputStyle}`}
             >
-              <option value="">Select Gender</option>
+              <option  value="">Select Gender</option>
               <option>Male</option>
               <option>Female</option>
               <option>Other</option>
@@ -916,7 +915,7 @@ const AddMember = () => {
 
         {/* ================= EMERGENCY ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
+          <h3 className="text-lg font-semibold border-b pb-2 border-base-content/20 text-base-content">
             Emergency Contact
           </h3>
 
@@ -964,7 +963,7 @@ const AddMember = () => {
 
         {/* ================= IDENTITY ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
+          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Identity & Legal Details
           </h3>
 
@@ -1026,7 +1025,7 @@ const AddMember = () => {
 
         {/* ================= EMPLOYMENT ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
+          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Employment Details
           </h3>
 <div className="grid md:grid-cols-2 gap-6">
@@ -1096,7 +1095,7 @@ const AddMember = () => {
 
         {/* ================= FINANCIAL ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2">
+          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Financial Details
           </h3>
 

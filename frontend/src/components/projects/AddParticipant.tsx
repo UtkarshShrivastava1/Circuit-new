@@ -87,7 +87,7 @@ setParticipants([...participants, form]);
   return (
 <div className="bg-base-200/40 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-base-300 space-y-6 transition-all">
 
-      <h2 className="text-xl font-semibold mb-4">Add Participant</h2>
+      <h2 className="text-xl font-semibold mb-4 text-base-content">Add Participant</h2>
 
       {/* User Dropdown */}
       <select
@@ -95,7 +95,7 @@ setParticipants([...participants, form]);
         value={form.userId}
         onChange={handleChange}
         // className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
-className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content/50"
       >
         <option value="">Select User</option>
         {users.map((user) => (
@@ -111,7 +111,7 @@ className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:
         value={form.role}
         onChange={handleChange}
       // className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
-className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content/50"
       >
         <option value="">Select Role</option>
         <option value="Member">Project Member</option>
@@ -124,7 +124,7 @@ className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:
         value={form.responsibility}
         onChange={handleChange}
       //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 transition"
-className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
+className="w-full  px-3  py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content/50"
       >
         <option value="">Select Responsibility</option>
         <option value="Development">Development</option>

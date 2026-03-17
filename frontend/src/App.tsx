@@ -6,6 +6,8 @@ import Notifications from "./pages/Notifications";
 import ProjectChat from "./components/projects/ProjectChat";
 import SettingsPage from "./pages/Settings";
 import Settings from "./pages/Settings";
+import HomePage from "./pages/HomePage";
+import OrganizationPage from "./pages/Organization/OrganizationRegistrtaionPage";
 
 /* ---------- Lazy Pages ---------- */
 
@@ -52,10 +54,12 @@ export default function App() {
     <Suspense fallback={<div className="p-6 flex justify-center items-center mt-10">Loading...</div>}>
       <Routes>
         {/* Redirect root to login */}
+        
         <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
+        <Route path="/organizationRegister" element={<OrganizationPage />} />
 
         {/* Protected Layout Routes */}
         <Route element={<LayoutWrapper />}>

@@ -55,30 +55,30 @@ export default function SendNotificationModal({
     onClose();
   };
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-      <div className="bg-white w-full max-w-lg rounded-xl p-8 shadow-2xl border border-gray-200 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 bg-base-content/30 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+      <div className="bg-base-100 border-base-300 text-base-content w-full max-w-lg rounded-xl p-8 shadow-2xl border space-y-6 animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-xl font-semibold text-gray-800">
+            <h3 className="text-xl font-semibold text-base-content">
               New Notification
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm text-base-content/60 mt-1">
               Send a message to employees
             </p>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 transition"
+            className="p-2 rounded-full hover:bg-base-200 transition"
           >
-            <MdClose size={20} className="text-gray-500" />
+            <MdClose size={20} className="text-base-content/60" />
           </button>
         </div>
 
         {/* Title */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Title</label>
+          <label className="text-sm font-medium text-base-content">Title</label>
           <Input
             placeholder="Enter notification title"
             value={title}
@@ -88,9 +88,9 @@ export default function SendNotificationModal({
 
         {/* Message */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">Message</label>
-          <textarea
-            className="w-full rounded-xl border border-gray-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black transition"
+          <label className="text-sm font-medium text-base-content">Message</label>
+         <textarea
+  className="w-full rounded-xl border border-base-300 bg-base-100 p-3 text-sm text-base-content focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition"
             rows={4}
             placeholder="Write your message here..."
             value={message}
@@ -104,7 +104,7 @@ export default function SendNotificationModal({
           </label>
 
           {!file ? (
-            <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-black transition text-sm text-gray-500">
+            <label className="flex flex-col items-center justify-center w-full p-4 border-2 border-dashed  rounded-xl cursor-pointertransition border-base-300 hover:border-primary text-base-content/60 text-sm ">
               Click to upload file
               <input
                 type="file"
@@ -117,17 +117,17 @@ export default function SendNotificationModal({
               />
             </label>
           ) : (
-            <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm">
+            <div className="flex items-center justify-between bg-base-200 border-base-300  border rounded-xl px-4 py-2 text-sm">
               <div className="flex flex-col">
-                <span className="font-medium text-gray-700">{file.name}</span>
-                <span className="text-xs text-gray-500">
+                <span className="font-medium text-base-content">{file.name}</span>
+                <span className="text-xs text-base-content/60">
                   {(file.size / 1024).toFixed(1)} KB
                 </span>
               </div>
 
               <button
                 onClick={() => setFile(null)}
-                className="text-gray-400 hover:text-red-500 transition"
+                className="text-base-content/60 hover:text-error transition"
               >
                 ✕
               </button>
