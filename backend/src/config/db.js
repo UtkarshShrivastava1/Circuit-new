@@ -15,6 +15,7 @@ const connectDB = async () => {
     });
 
     logger.info(`MongoDB connected: ${conn.connection.host}`);
+    console.log(`MongoDB connected: ${conn.connection.name}`);
     return conn;
   } catch (error) {
     // Log the full error object to see details (IP whitelist, auth failure, etc.)

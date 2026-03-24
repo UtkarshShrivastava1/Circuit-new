@@ -280,7 +280,7 @@ exports.login = async (req, res) => {
       secret,
       { expiresIn: "1d" }
     );
-
+const org = await Organization.findById(user.organization);
     // Set cookie server-side to prevent "quote" issues from frontend serialization
     res.cookie("token", token, {
       httpOnly: true,
@@ -302,7 +302,7 @@ exports.login = async (req, res) => {
     
 
     logger.info(`Login success: ${email}`);
-
+    
     console.log(
       chalk.blue(`🔐 User logged in: ${email}`)
     );
@@ -329,6 +329,10 @@ exports.login = async (req, res) => {
       });
       
 
+    // res.json({
+    //   token,
+    //   slug: org.slug
+    // });
 
   } catch (error) {
 

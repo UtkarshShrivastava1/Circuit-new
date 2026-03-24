@@ -6,9 +6,8 @@ const compression = require("compression");
 const routes = require("./routes");
 const authRoutes = require("./routes/auth.routes");
 const memberRoutes = require("./routes/member.routes");
-const leaveRoutes = require("./routes/leave.routes");
-const holidayRoutes = require("./routes/holiday.routes");
-const leavePolicyRoutes = require("./routes/leavePolicy.routes");
+const projectRoutes = require("./routes/project.routes");
+const taskRoutes = require("./routes/task.routes");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -22,7 +21,7 @@ app.use(helmet());
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  origin: process.env.CORS_ORIGIN || "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
@@ -44,9 +43,8 @@ app.use(cookieParser());
 app.use("/", routes);
 app.use("/api/auth", authRoutes);
 app.use("/api", memberRoutes);
-app.use("/api", leaveRoutes);
-app.use("/api", holidayRoutes);
-app.use("/api", leavePolicyRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/projects", projectRoutes);  
 
 // Define a simple GET API endpoint
 app.get('/', (req, res) => {

@@ -18,6 +18,10 @@ import TaskFilters from "@/components/task/TaskFilter";
 import type { Task } from "@/type/task";
 import TaskModal from "@/components/task/TaskModal";
 import MobileTabs from "@/components/task/MobileTabs";
+import api from "@/services/api";
+import { useAuth } from "@/auth/AuthContext";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 /* ---------------- TYPES ---------------- */
 
@@ -29,6 +33,8 @@ type TaskFilter =
   | "overdue";
 
 /* ---------------- MOCK DATA ---------------- */
+
+
 
 const MOCK_TASKS: Task[] = [
   {
@@ -96,6 +102,8 @@ const ITEMS_PER_PAGE = 10;
 export default function TaskDashboard() {
   const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
   const [view, setView] = useState<TaskView>("table");
+const {auth} = useAuth();
+const {projectId}=useParams ();
   const [activeFilter, setActiveFilter] =
     useState<TaskFilter>("all");
   const [selectedTask, setSelectedTask] =
@@ -106,7 +114,32 @@ export default function TaskDashboard() {
     useState< "table" | "kanban" >(
       "table"
     );
+const createTask = async (task: Task) => {
+  try {
+    const res = await api.post(
+      `/task/${auth.slug}/addTask/${projectId}`,
+      {
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
+        attachments: task.attachments,
+        status: task.status,
+        assignedTo: task.assignee,
+        dueDate: task.dueDate,
+        tag: task.tags,
+        subtasks: task.checklist,
+      }
+    );
 
+    setTasks((prev) => [...prev, task]); // UI update
+    toast.success("Task created");
+    setOpen(false);
+
+  } catch (error) {
+    toast.error("Failed to create task");
+    console.error("Create task failed", error);
+  }
+};
   /* ---------------- FILTER LOGIC ---------------- */
 
  const filteredTasks = useMemo(() => {
@@ -341,7 +374,7 @@ export default function TaskDashboard() {
        <TaskModal
         open={open}
         onClose={() => setOpen(false)}
-        onSave={handleSave}
+        onSave={createTask}
       />
     </div>
   );

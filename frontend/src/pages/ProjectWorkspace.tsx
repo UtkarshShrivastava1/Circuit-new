@@ -18,6 +18,8 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
   tabFromUrl || "overview"
 );
 
+console.log("Project ID in ProjectWorkspace:", id);
+
   const project = {
     id,
     name: "Office ERP System",
@@ -286,7 +288,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
       )}
 
       {/* TASKS */}
-      {activeTab === "tasks" && <ProjectTasks />}
+      {activeTab === "tasks" && <ProjectTasks projectId={id!} />}
 
       {/* MEMBERS */}
       {activeTab === "members" && <ProjectMembers />}

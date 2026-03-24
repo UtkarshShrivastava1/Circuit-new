@@ -33,7 +33,7 @@ const config = {
   mongo: {
     uri:
       env("MONGO_URI") ||
-      "mongodb://127.0.0.1:27017/swadsetu",
+      "mongodb://127.0.0.1:27017/circuit",
     options: {
     },
   },

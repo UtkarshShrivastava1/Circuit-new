@@ -1,5 +1,7 @@
+import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
+import api from "@/services/api";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -21,7 +23,7 @@ interface Participant {
 
 const initialProjectState: ProjectData = {
   projectName: "",
-  projectState: "ongoing",
+  projectState: "Active",
   startDate: "",
   endDate: "",
   domain: "",
@@ -46,40 +48,91 @@ const CreateProject = () => {
     setActiveTab(tab);
   };
 
-  const handleCreateProject = async () => {
-    if (participants.length === 0) {
-      toast.error("Add at least one participant");
-      return;
-    }
+  // const handleCreateProject = async () => {
+  //   if (participants.length === 0) {
+  //     toast.error("Add at least one participant");
+  //     return;
+  //   }
+  
 
-    try {
-      setCreating(true);
-      const finalDomain =
-        projectData.domain === "other"
-          ? projectData.customDomain
-          : projectData.domain;
-      const { customDomain, ...rest } = projectData;
-      const finalPayload = {
-        ...rest,
-        domain: finalDomain,
-        participants,
-      };
+  //   try {
+  //     setCreating(true);
+  //     const finalDomain =
+  //       projectData.domain === "other"
+  //         ? projectData.customDomain
+  //         : projectData.domain;
+  //     const { customDomain, ...rest } = projectData;
+  //     const finalPayload = {
+  //       ...rest,
+  //       domain: finalDomain,
+  //       participants,
+  //     };
 
-      console.log("FINAL DATA:", finalPayload);
+  //     console.log("FINAL DATA:", finalPayload);
 
-      console.log("FINAL DATA:", finalPayload);
+    
 
+  //     setProjectData(initialProjectState);
+  //     setParticipants([]);
+  //     setActiveTab("Project Info");
+
+  //     toast.success("Project created successfully 🎉");
+  //   } catch (error) {
+  //     console.error("Project creation failed", error);
+  //   } finally {
+  //     setCreating(false);
+  //   }
+  // };
+ // make sure this is your axios instance or fetch wrapper
+ const { auth } = useAuth(); // get auth context for slug and token
+const handleCreateProject = async () => {
+  if (participants.length === 0) {
+    toast.error("Add at least one participant");
+    return;
+  }
+
+  try {
+    setCreating(true);
+
+    // Handle domain
+    const finalDomain =
+      projectData.domain.toLowerCase() === "other"
+        ? projectData.customDomain
+        : projectData.domain;
+
+    const payload = {
+      ...projectData,
+      domain: finalDomain,
+       participants: participants.map(p => ({
+    user: p.userId,   
+    role: p.role,
+    responsibility: p.responsibility
+  })),
+
+    };
+
+    // Send POST request to backend
+    const res = await api.post(`/projects/${auth.slug}/createProject`, payload);
+
+    if (res.data.success) {
+      toast.success("Project created successfully ");
+      // Reset form
       setProjectData(initialProjectState);
       setParticipants([]);
       setActiveTab("Project Info");
-
-      toast.success("Project created successfully 🎉");
-    } catch (error) {
-      console.error("Project creation failed", error);
-    } finally {
-      setCreating(false);
+    } else {
+      toast.error(res.data.message || "Failed to create project");
     }
-  };
+  } catch (error: any) {
+    console.error("Project creation failed", error);
+    toast.error(error?.response?.data?.message || "Server error");
+  } finally {
+    setCreating(false);
+  }
+};
+  
+  
+  
   console.log("running");
 
   return (
