@@ -1,4 +1,4 @@
-type Filter = "all" | "active" | "completed" | "on-hold";
+type Filter = "all" | "active" | "completed" | "on hold";
 
 interface Props {
   value: Filter;
@@ -8,7 +8,7 @@ interface Props {
 export default function ProjectFilters({ value, onChange }: Props) {
   return (
     <div className="tabs tabs-boxed bg-base-200 w-fit mb-4">
-      {(["all", "active", "completed", "on-hold"] as Filter[]).map(
+      {(["all", "active", "completed", "on hold"] as Filter[]).map(
         (f) => (
           <button
             key={f}

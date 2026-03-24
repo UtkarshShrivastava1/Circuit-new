@@ -6,6 +6,8 @@ const compression = require("compression");
 const routes = require("./routes");
 const authRoutes = require("./routes/auth.routes");
 const memberRoutes = require("./routes/member.routes");
+const projectRoutes = require("./routes/project.routes");
+const taskRoutes = require("./routes/task.routes");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -41,6 +43,8 @@ app.use(cookieParser());
 app.use("/", routes);
 app.use("/api/auth", authRoutes);
 app.use("/api", memberRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/projects", projectRoutes);  
 
 // Define a simple GET API endpoint
 app.get('/', (req, res) => {

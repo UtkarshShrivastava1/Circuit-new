@@ -15,6 +15,6 @@ router.post("/:slug/members/invite", auth, tenant, memberController.inviteEmploy
 router.patch("/:slug/members/:userId/role", auth, tenant, memberController.updateRole);
 
 router.patch("/:slug/members/:userId/deactivate", auth, tenant, memberController.deactivateEmployee);
-
+router.get("/:slug/getMembers", auth, tenant, memberController.getEmployees);
 
 module.exports = router;

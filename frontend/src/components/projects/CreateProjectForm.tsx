@@ -62,9 +62,9 @@ const CreateProjectForm: React.FC<Props> = ({
           //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
           className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content "
         >
-          <option value="ongoing">Ongoing</option>
-          <option value="completed">Completed</option>
-          <option value="on-hold">On Hold</option>
+          <option value="Active">Active</option>
+          <option value="Completed">Completed</option>
+          <option value="On Hold">On Hold</option>
         </select>
       </div>
 
@@ -100,7 +100,7 @@ const CreateProjectForm: React.FC<Props> = ({
       {/* Domain */}
       <div>
         <label className="block mb-1 text-base-content/90">Project Domain</label>
-        <select
+        {/* <select
           required
           name="domain"
           value={projectData.domain}
@@ -125,7 +125,33 @@ const CreateProjectForm: React.FC<Props> = ({
           <option value="testing">Testing</option>
           <option value="softwareDeveloper">Software Developer</option>
           <option value="other">Other</option>
-        </select>
+        </select> */}
+        <select
+  required
+  name="domain"
+  value={projectData.domain}
+  onChange={(e) => {
+    const value = e.target.value;
+    setProjectData((prev) => ({
+      ...prev,
+      domain: value,
+      customDomain: value === "Other" ? "" : prev.customDomain,
+    }));
+  }}
+  className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10"
+>
+  <option value="">Select Domain</option>
+  <option value="Web Development">Web Development</option>
+  <option value="App Development">App Development</option>
+  <option value="AI/ML">AI / ML</option>
+  <option value="Social Media">Social Media</option>
+  <option value="Block Chain">Block Chain</option>
+  <option value="Content Writing">Content Writing</option>
+  <option value="Content Creation">Content Creation</option>
+  <option value="Testing">Testing</option>
+  <option value="Software Development">Software Development</option>
+  <option value="Other">Other</option>
+</select>
         {projectData.domain === "other" && (
           <input
             type="text"

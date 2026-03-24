@@ -25,6 +25,7 @@
     "express": "^5.2.1",
     "framer-motion": "^12.33.0",
     "html2pdf.js": "^0.12.1",
+    "jwt-decode": "^4.0.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.544.0",
     "minimist": "^1.2.8",

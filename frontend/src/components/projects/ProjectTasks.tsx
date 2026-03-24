@@ -6,6 +6,7 @@ import Pagination from "../ui/Pagination";
 import {usePagination} from "../../hooks/usePagination";
 import NewTaskModal from "./NewTaskModal";
 
+
 /* ================= TYPES ================= */
 
 type TaskStatus = "pending" | "in-progress" | "completed";
@@ -103,6 +104,9 @@ const initialTasks: Task[] = Array.from({ length: 30 }).map((_, i) => ({
 
 /* ================= TASK DRAWER ================= */
 
+interface Props{
+  projectId:string;
+}
 function TaskDrawer({
   task,
   onClose,
@@ -136,11 +140,12 @@ function TaskDrawer({
 
 /* ================= MAIN COMPONENT ================= */
 
-export default function ProjectTasks() {
+export default function ProjectTasks({ projectId }: Props) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showNewTask, setShowNewTask] = useState(false);
 
+ console.log("Project ID:", projectId); // Debug log
   // 🔹 Mock role (Week-1)
   const role: Role = "admin";
 
@@ -299,6 +304,7 @@ export default function ProjectTasks() {
       {/* NEW TASK */}
       {showNewTask && (
         <NewTaskModal
+       projectId={projectId!}  
           onClose={() => setShowNewTask(false)}
           onCreate={(task) => {
             setTasks((prev) => [...prev, task]);

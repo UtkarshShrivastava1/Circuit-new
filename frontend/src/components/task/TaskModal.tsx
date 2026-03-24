@@ -4,7 +4,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import TagsInput from "@/components/ui/TagsInput";
 import type { Task } from "@/type/task";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AttachmentInput from "../ui/AttachmentInput";
 import Checklist from "../ui/CheckList";
 import { motion, AnimatePresence } from "framer-motion";
