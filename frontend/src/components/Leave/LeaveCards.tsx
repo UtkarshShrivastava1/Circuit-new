@@ -8,6 +8,7 @@ import {
   MdCalendarToday,
   MdVisibility,
   MdDelete,
+  MdEventBusy,
 } from "react-icons/md";
 
 
@@ -31,8 +32,16 @@ export default function LeaveCards({
 }: Props) {
   if (requests.length === 0) {
     return (
-      <div className="bg-base-100 border rounded-lg p-6 text-center text-sm text-base-content/60">
-        No leave requests yet
+      <div className="flex flex-col items-center justify-center p-12 bg-base-100 border border-base-300 rounded-2xl border-dashed">
+        <div className="w-16 h-16 bg-base-200 rounded-full flex items-center justify-center mb-4 text-base-content/40">
+          <MdEventBusy size={32} />
+        </div>
+        <h3 className="text-lg font-medium text-base-content mb-1">
+          No Leave Requests
+        </h3>
+        <p className="text-sm text-base-content/60 max-w-sm text-center">
+          You haven't applied for any leaves yet. When you do, they will appear here.
+        </p>
       </div>
     );
   }

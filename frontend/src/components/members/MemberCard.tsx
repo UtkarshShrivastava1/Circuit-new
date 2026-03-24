@@ -173,14 +173,14 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
 
             <button
-              onClick={() => navigate(`/members/${member.id}`)}
+              onClick={() => navigate(`/members/${member._id}`)}
               className="px-4 py-2 text-sm bg-primary text-primary-content rounded-lg hover:opacity-90"
             >
               Manage
             </button>
 
             <button
-              onClick={() => onDelete?.(member.id)}
+              onClick={() => onDelete?.(member._id)}
               className="px-4 py-2 text-sm bg-error text-error-content rounded-lg hover:opacity-90"
             >
               Delete

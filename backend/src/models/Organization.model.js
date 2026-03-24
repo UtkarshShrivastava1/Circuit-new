@@ -12,6 +12,15 @@ const organizationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    adminName:{
+      type: String,
+      required: true,
+      trim: true,
+    },
+    password:{
+      type: String,
+      required: true,
+    },
     slug:{
       type: String,
       required: true,
@@ -22,6 +31,11 @@ const organizationSchema = new mongoose.Schema(
     ownerEmail:{
       type: String,
       required: true,
+    },
+    role:{
+      type: String,
+      enum: ["owner", "admin", "member"],
+      default: "member",
     },
     registrationNumber:{
       type: String,

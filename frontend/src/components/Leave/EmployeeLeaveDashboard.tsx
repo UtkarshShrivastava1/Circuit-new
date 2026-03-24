@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import ApplyLeaveModal from "@/components/Leave/ApplyLeaveModal";
 import LeaveCards from "@/components/Leave/LeaveCards";
@@ -17,44 +17,18 @@ import {
   MdCalendarMonth,
   MdMenuBook,
 } from "react-icons/md";
+import { applyLeave, getMyLeaves, deleteLeave, updateLeave } from "@/services/leaveService";
+import { getHolidays } from "@/services/holidayService";
+import { getLeavePolicy } from "@/services/leavePolicyService";
+import { toast } from "react-toastify";
 
-
-/* ================= DUMMY DATA ================= */
-
-const DUMMY_REQUESTS: LeaveRequest[] = [
-  {
-    id: "1",
-    employee: "Vinay Kumar",
-    type: "casual",
-    fromDate: "2026-02-10",
-    toDate: "2026-02-12",
-    reason: "Family Function",
-    status: "approved",
-  },
-  {
-    id: "2",
-    employee: "Vinay Kumar",
-    type: "sick",
-    fromDate: "2026-03-02",
-    toDate: "2026-03-02",
-    reason: "Fever",
-    status: "pending",
-  },
-  {
-    id: "3",
-    employee: "Vinay Kumar",
-    type: "paid",
-    fromDate: "2026-04-01",
-    toDate: "2026-04-03",
-    reason: "Vacation",
-    status: "rejected",
-  },
-];
 
 export default function EmployeeLeaveDashboard() {
   const [open, setOpen] = useState(false);
-  const [requests, setRequests] =
-    useState<LeaveRequest[]>(DUMMY_REQUESTS);
+  const [requests, setRequests] = useState<LeaveRequest[]>([]);
+  const [policy, setPolicy] = useState<any>(null);
+  const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [selectedLeave, setSelectedLeave] =
     useState<LeaveRequest | null>(null);
@@ -66,6 +40,145 @@ export default function EmployeeLeaveDashboard() {
     useState<"overview" | "my-leaves" | "balance" | "calendar" | "policy">(
       "overview"
     );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const userDataStr = sessionStorage.getItem("user");
+        if (!userDataStr) return;
+        
+        const user = JSON.parse(userDataStr);
+        const organizationId = user.organization;
+
+        const [response, holidaysRes, policyRes] = await Promise.all([
+          getMyLeaves(organizationId),
+          getHolidays(organizationId),
+          getLeavePolicy(organizationId)
+        ]);
+        
+        const fetchedLeaves: LeaveRequest[] = response.data.leaves.map((leave: any) => ({
+          id: leave._id,
+          employee: user.name || "Employee",
+          type: leave.leaveType,
+          fromDate: leave.startDate ? leave.startDate.split("T")[0] : "",
+          toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
+          reason: leave.reason,
+          status: leave.status,
+        }));
+
+        setRequests(fetchedLeaves);
+        setHolidays(holidaysRes.data.holidays || []);
+        setPolicy(policyRes.data.policy || null);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to load leave requests");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleApplyLeave = async (leave: any) => {
+    try {
+      // 1. Get Organization ID and User context from Session Storage
+      const userDataStr = sessionStorage.getItem("user");
+      if (!userDataStr) {
+        toast.error("User session not found.");
+        addNotification({ title: "Error", message: "User session not found.", type: "error" });
+        return;
+      }
+      
+      const user = JSON.parse(userDataStr);
+      const organizationId = user.organization;
+
+      const payload = { ...leave, name: user.name };
+
+      // 2. Call the backend API via leaveService
+      const response = await applyLeave(organizationId, payload);
+      const savedLeave = response.data.leave;
+      console.log("Leave applied successfully:", savedLeave);
+
+      // 3. Update local state with the new response from DB
+      const newLeave: LeaveRequest = {
+        id: savedLeave._id,
+        employee: user.name || "Employee",
+        type: savedLeave.leaveType,
+        fromDate: savedLeave.startDate ? savedLeave.startDate.split("T")[0] : leave.fromDate,
+        toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : leave.toDate,
+        reason: savedLeave.reason,
+        status: savedLeave.status,
+      };
+
+      setRequests((prev) => [newLeave, ...prev]);
+
+      // 4. Trigger Success Notification & Close Modal
+      toast.success(`Your ${leave.type} leave has been submitted successfully.`);
+      addNotification({
+        title: "Leave Applied",
+        message: `Your ${leave.type} leave has been submitted successfully.`,
+        type: "info",
+      });
+
+      setOpen(false);
+    } catch (error: any) {
+      console.error("Apply leave failed:", error);
+      const errorMessage = error.response?.data?.message || "Failed to submit leave request.";
+      
+      toast.error(errorMessage);
+      addNotification({
+        title: "Application Failed",
+        message: errorMessage,
+        type: "error",
+      });
+    }
+  };
+
+  const handleDeleteLeave = async (id: string) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this leave request?");
+    if (!confirmDelete) return;
+
+    try {
+      const userDataStr = sessionStorage.getItem("user");
+      if (!userDataStr) return;
+      const user = JSON.parse(userDataStr);
+      
+      await deleteLeave(user.organization, id);
+      setRequests((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Leave deleted successfully");
+    } catch (error: any) {
+      console.error("Delete leave failed:", error);
+      toast.error(error.response?.data?.message || "Failed to delete leave");
+    }
+  };
+
+  const handleUpdateLeave = async (updatedLeave: any) => {
+    try {
+      const userDataStr = sessionStorage.getItem("user");
+      if (!userDataStr) return;
+      const user = JSON.parse(userDataStr);
+      
+      const response = await updateLeave(user.organization, updatedLeave.id, updatedLeave);
+      const savedLeave = response.data.leave;
+      
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === updatedLeave.id ? {
+            ...r,
+            type: savedLeave.leaveType,
+            fromDate: savedLeave.startDate ? savedLeave.startDate.split("T")[0] : updatedLeave.fromDate,
+            toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : updatedLeave.toDate,
+            reason: savedLeave.reason,
+          } : r
+        )
+      );
+      toast.success("Leave updated successfully");
+    } catch (error: any) {
+      console.error("Update leave failed:", error);
+      toast.error(error.response?.data?.message || "Failed to update leave");
+    }
+  };
 
    
 
@@ -140,6 +253,7 @@ export default function EmployeeLeaveDashboard() {
         <>
           <LeaveBalanceDashboard
             requests={requests}
+            policy={policy}
           />
 
           <LeaveStats requests={requests} />
@@ -152,27 +266,30 @@ export default function EmployeeLeaveDashboard() {
           onView={(leave) =>
             setSelectedLeave(leave)
           }
-          onDelete={(id) =>
-            setRequests((prev) =>
-              prev.filter((r) => r.id !== id)
-            )
-          }
+          onDelete={handleDeleteLeave}
         />
       )}
 
       {active === "balance" && (
         <LeaveBalanceDashboard
           requests={requests}
+          policy={policy}
         />
       )}
       {active === "calendar" && (
         <LeaveCalendar
           requests={requests}
+          officeHolidays={holidays}
+          wfhDays={[
+            "2026-03-27",
+            "2026-04-03"
+          ]}
         />
       )}
       {active === "policy" && (
         <LeavePolicy
-        
+          policy={policy}
+          isAdmin={false}
         />
       )}
 
@@ -183,42 +300,16 @@ export default function EmployeeLeaveDashboard() {
       <LeaveDrawer
         leave={selectedLeave}
         onClose={() => setSelectedLeave(null)}
-        onUpdate={(updated) =>
-          setRequests((prev) =>
-            prev.map((r) =>
-              r.id === updated.id ? updated : r
-            )
-          )
-        }
+        onUpdate={handleUpdateLeave}
       />
 
       {/* ================= APPLY MODAL ================= */}
 
       <ApplyLeaveModal
-  open={open}
-  onClose={() => setOpen(false)}
-  onSubmit={(leave) => {
-    const newLeave: LeaveRequest = {
-      id: Date.now().toString(),
-      employee: "Vinay Kumar",
-      ...leave,
-    };
-
-    setRequests((prev) => [
-      newLeave,
-      ...prev,
-    ]);
-
-    // ✅ ADD NOTIFICATION HERE
-    addNotification({
-      title: "Leave Applied",
-      message: `Your ${leave.type} leave has been submitted.`,
-      type: "info",
-    });
-
-    setOpen(false);
-  }}
-/>
+        open={open}
+        onClose={() => setOpen(false)}
+        onSubmit={handleApplyLeave}
+      />
 
 <MobileLeaveTabs
   active={active}

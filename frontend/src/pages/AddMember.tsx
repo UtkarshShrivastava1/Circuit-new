@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash, FaPen } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaPen ,FaUser} from "react-icons/fa";
+import { createMember } from "../services/memberService";
 
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
@@ -131,25 +132,74 @@ const AddMember = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
      if (!validate()) return;
-    setAdding(true);
-    console.log(formData);
-    toast.success("Employee Registered Successfully");
-    setAdding(false);
+
+     setAdding(true);
+     try {
+       let organizationID = "";
+       const userData = sessionStorage.getItem("user");
+       if (userData) {
+         const user = JSON.parse(userData);
+         console.log(user)
+         console.log(user.organization)
+         
+       
+         // Assuming the backend expects the organization ID as the slug in the URL
+         organizationID = user.organization; 
+       }
+       console.log(organizationID)
+
+      await createMember(organizationID, formData);
+
+      toast.success("Employee Registered Successfully");
+      
+      // Reset form state
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        gender: "",
+        dateOfBirth: "",
+        currentAddress: "",
+        permanentAddress: "",
+        emergencyName: "",
+        emergencyPhone: "",
+        emergencyRelation: "",
+        aadhaar: "",
+        pan: "",
+        passport: "",
+        role: "member" as UserRole,
+        designation: "",
+        department: "",
+        joiningDate: "",
+        previousCompany: "",
+        bankName: "",
+        accountNumber: "",
+        ifscCode: "",
+      });
+      setPreview(null);
+      setErrors({});
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Failed to register employee";
+      toast.error(errorMessage);
+    } finally {
+      setAdding(false);
+    }
   };
 
   const inputStyle =
   "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
 
   return (
-  <div className="min-h-screen  flex justify-center p-6">
+  <div className="min-h-screen  flex justify-center p-6 ">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10"
+        className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
       >
         <h2 className="text-2xl text-base-content font-semibold">Employee Onboarding</h2>
 
         {/* PROFILE IMAGE */}
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center justify-center">
           <input
             type="file"
             accept="image/*"
@@ -161,7 +211,7 @@ const AddMember = () => {
           <div className="relative w-32 h-32">
             <label
               htmlFor="imageUpload"
-              className="w-32 h-32 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer overflow-hidden"
+              className="w-32 h-32 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center cursor-pointer overflow-hidden"
             >
               {preview ? (
                 <img
@@ -170,8 +220,8 @@ const AddMember = () => {
                   className="w-full h-full object-cover rounded-full"
                 />
               ) : (
-                <span className="text-gray-500 text-sm">
-                  Upload Image
+                <span className="text-gray-500 text-lg">
+                  <FaUser size={44} className="mb-1" />
                 </span>
               )}
             </label>
@@ -184,18 +234,30 @@ const AddMember = () => {
                 <FaPen size={12} />
               </label>
             )}
+
           </div>
+            <label className="text-center text-sm text-gray-800 mt-2">
+              {preview ? "Change Image" : "Click to Upload"}
+            </label>
         </div>
 
         {/* ================= PERSONAL INFO ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
-            Personal Information
-          </h3>
+          {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
+            
+          </h3> */}
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div >
+            <fieldset className="gap-5 grid md:grid-cols-1 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+                Personal Information
+              </legend>
+
+              <div className="grid md:grid-cols-2 gap-6">
+
             <input
               name="name"
+              value={formData.name}
               placeholder="Full Name"
               onChange={handleChange}
               className={inputStyle}
@@ -204,6 +266,7 @@ const AddMember = () => {
             <input
               name="email"
               type="email"
+              value={formData.email}
               placeholder="Email"
               onChange={handleChange}
               className={inputStyle}
@@ -215,6 +278,7 @@ const AddMember = () => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
+                value={formData.password}
                 onChange={handleChange}
                 className={`${inputStyle} pr-12`}
               />
@@ -254,6 +318,7 @@ const AddMember = () => {
             <input
               type="date"
               name="dateOfBirth"
+              value={formData.dateOfBirth}
               placeholder="DOB"
               onChange={handleChange}
               className={inputStyle}
@@ -261,6 +326,7 @@ const AddMember = () => {
 
             <select
               name="gender"
+              value={formData.gender}
               onChange={handleChange}
               className={`${inputStyle}`}
             >
@@ -275,37 +341,55 @@ const AddMember = () => {
               name="email"
               type="designations "
               placeholder="Email"
+              value={formData.email}
               onChange={handleChange}
               className={inputStyle}
             />
+              </div>
+            <div>
 
-          </div>
 
-
-
-          <textarea
+        <textarea
             name="currentAddress"
             placeholder="Current Address"
+            value={formData.currentAddress}
             onChange={handleChange}
             className={inputStyle}
           />
           <textarea
             name="permanentAddress"
             placeholder="Permanent Address"
+            value={formData.permanentAddress}
             onChange={handleChange}
             className={inputStyle}
           />
+         
+
+          </div>
+            </fieldset>
+          </div>
+
+
+
+          
         </section>
 
         {/* ================= EMERGENCY ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b pb-2 border-base-content/20 text-base-content">
+          {/* <h3 className="text-lg font-semibold border-b pb-2 border-base-content/20 text-base-content">
             Emergency Contact
-          </h3>
+          </h3> */}
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className=" gap-6">
+            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+
+            <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+              Emergency Contact
+            </legend>
+
             <input
               name="emergencyName"
+              value={formData.emergencyName}
               placeholder="Contact Name"
               onChange={handleChange}
               className={inputStyle}
@@ -338,20 +422,27 @@ const AddMember = () => {
 
             <input
               name="emergencyRelation"
+              value={formData.emergencyRelation}
               placeholder="Relation"
               onChange={handleChange}
               className={inputStyle}
             />
+            </fieldset>
           </div>
         </section>
 
         {/* ================= IDENTITY ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
+          {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Identity & Legal Details
-          </h3>
+          </h3> */}
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className=" gap-6">
+            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+                Identity & Legal Details
+              </legend>
+
             <input
                 name="aadhaar"
                 placeholder="Aadhaar Number"
@@ -400,21 +491,31 @@ const AddMember = () => {
 
             <input
               name="passport"
+              value={formData.passport}
               placeholder="Passport Number"
               onChange={handleChange}
               className={inputStyle}
             />
+            </fieldset>
+
           </div>
         </section>
 
         {/* ================= EMPLOYMENT ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
+          {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Employment Details
-          </h3>
-<div className="grid md:grid-cols-2 gap-6">
+          </h3> */}
+<div className=" gap-6">
+  <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+<legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+  Employment Details
+</legend>
+
+
             <select
               name="role"
+              value={formData.role}
               onChange={handleChange}
               className={inputStyle}
             >
@@ -464,44 +565,58 @@ const AddMember = () => {
             <input
               type="date"
               name="joiningDate"
+              value={formData.joiningDate}
               onChange={handleChange}
               className={inputStyle}
             />
 
             <input
               name="previousCompany"
+              value={formData.previousCompany}
               placeholder="Previous Company"
               onChange={handleChange}
               className={inputStyle}
             />
+  </fieldset>
           </div>
         </section>
 
         {/* ================= FINANCIAL ================= */}
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
+          {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Financial Details
-          </h3>
+          </h3> */}
 
-          <div className="grid md:grid-cols-3 gap-6">
+
+          <div className=" gap-6">
+          <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+              Bank Account Details
+            </legend>
+
+
             <input
               name="bankName"
+              value={formData.bankName}
               placeholder="Bank Name"
               onChange={handleChange}
               className={inputStyle}
             />
             <input
               name="accountNumber"
+              value={formData.accountNumber}
               placeholder="Account Number"
               onChange={handleChange}
               className={inputStyle}
             />
             <input
               name="ifscCode"
+              value={formData.ifscCode}
               placeholder="IFSC Code"
               onChange={handleChange}
               className={inputStyle}
             />
+          </fieldset>
           </div>
         </section>
 
@@ -510,7 +625,7 @@ const AddMember = () => {
           <button
             type="submit"
             disabled={adding}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
+            className={`px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
           >
             {adding ? "Submitting..." : "Register Employee"}
           </button>

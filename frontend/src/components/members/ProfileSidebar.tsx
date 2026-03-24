@@ -250,6 +250,8 @@ import {
   SaveIcon,
   MapPin,
 } from "lucide-react";
+import { updateMember } from "@/services/memberService";
+import { toast } from "react-toastify";
 
 interface Props {
   member: Member;
@@ -259,6 +261,8 @@ interface Props {
 export default function ProfileSidebar({ member, onUpdate }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Member>(member);
+
+
 
   useEffect(() => {
     setFormData(member);
@@ -271,6 +275,21 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
   };
 
   const handleSave = () => {
+    const userData = sessionStorage.getItem("user");
+    const organizationId = userData ? JSON.parse(userData).organization : "";
+    updateMember(organizationId, member._id, formData)
+      .then((response) => {
+        console.log("Member updated successfully:", response.data);
+        toast.success("Member updated successfully");
+        onUpdate?.(response.data); // Pass the updated
+      })
+      .catch((error) => {
+        toast.error("Error updating member");
+        console.error("Error updating member:", error);
+        // Optionally, you can show an error message to the user here
+      });
+
+
     setIsEditing(false);
     onUpdate?.(formData);
   };

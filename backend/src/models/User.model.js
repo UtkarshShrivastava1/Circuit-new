@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  // Personal
   name: {
     type: String,
     required: true,
@@ -19,16 +20,107 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false // Do not return password by default
   },
+  phone: {
+    type: String,
+    trim: true
+  },
+  gender: {
+    type: String,
+    trim: true
+  },
+  dateOfBirth: {
+    type: Date
+  },
+  currentAddress: {
+    type: String,
+    trim: true
+  },
+  permanentAddress: {
+    type: String,
+    trim: true
+  },
+
+  // Emergency
+  emergencyName: {
+    type: String,
+    trim: true
+  },
+  emergencyPhone: {
+    type: String,
+    trim: true
+  },
+  emergencyRelation: {
+    type: String,
+    trim: true
+  },
+
+  // Identity
+  aadhaar: {
+    type: String,
+    trim: true
+  },
+  pan: {
+    type: String,
+    trim: true,
+    uppercase: true
+  },
+  passport: {
+    type: String,
+    trim: true
+  },
+
+  // Employment
   organization: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization',
     required: true,
     index: true
   },
+  // slug:{
+  //   type: String,
+  //   unique: true,
+  //   trim: true,
+  //   lowercase: true,
+  // },
   role: {
     type: String,
-    enum: ['owner', 'admin', 'member'],
+    enum: ['owner', 'admin', 'member','manager'],
     default: 'member'
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+  },
+  designation: {
+    type: String,
+    trim: true
+  },
+  department: {
+    type: String,
+    trim: true
+  },
+  joiningDate: {
+    type: Date
+  },
+  previousCompany: {
+    type: String,
+    trim: true
+  },
+
+  // Financial
+  bankName: {
+    type: String,
+    trim: true
+  },
+  accountNumber: {
+    type: String,
+    trim: true
+  },
+  ifscCode: {
+    type: String,
+    trim: true,
+    uppercase: true
   }
 }, { timestamps: true });
 

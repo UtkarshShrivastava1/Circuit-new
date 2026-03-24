@@ -15,7 +15,7 @@ import AttachmentInput from "@/components/ui/AttachmentInput";
 interface Props {
   open: boolean;
   onClose: () => void;
-  onSubmit?: (leave: any) => void;
+  onSubmit?: (leave: any) => Promise<void> | void;
 }
 
 export default function ApplyLeaveModal({
@@ -104,10 +104,14 @@ export default function ApplyLeaveModal({
               }
               className="text-base-content"
             >
+              {/* "sick", "casual", "earned", "unpaid", "maternity", "paternity", "other" */}
               <option value="casual">Casual Leave</option>
               <option value="sick">Sick Leave</option>
               <option value="paid">Paid Leave</option>
+              <option value="maternity">Maternity Leave</option>
+              <option value="paternity">Paternity Leave</option>
               <option value="half-day">Half Day</option>
+              <option value="other">Other Leave</option>
             </Select>
           </div>
 
@@ -276,9 +280,10 @@ export default function ApplyLeaveModal({
               !leave.reason ||
               (!isHalfDay && !leave.toDate)
             }
-            onClick={() => {
-              onSubmit?.(leave);
-              onClose();
+            onClick={async () => {
+              if (onSubmit) {
+                await onSubmit(leave);
+              }
             }}
           >
             Submit Leave

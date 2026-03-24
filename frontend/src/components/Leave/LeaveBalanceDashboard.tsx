@@ -9,16 +9,18 @@ import type { LeaveRequest } from "@/type/leave";
 
 interface Props {
   requests: LeaveRequest[];
+  policy?: any;
 }
 
 export default function LeaveBalanceDashboard({
   requests,
+  policy,
 }: Props) {
   /* ================= POLICY ================= */
   const POLICY = {
-    casual: 12,
-    sick: 8,
-    paid: 15,
+    casual: policy?.casual ?? 12,
+    sick: policy?.sick ?? 8,
+    paid: policy?.paid ?? 15,
   };
 
   /* ================= USED CALCULATION ================= */

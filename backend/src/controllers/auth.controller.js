@@ -63,12 +63,13 @@ const jwt = require("jsonwebtoken");
 
 const Organization = require("../models/Organization.model");
 const User = require("../models/User.model");
-
 const generateSlug = require("../utils/generateSlug");
-
 const logger = require("../common/libs/logger");
 const redis = require("../config/redis");
 const config = require("../config");
+const { v4: uuidv4 } = require("uuid");
+const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 // Safe Chalk Import (Handles ESM/CJS mismatch or missing package)
 let chalk;
@@ -94,61 +95,121 @@ try {
 // REGISTER COMPANY
 // ------------------------------------------------------
 
+// exports.registerCompany = async (req, res) => {
+
+//   try {
+
+//     const { companyName, adminName, email, password } = req.body;
+
+//     logger.info(`Register company request for: ${companyName}`);
+
+//     const slug = generateSlug(companyName);
+
+//     const existingOrg = await Organization.findOne({ slug });
+
+//     if (existingOrg) {
+//       logger.warn(`Organization slug already exists: ${slug}`);
+//       return res.status(400).json({
+//         message: "Organization already exists"
+//       });
+//     }
+
+//     const org = await Organization.create({
+//       name: companyName,
+//       slug,
+//       ownerEmail: email
+//     });
+
+//     logger.info(`Organization created: ${org._id}`);
+
+//     // Password will be hashed by mongoose middleware
+//     const user = await User.create({
+//       organization: org._id,
+//       name: adminName,
+//       email,
+//       password,
+//       role: "owner"
+//     });
+
+//     logger.info(`Admin user created: ${user._id}`);
+
+//     console.log(
+//       chalk.green(`✔ New organization registered: ${companyName} (${slug})`)
+//     );
+
+//     res.json({
+//       message: "Organization created successfully",
+//       slug
+//     });
+
+//   } catch (error) {
+
+//     logger.error("Register company failed", {
+//       error: error.message
+//     });
+
+//     res.status(500).json({
+//       message: "Server error"
+//     });
+//   }
+// };
+
 exports.registerCompany = async (req, res) => {
-
   try {
-
+    console.log(req.body)
     const { companyName, adminName, email, password } = req.body;
 
-    logger.info(`Register company request for: ${companyName}`);
-
-    const slug = generateSlug(companyName);
-
-    const existingOrg = await Organization.findOne({ slug });
-
-    if (existingOrg) {
-      logger.warn(`Organization slug already exists: ${slug}`);
+    if (!companyName || !adminName || !email || !password) {
       return res.status(400).json({
-        message: "Organization already exists"
+        message: "All fields are required",
       });
     }
 
+    const slug = generateSlug(companyName);
+
+    // Check slug
+    const existingOrg = await Organization.findOne({ slug });
+    if (existingOrg) {
+      return res.status(400).json({
+        message: "Organization already exists",
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const organizationId = uuidv4();
+
     const org = await Organization.create({
-      name: companyName,
+      organizationId,
+      companyName,
+      adminName,
+      email,
+      password: hashedPassword,
       slug,
-      ownerEmail: email
+      role: "owner",
+      subscriptionStatus: "trial",
     });
 
-    logger.info(`Organization created: ${org._id}`);
-
-    // Password will be hashed by mongoose middleware
-    const user = await User.create({
-      organization: org._id,
+    await User.create({
       name: adminName,
       email,
-      password,
-      role: "owner"
+      password, // User schema pre-save hook will hash this automatically
+      organization: org._id,
+      slug,
+      role: "owner",
     });
 
-    logger.info(`Admin user created: ${user._id}`);
-
-    console.log(
-      chalk.green(`✔ New organization registered: ${companyName} (${slug})`)
-    );
-
-    res.json({
+    return res.status(201).json({
       message: "Organization created successfully",
-      slug
+      slug,
+      organizationId,
     });
-
   } catch (error) {
+    console.error("Register company error:", error);
 
-    logger.error("Register company failed", {
-      error: error.message
-    });
-
-    res.status(500).json({
-      message: "Server error"
+    return res.status(500).json({
+      message: "Server error",
     });
   }
 };
@@ -162,14 +223,17 @@ exports.registerCompany = async (req, res) => {
 exports.login = async (req, res) => {
 
   try {
+    console.log(req.body);
 
     const { email, password } = req.body;
 
     logger.info(`Login attempt: ${email}`);
-
+    
+ 
     // IMPORTANT: select password
     const user = await User
-      .findOne({ email })
+      .findOne({ email 
+      })
       .select("+password");
 
     if (!user) {
@@ -181,6 +245,9 @@ exports.login = async (req, res) => {
       });
 
     }
+
+
+    console.log(user);
 
     const valid = await user.comparePassword(password);
 
@@ -197,13 +264,18 @@ exports.login = async (req, res) => {
 
     }
 
+     
+
+     
+
     const secret = process.env.JWT_SECRET || config.JWT_SECRET;
 
     const token = jwt.sign(
       {
         userId: user._id,
+         name: user.name,
         organization: user.organization,
-        role: user.role
+        role: user.role,
       },
       secret,
       { expiresIn: "1d" }
@@ -216,16 +288,48 @@ const org = await Organization.findById(user.organization);
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
+    // Set user details in a non-httpOnly cookie so the frontend can access it
+    res.cookie("user", JSON.stringify({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      organization: user.organization,
+    
+    }), {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000 // 1 day
+    });
+    
+
     logger.info(`Login success: ${email}`);
     
     console.log(
       chalk.blue(`🔐 User logged in: ${email}`)
     );
 
-    res.json({
-      token,
-      slug: org.slug
-    });
+    // return res.json({
+    //   message: "Login successful",
+    //   user: {
+    //     name: user.adminName,
+    //     email: user.email,
+    //     role: user.role,
+    //     slug: user.slug,
+    //   },
+    // });
+      return res.json({
+        message: "Login successful",
+        token,
+       
+         user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization: user.organization,
+      
+      },
+      });
+      
+
 
   } catch (error) {
 
@@ -239,4 +343,14 @@ const org = await Organization.findById(user.organization);
 
   }
 
+};
+
+exports.logout = (req, res) => {
+ 
+  res.clearCookie("token");
+  res.clearCookie("user");
+
+  return res.json({
+    message: "Logged out successfully",
+  });
 };
