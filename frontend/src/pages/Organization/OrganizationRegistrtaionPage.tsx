@@ -2,6 +2,8 @@
 
 import OrganizationForm from "@/components/organization/OrganizationRegistrationForm";
 
+
+
 export default function OrganizationPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-200 p-4 md:p-6">

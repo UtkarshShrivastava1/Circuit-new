@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 import { MdNotifications ,MdMenu } from "react-icons/md";
 import type { Notification } from "@/type/notification";
+import { logout } from "../../services/authService";
 
 
 interface HeaderProps {
@@ -15,7 +16,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
     useState<Notification[]>([]);
 
   const currentUserId = "1"; // from auth later
-
+ 
  const navigate=useNavigate();
   const isDark = theme === "dark";
 
@@ -49,6 +50,12 @@ export default function Header({ onMenuClick }: HeaderProps)  {
   
 
   const handleLogout=()=>{
+    localStorage.removeItem('theme');
+    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+
+    logout();
     navigate("/login");
   }
   return (

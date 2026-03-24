@@ -4,8 +4,13 @@ import Lottie from "lottie-react";
 import loginAnimation from "../assets/loginAnimation.json";
 import { LockIcon, User2Icon } from "lucide-react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { login } from "../services/authService";
 
-const Login = () => {
+interface LoginProps {
+  setToken?: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const Login = ({ setToken }: LoginProps) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -16,6 +21,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [user, setUser] = useState(null);
 
   // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,9 +55,30 @@ const Login = () => {
     try {
       setLoading(true);
 
-      navigate("/dashboard");
+      // const response = await login(formData);
+
+       const response = await login(formData);
+
+    // ✅ Save user data
+    
+    alert("Login successful");
+    
+    // Store the token from the response
+    if (response.data && response.data.token) {
+      localStorage.setItem("token", response.data.token) ;
+      sessionStorage.setItem("user", JSON.stringify(response.data.user));
+        console.log(response.data.user);
+         
+        if (setToken) {
+          setToken(response.data.token );
+          setUser(response.data.user);
+        }
+      }
+
+      navigate("/");
     } catch (err: any) {
-      alert("Login Failed");
+      const errorMessage = err.response?.data?.message || "Login failed. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -134,7 +161,7 @@ const Login = () => {
       name="password"
       value={formData.password}
       onChange={handleChange}
-      className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-gray-50
+      className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-gray-50 text-black
       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition pl-10"
     />
 

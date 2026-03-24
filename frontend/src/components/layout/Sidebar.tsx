@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   MdDashboard,
@@ -76,6 +76,12 @@ const managementMenu: MenuItem[] = [
     icon: <UserPlus size={20} />,
   },
   {
+    id: "createMember",
+    label: "Create Member",
+    path: "/createMember",
+    icon: <UserPlus size={20} />,
+  },
+  {
     id: "createProject",
     label: "Create Project",
     path: "/createProject",
@@ -119,6 +125,7 @@ const payrollSubMenu: MenuItem[] = [
 export default function ERPSidebar({ isOpen, onClose }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [payrollOpen, setPayrollOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
   const location = useLocation();
 
@@ -131,6 +138,25 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
     ].join(" ");
 
   const isPayrollActive = location.pathname.startsWith("/payroll");
+
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(";").shift();
+      return null;
+    };
+
+    const userCookie = getCookie("user");
+    if (userCookie) {
+      try {
+        const decodedUser = decodeURIComponent(userCookie);
+        setUser(JSON.parse(decodedUser));
+      } catch (error) {
+        console.error("Failed to parse user from cookie", error);
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -298,14 +324,16 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           <div className="flex items-center gap-3">
             <div className="avatar placeholder">
               <div className="bg-primary text-primary-content rounded-full w-9 flex items-center justify-center">
-                AK
+               {
+                 user?.name ? user.name.charAt(0).toUpperCase() : "U"
+               }
               </div>
             </div>
 
             {!collapsed && (
               <div>
-                <p className="text-sm font-semibold">Alex Kumar</p>
-                <p className="text-xs text-base-content/60">Administrator</p>
+                <p className="text-sm font-semibold"> {user?.name || "User Name"}</p>
+                <p className="text-xs text-base-content/60 capitalize">{user?.role || "Administrator"}</p>
               </div>
             )}
           </div>

@@ -1,11 +1,11 @@
-import React, { Suspense } from "react";
+import React, {useState, Suspense } from "react";
 import { Routes, Route, Outlet, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Notifications from "./pages/Notifications";
 import ProjectChat from "./components/projects/ProjectChat";
 import SettingsPage from "./pages/Settings";
-import Settings from "./pages/Settings";
+// import Settings from "./pages/Settings";
 import HomePage from "./pages/HomePage";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrtaionPage";
 
@@ -38,6 +38,8 @@ const AdminProfile = React.lazy(() => import("./pages/AdminProfile"));
 const AddMember = React.lazy(() => import("./pages/AddMember"));
 const CreateProject = React.lazy(() => import("./pages/CreateProject"));
 const Login = React.lazy(() => import("./pages/Login"));
+const AddMemberPage = React.lazy(() => import("./pages/AddMembers"));
+
 
 /* ---------- Layout Wrapper ---------- */
 
@@ -50,12 +52,18 @@ function LayoutWrapper() {
 }
 
 export default function App() {
+  
+  const [token, setToken] = useState(localStorage.getItem('token') || '') ;
   return (
+    <>
+   { token === ''?
+   <Login setToken={setToken}/>
+   :
     <Suspense fallback={<div className="p-6 flex justify-center items-center mt-10">Loading...</div>}>
       <Routes>
         {/* Redirect root to login */}
         
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* <Route path="/" element={<Navigate to="/login" replace />} /> */}
 
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
@@ -64,7 +72,7 @@ export default function App() {
         {/* Protected Layout Routes */}
         <Route element={<LayoutWrapper />}>
           <Route
-            path="/dashboard"
+            path="/"
             element={
               <PageContainer title="Dashboard" subtitle="Overview">
                 <Dashboard />
@@ -186,11 +194,21 @@ export default function App() {
               </PageContainer>
             }
           />
-          <Route path="/settings" element={<Settings />} />
+          <Route
+            path="/createMember"
+            element={
+              <PageContainer>
+                <AddMemberPage />
+              </PageContainer>
+            }
+          />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
 
       <ToastContainer />
-    </Suspense>
+    </Suspense>}
+    </>
+
   );
 }

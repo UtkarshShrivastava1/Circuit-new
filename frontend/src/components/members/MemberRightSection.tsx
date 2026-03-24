@@ -21,6 +21,8 @@ export default function MemberRightSection({ memberId }: { memberId: string }) {
   const [activeTab, setActiveTab] = useState<RightTab>("projects");
   const [filter, setFilter] = useState<Filter>("all");
 
+
+
   const projects: Project[] = [
     {
       id: "p1",

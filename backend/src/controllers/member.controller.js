@@ -34,11 +34,22 @@ exports.createEmployee = async (req, res) => {
 
   try {
 
-    const { name, email, password, role } = req.body;
+    const {
+      // Personal
+      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      // Emergency
+      emergencyName, emergencyPhone, emergencyRelation,
+      // Identity
+      aadhaar, pan, passport,
+      // Employment
+      role, designation, department, joiningDate, previousCompany,
+      // Financial
+      bankName, accountNumber, ifscCode
+    } = req.body;
 
     const organization = req.organization._id;
 
-    logger.info("Create employee request", {
+    logger.info("Create employee request", { 
       email,
       organization
     });
@@ -59,10 +70,18 @@ exports.createEmployee = async (req, res) => {
     }
 
     const user = await User.create({
-      name,
-      email,
-      password,
+      // Personal
+      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      // Emergency
+      emergencyName, emergencyPhone, emergencyRelation,
+      // Identity
+      aadhaar, pan, passport,
+      // Employment
       role: role || "member",
+      designation, department, joiningDate, previousCompany,
+      // Financial
+      bankName, accountNumber, ifscCode,
+      // Organization
       organization
     });
 
@@ -226,7 +245,7 @@ exports.deactivateEmployee = async (req, res) => {
         _id: userId,
         organization
       },
-      { isActive: false },
+      { status: 'inactive' },
       { new: true }
     );
 
@@ -263,3 +282,234 @@ exports.deactivateEmployee = async (req, res) => {
   }
 
 };
+
+
+exports.getMembers = async (req, res) => {
+  try{
+    const organizationId = req.organization._id;
+
+    logger.info("Get members request", {
+      organizationId
+    });
+    const members = await User.find({
+      organization: organizationId,
+    });
+    
+    logger.info("Members retrieved", {
+      count: members.length
+    });
+
+    res.json({
+      message: "Members retrieved successfully",
+      members,
+      count: members.length
+    });
+
+    
+  }catch(error){
+    logger.error("Get members failed", {
+      error: error.message
+    });
+
+    res.status(500).json({
+      message: "Server error"
+    });
+    
+    
+  }
+}
+
+// ------------------------------------------------
+// Call by ID EMPLOYEE
+// ------------------------------------------------
+ exports.getEmployeeById = async (req, res) => {
+
+  try { 
+    const { userId } = req.params;
+
+    const organization = req.organization._id;
+
+    if (!userId) {
+
+      logger.warn("User ID not provided for get by ID");
+
+      return res.status(400).json({
+        message: "User ID not provided"
+      });
+
+    }
+
+    if(!organization){
+
+      logger.warn("Organization not found for get by ID");  
+      return res.status(400).json({
+        message: "Organization not found"
+      });
+    }
+  
+
+    logger.info("Get employee by ID request", {
+      userId
+    });
+    const user = await User.findOne({
+      _id: userId,
+      organization
+    });
+    if (!user) {
+      logger.warn("User not found for ID", {
+        userId    });
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+    logger.info("Employee retrieved by ID", {
+      userId,
+      email: user.email
+    });
+    res.json({
+      message: "Employee retrieved successfully",
+      user});
+  }
+  catch (error) {
+    logger.error("Get employee by ID failed", {
+      error: error.message
+    });
+    res.status(500).json({
+      message: "Server error"
+    });
+
+  }
+ }
+
+
+// --------------------------------------------------
+// Delete EMPLOYEE
+// ------------------------------------------------
+
+exports.deleteEmployee = async (req, res) => {
+  try{
+    const { userId } = req.params;
+    const organization = req.organization._id;
+    if (!userId) {
+      logger.warn("User ID not provided for delete");
+      return res.status(400).json({
+        message: "User ID not provided"
+      });
+    }
+    if(!organization){
+      logger.warn("Organization not found for delete");  
+      return res.status(400).json({
+        message: "Organization not found"
+      });
+    }
+    logger.info("Delete employee request", {
+      userId
+    });
+    const user = await User.findOneAndDelete({
+      _id: userId,
+      organization
+    });
+    
+    if (!user) {
+      logger.warn("User not found for delete", {
+        userId
+      });
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+    logger.info("Employee deleted", {
+      userId,
+      email: user.email
+    });
+    console.log(
+      chalk.red(`⛔ Employee deleted → ${user.email}`)
+    );
+    res.json({
+      message: "Employee deleted"
+    });
+
+
+  } 
+  catch (error){
+      logger.error("Delete employee failed", {
+      error: error.message
+    });
+    res.status(500).json({
+      message: "Delete employee failed"
+    });
+  
+  }
+}
+
+exports.updateEmployee = async (req, res) => {
+  try{
+    const { userId } = req.params;
+    const {
+      name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      emergencyName, emergencyPhone, emergencyRelation,status,
+      aadhaar, pan, passport,
+      role, designation, department, joiningDate, previousCompany,
+      bankName, accountNumber, ifscCode
+    } = req.body;
+    const organization = req.organization._id;
+    if (!userId) {
+      logger.warn("User ID not provided for update");
+      return res.status(400).json({
+        message: "User ID not provided"
+      });
+    }
+    if(!organization){
+      logger.warn("Organization not found for update");  
+      return res.status(400).json({
+        message: "Organization not found"
+      });
+    }
+    logger.info("Update employee request", {
+      userId
+    });
+    const user = await User.findOneAndUpdate(
+      {
+        _id: userId,
+        organization
+      },
+      {
+        name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+        emergencyName, emergencyPhone, emergencyRelation,status,
+        aadhaar, pan, passport,
+        role, designation, department, joiningDate, previousCompany,
+        bankName, accountNumber, ifscCode
+      },
+      { new: true }
+    );
+    if (!user) {
+      logger.warn("User not found for update", {
+        userId
+      });
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+    logger.info("Employee updated", {
+      userId,
+      email: user.email
+    });
+    console.log(
+      chalk.yellow(`⚙ Employee updated → ${user.email}`)
+    );
+    res.json({
+      message: "Employee updated",
+      user
+    });
+  
+
+  } catch(error){
+    logger.error("Update employee failed", {
+      error: error.message
+    });
+    res.status(500).json({
+      message: "Server error"
+    });
+  
+  }
+}
