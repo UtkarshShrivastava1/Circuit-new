@@ -31,10 +31,10 @@ const logger = require("../common/libs/logger");
 
 module.exports = async (req,res,next)=>{
 
-  const { organizationId } = req.params;
-  logger.info("Resolving tenant for organization", { organizationId });
+  const { slug } = req.params;
+  logger.info("Resolving tenant for organization", { slug });
 
-  const org = await Organization.findOne({ _id: organizationId });
+  const org = await Organization.findOne({ slug });
   logger.info("Tenant resolved", { tenantId: org?._id });
 
   if(!org) return res.status(404).json({msg:"Tenant not found"});

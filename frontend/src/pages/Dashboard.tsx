@@ -15,9 +15,13 @@ import SingleBirthdayCard from "@/components/members/SingleBirthdayCard";
 
 import BirthdayCarousel from "@/components/members/BirthdayCarousel";
 import type { Member } from "@/type/member";
+import { useAuth } from "@/auth/AuthContext";
+
 
 export default function Dashboard() {
   // Dummy data
+  const {auth} = useAuth();
+  console.log("Authenticated user in Dashboard:", JSON.stringify(auth.slug));
   const stats = [
     {
       title: "Employees",

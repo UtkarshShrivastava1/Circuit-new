@@ -4,11 +4,19 @@ const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
 
 const taskController = require("../controllers/task.controller");
-router.post("/:slug/addTasks/:projectId", auth, tenant, taskController.addTask);
+const { upload } = require("../middlewares/upload");
+router.post(
+  "/:slug/addTasks/:projectId",
+  auth,
+  tenant,
+  upload.array("attachments"),
+  taskController.addTask,
+);
 router.put(
   "/:slug/updateTask/:projectId/:taskId",
   auth,
   tenant,
+  upload.array("attachments"),
   taskController.updateTask,
 );
 
@@ -19,11 +27,19 @@ router.delete(
   taskController.deleteTask,
 );
 
-router.get(
-  "/:slug/getTasks/:projectId",
+router.get("/:slug/getTasks/:projectId", auth, tenant, taskController.getTasks);
+
+router.patch(
+  "/:slug/updateTaskStatus/:projectId/:taskId",
   auth,
   tenant,
-  taskController.getTasks,
+  taskController.updateTaskStatus,
+);
+router.patch(
+  "/:slug/updateSubtaskStatus/:projectId/:taskId/:subtaskId",
+  auth,
+  tenant,
+  taskController.updateSubtaskStatus,
 );
 
 module.exports = router;

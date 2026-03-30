@@ -1,62 +1,3 @@
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-
-// const Organization = require("../models/Organization.model");
-// const User = require("../models/User.model");
-
-// const generateSlug = require("../utils/generateSlug");
-
-// exports.registerCompany = async (req,res) => {
-
-//   console.log(req.headers.authorization);
-//   const { companyName, adminName, email, password } = req.body;
-
-//   const slug = generateSlug(companyName);
-
-//   const org = await Organization.create({
-//     name: companyName,
-//     slug,
-//     ownerEmail: email
-//   });
-
-//   const hashed = await bcrypt.hash(password,10);
-
-//   const user = await User.create({
-//     organizationId: org._id,
-//     name: adminName,
-//     email,
-//     password: hashed,
-//     role: "admin"
-//   });
-
-//   res.json({
-//     message:"Organization created",
-//     slug
-//   });
-// };
-
-// exports.login = async (req,res)=>{
-
-//   const { email, password } = req.body;
-
-//   const user = await User.findOne({ email });
-
-//   if(!user) return res.status(404).json({msg:"User not found"});
-
-//   const valid = await bcrypt.compare(password,user.password);
-
-//   if(!valid) return res.status(401).json({msg:"Invalid password"});
-
-//   const token = jwt.sign({
-//       userId:user._id,
-//       organizationId:user.organizationId,
-//       role:user.role
-//   },
-//   process.env.JWT_SECRET,
-//   { expiresIn:"1d" });
-
-//   res.json({ token });
-// };
 
 const jwt = require("jsonwebtoken");
 // const chalk = require("chalk");
@@ -91,83 +32,32 @@ try {
 }
 
 
-// ------------------------------------------------------
-// REGISTER COMPANY
-// ------------------------------------------------------
-
-// exports.registerCompany = async (req, res) => {
-
-//   try {
-
-//     const { companyName, adminName, email, password } = req.body;
-
-//     logger.info(`Register company request for: ${companyName}`);
-
-//     const slug = generateSlug(companyName);
-
-//     const existingOrg = await Organization.findOne({ slug });
-
-//     if (existingOrg) {
-//       logger.warn(`Organization slug already exists: ${slug}`);
-//       return res.status(400).json({
-//         message: "Organization already exists"
-//       });
-//     }
-
-//     const org = await Organization.create({
-//       name: companyName,
-//       slug,
-//       ownerEmail: email
-//     });
-
-//     logger.info(`Organization created: ${org._id}`);
-
-//     // Password will be hashed by mongoose middleware
-//     const user = await User.create({
-//       organization: org._id,
-//       name: adminName,
-//       email,
-//       password,
-//       role: "owner"
-//     });
-
-//     logger.info(`Admin user created: ${user._id}`);
-
-//     console.log(
-//       chalk.green(`✔ New organization registered: ${companyName} (${slug})`)
-//     );
-
-//     res.json({
-//       message: "Organization created successfully",
-//       slug
-//     });
-
-//   } catch (error) {
-
-//     logger.error("Register company failed", {
-//       error: error.message
-//     });
-
-//     res.status(500).json({
-//       message: "Server error"
-//     });
-//   }
-// };
-
 exports.registerCompany = async (req, res) => {
   try {
-    console.log(req.body)
-    const { companyName, adminName, email, password } = req.body;
+    console.log(req.body);
 
-    if (!companyName || !adminName || !email || !password) {
+    const {
+      organizationName,
+      ownerName,
+      organizationEmail,
+      ownerEmail,
+      password,
+      registrationNumber,
+      phoneNumber,
+      address = {},
+    } = req.body;
+
+    // Required fields check
+    if (!organizationName || !ownerName || !organizationEmail || !ownerEmail || !password) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "Required fields missing",
       });
     }
 
-    const slug = generateSlug(companyName);
+    // Create slug
+    const slug = generateSlug(organizationName);
 
-    // Check slug
+    // Check slug already exists
     const existingOrg = await Organization.findOne({ slug });
     if (existingOrg) {
       return res.status(400).json({
@@ -175,26 +65,40 @@ exports.registerCompany = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check organization email
+    const emailExists = await Organization.findOne({ organizationEmail });
+    if (emailExists) {
+      return res.status(400).json({
+        message: "Organization email already registered",
+      });
+    }
 
-    const organizationId = uuidv4();
 
+    // Create organization
     const org = await Organization.create({
-      organizationId,
-      companyName,
-      adminName,
-      email,
-      password: hashedPassword,
+      organizationName,
+      ownerName,
+      organizationEmail,
+      ownerEmail,
+     
       slug,
-      role: "owner",
+      registrationNumber,
+      phoneNumber,
+      address: {
+        addressLine: address.addressLine,
+        city: address.city,
+        state: address.state,
+        country: address.country,
+        pincode: address.pincode,
+      },
       subscriptionStatus: "trial",
     });
 
+    // Create owner user
     await User.create({
-      name: adminName,
-      email,
-      password, // User schema pre-save hook will hash this automatically
+      name: ownerName,
+      email: ownerEmail,
+      password, // user schema will hash it
       organization: org._id,
       slug,
       role: "owner",
@@ -202,18 +106,16 @@ exports.registerCompany = async (req, res) => {
 
     return res.status(201).json({
       message: "Organization created successfully",
+      organizationId: org._id,
       slug,
-      organizationId,
     });
   } catch (error) {
     console.error("Register company error:", error);
-
     return res.status(500).json({
       message: "Server error",
     });
   }
 };
-
 
 
 // ------------------------------------------------------
@@ -281,9 +183,11 @@ exports.login = async (req, res) => {
       { expiresIn: "1d" }
     );
 const org = await Organization.findById(user.organization);
+console.log("Organization found:", org);
     // Set cookie server-side to prevent "quote" issues from frontend serialization
     res.cookie("token", token, {
       httpOnly: true,
+        sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
@@ -307,19 +211,11 @@ const org = await Organization.findById(user.organization);
       chalk.blue(`🔐 User logged in: ${email}`)
     );
 
-    // return res.json({
-    //   message: "Login successful",
-    //   user: {
-    //     name: user.adminName,
-    //     email: user.email,
-    //     role: user.role,
-    //     slug: user.slug,
-    //   },
-    // });
+    
       return res.json({
         message: "Login successful",
-        token,
-       
+     
+        slug: org.slug,
          user: {
         name: user.name,
         email: user.email,
@@ -345,6 +241,29 @@ const org = await Organization.findById(user.organization);
 
 };
 
+
+
+
+exports.getMe =  async (req, res) => {
+  try {
+    const user = req.user; // attached by middleware
+    console.log("Authenticated user in getMe:", user);
+    const org = await Organization.findById(user.organization);
+    res.json({
+      user: {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization: user.organization,
+       
+      },
+       slug: org.slug 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 exports.logout = (req, res) => {
  
   res.clearCookie("token");

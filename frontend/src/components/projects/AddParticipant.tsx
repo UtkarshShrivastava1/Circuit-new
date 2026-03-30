@@ -3,6 +3,7 @@ import { MdDelete } from "react-icons/md";
 import api from "@/services/api";
 import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useState } from "react";
+import API from "@/api/axios";
 
 interface User {
   _id: string;
@@ -29,6 +30,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
   onCreate,
   creating,
 }) => {
+  
   const { auth } = useAuth(); // get org slug or id
   const [users, setUsers] = useState<User[]>([]);
 
@@ -40,10 +42,13 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
 
   // Fetch org users from backend
   useEffect(() => {
+    if (!auth.slug) return;
+
     const fetchUsers = async () => {
       try {
-        const res = await api.get(`/${auth.slug}/getMembers`);
-        setUsers(res.data.users); 
+        const res = await API.get(`/${auth.slug}/getMembers`);
+        console.log("Org users:", res.data);
+        setUsers(res.data.members); 
       } catch (err) {
         console.error("Failed to fetch org users", err);
       }
@@ -101,7 +106,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
       >
         <option value="">Select User</option>
-        {users.map((user) => (
+        {users?.map((user) => (
           <option key={user._id} value={user._id}>
             {user.name} - {user.role}
           </option>
@@ -153,10 +158,10 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         <h3 className="text-sm uppercase tracking-wide text-base-content/60 font-semibold">
           Project Members
         </h3>
-        {participants.length === 0 ? (
+        {participants?.length === 0 ? (
           <p className="text-gray-400 text-sm">No members added yet</p>
         ) : (
-          participants.map((p, index) => (
+          participants?.map((p, index) => (
             <div
               key={index}
               className="bg-base-100 border border-base-300 p-4 rounded-xl flex justify-between items-start shadow-sm hover:shadow-md transition-all"

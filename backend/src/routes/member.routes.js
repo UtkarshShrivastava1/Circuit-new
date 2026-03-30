@@ -9,7 +9,7 @@ const memberController = require("../controllers/member.controller");
 
 
 router.post("/:organizationId/members", auth, tenant, memberController.createEmployee);
-router.get("/:organizationId/members", auth, tenant, memberController.getMembers);
+router.get("/:slug/getMembers", auth, tenant, memberController.getMembers);
 router.get("/:organizationId/members/:userId", auth, tenant, memberController.getEmployeeById);
 router.delete("/:organizationId/members/:userId", auth, tenant, memberController.deleteEmployee);
 router.patch("/:organizationId/members/:userId", auth, tenant, memberController.updateEmployee);

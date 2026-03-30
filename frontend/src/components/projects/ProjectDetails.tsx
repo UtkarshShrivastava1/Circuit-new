@@ -98,12 +98,15 @@
 
 
 // ProjectDetails.tsx
+
 import StatusBadge from "../ui/StatusBadge";
 import type { Project, Participant } from "../../type/project";
 import { useState } from "react";
 import EditProjectModal from "./EditProjectModal";
 import { useAuth } from "@/auth/AuthContext";
-import api from "@/services/api";
+
+import API from "@/api/axios";
+
 
 interface Props {
   project: Project;
@@ -129,7 +132,7 @@ console.log("ProjectDetails auth:", project, auth);
         participants: updated.participants,
       };
 
-      await api.put(`/projects/${auth.slug}/editProject/${updated.id}`, payload);
+      await API.put(`/projects/${auth.slug}/editProject/${updated.id}`, payload);
 
       setEditProject(null);
       onUpdate(updated); // update parent list optimistically

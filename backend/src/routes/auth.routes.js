@@ -1,6 +1,6 @@
 const router = require("express").Router();
-
-const { registerCompany, login,logout } =
+const auth = require("../middlewares/auth.middleware");
+const { registerCompany, login,logout,getMe } =
 require("../controllers/auth.controller");
 
 router.post("/register-company", registerCompany);
@@ -8,5 +8,6 @@ router.post("/register-company", registerCompany);
 router.post("/login", login);
 
 router.post("/logout", logout);
+router.get("/me", auth, getMe);
 
 module.exports = router;

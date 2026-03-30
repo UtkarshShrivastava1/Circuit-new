@@ -1,7 +1,8 @@
+import API from "@/api/axios";
 import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
-import api from "@/services/api";
+
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -48,43 +49,9 @@ const CreateProject = () => {
     setActiveTab(tab);
   };
 
-  // const handleCreateProject = async () => {
-  //   if (participants.length === 0) {
-  //     toast.error("Add at least one participant");
-  //     return;
-  //   }
   
-
-  //   try {
-  //     setCreating(true);
-  //     const finalDomain =
-  //       projectData.domain === "other"
-  //         ? projectData.customDomain
-  //         : projectData.domain;
-  //     const { customDomain, ...rest } = projectData;
-  //     const finalPayload = {
-  //       ...rest,
-  //       domain: finalDomain,
-  //       participants,
-  //     };
-
-  //     console.log("FINAL DATA:", finalPayload);
-
-    
-
-  //     setProjectData(initialProjectState);
-  //     setParticipants([]);
-  //     setActiveTab("Project Info");
-
-  //     toast.success("Project created successfully 🎉");
-  //   } catch (error) {
-  //     console.error("Project creation failed", error);
-  //   } finally {
-  //     setCreating(false);
-  //   }
-  // };
- // make sure this is your axios instance or fetch wrapper
- const { auth } = useAuth(); // get auth context for slug and token
+ const { auth } = useAuth();
+  // get auth context for slug and token
 const handleCreateProject = async () => {
   if (participants.length === 0) {
     toast.error("Add at least one participant");
@@ -103,7 +70,7 @@ const handleCreateProject = async () => {
     const payload = {
       ...projectData,
       domain: finalDomain,
-       participants: participants.map(p => ({
+       participants: participants?.map(p => ({
     user: p.userId,   
     role: p.role,
     responsibility: p.responsibility
@@ -112,7 +79,7 @@ const handleCreateProject = async () => {
     };
 
     // Send POST request to backend
-    const res = await api.post(`/projects/${auth.slug}/createProject`, payload);
+    const res = await API.post(`/projects/${auth.slug}/createProject`, payload);
 
     if (res.data.success) {
       toast.success("Project created successfully ");
