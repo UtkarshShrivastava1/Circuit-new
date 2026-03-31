@@ -8,6 +8,7 @@ import SettingsPage from "./pages/Settings";
 // import Settings from "./pages/Settings";
 import HomePage from "./pages/HomePage";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrtaionPage";
+import { useAuth } from "./auth/AuthContext";
 
 /* ---------- Lazy Pages ---------- */
 
@@ -52,13 +53,12 @@ function LayoutWrapper() {
 }
 
 export default function App() {
-  
-  const [token, setToken] = useState(localStorage.getItem('token') || '') ;
+  const { auth } = useAuth();
+
   return (
     <>
-   { token === ''?
-   <Login setToken={setToken}/>
-   :
+   { !auth.user ?
+   <Login />   :
     <Suspense fallback={<div className="p-6 flex justify-center items-center mt-10">Loading...</div>}>
       <Routes>
         {/* Redirect root to login */}

@@ -2,6 +2,8 @@ import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
 import api from "@/services/api";
+import { createProject } from "@/services/projectServices";
+import { getOrganizationSlug } from "@/utils/auth";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -85,7 +87,9 @@ const CreateProject = () => {
   // };
  // make sure this is your axios instance or fetch wrapper
  const { auth } = useAuth(); // get auth context for slug and token
+ const slug = auth.slug;
 const handleCreateProject = async () => {
+  
   if (participants.length === 0) {
     toast.error("Add at least one participant");
     return;
@@ -112,7 +116,7 @@ const handleCreateProject = async () => {
     };
 
     // Send POST request to backend
-    const res = await api.post(`/projects/${auth.slug}/createProject`, payload);
+    const res = await createProject(slug, payload)
 
     if (res.data.success) {
       toast.success("Project created successfully ");

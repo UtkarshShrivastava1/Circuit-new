@@ -6,14 +6,14 @@ const tenant = require("../middlewares/tenant.middleware");
 const leavePolicyController = require("../controllers/LeavePolicy.controller");
 
 router.get(
-  "/:organizationId/leave-policy",
+  "/:slug/leave-policy",
   auth,
   tenant,
   leavePolicyController.getPolicy
 );
 
 router.put(
-  "/:organizationId/leave-policy",
+  "/:slug/leave-policy",
   auth,
   tenant,
   leavePolicyController.updatePolicy

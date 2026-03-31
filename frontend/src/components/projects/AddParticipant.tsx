@@ -3,6 +3,9 @@ import { MdDelete } from "react-icons/md";
 import api from "@/services/api";
 import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useState } from "react";
+import { getMembers } from "@/services/memberService";
+import { getOrganizationSlug } from "@/utils/auth";
+
 
 interface User {
   _id: string;
@@ -42,8 +45,11 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await api.get(`/${auth.slug}/getMembers`);
-        setUsers(res.data.users); 
+        const slug = getOrganizationSlug(); // get slug from auth context or utility
+        const res = await getMembers(slug);
+        // await api.get(`/${auth.slug}/getMembers`);
+        console.log("Fetched org users:", res.data.members);
+        setUsers(res.data.members); 
       } catch (err) {
         console.error("Failed to fetch org users", err);
       }

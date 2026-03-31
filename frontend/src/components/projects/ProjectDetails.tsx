@@ -103,7 +103,7 @@ import type { Project, Participant } from "../../type/project";
 import { useState } from "react";
 import EditProjectModal from "./EditProjectModal";
 import { useAuth } from "@/auth/AuthContext";
-import api from "@/services/api";
+import { updateProject } from "@/services/projectServices";
 
 interface Props {
   project: Project;
@@ -114,7 +114,6 @@ interface Props {
 export default function ProjectDetails({ project, onClose, onUpdate }: Props) {
   const [editProject, setEditProject] = useState<Project | null>(null);
   const { auth } = useAuth();
-console.log("ProjectDetails auth:", project, auth);
   const handleSave = async (updated: Project) => {
   
     try {
@@ -129,7 +128,7 @@ console.log("ProjectDetails auth:", project, auth);
         participants: updated.participants,
       };
 
-      await api.put(`/projects/${auth.slug}/editProject/${updated.id}`, payload);
+      await updateProject(auth.slug, updated.id, payload);
 
       setEditProject(null);
       onUpdate(updated); // update parent list optimistically

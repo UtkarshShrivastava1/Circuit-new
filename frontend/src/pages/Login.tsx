@@ -4,7 +4,8 @@ import Lottie from "lottie-react";
 import loginAnimation from "../assets/loginAnimation.json";
 import { LockIcon, User2Icon } from "lucide-react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { login } from "../services/authService";
+import { login as loginService } from "../services/authService";
+import { useAuth } from "../auth/AuthContext";
 
 interface LoginProps {
   setToken?: React.Dispatch<React.SetStateAction<string>>;
@@ -12,6 +13,7 @@ interface LoginProps {
 
 const Login = ({ setToken }: LoginProps) => {
   const navigate = useNavigate();
+  const { login: contextLogin } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -55,19 +57,28 @@ const Login = ({ setToken }: LoginProps) => {
     try {
       setLoading(true);
 
-      // const response = await login(formData);
-
-       const response = await login(formData);
+      const response = await loginService(formData);
 
     // ✅ Save user data
-    
+    console.log(response.data.user);
     alert("Login successful");
     
     // Store the token from the response
     if (response.data && response.data.token) {
-      localStorage.setItem("token", response.data.token) ;
-      sessionStorage.setItem("user", JSON.stringify(response.data.user));
-        console.log(response.data.user);
+      // Fallback local storage for token if your API service requires it
+      // localStorage.setItem("token", response.data.token) ;
+      
+      // ✅ Update AuthContext global state correctly
+      contextLogin({ 
+        user: response.data.user,
+        slug: response.data.user.slug,
+       });
+
+      // ✅ Save the full user details so other components (like Dashboards) can access it
+      // sessionStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      
+      
          
         if (setToken) {
           setToken(response.data.token );

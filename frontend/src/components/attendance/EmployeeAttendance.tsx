@@ -1,4 +1,4 @@
-import React,{useState ,useMemo} from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 const EmptyState = React.lazy(()=> import("../ui/EmptyState")) 
 const  AttendanceFilters = React.lazy (()=> import('./AttendanceFilter') ) ;
 const StatusPills = React.lazy(()=> import("./FilertByStatus"));
@@ -14,12 +14,16 @@ import type {
   UserRole,
 } from "../../type/attendance";
 const Pagination = React.lazy(()=>import("../ui/Pagination"))
+import { useAuth } from '@/auth/AuthContext';
+import { getMyAttendance } from '@/services/attendanceService';
 
 type AttendanceTab = "records" | "mark";
 type Status = "all" | "approved" | "pending" | "rejected";
 
 const EmployeeAttendance = () => {
-
+    const { auth } = useAuth();
+    const user = auth?.user;
+    const slug = auth?.slug;
     const role: UserRole = "employee"; // change to "employee"
   
     const [activeTab, setActiveTab] = useState<AttendanceTab>("mark");
@@ -31,20 +35,63 @@ const EmployeeAttendance = () => {
          toDate?: string;
        }>({});
   
-       const records: AttendanceRecord[] = Array.from({ length: 100 }).map(
-           (_, i) => {
-             const status: AttendanceStatus =
-               i % 3 === 0 ? "pending" : i % 2 === 0 ? "approved" : "rejected";
-       
-             return {
-               id: String(i),
-               employee: `Employee ${i + 1}`,
-               date: "28 Jan 2026",
-               checkIn: "09:15 AM",
-               status,
-             };
-           },
-         );
+    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string })[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const refetch = () => {
+      // Placeholder for refetch logic if needed
+    };
+
+    useEffect(() => {
+      if (slug) {
+        setLoading(true);
+        getMyAttendance(slug, filters)
+          .then((res) => {
+            const responseData = res.data?.data || res.data || [];
+            const arr = Array.isArray(responseData) ? responseData : [];
+            
+            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[] = [];
+            arr.forEach((doc: any) => {
+              if (!doc.record) return;
+
+              const formattedDate = new Date(doc.date).toLocaleDateString("en-IN", {
+                day: "2-digit", month: "short", year: "numeric"
+              });
+
+              const checkInTime = doc.record.checkIn 
+                ? new Date(doc.record.checkIn).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) 
+                : new Date(doc.date).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+              let mappedStatus: AttendanceStatus = "pending";
+              const backendStatus = (doc.record.status || "").toUpperCase();
+              if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
+                  mappedStatus = "approved";
+              } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
+                  mappedStatus = "rejected";
+              } // PENDING is the default
+
+              formattedRecords.push({
+                id: doc.record._id,
+                attendanceDocId: doc.attendanceId,
+                employeeId: doc.record.employee,
+                employee: user?.name || "Unknown",
+                date: formattedDate,
+                checkIn: checkInTime,
+                status: mappedStatus,
+              });
+            });
+
+            setRecords(formattedRecords);
+          })
+          .catch((error) => {
+            console.error("Failed to fetch my attendance records", error);
+            setRecords([]);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    }, [slug, filters, user?.name]);
 
          
   
@@ -62,7 +109,7 @@ const EmployeeAttendance = () => {
              rejected,
              wfh: Math.floor(records.length * 0.2),
              halfDay: Math.floor(records.length * 0.1),
-             attendancePercentage: Math.round((present / records.length) * 100),
+             attendancePercentage: records.length > 0 ? Math.round((present / records.length) * 100) : 0,
            };
          }, [records]);
   
@@ -74,65 +121,66 @@ const EmployeeAttendance = () => {
              10,
            );
 
+    if (loading) {
+      return <div className="p-6 text-center">Loading your attendance...</div>;
+    }
+
   return (
     <>
-              {filteredRecords.length === 0 ? (
-                <EmptyState
-                  title="No attendance records"
-                  description="Attendance will appear here"
-                />
-              ) : (
-                <>
-                  <AttendanceTabs
-                      value={activeTab}
-                      onChange={setActiveTab}
-                    />
-    
-    
-                  {/* TAB CONTENT */}
-                  { activeTab === "mark" && (
-                    <div className="min-h-[60vh] flex items-start justify-center pt-8">
-                      <CenteredContainer maxWidth="lg">
-                        <MarkAttendanceCard />
-                      </CenteredContainer>
-                    </div>
-                  )}
-    
-                  {
-                 activeTab === "records" && (
-                    <>
-                      {/* FILTER BAR */}
-                      <div className="bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
-                        <AttendanceFilters
-                          isAdmin={role === "employee"}
-                          name={filters.name}
-                          fromDate={filters.fromDate}
-                          toDate={filters.toDate}
-                          onChange={setFilters}
-                        />
-    
-                        <StatusPills
-                          value={statusFilter}
-                          onChange={setStatusFilter}
-                        />
-                      </div>
-    
-                      <div className="mt-4">
-                        <AttendanceTable records={filteredRecords} role={role} />
-                      </div>
-    
-                      <div className="flex justify-end mt-4">
-                        <Pagination
-                          page={page}
-                          totalPages={totalPages}
-                          onChange={setPage}
-                        />
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-            </>
+      <AttendanceTabs
+          value={activeTab}
+          onChange={setActiveTab}
+        />
+
+
+      {/* TAB CONTENT */}
+      { activeTab === "mark" && (
+        <div className="min-h-[60vh] flex items-start justify-center pt-8">
+          <CenteredContainer maxWidth="lg">
+            <MarkAttendanceCard />
+          </CenteredContainer>
+        </div>
+      )}
+
+      {
+     activeTab === "records" && (
+        filteredRecords.length === 0 ? (
+          <EmptyState
+            title="No attendance records"
+            description="Attendance will appear here"
+          />
+        ) : (
+        <>
+          {/* FILTER BAR */}
+          <div className="bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
+            <AttendanceFilters
+              isAdmin={false}
+              name={filters.name}
+              fromDate={filters.fromDate}
+              toDate={filters.toDate}
+              onChange={setFilters}
+            />
+
+            <StatusPills
+              value={statusFilter}
+              onChange={setStatusFilter}
+            />
+          </div>
+
+          <div className="mt-4">
+            <AttendanceTable records={paginatedData} role={role} onUpdate={refetch} />
+          </div>
+
+          <div className="flex justify-end mt-4">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onChange={setPage}
+            />
+          </div>
+        </>
+      ))}
+    </>
 
   )
 }

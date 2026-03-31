@@ -4,11 +4,11 @@ const logger = require("../common/libs/logger");
 exports.addHoliday = async (req, res) => {
   try {
     const { date, title, description } = req.body;
-    const organization = req.organization._id;
+    const slug = req.organization.slug;
     const createdBy = req.user.userId || req.user._id;
 
     const holiday = await Holiday.create({
-      organization,
+      slug,
       date,
       title,
       description,
@@ -27,10 +27,10 @@ exports.updateHoliday = async (req, res) => {
   try {
     const { title, description } = req.body;
     const { holidayId } = req.params;
-    const organization = req.organization._id;
+    const slug = req.organization.slug;
 
     const holiday = await Holiday.findOneAndUpdate(
-      { _id: holidayId, organization },
+      { _id: holidayId, slug },
       { title, description },
       { new: true }
     );
@@ -50,9 +50,9 @@ exports.updateHoliday = async (req, res) => {
 exports.deleteHoliday = async (req, res) => {
   try {
     const { holidayId } = req.params;
-    const organization = req.organization._id;
+    const slug = req.organization.slug;
 
-    const holiday = await Holiday.findOneAndDelete({ _id: holidayId, organization });
+    const holiday = await Holiday.findOneAndDelete({ _id: holidayId, slug });
 
     if (!holiday) {
       return res.status(404).json({ message: "Holiday not found" });
@@ -68,10 +68,10 @@ exports.deleteHoliday = async (req, res) => {
 
 exports.getHolidays = async (req, res) => {
   try {
-    const organization = req.organization._id;
+    const slug = req.organization.slug;
     
     // Fetch all holidays for the organization, sorted by date
-    const holidays = await Holiday.find({ organization }).sort({ date: 1 });
+    const holidays = await Holiday.find({ slug }).sort({ date: 1 });
     
     res.json({
       message: "Holidays retrieved successfully",

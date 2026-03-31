@@ -4,22 +4,21 @@ import ProfileSidebar from "@/components/members/ProfileSidebar";
 import MemberRightSection from "@/components/members/MemberRightSection";
 import type { Member } from "@/type/member";
 import { getMemberById } from "@/services/memberService";
+import { useAuth } from "@/auth/AuthContext";
 
 const MemberDetails = () => {
   const { id } = useParams();
+  const {auth} = useAuth();
+  const slug = auth.slug;
   const [member, setMember] = useState<Member | null>(null);
  
 
   useEffect(() => {
     const fetchMember = async () => {
-      let organizationId = "";
-      const userData = sessionStorage.getItem("user");
-      organizationId = userData ? JSON.parse(userData).organization : "";
       
       try {
-        const response = await getMemberById(organizationId, id);
+        const response = await getMemberById(slug, id);
         // Note: Depending on your API, the member data might be nested inside response.data
-        console.log("API Response:", response);
         const foundMember = response?.data?.member || response?.data || response;
         
         if (foundMember) {

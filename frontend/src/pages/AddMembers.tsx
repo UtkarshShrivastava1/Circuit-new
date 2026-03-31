@@ -2,6 +2,8 @@ import { useState } from "react";
 import { FaEye, FaEyeSlash, FaUser, FaShieldAlt, FaBriefcase, FaUniversity, FaUserFriends } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { createMember } from "../services/memberService";
+// import { getOrganizationSlug } from "@/utils/auth";
+import { useAuth } from "@/auth/AuthContext";
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
   name?: string;
@@ -38,6 +40,8 @@ const Field = ({
 );
 
 const AddMember = () => {
+  const {auth} = useAuth();
+  const slug = auth.slug;
   const [currentStep, setCurrentStep] = useState(0);
   const [adding, setAdding] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -103,24 +107,13 @@ const AddMember = () => {
     if (!validate()) return;
     setAdding(true);
     try {
-       let organizationID = "";
-            
-              const userData = sessionStorage.getItem("user");  
- console.log(userData)
-             if (userData){
-               const user = JSON.parse(userData);
-               // Assuming the backend expects the organization ID as the slug in the URL
-               organizationID = user.organization; 
-             }
-             else{
-              toast.error("User data not found. Please log in again.");
-              return;
-             }
+       
+       if (!slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
 
-
-            
-      
-            await createMember(organizationID, formData);
+            await createMember(slug, formData);
       
             toast.success("Employee Registered Successfully");
             

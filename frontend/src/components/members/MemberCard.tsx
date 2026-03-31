@@ -108,6 +108,7 @@ type MemberCardProps = {
 const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
   const navigate = useNavigate();
 
+
   return (
    <div className="relative bg-base-100 rounded-xl shadow-md border border-base-300 w-full overflow-hidden">
 

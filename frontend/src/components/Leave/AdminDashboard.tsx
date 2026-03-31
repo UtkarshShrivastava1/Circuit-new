@@ -214,10 +214,14 @@ import LeaveCalendar from "./LeaveCalendar";
 import AddHolidayDrawer from "./AddHolidayDrawer";
 import LeavePolicy from "./LeavePolicy";
 import MobileLeaveTabs from "./MobileLeaveTabs";
+import { getOrganizationSlug } from "@/utils/auth";
+import { useAuth } from "@/auth/AuthContext";
 
 
 
 export default function AdminLeaveDashboard() {
+  const {auth } = useAuth();
+   const slug = auth.slug;
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string; description?: string }[]>([]);
   const [policy, setPolicy] = useState<any>(null);
@@ -231,16 +235,17 @@ export default function AdminLeaveDashboard() {
     useEffect(() => {
       const fetchData = async () => {
         try {
-          const userDataStr = sessionStorage.getItem("user");
-          if (!userDataStr) return;
+         
           
-          const user = JSON.parse(userDataStr);
-          const organizationId = user.organization;
+                 if (!slug) {
+                   toast.error("User data not found. Please log in again.");
+                   return;
+                 }
           
           const [leavesRes, holidaysRes, policyRes] = await Promise.all([
-            getAllLeaves(organizationId),
-            getHolidays(organizationId),
-            getLeavePolicy(organizationId)
+            getAllLeaves(slug),
+            getHolidays(slug),
+            getLeavePolicy(slug)
           ]);
           
           const fetchedLeaves: LeaveRequest[] = leavesRes.data.leaves.map((leave: any) => ({
@@ -267,13 +272,13 @@ export default function AdminLeaveDashboard() {
 
   const handleStatusUpdate = async (id: string, status: "approved" | "rejected") => {
     try {
-      const userDataStr = sessionStorage.getItem("user");
-      if (!userDataStr) return;
-      
-      const user = JSON.parse(userDataStr);
-      const organizationId = user.organization;
+   
+       if (!slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
 
-      await updateLeaveStatus(organizationId, id, { status });
+      await updateLeaveStatus(slug, id, { status });
       
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
       toast.success(`Leave ${status} successfully`);
@@ -288,13 +293,13 @@ export default function AdminLeaveDashboard() {
 
   const handleBulkStatusUpdate = async (ids: string[], status: "approved" | "rejected") => {
     try {
-      const userDataStr = sessionStorage.getItem("user");
-      if (!userDataStr) return;
-      
-      const user = JSON.parse(userDataStr);
-      const organizationId = user.organization;
+    
+       if (!slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
 
-      await bulkUpdateLeaveStatus(organizationId, { leaveIds: ids, status });
+      await bulkUpdateLeaveStatus(slug, { leaveIds: ids, status });
       
       setRequests((prev) => prev.map((r) => (ids.includes(r.id) ? { ...r, status } : r)));
       toast.success(`Selected leaves ${status} successfully`);
@@ -321,14 +326,14 @@ export default function AdminLeaveDashboard() {
 
   const handleAddOrUpdateHoliday = async (data: { date: string; title: string; description: string }) => {
     try {
-      const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+     
       
       if (selectedHoliday?._id) {
-        const response = await updateHoliday(user.organization, selectedHoliday._id, data);
+        const response = await updateHoliday(slug , selectedHoliday._id, data);
         setHolidays((prev) => prev.map((h) => h._id === selectedHoliday._id ? response.data.holiday : h));
         toast.success("Holiday updated successfully");
       } else {
-        const response = await addHoliday(user.organization, data);
+        const response = await addHoliday(slug, data);
         setHolidays((prev) => [...prev, response.data.holiday]);
         toast.success("Holiday published to calendar successfully");
       }
@@ -336,31 +341,38 @@ export default function AdminLeaveDashboard() {
       setIsDrawerOpen(false);
     } catch (error) {
       toast.error("Failed to save holiday");
+      console.error(error);
     }
   };
 
   const handleDeleteHoliday = async (id: string) => {
     try {
-      const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-      await deleteHoliday(user.organization, id);
+     
+      await deleteHoliday(slug , id);
       setHolidays((prev) => prev.filter((h) => h._id !== id));
       toast.success("Holiday deleted successfully");
       setIsDrawerOpen(false);
     } catch (error) {
       toast.error("Failed to delete holiday");
+      console.error(error)
     }
   };
 
   const handleSavePolicy = async (policyData: any) => {
     try {
-      const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-      const organizationId = user.organization;
+   
+   
+       if (!slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
       
-      const response = await updateLeavePolicy(organizationId, policyData);
+      const response = await updateLeavePolicy(slug, policyData);
       setPolicy(response.data.policy);
       toast.success("Leave policy updated successfully!");
     } catch (error) {
       toast.error("Failed to update leave policy.");
+      console.error(error)
     }
   };
 

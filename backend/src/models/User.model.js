@@ -76,16 +76,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     index: true
   },
-  // slug:{
-  //   type: String,
-  //   unique: true,
-  //   trim: true,
-  //   lowercase: true,
-  // },
+ 
   role: {
     type: String,
-    enum: ['owner', 'admin', 'member','manager'],
-    default: 'member'
+    enum: ['owner', 'admin', 'manager', 'employee'],
+    default: 'employee'
   },
   status: {
     type: String,
@@ -97,8 +92,8 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   department: {
-    type: String,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
   },
   joiningDate: {
     type: Date

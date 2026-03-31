@@ -151,7 +151,7 @@ exports.login = async (req, res) => {
      
 
     const secret = process.env.JWT_SECRET || config.JWT_SECRET;
-   
+   const org = await Organization.findById(user.organization);
 
     const token = jwt.sign(
       {
@@ -159,11 +159,16 @@ exports.login = async (req, res) => {
          name: user.name,
         organization: user.organization,
         role: user.role,
+        slug: org.slug,
+        department: user.department || null,
+
 },
       secret,
       { expiresIn: "1d" }
     );
-const org = await Organization.findById(user.organization);
+
+
+   
     // Set cookie server-side to prevent "quote" issues from frontend serialization
     res.cookie("token", token, {
       httpOnly: true,
@@ -171,18 +176,24 @@ const org = await Organization.findById(user.organization);
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
+    
+
     // Set user details in a non-httpOnly cookie so the frontend can access it
     res.cookie("user", JSON.stringify({
+      userId:user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       organization: user.organization,
       slug: org.slug,
+      department: user.department || null,
     
     }), {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
+
+    
     
 
     logger.info(`Login success: ${email}`);
@@ -204,11 +215,13 @@ const org = await Organization.findById(user.organization);
         message: "Login successful",
         token,
          user: {
+        userId:user._id,
         name: user.name,
         email: user.email,
         role: user.role,
         organization: user.organization,
         slug: org.slug,
+        department: user.department || null,
       
       },
       });
@@ -241,4 +254,28 @@ exports.logout = (req, res) => {
   return res.json({
     message: "Logged out successfully",
   });
+};
+
+//auth.controller
+exports.getMe =  async (req, res) => {
+  try {
+    const user = req.user; // attached by middleware
+    console.log("Authenticated user in getMe:", user);
+    const org = await Organization.findById(user.organization);
+    res.json({
+      user: {
+        userId:user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization: user.organization,
+        department: user.department || null,
+       
+      },
+       slug: org.slug 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };

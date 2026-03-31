@@ -31,13 +31,13 @@ exports.applyLeave = async (req, res) => {
     
     // Assuming your auth middleware puts decoded JWT directly into req.user
     const userId = req.user.userId || req.user._id; 
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Apply leave request", { userId, leaveType: type, startDate: fromDate, endDate: toDate });
 
     const leave = await Leave.create({
       user: userId,
-      organization,
+      slug,
       name,
       leaveType: type,
       startDate: fromDate,
@@ -67,14 +67,16 @@ exports.applyLeave = async (req, res) => {
 exports.getMyLeaves = async (req, res) => {
   try {
     const userId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
-    logger.info("Get my leaves request", { userId });
+    logger.info("Get my leaves request", { userId ,slug });
 
-    const leaves = await Leave.find({ user: userId, organization })
+    const leaves = await Leave.find({ user: userId, slug })
       .sort({ createdAt: -1 });
 
-    res.json({
+      logger.info("Get my leaves response", { userId, count: leaves.length ,slug });
+
+  return  res.json({
       message: "Leaves retrieved successfully",
       leaves,
       count: leaves.length,
@@ -90,12 +92,14 @@ exports.getMyLeaves = async (req, res) => {
 // ------------------------------------------------
 exports.getAllLeaves = async (req, res) => {
   try {
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
+    logger.info("Get all leaves request", { slug });
     const { status } = req.query; // allows filtering (e.g., ?status=pending)
+    logger.info("Get all leaves request with filters", { slug, status });
 
-    logger.info("Get all leaves request", { organization, status });
+    logger.info("Get all leaves request", { slug, status });
 
-    const query = { organization };
+    const query = { slug };
     if (status) query.status = status;
 
     const leaves = await Leave.find(query)
@@ -120,9 +124,11 @@ exports.getAllLeaves = async (req, res) => {
 exports.getLeaveById = async (req, res) => {
   try {
     const { leaveId } = req.params;
-    const organization = req.organization._id;
+    logger.info("Get leave by ID request", { leaveId });
+    const slug = req.organization.slug; // Set by tenant middleware
+    logger.info("Get leave by ID request with slug", { leaveId, slug });
 
-    const leave = await Leave.findOne({ _id: leaveId, organization })
+    const leave = await Leave.findOne({ _id: leaveId, slug })
       .populate("user", "name email designation department")
       .populate("approvedBy", "name email");
 
@@ -148,7 +154,7 @@ exports.updateLeaveStatus = async (req, res) => {
     const { leaveId } = req.params;
     const { status, managerRemarks } = req.body;
     const approverId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Update leave status request", { leaveId, status, approverId });
 
@@ -157,7 +163,7 @@ exports.updateLeaveStatus = async (req, res) => {
     }
 
     const leave = await Leave.findOneAndUpdate(
-      { _id: leaveId, organization },
+      { _id: leaveId, slug },
       { 
         status, 
         managerRemarks,
@@ -186,7 +192,7 @@ exports.bulkUpdateLeaveStatus = async (req, res) => {
   try {
     const { leaveIds, status, managerRemarks } = req.body;
     const approverId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Bulk update leave status request", { leaveIds, status, approverId });
 
@@ -199,7 +205,7 @@ exports.bulkUpdateLeaveStatus = async (req, res) => {
     }
 
     const result = await Leave.updateMany(
-      { _id: { $in: leaveIds }, organization },
+      { _id: { $in: leaveIds }, slug },
       { 
         status, 
         managerRemarks,
@@ -223,11 +229,11 @@ exports.cancelLeave = async (req, res) => {
   try {
     const { leaveId } = req.params;
     const userId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Cancel leave request", { leaveId, userId });
 
-    const leave = await Leave.findOne({ _id: leaveId, user: userId, organization });
+    const leave = await Leave.findOne({ _id: leaveId, user: userId, slug });
 
     if (!leave) {
       return res.status(404).json({ message: "Leave not found" });
@@ -256,11 +262,11 @@ exports.updateLeave = async (req, res) => {
     const { leaveId } = req.params;
     const { type, fromDate, toDate, reason, attachments, session, emergency } = req.body;
     const userId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Update leave request", { leaveId, userId });
 
-    const leave = await Leave.findOne({ _id: leaveId, user: userId, organization });
+    const leave = await Leave.findOne({ _id: leaveId, user: userId, slug });
 
     if (!leave) {
       return res.status(404).json({ message: "Leave not found" });
@@ -295,11 +301,11 @@ exports.deleteLeave = async (req, res) => {
   try {
     const { leaveId } = req.params;
     const userId = req.user.userId || req.user._id;
-    const organization = req.organization._id;
+    const slug = req.organization.slug; // Set by tenant middleware
 
     logger.info("Delete leave request", { leaveId, userId });
 
-    const leave = await Leave.findOneAndDelete({ _id: leaveId, user: userId, organization });
+    const leave = await Leave.findOneAndDelete({ _id: leaveId, user: userId, slug });
 
     if (!leave) {
       return res.status(404).json({ message: "Leave not found" });

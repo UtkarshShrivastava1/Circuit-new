@@ -252,6 +252,7 @@ import {
 } from "lucide-react";
 import { updateMember } from "@/services/memberService";
 import { toast } from "react-toastify";
+import { getOrganizationSlug } from "@/utils/auth";
 
 interface Props {
   member: Member;
@@ -275,11 +276,10 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
   };
 
   const handleSave = () => {
-    const userData = sessionStorage.getItem("user");
-    const organizationId = userData ? JSON.parse(userData).organization : "";
-    updateMember(organizationId, member._id, formData)
+    const slug = getOrganizationSlug();
+    updateMember(slug, member._id, formData)
       .then((response) => {
-        console.log("Member updated successfully:", response.data);
+        // console.log("Member updated successfully:", response.data);
         toast.success("Member updated successfully");
         onUpdate?.(response.data); // Pass the updated
       })

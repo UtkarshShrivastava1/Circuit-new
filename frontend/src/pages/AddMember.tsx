@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash, FaPen ,FaUser} from "react-icons/fa";
 import { createMember } from "../services/memberService";
+import { getOrganizationSlug } from "@/utils/auth";
 
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
@@ -135,20 +136,9 @@ const AddMember = () => {
 
      setAdding(true);
      try {
-       let organizationID = "";
-       const userData = sessionStorage.getItem("user");
-       if (userData) {
-         const user = JSON.parse(userData);
-         console.log(user)
-         console.log(user.organization)
-         
-       
-         // Assuming the backend expects the organization ID as the slug in the URL
-         organizationID = user.organization; 
-       }
-       console.log(organizationID)
+       const slug = getOrganizationSlug();
 
-      await createMember(organizationID, formData);
+      await createMember(slug, formData);
 
       toast.success("Employee Registered Successfully");
       

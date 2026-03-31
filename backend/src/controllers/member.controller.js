@@ -284,6 +284,11 @@ exports.deactivateEmployee = async (req, res) => {
 };
 
 
+
+// ------------------------------------------------ 
+// GET MEMBERS
+// ------------------------------------------------
+
 exports.getMembers = async (req, res) => {
   try{
     const organizationId = req.organization._id;
@@ -513,6 +518,10 @@ exports.updateEmployee = async (req, res) => {
   
   }
 }
+
+// ------------------------------------------------
+// GET EMPLOYEES
+// ------------------------------------------------
 exports.getEmployees = async (req, res) => {
   try {
     const organization = req.organization._id;

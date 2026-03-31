@@ -114,10 +114,14 @@ import ProjectFilters from "@/components/projects/ProjectFilters";
 import { useAuth } from "@/auth/AuthContext";
 import api from "@/services/api";
 import { toast } from "react-toastify";
+import { getProject, deleteProject } from "@/services/projectServices";
+// import { getOrganizationSlug } from "@/utils/auth";
 
 export default function Projects() {
   const { auth } = useAuth();
-  console.log("Auth in Projects:", auth);
+  const slug = auth.slug;
+
+  // console.log("Auth in Projects:", auth);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -125,32 +129,27 @@ export default function Projects() {
   const [filter, setFilter] = useState<ProjectFilter>("all");
 
   // Helper to check roles
-  const hasRole = (roles: string[]) => auth.role ? roles.includes(auth.role) : false;
+  const hasRole = (roles: string[]) => auth.user?.role ? roles.includes(auth.user?.role) : false;
 
   const canDelete = hasRole(["admin", "owner", "manager"]);
   const canEdit = hasRole(["admin", "owner"]);
  
-console.log("Role:", auth.role, "canDelete?", canDelete);
-const handleDeleteProject = async (id: string) => {
-  try {
-    await api.delete(`/projects/${auth.slug}/deleteProject/${id}`);
 
-    setProjects((prev) => prev.filter((p) => p.id !== id));
-    toast .success("Project deleted");
-    console.log("Project deleted");
-  } catch (error) {
-    console.error("Delete failed", error);
-  }
-};
+// ------------------Delete Project------------------
+
+
+
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const res = await api.get(`/projects/${auth.slug}/getProjects`, {
-          params: filter !== "all" ? { projectState: filter } : {},
-        });
-        console.log("Fetched projects:", res.data.projects);
-        const mappedProjects = res.data.projects.map((p: any) => ({
+       
+        const res = await getProject(slug);
+        // api.get(`/projects/${auth.slug}/getProjects`, {
+        //   params: filter !== "all" ? { projectState: filter } : {},
+        // });
+        const mappedProjects = (res.data?.projects || []).map((p: any) => ({
           ...p,
           id: p._id,
           name: p.projectName || "Untitled Project",
@@ -167,6 +166,7 @@ const handleDeleteProject = async (id: string) => {
             : "No deadline",
         }));
         setProjects(mappedProjects);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to load projects", error);
       } finally {
@@ -174,10 +174,26 @@ const handleDeleteProject = async (id: string) => {
       }
     };
 
-    if (auth?.token && auth?.slug) {
+    if (slug) {
       fetchProjects();
+    } else {
+      setLoading(false);
     }
-  }, [auth?.token, auth?.slug, filter]);
+  }, [slug, filter]);
+
+  const handleDeleteProject = async (id: string) => {
+  try {
+    await deleteProject(slug, id);
+
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+    toast .success("Project deleted");
+    console.log("Project deleted");
+  } catch (error) {
+    console.error("Delete failed", error);
+  }
+};
+
+
 
   const filteredProjects = projects;
 
@@ -215,6 +231,11 @@ const handleDeleteProject = async (id: string) => {
       >
         {selectedProject && (
           <ProjectDetails
+           onUpdate={(updated) => {
+             setProjects((prev) => 
+               prev.map((p) => (p.id === updated.id ? updated : p))
+             );
+           }}
             project={selectedProject}
             onClose={() => setSelectedProject(null)}
           />
