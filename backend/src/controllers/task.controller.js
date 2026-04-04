@@ -23,7 +23,7 @@ const addTask = async (req, res) => {
       tag,
       subtasks,
     } = req.body;
-
+    
     let parsedSubtasks = [];
 
     let parsedTags = [];
@@ -92,18 +92,21 @@ const addTask = async (req, res) => {
       priority,
       attachments: uploadedAttachments,
       status,
-      assignedTo,
+      assignedTo: assignedTo ? [assignedTo] : [],
       dueDate,
       tag: parsedTags,
       subtasks: parsedSubtasks,
     });
+    
 
     await task.save();
+    const populatedTask = await Task.findById(task._id)
+  .populate("assignedTo", "name");
 
     res.status(201).json({
       success: true,
       message: "Task created successfully",
-      data: task,
+      data: populatedTask,
     });
   } catch (error) {
     console.error("Create Task Error:", error);
@@ -188,11 +191,13 @@ const updateTask = async (req, res) => {
       };
     }
 
-    const updatedTask = await Task.findOneAndUpdate(
-      { _id: taskId, projectId, organization: orgId },
-      updateQuery,
-      { new: true, runValidators: true },
-    );
+   const updatedTask = await Task.findOneAndUpdate(
+  { _id: taskId, projectId, organization: orgId },
+  updateQuery,
+  { new: true, runValidators: true },
+)
+.populate("assignedTo", "name email")
+.populate("subtasks");
 
     if (!updatedTask) {
       return res.status(404).json({
@@ -263,6 +268,70 @@ const deleteTask = async (req, res) => {
 //Get Tasks
 //-----------------------------
 
+// const getTasks = async (req, res) => {
+//   try {
+//     const orgId = req.organization._id;
+//     const userId = req.user._id;
+//     const userRole = req.user.role;
+
+//     const { projectId } = req.params;
+//     const { filter } = req.query;
+
+//     let query = {
+//       organization: orgId,
+//       projectId,
+//     };
+
+//     // Employee  only their tasks
+//     if (!["admin", "manager", "owner"].includes(userRole)) {
+//       query.assignedTo = userId;
+//     }
+
+//     const now = new Date();
+
+//     // Overdue tasks
+//     if (filter === "overdue") {
+//       query.dueDate = { $lt: now };
+//       query.status = { $ne: "Completed" };
+//     }
+
+//     // High priority tasks
+//     if (filter === "high") {
+//       query.priority = "High";
+//     }
+
+//     // This week tasks
+//     if (filter === "week") {
+//       const startOfWeek = new Date();
+//       startOfWeek.setDate(now.getDate() - now.getDay());
+
+//       const endOfWeek = new Date();
+//       endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+//       query.dueDate = {
+//         $gte: startOfWeek,
+//         $lte: endOfWeek,
+//       };
+//     }
+
+//     const tasks = await Task.find(query)
+//       .populate("assignedTo", "name email")
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+//       success: true,
+//       count: tasks.length,
+//       data: tasks,
+//     });
+//   } catch (err) {
+//     console.error("Get Tasks Error:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
 const getTasks = async (req, res) => {
   try {
     const orgId = req.organization._id;
@@ -274,10 +343,14 @@ const getTasks = async (req, res) => {
 
     let query = {
       organization: orgId,
-      projectId,
     };
 
-    // Employee  only their tasks
+    // If projectId provided → filter by project
+    if (projectId) {
+      query.projectId = projectId;
+    }
+
+    // Employee → only their tasks
     if (!["admin", "manager", "owner"].includes(userRole)) {
       query.assignedTo = userId;
     }
@@ -290,12 +363,12 @@ const getTasks = async (req, res) => {
       query.status = { $ne: "Completed" };
     }
 
-    // High priority tasks
+    // High priority
     if (filter === "high") {
       query.priority = "High";
     }
 
-    // This week tasks
+    // This week
     if (filter === "week") {
       const startOfWeek = new Date();
       startOfWeek.setDate(now.getDate() - now.getDay());
@@ -326,7 +399,6 @@ const getTasks = async (req, res) => {
     });
   }
 };
-
 // -----------------------------------------------------------
 //Update Task Status
 // -----------------------------------------------------------

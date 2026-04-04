@@ -5,10 +5,19 @@ import Pagination from "../ui/Pagination";
 import { usePagination } from "../../hooks/usePagination";
 import NewTaskModal from "./NewTaskModal";
 import Swal from "sweetalert2";
-
+import {
+  Calendar,
+  AlignLeft,
+  Flag,
+  CheckSquare,
+  Paperclip,
+  Plus,
+  X,
+} from "lucide-react";
 import API from "@/api/axios";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
+import { Edit2, FileEdit, Trash } from "lucide-react";
 
 /* ================= TYPES ================= */
 
@@ -40,7 +49,6 @@ interface Props {
 }
 
 /* ================= TASK DRAWER ================= */
-
 function TaskDrawer({
   projectId,
   task,
@@ -49,21 +57,18 @@ function TaskDrawer({
   canEditTask,
 }: {
   projectId: string;
-  canEditTask: boolean;
   task: Task;
   onClose: () => void;
-  onToggleSubtask: (
-    taskId: string,
-    subtaskId: string,
-    completed: boolean,
-  ) => Promise<void>;
+  onToggleSubtask: (subtaskId: string) => void;
+  canEditTask: boolean;
 }) {
   const { auth } = useAuth();
-  const [isEditing, setIsEditing] = useState(task.isEditing || false);
+  const [isEditing] = useState(task.isEditing || false);
   const [editedTask, setEditedTask] = useState(task);
   const [newSubtask, setNewSubtask] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState([]);
   const [saving, setSaving] = useState(false);
+
   const handleAddSubtask = () => {
     if (!newSubtask.trim()) return;
 
@@ -81,7 +86,7 @@ function TaskDrawer({
     setNewSubtask("");
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e) => {
     if (!e.target.files) return;
     setFiles(Array.from(e.target.files));
   };
@@ -96,7 +101,6 @@ function TaskDrawer({
       formData.append("priority", editedTask.priority || "medium");
       formData.append("status", editedTask.status);
       formData.append("dueDate", editedTask.dueDate);
-
       formData.append("subtasks", JSON.stringify(editedTask.subtasks || []));
 
       files.forEach((file) => {
@@ -112,6 +116,7 @@ function TaskDrawer({
           },
         },
       );
+
       toast.success("Task Updated Successfully");
       onClose();
     } catch (error) {
@@ -123,91 +128,126 @@ function TaskDrawer({
   };
 
   return (
-    <div className="fixed inset-0 bg-base-content/30 backdrop-blur-sm flex justify-end z-50">
-      <div className="w-full max-w-md bg-base-100 h-full p-6 border-l border-base-300 overflow-y-auto">
-        <div className="flex justify-between mb-4">
+    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end z-50">
+      <div className="w-full max-w-lg bg-base-100 h-full shadow-xl p-6 overflow-y-auto">
+
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold">Task Details</h2>
           <button className="btn btn-sm btn-circle" onClick={onClose}>
-            ✕
+            <X size={16} />
           </button>
         </div>
 
         {/* TITLE */}
-        {/* <input
-          className="input input-bordered w-full mb-3"
-          value={editedTask.title}
-          disabled={!isEditing}
-          onChange={(e) =>
-            setEditedTask({ ...editedTask, title: e.target.value })
-          }
-        /> */}
-        {isEditing ? (
-          <input
-            className="input input-bordered w-full mb-3"
-            value={editedTask.title}
-            onChange={(e) =>
-              setEditedTask({ ...editedTask, title: e.target.value })
-            }
-          />
-        ) : (
-          <p className="text-lg font-semibold mb-3">{task.title}</p>
-        )}
-        {isEditing ? (
-          <input
-            type="date"
-            className="input input-bordered w-full"
-            value={editedTask.dueDate?.split("T")[0]}
-            onChange={(e) =>
-              setEditedTask({ ...editedTask, dueDate: e.target.value })
-            }
-          />
-        ) : (
-          <p className="mb-3">
-            Due: {new Date(task.dueDate).toLocaleDateString("en-GB")}
-          </p>
-        )}
-        {/* DESCRIPTION */}
-        {isEditing ? (
-          <textarea
-            className="textarea textarea-bordered w-full mb-3"
-            placeholder="Description"
-            value={editedTask.description}
-            onChange={(e) =>
-              setEditedTask({ ...editedTask, description: e.target.value })
-            }
-          />
-        ) : (
-          <div className="mb-3">
-            <p className="text-sm text-base-content/60">Description</p>
-            <p>{task.description || "No description"}</p>
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-1 text-base-content/70">
+            <AlignLeft size={16} />
+            <span className="text-sm">Title</span>
           </div>
-        )}
+
+          {isEditing ? (
+            <input
+              className="input input-bordered w-full"
+              value={editedTask.title}
+              onChange={(e) =>
+                setEditedTask({ ...editedTask, title: e.target.value })
+              }
+            />
+          ) : (
+            <p className="font-semibold text-lg">{task.title || "No title"}</p>
+          )}
+        </div>
+
+        {/* DUE DATE */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-1 text-base-content/70">
+            <Calendar size={16} />
+            <span className="text-sm">Due Date</span>
+          </div>
+
+          {isEditing ? (
+            <input
+              type="date"
+              className="input input-bordered w-full"
+              value={editedTask.dueDate?.split("T")[0]}
+              onChange={(e) =>
+                setEditedTask({ ...editedTask, dueDate: e.target.value })
+              }
+            />
+          ) : (
+            <p>
+              {task.dueDate
+                ? new Date(task.dueDate).toLocaleDateString("en-GB")
+                : "No due date"}
+            </p>
+          )}
+        </div>
+
+        {/* DESCRIPTION */}
+        <div className="mb-5">
+          <div className="flex items-center gap-2 mb-1 text-base-content/70">
+            <AlignLeft size={16} />
+            <span className="text-sm">Description</span>
+          </div>
+
+          {isEditing ? (
+            <textarea
+              className="textarea textarea-bordered w-full"
+              value={editedTask.description}
+              onChange={(e) =>
+                setEditedTask({
+                  ...editedTask,
+                  description: e.target.value,
+                })
+              }
+            />
+          ) : (
+            <p>{task.description || "No description added"}</p>
+          )}
+        </div>
 
         {/* PRIORITY */}
-        {isEditing ? (
-          <select
-            className="select select-bordered w-full mb-3"
-            value={editedTask.priority}
-            onChange={(e) =>
-              setEditedTask({ ...editedTask, priority: e.target.value })
-            }
-          >
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
-        ) : (
-          <div className="mb-3">
-            <p className="text-sm text-base-content/60">Priority</p>
-            <p className="capitalize">{task.priority}</p>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-1 text-base-content/70">
+            <Flag size={16} />
+            <span className="text-sm">Priority</span>
           </div>
-        )}
+
+          {isEditing ? (
+            <select
+              className="select select-bordered w-full"
+              value={editedTask.priority}
+              onChange={(e) =>
+                setEditedTask({ ...editedTask, priority: e.target.value })
+              }
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          ) : (
+            <p className="capitalize">
+              {task.priority || "No priority set"}
+            </p>
+          )}
+        </div>
+
         {/* SUBTASKS */}
-        <div className="mb-4">
-          <p className="font-medium mb-2">Subtasks</p>
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <CheckSquare size={16} />
+            <h3 className="font-semibold">Subtasks</h3>
+          </div>
+
+          {editedTask.subtasks?.length === 0 && (
+            <p className="text-sm text-base-content/60">
+              No subtasks added
+            </p>
+          )}
 
           {editedTask.subtasks?.map((sub, index) => (
-            <div key={index} className="flex gap-2 mb-2 items-center">
-              {/* Checkbox should work for everyone */}
+            <div key={sub._id || index} className="flex gap-2 mb-2 items-center">
               <input
                 type="checkbox"
                 checked={sub.completed}
@@ -224,7 +264,6 @@ function TaskDrawer({
                 }}
               />
 
-              {/* Only editable for admins/managers */}
               {isEditing ? (
                 <input
                   className="input input-bordered input-sm w-full"
@@ -238,7 +277,9 @@ function TaskDrawer({
               ) : (
                 <span
                   className={
-                    sub.completed ? "line-through text-base-content/50" : ""
+                    sub.completed
+                      ? "line-through text-base-content/50"
+                      : ""
                   }
                 >
                   {sub.title}
@@ -247,30 +288,38 @@ function TaskDrawer({
             </div>
           ))}
 
-          {/* ADD SUBTASK */}
           {isEditing && (
             <div className="flex gap-2 mt-2">
               <input
                 className="input input-bordered input-sm w-full"
-                placeholder="New subtask"
+                placeholder="Add subtask..."
                 value={newSubtask}
                 onChange={(e) => setNewSubtask(e.target.value)}
               />
               <button
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-primary flex gap-1 items-center"
                 onClick={handleAddSubtask}
               >
+                <Plus size={14} />
                 Add
               </button>
             </div>
           )}
         </div>
+
         {/* ATTACHMENTS */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Paperclip size={16} />
+            <h3 className="font-semibold">Attachments</h3>
+          </div>
 
-        <div className="mb-4">
-          <p className="font-medium mb-2">Attachments</p>
+          {!isEditing && task.attachments?.length === 0 && (
+            <p className="text-sm text-base-content/60">
+              No attachments uploaded
+            </p>
+          )}
 
-          {/* View Mode */}
           {!isEditing &&
             task.attachments?.map((file, i) => (
               <a
@@ -283,7 +332,6 @@ function TaskDrawer({
               </a>
             ))}
 
-          {/* Edit Mode */}
           {isEditing && (
             <>
               <input
@@ -293,13 +341,17 @@ function TaskDrawer({
                 onChange={handleFileChange}
               />
 
-              {files.length > 0 && (
-                <div className="text-sm mt-2">
-                  {files.map((file, i) => (
-                    <p key={i}>{file.name}</p>
-                  ))}
-                </div>
+              {files.length === 0 && (
+                <p className="text-sm text-base-content/60 mt-2">
+                  No files selected
+                </p>
               )}
+
+              {files.map((file, i) => (
+                <p key={i} className="text-sm mt-1">
+                  {file.name}
+                </p>
+              ))}
             </>
           )}
         </div>
@@ -307,7 +359,7 @@ function TaskDrawer({
         {/* SAVE BUTTON */}
         {isEditing && (
           <button
-            className="btn btn-primary w-full mt-4"
+            className="btn btn-primary w-full"
             onClick={handleSave}
             disabled={saving}
           >
@@ -318,6 +370,8 @@ function TaskDrawer({
     </div>
   );
 }
+
+
 
 /* ================= MAIN COMPONENT ================= */
 
@@ -373,7 +427,6 @@ export default function ProjectTasks({ projectId }: Props) {
       console.error("Subtask update failed", error);
     }
   };
-  useEffect(() => {
     const fetchTasks = async () => {
       try {
         const res = await API.get(`/tasks/${auth.slug}/getTasks/${projectId}`);
@@ -399,10 +452,12 @@ export default function ProjectTasks({ projectId }: Props) {
       }
     };
 
-    if (auth.slug && projectId) {
-      fetchTasks();
-    }
-  }, [auth.slug, projectId]);
+   useEffect(() => {
+  if (auth.slug && projectId) {
+    fetchTasks();
+  }
+}, [auth.slug, projectId]);
+  
 
   /* ---------- Optimistic Status Update ---------- */
 
@@ -528,7 +583,7 @@ export default function ProjectTasks({ projectId }: Props) {
                     >
                       {canEditTask && (
                         <button
-                          className="btn btn-xs btn-outline m-1.5"
+                          className="btn btn-xs  m-1.5"
                           onClick={() =>
                             setSelectedTask({
                               ...task,
@@ -536,7 +591,7 @@ export default function ProjectTasks({ projectId }: Props) {
                             })
                           }
                         >
-                          Edit
+                          <FileEdit size={16} />
                         </button>
                       )}
 
@@ -545,7 +600,7 @@ export default function ProjectTasks({ projectId }: Props) {
                           className="btn btn-xs btn-error"
                           onClick={() => deleteTask(task.id)}
                         >
-                          Delete
+                          <Trash size={16} />
                         </button>
                       )}
                     </td>
@@ -566,10 +621,11 @@ export default function ProjectTasks({ projectId }: Props) {
         <NewTaskModal
           projectId={projectId}
           onClose={() => setShowNewTask(false)}
-          onCreate={(task) => {
-            setTasks((prev) => [...prev, task]);
-            setShowNewTask(false);
-          }}
+          onCreate={async () => {
+  await fetchTasks();
+  setShowNewTask(false);
+}
+          }
         />
       )}
 

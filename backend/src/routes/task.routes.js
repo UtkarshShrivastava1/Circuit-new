@@ -28,6 +28,9 @@ router.delete(
 );
 
 router.get("/:slug/getTasks/:projectId", auth, tenant, taskController.getTasks);
+// All tasks (dashboard)
+router.get("/:slug/getTasks", auth, tenant, taskController.getTasks);
+
 
 router.patch(
   "/:slug/updateTaskStatus/:projectId/:taskId",
