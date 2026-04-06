@@ -1,9 +1,7 @@
 import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
-import api from "@/services/api";
 import { createProject } from "@/services/projectServices";
-import { getOrganizationSlug } from "@/utils/auth";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -136,8 +134,7 @@ const handleCreateProject = async () => {
 };
   
   
-  
-  console.log("running");
+
 
   return (
     <div className="min-h-screen bg-base-100 px-4 py-6 sm:py-10 flex justify-center">

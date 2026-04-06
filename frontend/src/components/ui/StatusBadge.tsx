@@ -42,7 +42,11 @@ export default function StatusBadge({
   status,
   size = "sm",
 }: StatusBadgeProps) {
-  const config = STATUS_CONFIG[status];
+  const config = STATUS_CONFIG[status.toLowerCase() as keyof typeof STATUS_CONFIG] || {
+    label: status,
+    icon: "",
+    className: "bg-base-200 text-base-content border-base-300",
+  };
 
   return (
     <span

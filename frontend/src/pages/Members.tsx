@@ -74,7 +74,6 @@ export default function Members() {
         setMembers(members.data?.members);
 
       } catch (err) {
-        console.log(err)
         console.error("Error fetching members:", err);
         setError("Failed to fetch members");
       } finally {
@@ -88,7 +87,10 @@ export default function Members() {
 
   
 
-  if (loading) return <p>Loading members...</p>;
+  if (loading) return<div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading Member...</p>
+      </div>;
   if (error) return <p>{error}</p>;
 
   return (

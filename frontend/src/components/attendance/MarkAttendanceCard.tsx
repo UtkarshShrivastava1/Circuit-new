@@ -63,28 +63,35 @@ export default function MarkAttendanceCard() {
       return;
     }
 
-    setLoadingStatus(true);
-    const todayISO = new Date().toISOString().split("T")[0];
+    const checkStatus = (isSilent = false) => {
+      if (!isSilent) setLoadingStatus(true);
+      const todayISO = new Date().toISOString().split("T")[0];
 
-    getMyAttendance(auth.slug, { date: todayISO })
-      .then((res) => {
-        const attendanceForToday = res.data?.data || [];
-        if (attendanceForToday.length > 0) {
-          const todaysDoc = attendanceForToday[0];
-          if (todaysDoc && todaysDoc.record) {
-            const backendStatus = (todaysDoc.record.status || "").toUpperCase();
-            if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
-              setStatus("approved");
-            } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
-              setStatus("rejected");
-            } else if (backendStatus === "PENDING") {
-              setStatus("pending");
+      getMyAttendance(auth.slug, { date: todayISO })
+        .then((res) => {
+          const attendanceForToday = res.data?.data || [];
+          if (attendanceForToday.length > 0) {
+            const todaysDoc = attendanceForToday[0];
+            if (todaysDoc && todaysDoc.record) {
+              const backendStatus = (todaysDoc.record.status || "").toUpperCase();
+              if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
+                setStatus("approved");
+              } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
+                setStatus("rejected");
+              } else if (backendStatus === "PENDING") {
+                setStatus("pending");
+              }
             }
           }
-        }
-      })
-      .catch(() => { /* Fail silently, assume not marked */ })
-      .finally(() => setLoadingStatus(false));
+        })
+        .catch(() => { /* Fail silently, assume not marked */ })
+        .finally(() => { if (!isSilent) setLoadingStatus(false); });
+    };
+
+    checkStatus();
+    // Auto-refresh every 30 seconds to catch admin approval
+    const intervalId = setInterval(() => checkStatus(true), 30000);
+    return () => clearInterval(intervalId);
   }, [auth.slug]);
 
   const submitAttendance = () => {

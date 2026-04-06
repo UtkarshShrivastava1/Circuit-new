@@ -6,7 +6,8 @@ import StatutorySettingsCard from "@/components/salary/StatutorySettingsCard";
 import SalarySlipPreview from "@/components/salary/SalarySlipPreview";
 import { useAuth } from "@/auth/AuthContext";
 import { getAllEmployees } from "@/services/attendanceService";
-import { generatePayroll } from "@/services/payrollService";
+import { setStructure } from "@/services/payrollService";
+import api from "@/services/api";
 import { toast } from "react-toastify";
 import { MdCurrencyRupee } from "react-icons/md";
 import { getMembers } from "@/services/memberService";
@@ -28,8 +29,6 @@ export default function SalaryStructureDashboard() {
   // Form State
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [monthlyGross, setMonthlyGross] = useState(0);
-  const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
   const [limitPF, setLimitPF] = useState(true);
 
   useEffect(() => {
@@ -87,7 +86,7 @@ export default function SalaryStructureDashboard() {
     };
   }, [monthlyGross, limitPF]);
 
-  const handleGenerate = async () => {
+  const handleSaveStructure = async () => {
     if (!selectedEmployeeId || monthlyGross <= 0) {
       toast.error("Please select an employee and enter a valid gross salary.");
       return;
@@ -96,31 +95,26 @@ export default function SalaryStructureDashboard() {
     setGenerating(true);
     const payload = {
       employeeId: selectedEmployeeId,
-      month,
-      year,
-      basicSalary: salaryComponents.basic,
-      allowances: salaryComponents.hra + salaryComponents.special,
-      deductions: salaryComponents.deductions,
-      bonus: 0, // Bonus can be added later
+      monthlyGross,
+      taxRegime: "new",
+      limitPF
     };
 
     try {
-      await generatePayroll(auth.slug, payload);
-      toast.success("Payroll generated successfully!");
+      // Important: Ensure this endpoint matches your admin.payroll.routes.js exactly
+      await setStructure(auth.slug, payload);
+      toast.success("Salary structure saved successfully!");
       // Reset form
       setSelectedEmployeeId("");
       setMonthlyGross(0);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Failed to generate payroll.";
+      const errorMessage = error.response?.data?.message || "Failed to save salary structure.";
       toast.error(errorMessage);
       console.error(error);
     } finally {
       setGenerating(false);
     }
   };
-
-  const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, name: new Date(0, i).toLocaleString('default', { month: 'long' }) }));
-  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
   return (
     <div className="space-y-6">
@@ -129,17 +123,8 @@ export default function SalaryStructureDashboard() {
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
           <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
             <h3 className="text-lg font-semibold text-base-content">
-              Generate Payroll
+              Configure Salary
             </h3>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full text-base-content">
-                {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
-              </Select>
-              <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full text-base-content">
-                {years.map(y => <option key={y} value={y}>{y}</option>)}
-              </Select>
-            </div>
             
             <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="w-full text-base-content" disabled={loading}>
               <option value="">{loading ? "Loading..." : "Choose employee"}</option>
@@ -167,9 +152,9 @@ export default function SalaryStructureDashboard() {
         {/* RIGHT SIDE - PREVIEW */}
         <div className="w-full md:w-2/3 lg:w-3/4">
           <SalarySlipPreview data={salaryComponents} />
-          <div className="mt-6 flex justify-end">
-            <Button variant="primary" onClick={handleGenerate} disabled={generating || !selectedEmployeeId || monthlyGross <= 0}>
-              {generating ? "Generating..." : "Generate & Save Payroll"}
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+            <Button variant="primary" onClick={handleSaveStructure} disabled={generating || !selectedEmployeeId || monthlyGross <= 0}>
+              {generating && selectedEmployeeId ? "Saving..." : "Save Salary Structure"}
             </Button>
           </div>
         </div>

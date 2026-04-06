@@ -214,7 +214,7 @@ import LeaveCalendar from "./LeaveCalendar";
 import AddHolidayDrawer from "./AddHolidayDrawer";
 import LeavePolicy from "./LeavePolicy";
 import MobileLeaveTabs from "./MobileLeaveTabs";
-import { getOrganizationSlug } from "@/utils/auth";
+// import { getOrganizationSlug } from "@/utils/auth";
 import { useAuth } from "@/auth/AuthContext";
 
 
@@ -283,7 +283,7 @@ export default function AdminLeaveDashboard() {
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)));
       toast.success(`Leave ${status} successfully`);
     } catch (error: any) {
-      console.error(`Failed to ${status} leave:`, error);
+      console.error(`Failed to ${status} leave:`, error); 
       toast.error(error.response?.data?.message || `Failed to update leave status`);
     }
   };

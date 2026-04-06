@@ -105,7 +105,7 @@ exports.registerCompany = async (req, res) => {
 exports.login = async (req, res) => {
 
   try {
-    console.log(req.body);
+    console.log("req.body",req.body);
 
     const { email, password } = req.body;
 
@@ -154,7 +154,7 @@ exports.login = async (req, res) => {
    const org = await Organization.findById(user.organization);
 
     const token = jwt.sign(
-      {
+      { imageUrl: user.imageUrl || null,
         userId: user._id,
          name: user.name,
         organization: user.organization,
@@ -180,6 +180,8 @@ exports.login = async (req, res) => {
 
     // Set user details in a non-httpOnly cookie so the frontend can access it
     res.cookie("user", JSON.stringify({
+      token: token,
+       imageUrl: user.imageUrl || null,
       userId:user._id,
       name: user.name,
       email: user.email,
@@ -215,6 +217,7 @@ exports.login = async (req, res) => {
         message: "Login successful",
         token,
          user: {
+          
         userId:user._id,
         name: user.name,
         email: user.email,
@@ -222,6 +225,7 @@ exports.login = async (req, res) => {
         organization: user.organization,
         slug: org.slug,
         department: user.department || null,
+        imageUrl: user.imageUrl || null,
       
       },
       });
@@ -270,9 +274,10 @@ exports.getMe =  async (req, res) => {
         role: user.role,
         organization: user.organization,
         department: user.department || null,
-       
+         imageUrl: user.imageUrl || null,
+         token: req.cookies.token || null,
       },
-       slug: org.slug 
+       slug: org.slug ,
     });
   } catch (err) {
     console.error(err);

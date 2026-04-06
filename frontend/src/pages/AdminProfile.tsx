@@ -1,30 +1,48 @@
+import { useEffect, useState } from 'react';
 import AdminRightSection from '@/components/admin/AdminRightSection';
 import ProfileSidebar from '@/components/members/ProfileSidebar'
-import { useParams } from 'react-router-dom';
-
-
+import { useAuth } from '@/auth/AuthContext';
+import { getMemberById } from '@/services/memberService';
+import type { Member } from "@/type/member";
 
 const AdminProfile = () => {
-  const {id}=useParams();
+
+  const { auth } = useAuth();
+  const user = auth?.user || {};
+  const id = user.userId;
+  const slug = auth?.slug;
+  const [admin, setAdmin] = useState<Member | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      if (!slug || !id) return;
+      try {
+        setLoading(true);
+        const response = await getMemberById(slug, id);
+        const foundAdmin = response?.data?.member || response?.data || response;
+        if (foundAdmin) {
+          setAdmin(foundAdmin?.user || foundAdmin);
+        }
+      } catch (error) {
+        console.error("Error fetching admin details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdmin();
+  }, [id, slug]);
+
+  if (loading) return <div className="p-6 flex justify-center">Loading...</div>;
+  if (!admin) return <div className="p-6 flex justify-center text-gray-500">Admin not found</div>;
+
   return (
     <div className='flex flex-col md:flex-row gap-6'>
-      <ProfileSidebar  member={{
-          id: id || '1',
-          name:'John Watson',
-          email: 'john.watson@example.com',
-          role: 'admin',
-          imgUrl: '',
-          status: 'active',
-          joinedAt: '2023-01-15',
-          gender: 'male',
-          phone: '1234567890',
-          address:'104/5A Maitri Nagar Bhilai,CG'
-        }}/>
-
-
-        <AdminRightSection adminId={id || '1'}/>
+      <ProfileSidebar member={admin} />
+      <AdminRightSection adminId={admin._id || admin.id } />
     </div>
   )
 }
 
-export default AdminProfile
+export default AdminProfile;

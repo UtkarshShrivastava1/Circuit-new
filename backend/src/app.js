@@ -13,6 +13,9 @@ const leavepolicyRoutes = require("./routes/leavePolicy.routes");
 const holidayRoutes = require("./routes/holiday.routes");
 const attendanceRoutes = require("./routes/attendance.routes");
 const payrollRoutes = require("./routes/payroll.routes");
+const salarySlipRoutes = require("./routes/salarySlip.routes.js");
+const uploadImageRoutes = require("./routes/uploadRoutes.js");
+const activityRoutes = require("./routes/activity.routes.js");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -35,7 +38,7 @@ app.use(cors({
 app.use(morgan("dev"));
 
 // Response Compression
-app.use(compression());
+app.use(compression()); 
 
 // Body Parsers
 app.use(express.json({ limit: "50mb" }));
@@ -53,8 +56,11 @@ app.use("/api", leavepolicyRoutes);
 app.use("/api", holidayRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/payroll", payrollRoutes);
+app.use("/api/salary-slip", salarySlipRoutes);
 app.use("/api/tasks", taskRoutes);
-app.use("/api/projects", projectRoutes);  
+app.use("/api/projects", projectRoutes); 
+app.use("/api/upload", uploadImageRoutes); 
+app.use("/api/activity", activityRoutes);
 
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({

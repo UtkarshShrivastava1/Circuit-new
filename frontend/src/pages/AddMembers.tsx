@@ -128,9 +128,8 @@ const AddMember = () => {
       setErrors({});
       setCurrentStep(0);
     } catch (error : any) {
-      console.log("error",error);
+      console.error("error",error);
        const errorMessage = error.response?.data?.message || "Failed to register employee";
-      console.log(error);
       toast.error("Failed to register employee",errorMessage);
 
     } finally {

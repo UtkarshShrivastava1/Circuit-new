@@ -18,6 +18,7 @@ import MobileTabs from '../attendance/MobileTabs';
 import AttendanceMobileTopBar from './AttendanceMobileTopBar';
 import { useAuth } from '@/auth/AuthContext';
 import { getAllEmployees , getAttendance ,getManagerDepartments , getDepartmentEmployees} from '@/services/attendanceService';
+import { socket } from "@/socket";
 
 
 
@@ -30,7 +31,7 @@ const AdminAttendance = () => {
   const user = auth?.user;
   const slug = auth?.slug;
   const role: UserRole = user?.role || "admin";
-  console.log("role : " , role)
+
 
   const [activeTab, setActiveTab] = useState<AttendanceTab>("records");
    const [statusFilter, setStatusFilter] = useState<Status>("all");
@@ -236,7 +237,10 @@ const AdminAttendance = () => {
   // )
 
   return (
-  <Suspense fallback={<div className="p-6">Loading...</div>}>
+  <Suspense fallback={<div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
+      </div>}>
     {/* <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4"> */}
     {filteredRecords.length === 0 ? (
       <EmptyState

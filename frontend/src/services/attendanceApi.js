@@ -1,4 +1,4 @@
-import api from "./api"; // Assuming a configured axios instance at './api'
+import API from "../api/axios";
 
 /**
  * Marks or updates attendance for a department or the whole organization.
@@ -13,7 +13,7 @@ import api from "./api"; // Assuming a configured axios instance at './api'
  * @returns {Promise<object>} The new or updated attendance document.
  */
 export const markAttendance = (slug, data) => {
-  return api.post(`/${slug}/mark-attendance`, data);
+  return API.post(`/${slug}/mark-attendance`, data);
 };
 
 /**
@@ -25,7 +25,7 @@ export const markAttendance = (slug, data) => {
  * @returns {Promise<object>} The updated attendance document.
  */
 export const updateAttendance = (slug, attendanceId, data) => {
-  return api.put(`/${slug}/attendance/${attendanceId}`, data);
+  return API.put(`/${slug}/attendance/${attendanceId}`, data);
 };
 
 /**
@@ -38,7 +38,7 @@ export const updateAttendance = (slug, attendanceId, data) => {
  * @returns {Promise<Array<object>>} A list of attendance documents.
  */
 export const getAttendance = (slug, params) => {
-  return api.get(`/${slug}/attendance`, { params });
+  return API.get(`/${slug}/attendance`, { params });
 };
 
 /**
@@ -51,7 +51,7 @@ export const getAttendance = (slug, params) => {
  * @returns {Promise<object>} The employee's attendance summary.
  */
 export const getEmployeeAttendanceSummary = (slug, params) => {
-  return api.get(`/${slug}/attendance/summary`, { params });
+  return API.get(`/${slug}/attendance/summary`, { params });
 };
 
 /**
@@ -60,7 +60,7 @@ export const getEmployeeAttendanceSummary = (slug, params) => {
  * @returns {Promise<object>} An object containing manager info and their departments.
  */
 export const getManagerDepartments = (slug) => {
-  return api.get(`/${slug}/attendance/manager-departments`);
+  return API.get(`/${slug}/attendance/manager-departments`);
 };
 
 /**
@@ -71,5 +71,5 @@ export const getManagerDepartments = (slug) => {
  */
 export const getDepartmentEmployees = (slug, departmentId) => {
   const params = departmentId ? { departmentId } : {};
-  return api.get(`/${slug}/attendance/department-employees`, { params });
+  return API.get(`/${slug}/attendance/department-employees`, { params });
 };

@@ -57,7 +57,7 @@ export const getAllLeaves = (slug: any, params?: any) =>
 /**
  * Fetches a specific leave by its ID.
  * @param {string} slug - The organization's slug.
- * @param {string} leaveId - The ID of the leave request.
+ * @param {string} leaveId - The ID of the leave request. 
  * @returns {Promise} Axios promise.
  */
 export const getLeaveById = (slug: any, leaveId: any) =>

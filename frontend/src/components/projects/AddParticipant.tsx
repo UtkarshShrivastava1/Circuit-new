@@ -45,10 +45,9 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const slug = getOrganizationSlug(); // get slug from auth context or utility
+        const slug = auth.slug; // get slug from auth context or utility
         const res = await getMembers(slug);
         // await api.get(`/${auth.slug}/getMembers`);
-        console.log("Fetched org users:", res.data.members);
         setUsers(res.data.members); 
       } catch (err) {
         console.error("Failed to fetch org users", err);

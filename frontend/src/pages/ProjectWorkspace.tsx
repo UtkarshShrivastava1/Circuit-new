@@ -18,7 +18,7 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
   tabFromUrl || "overview"
 );
 
-console.log("Project ID in ProjectWorkspace:", id);
+
 
   const project = {
     id,

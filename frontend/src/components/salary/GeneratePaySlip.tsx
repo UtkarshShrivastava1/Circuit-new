@@ -1,198 +1,121 @@
-import { useState } from "react";
-import Select from "@/components/ui/Select";
+import React, { useState, useEffect } from "react";
+import { getEmployees, runMonthly } from "@/services/payrollService";
+import { getMembers } from "@/services/memberService";
+import { useAuth } from "@/auth/AuthContext";
+import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
-import { calculateSalary } from "../../utils/salaryCalculator";
-import type { Employee, SalaryStructure } from "../../type/payslip";
+import Select from "@/components/ui/Select";
+import Input from "@/components/ui/Input";
 
-/* MOCK DATA */
+export default function GeneratePaySlip() {
+  const { auth } = useAuth();
+  // console.log(auth.user)
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [manualAmount, setManualAmount] = useState("");
+  const [loading, setLoading] = useState(false);
 
-const EMPLOYEES: Employee[] = [
-  { id: "1", name: "Vinay Kumar", role: "Developer", salaryStructureId: "1" },
-  { id: "2", name: "Rahul Sharma", role: "Designer", salaryStructureId: "2" },
-];
+  const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, name: new Date(0, i).toLocaleString('default', { month: 'long' }) }));
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
-const STRUCTURES: SalaryStructure[] = [
-  {
-    id: "1",
-    name: "Developer Structure",
-    basic: 30000,
-    hra: 10000,
-    allowances: 5000,
-    bonus: 2000,
-    deductions: 3000,
-  },
-  {
-    id: "2",
-    name: "Designer Structure",
-    basic: 25000,
-    hra: 8000,
-    allowances: 4000,
-    bonus: 1500,
-    deductions: 2500,
-  },
-];
+  useEffect(() => {
+    if (auth.slug) {
+      getEmployees(auth.slug)
+        .then(res => setEmployees(res.data?.data || []))
+        .catch(() => toast.error("Failed to load employees"));
+    }
+  }, [auth.slug]);
 
-export default function GeneratePayslip() {
-  const [employeeId, setEmployeeId] = useState("");
-  const [month, setMonth] = useState("");
-  const [preview, setPreview] = useState<any>(null);
+  const handleGenerate = async () => {
+    if (selectedEmployees.length === 0) return toast.warning("Please select at least one employee.");
 
-  const handleGenerate = () => {
-    const employee = EMPLOYEES.find(e => e.id === employeeId);
-    if (!employee) return;
+    setLoading(true);
+    const payload = {
+      month,
+      year,
+      employeeIds: selectedEmployees,
+      manualAmount: manualAmount ? Number(manualAmount) : undefined
+    };
 
-    const structure = STRUCTURES.find(
-      s => s.id === employee.salaryStructureId
-    );
-
-    if (!structure) return;
-
-    const result = calculateSalary(structure);
-
-    setPreview({
-      employee,
-      structure,
-      ...result,
-    });
+    try {
+      const res = await runMonthly(auth.slug, payload);
+      console.log("Res : " ,res)
+      toast.success(res.data?.message || "Payroll generated successfully!");
+      setSelectedEmployees([]);
+      setManualAmount("");
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Failed to generate payroll";
+      toast.error(msg);
+      const details = error.response?.data?.details;
+      if (details && details.length > 0) {
+        toast.error(`Reason: ${details[0].reason}`);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const toggleEmployee = (id: string) => {
+    setSelectedEmployees(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]);
+  };
+
+  const selectAll = () => setSelectedEmployees(employees.map(e => e._id));
+  const deselectAll = () => setSelectedEmployees([]);
+
   return (
-    <div className="space-y-6">
+    <div className="bg-base-100 p-6 md:p-8 rounded-xl shadow-sm border border-base-300 max-w-3xl mx-auto space-y-6">
+      <h2 className="text-2xl font-bold border-b border-base-200 pb-4">Generate Payslips</h2>
 
-      {/* Selection Section */}
-      <div className="bg-base-100 border border-base-300 rounded-xl p-6 space-y-4 text-base-content">
-
-        <h2 className="text-lg font-semibold">Generate Payslip</h2>
-
-        <Select
-          value={employeeId}
-          onChange={(e) => setEmployeeId(e.target.value)}
-        >
-          <option value="">Select Employee</option>
-          {EMPLOYEES.map((emp) => (
-            <option key={emp.id} value={emp.id}>
-              {emp.name} - {emp.role}
-            </option>
-          ))}
-        </Select>
-
-        <input
-          type="month"
-          className="input input-bordered w-full"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-        />
-
-        <Button
-          variant="primary"
-          onClick={handleGenerate}
-          disabled={!employeeId || !month}
-          className="text-base-content"
-        >
-          Generate Preview
-        </Button>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-sm font-medium mb-1">Select Month</label>
+          <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full">
+            {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
+          </Select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Select Year</label>
+          <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full">
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
+          </Select>
+        </div>
       </div>
 
-      {/* Preview Section */}
-      {/* {preview && (
-        <div className="bg-base-100 border border-base-300 rounded-xl p-6 space-y-4">
+      <div className="bg-base-50 p-4 rounded-xl border border-base-200">
+        <label className="block text-sm font-bold mb-1">Manual Base Salary Override (Optional)</label>
+        <p className="text-xs text-base-content/60 mb-3">Leave blank to use the employee's pre-configured default salary template.</p>
+        <Input
+          type="number"
+          placeholder="₹ Enter gross amount"
+          value={manualAmount}
+          onChange={(e) => setManualAmount(e.target.value)}
+          className="w-full max-w-sm"
+        />
+      </div>
 
-          <h3 className="font-semibold">
-            Payslip Preview – {preview.employee.name}
-          </h3>
-
-          <div className="text-sm space-y-2">
-
-            <div className="flex justify-between">
-              <span>Basic</span>
-              <span>₹ {preview.structure.basic}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>HRA</span>
-              <span>₹ {preview.structure.hra}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Allowances</span>
-              <span>₹ {preview.structure.allowances}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Bonus</span>
-              <span>₹ {preview.structure.bonus}</span>
-            </div>
-
-            <hr />
-
-            <div className="flex justify-between font-semibold">
-              <span>Gross</span>
-              <span>₹ {preview.gross}</span>
-            </div>
-
-            <div className="flex justify-between text-error">
-              <span>Deductions</span>
-              <span>₹ {preview.totalDeductions}</span>
-            </div>
-
-            <div className="flex justify-between text-primary font-bold">
-              <span>Net Pay</span>
-              <span>₹ {preview.netPay}</span>
-            </div>
-
+      <div>
+        <div className="flex justify-between items-center mb-3">
+          <label className="text-md font-bold">Select Eligible Employees</label>
+          <div className="space-x-2">
+            <Button variant="outline" size="sm" onClick={selectAll}>Select All</Button>
+            <Button variant="outline" size="sm" onClick={deselectAll}>Deselect All</Button>
           </div>
         </div>
-      )} */}
-
-      {preview && (
-  <div className="bg-base-100 border border-base-300 rounded-xl p-6 shadow-sm">
-
-    <h3 className="font-semibold text-lg mb-4 text-base-content">
-      Payslip Preview – {preview.employee.name}
-    </h3>
-
-    <div className="space-y-3 text-sm">
-
-      <div className="flex justify-between text-base-content/80">
-        <span>Basic</span>
-        <span>₹ {preview.structure.basic}</span>
+        <div className="border border-base-300 rounded-lg max-h-64 overflow-y-auto p-2 space-y-1 bg-base-50">
+          {employees.map(emp => (
+            <label key={emp._id} className="flex items-center gap-3 p-3 hover:bg-base-200 rounded cursor-pointer transition-colors border border-transparent hover:border-base-300">
+              <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={selectedEmployees.includes(emp._id)} onChange={() => toggleEmployee(emp._id)} />
+              <span className="font-medium">{emp.name} <span className="text-xs font-normal text-base-content/60 ml-2 bg-base-300 px-2 py-1 rounded">{emp.department || "No Dept"}</span></span>
+            </label>
+          ))}
+        </div>
       </div>
 
-      <div className="flex justify-between text-base-content/80">
-        <span>HRA</span>
-        <span>₹ {preview.structure.hra}</span>
-      </div>
-
-      <div className="flex justify-between text-base-content/80">
-        <span>Allowances</span>
-        <span>₹ {preview.structure.allowances}</span>
-      </div>
-
-      <div className="flex justify-between text-base-content/80">
-        <span>Bonus</span>
-        <span>₹ {preview.structure.bonus}</span>
-      </div>
-
-      <div className="border-t border-base-300 my-3"></div>
-
-      <div className="flex justify-between text-accent font-semibold">
-        <span>Gross</span>
-        <span>₹ {preview.gross}</span>
-      </div>
-
-      <div className="flex justify-between text-error">
-        <span>Deductions</span>
-        <span>₹ {preview.totalDeductions}</span>
-      </div>
-
-      <div className="flex justify-between text-primary font-bold text-base">
-        <span>Net Pay</span>
-        <span>₹ {preview.netPay}</span>
-      </div>
-
-    </div>
-  </div>
-)}
+      <Button variant="primary" className="w-full py-3 mt-4" onClick={handleGenerate} disabled={loading || selectedEmployees.length === 0}>
+        {loading ? "Generating Payload..." : `Process Payroll for ${selectedEmployees.length} Employee(s)`}
+      </Button>
     </div>
   );
 }

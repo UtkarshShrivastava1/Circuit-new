@@ -6,6 +6,7 @@ import { LockIcon, User2Icon } from "lucide-react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { login as loginService } from "../services/authService";
 import { useAuth } from "../auth/AuthContext";
+import { toast } from "react-toastify";
 
 interface LoginProps {
   setToken?: React.Dispatch<React.SetStateAction<string>>;
@@ -59,9 +60,8 @@ const Login = ({ setToken }: LoginProps) => {
 
       const response = await loginService(formData);
 
-    // ✅ Save user data
-    console.log(response.data.user);
-    alert("Login successful");
+    toast.success("Login successful");
+   
     
     // Store the token from the response
     if (response.data && response.data.token) {
@@ -77,6 +77,7 @@ const Login = ({ setToken }: LoginProps) => {
       // ✅ Save the full user details so other components (like Dashboards) can access it
       // sessionStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("user", JSON.stringify(response.data.user));
+      localStorage.setItem("token", response.data.token);
       
       
          

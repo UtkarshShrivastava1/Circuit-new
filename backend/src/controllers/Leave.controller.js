@@ -1,6 +1,8 @@
 const Leave = require("../models/Leave.model");
 const User = require("../models/User.model");
 const logger = require("../common/libs/logger");
+const Activity = require('../models/Activity');
+const { getIO } = require("../services/socket.service");
 
 // Safe Chalk Import
 let chalk;
@@ -50,7 +52,27 @@ exports.applyLeave = async (req, res) => {
     });
 
     console.log(chalk.green(`✔ Leave applied → User:${userId} for ${type}`));
+
+     // 2. Insert the Activity Log here!
+    await Activity.create({
+      organization: req.organization._id,
+      user: userId, 
+      action: "Leave Applied",
+      message: ` ${name} applied for leave: ${type}`,
+      referenceId: leave._id,
+      referenceModel: "Leave"
+    });
     
+    // 3. Emit Realtime Notification
+    const io = req.app.get("io");
+    if (io) {
+      console.log("📡 Emitting 'new_notification' via socket.io for Leave Applied");
+      io.emit("new_notification", {
+        action: "Leave Applied",
+        message: ` ${name} applied for leave: ${type}`
+      });
+    }
+
     res.status(201).json({
       message: "Leave application submitted successfully",
       leave,
@@ -172,12 +194,41 @@ exports.updateLeaveStatus = async (req, res) => {
       },
       { new: true }
     ).populate("user", "name email");
+    logger.info(`leaves:  ${leave}`);
 
     if (!leave) {
       return res.status(404).json({ message: "Leave not found" });
     }
 
     console.log(chalk.yellow(`⚙ Leave ${status} → ${leave.user?.email}`));
+    
+    // Sync activity for approved/rejected leave
+    await Activity.findOneAndUpdate(
+      { referenceId: leaveId, referenceModel: "Leave" },
+      { 
+        action: `Leave ${status.charAt(0).toUpperCase() + status.slice(1)}`, 
+        message: `Leave ${status} for ${leave.name || leave.user?.email}`
+      }
+    );
+
+     // 🔥 EMIT SOCKET EVENT
+    const io = getIO();
+
+    io.emit("leaveStatusUpdated", {
+      leaveId: leave._id,
+      status: leave.status,
+      employeeId: leave.employee, // useful later
+    });
+
+    // Emit Realtime Notification
+    const appIo = req.app.get("io");
+    if (appIo) {
+      appIo.emit("new_notification", {
+        action: `Leave ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+        message: `Leave ${status} for ${leave.name || leave.user?.email}`
+      });
+    }
+
     res.json({ message: `Leave ${status} successfully`, leave });
   } catch (error) {
     logger.error("Update leave status failed", { error: error.message });
@@ -215,6 +266,15 @@ exports.bulkUpdateLeaveStatus = async (req, res) => {
     );
 
     console.log(chalk.yellow(`⚙ Bulk Leave ${status} → ${result.modifiedCount} requests`));
+    
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_notification", {
+        action: "Bulk Leave Update",
+        message: `${result.modifiedCount} leave(s) updated to ${status}`
+      });
+    }
+
     res.json({ message: `Successfully updated ${result.modifiedCount} leave(s) to ${status}`, modifiedCount: result.modifiedCount });
   } catch (error) {
     logger.error("Bulk update leave status failed", { error: error.message });
@@ -247,6 +307,23 @@ exports.cancelLeave = async (req, res) => {
     await leave.save();
 
     console.log(chalk.red(`⛔ Leave cancelled → User:${userId}`));
+    
+    await Activity.findOneAndUpdate(
+      { referenceId: leaveId, referenceModel: "Leave" },
+      { 
+        action: "Leave Cancelled", 
+        message: `Leave cancelled by ${leave.name || 'user'}`
+      }
+    );
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_notification", {
+        action: "Leave Cancelled",
+        message: `Leave cancelled by ${leave.name || 'user'}`
+      });
+    }
+
     res.json({ message: "Leave cancelled successfully", leave });
   } catch (error) {
     logger.error("Cancel leave failed", { error: error.message });
@@ -287,6 +364,23 @@ exports.updateLeave = async (req, res) => {
     await leave.save();
 
     console.log(chalk.blue(`✎ Leave updated → User:${userId}`));
+    
+    await Activity.findOneAndUpdate(
+      { referenceId: leaveId, referenceModel: "Leave" },
+      { 
+        action: "Leave Updated", 
+        message: `Leave request updated by ${leave.name || 'user'}`
+      }
+    );
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_notification", {
+        action: "Leave Updated",
+        message: `Leave request updated by ${leave.name || 'user'}`
+      });
+    }
+
     res.json({ message: "Leave updated successfully", leave });
   } catch (error) {
     logger.error("Update leave failed", { error: error.message });
@@ -312,6 +406,17 @@ exports.deleteLeave = async (req, res) => {
     }
 
     console.log(chalk.red(`🗑 Leave deleted → User:${userId}`));
+    
+    await Activity.deleteMany({ referenceId: leaveId, referenceModel: "Leave" });
+    
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("new_notification", {
+        action: "Leave Deleted",
+        message: `Leave deleted by user`
+      });
+    }
+
     res.json({ message: "Leave deleted successfully", leave });
   } catch (error) {
     logger.error("Delete leave failed", { error: error.message });

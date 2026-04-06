@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 // import { getOrganizationSlug } from "@/utils/auth";
 // import { getUser } from "@/utils/getUser";
 import { useAuth } from "@/auth/AuthContext";
+import { socket } from "@/socket";
 
 
 export default function EmployeeLeaveDashboard() {
@@ -34,6 +35,7 @@ export default function EmployeeLeaveDashboard() {
   const [policy, setPolicy] = useState<any>(null);
   const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [selectedLeave, setSelectedLeave] =
     useState<LeaveRequest | null>(null);
@@ -73,6 +75,7 @@ export default function EmployeeLeaveDashboard() {
         // }
 
         if (response.status === 304) return; // keep old data
+        console.log(response.data)
         
         const fetchedLeaves: LeaveRequest[] = response.data.leaves.map((leave: any) => ({
           id: leave._id,
@@ -98,7 +101,25 @@ export default function EmployeeLeaveDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [refreshTrigger, auth.slug, user]);
+
+  // Real-time socket listener to refresh dashboard
+  useEffect(() => {
+    if (auth?.user) {
+      const onNotification = (data: any) => {
+        if (data?.action?.toLowerCase().includes("leave")) {
+          console.log("🔄 Real-time leave update received. Refreshing dashboard...");
+          setRefreshTrigger((prev) => prev + 1);
+        }
+      };
+
+      socket.on("new_notification", onNotification);
+
+      return () => {
+        socket.off("new_notification", onNotification);
+      };
+    }
+  }, [auth?.user]);
 
   const handleApplyLeave = async (leave: any) => {
     try {
@@ -117,7 +138,6 @@ export default function EmployeeLeaveDashboard() {
       // 2. Call the backend API via leaveService
       const response = await applyLeave(auth.slug, payload);
       const savedLeave = response.data.leave;
-      console.log("Leave applied successfully:", savedLeave);
 
       // 3. Update local state with the new response from DB
       const newLeave: LeaveRequest = {

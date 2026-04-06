@@ -145,7 +145,6 @@ export default function ProjectTasks({ projectId }: Props) {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showNewTask, setShowNewTask] = useState(false);
 
- console.log("Project ID:", projectId); // Debug log
   // 🔹 Mock role (Week-1)
   const role: Role = "admin";
 

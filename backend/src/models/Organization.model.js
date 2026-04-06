@@ -2,11 +2,7 @@ const mongoose = require("mongoose");
 
 const organizationSchema = new mongoose.Schema(
   {
-    // organizationId:{
-    //   type: String,
-    //   required: true,
-    //   unique: true,
-    // },
+    
     name:{
       type: String,
       required: true,
@@ -46,10 +42,7 @@ const organizationSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // address: {
-    //   type: String,
-    //   trim: true
-    // },
+   
 
     address: {
       addressLine:{

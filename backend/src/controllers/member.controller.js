@@ -1,9 +1,8 @@
 // const chalk = require("chalk");
 
 const User = require("../models/User.model");
-
+const Activity = require('../models/Activity');
 const inviteService = require("../services/invite.service");
-
 const logger = require("../common/libs/logger");
 
 // Safe Chalk Import (Handles ESM/CJS mismatch or missing package)
@@ -33,10 +32,11 @@ try {
 exports.createEmployee = async (req, res) => {
 
   try {
+    logger.info(" employee request received", req.body);
 
     const {
       // Personal
-      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
       // Emergency
       emergencyName, emergencyPhone, emergencyRelation,
       // Identity
@@ -46,6 +46,8 @@ exports.createEmployee = async (req, res) => {
       // Financial
       bankName, accountNumber, ifscCode
     } = req.body;
+
+    
 
     const organization = req.organization._id;
 
@@ -71,7 +73,7 @@ exports.createEmployee = async (req, res) => {
 
     const user = await User.create({
       // Personal
-      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
       // Emergency
       emergencyName, emergencyPhone, emergencyRelation,
       // Identity
@@ -91,8 +93,28 @@ exports.createEmployee = async (req, res) => {
     });
 
     console.log(
-      chalk.green(`✔ Employee created → ${email}`)
+      chalk.green(`✔ Employee created → ${user}`)
     );
+
+      // 2. Insert the Activity Log here!
+    await Activity.create({
+      organization: organization, 
+      user: req.user.userId || req.user._id,
+      action: "Member Added",
+      message: `Added a new member: ${user.name}`,
+      referenceId: user._id,
+      referenceModel: "User"
+    });
+
+    // 3. Emit Realtime Notification
+    const io = req.app.get("io");
+    if (io) {
+      console.log("📡 Emitting 'new_notification' via socket.io for Member Added");
+      io.emit("new_notification", {
+        action: "Member Added",
+        message: `Added a new member: ${user.name}`
+      });
+    }
 
     res.status(201).json(user);
 
@@ -206,6 +228,14 @@ exports.updateRole = async (req, res) => {
       chalk.yellow(`⚙ Role updated → ${user.email} → ${role}`)
     );
 
+    await Activity.findOneAndUpdate(
+      { referenceId: userId, referenceModel: "User" },
+      {
+        action: "Role Updated",
+        message: `Updated role for ${user.name || user.email} to ${role}`
+      }
+    );
+
     res.json(user);
 
   } catch (error) {
@@ -263,6 +293,14 @@ exports.deactivateEmployee = async (req, res) => {
 
     console.log(
       chalk.red(`⛔ Employee deactivated → ${user.email}`)
+    );
+
+    await Activity.findOneAndUpdate(
+      { referenceId: userId, referenceModel: "User" },
+      {
+        action: "Member Deactivated",
+        message: `Deactivated member: ${user.name || user.email}`
+      }
     );
 
     res.json({
@@ -430,6 +468,9 @@ exports.deleteEmployee = async (req, res) => {
     console.log(
       chalk.red(`⛔ Employee deleted → ${user.email}`)
     );
+
+    await Activity.deleteMany({ referenceId: userId, referenceModel: "User" });
+
     res.json({
       message: "Employee deleted"
     });
@@ -451,7 +492,7 @@ exports.updateEmployee = async (req, res) => {
   try{
     const { userId } = req.params;
     const {
-      name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+      name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
       emergencyName, emergencyPhone, emergencyRelation,status,
       aadhaar, pan, passport,
       role, designation, department, joiningDate, previousCompany,
@@ -479,7 +520,7 @@ exports.updateEmployee = async (req, res) => {
         organization
       },
       {
-        name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,
+        name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
         emergencyName, emergencyPhone, emergencyRelation,status,
         aadhaar, pan, passport,
         role, designation, department, joiningDate, previousCompany,
@@ -502,6 +543,15 @@ exports.updateEmployee = async (req, res) => {
     console.log(
       chalk.yellow(`⚙ Employee updated → ${user.email}`)
     );
+
+    await Activity.findOneAndUpdate(
+      { referenceId: userId, referenceModel: "User" },
+      {
+        action: "Member Updated",
+        message: `Updated member: ${user.name || user.email}`
+      }
+    );
+
     res.json({
       message: "Employee updated",
       user

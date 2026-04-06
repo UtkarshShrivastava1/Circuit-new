@@ -26,8 +26,7 @@ export const deleteMember = (slug : any , userId : any) =>
   API.delete(`/${slug}/members/${userId}`);
 
 export const updateMember = (slug : any , userId : any, memberData : any) =>
-  API.patch(`/${slug}/members/${userId}`, memberData);
-
+  API.patch(`/${slug}/members/${userId}`, memberData); 
 
 
 /**

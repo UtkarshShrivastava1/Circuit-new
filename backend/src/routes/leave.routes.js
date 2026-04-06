@@ -54,7 +54,7 @@ router.get(
 
 router.patch(
   "/:slug/leaves/:leaveId/status",
-  auth,
+  auth, 
   tenant,
   leaveController.updateLeaveStatus
 );

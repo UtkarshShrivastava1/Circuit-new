@@ -1,4 +1,4 @@
-import { useEffect, useState, type JSX } from "react";
+import { useState, type JSX } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   MdDashboard,
@@ -15,7 +15,8 @@ import {
   MdNotifications,
   MdClose
 } from "react-icons/md";
-import { FolderKanban, UserPlus, UserPlus2 } from "lucide-react";
+import { FolderKanban, UserPlus } from "lucide-react";
+import { useAuth } from "../../auth/AuthContext";
 
 type MenuItem = {
   id: string;
@@ -50,50 +51,26 @@ const coreMenu: MenuItem[] = [
   },
 ];
 
-const managementMenu: MenuItem[] = [
-  {
-    id: "members",
-    label: "Members",
-    path: "/members",
-    icon: <MdPeople size={20} />,
-  },
-  {
-    id: "tasks",
-    label: "Tasks",
-    path: "/tasks",
-    icon: <MdTask size={20} />,
-  },
-  {
-    id: "leaves",
-    label: "Leaves",
-    path: "/leaves",
-    icon: <MdTask size={20} />,
-  },
-  {
-    id: "addMember",
-    label: "Add Member",
-    path: "/addMember",
-    icon: <UserPlus size={20} />,
-  },
-  {
-    id: "createMember",
-    label: "Create Member",
-    path: "/createMember",
-    icon: <UserPlus size={20} />,
-  },
-  {
-    id: "createProject",
-    label: "Create Project",
-    path: "/createProject",
-    icon: <FolderKanban size={20} />,
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    path: "/notifications",
-    icon: <MdNotifications size={20} />,
+const getManagementMenu = (isManagement: boolean): MenuItem[] => {
+  const menu: MenuItem[] = [];
+  
+  if (isManagement) {
+    menu.push({ id: "members", label: "Members", path: "/members", icon: <MdPeople size={20} /> });
   }
-];
+
+  menu.push({ id: "tasks", label: "Tasks", path: "/tasks", icon: <MdTask size={20} /> });
+  menu.push({ id: "leaves", label: "Leaves", path: "/leaves", icon: <MdTask size={20} /> });
+
+  if (isManagement) {
+    menu.push({ id: "addMember", label: "Add Member", path: "/addMember", icon: <UserPlus size={20} /> });
+    menu.push({ id: "createMember", label: "Create Member", path: "/createMember", icon: <UserPlus size={20} /> });
+    menu.push({ id: "createProject", label: "Create Project", path: "/createProject", icon: <FolderKanban size={20} /> });
+  }
+
+  menu.push({ id: "notifications", label: "Notifications", path: "/notifications", icon: <MdNotifications size={20} /> });
+
+  return menu;
+};
 
 const payrollSubMenu: MenuItem[] = [
   {
@@ -123,10 +100,12 @@ const payrollSubMenu: MenuItem[] = [
 ];
 
 export default function ERPSidebar({ isOpen, onClose }: Props) {
+  const { auth } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [payrollOpen, setPayrollOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
 
+  const user = auth?.user;
+  const isManagement = ['admin', 'owner', 'manager'].includes(user?.role || '');
   const location = useLocation();
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -138,25 +117,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
     ].join(" ");
 
   const isPayrollActive = location.pathname.startsWith("/payroll");
-
-  useEffect(() => {
-    const getCookie = (name: string) => {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop()?.split(";").shift();
-      return null;
-    };
-
-    const userCookie = getCookie("user");
-    if (userCookie) {
-      try {
-        const decodedUser = decodeURIComponent(userCookie);
-        setUser(JSON.parse(decodedUser));
-      } catch (error) {
-        console.error("Failed to parse user from cookie", error);
-      }
-    }
-  }, []);
+  const managementMenu = getManagementMenu(isManagement);
 
   return (
     <>
@@ -267,54 +228,58 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                 </NavLink>
               ))}
 
-              {/* PAYROLL PARENT */}
-              <button
-                onClick={() => setPayrollOpen(!payrollOpen)}
-                className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
-                  isPayrollActive
-                    ? "bg-base-300 font-semibold text-base-content"
-                    : "text-base-content/70 hover:bg-base-300"
-                }`}
-              >
-                <MdPayments size={20} />
-                {/* {!collapsed && (
+              {/* PAYROLL / MY SALARY SECTION */}
+              {isManagement ? (
                 <>
-                  <span className="flex-1 text-left">Payroll</span>
-                  {payrollOpen ? <MdExpandLess /> : <MdExpandMore />}
-                </>
-              )} */}
-                {!collapsed && (
-                  <>
-                    <span className="flex-1 text-left">Payroll</span>
-                    <MdExpandMore
-                      className={`transition-transform duration-300 ${
-                        payrollOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </>
-                )}
-              </button>
+                  {/* PAYROLL PARENT */}
+                  <button
+                    onClick={() => setPayrollOpen(!payrollOpen)}
+                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
+                      isPayrollActive
+                        ? "bg-base-300 font-semibold text-base-content"
+                        : "text-base-content/70 hover:bg-base-300"
+                    }`}
+                  >
+                    <MdPayments size={20} />
+                    {!collapsed && (
+                      <>
+                        <span className="flex-1 text-left">Payroll</span>
+                        <MdExpandMore
+                          className={`transition-transform duration-300 ${
+                            payrollOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </>
+                    )}
+                  </button>
 
-              {/* PAYROLL SUBMENU */}
-              <div
-                className={`
-    overflow-hidden transition-all duration-300 ease-in-out
-    ${
-      payrollOpen && !collapsed
-        ? "max-h-40 opacity-100 mt-1"
-        : "max-h-0 opacity-0"
-    }
-  `}
-              >
-                <div className="ml-8 space-y-1 pb-1">
-                  {payrollSubMenu.map((item) => (
-                    <NavLink key={item.id} to={item.path} className={linkClass}>
-                      {item.icon}
-                      <span>{item.label}</span>
-                    </NavLink>
-                  ))}
-                </div>
-              </div>
+                  {/* PAYROLL SUBMENU */}
+                  <div
+                    className={`
+                      overflow-hidden transition-all duration-300 ease-in-out
+                      ${
+                        payrollOpen && !collapsed
+                          ? "max-h-40 opacity-100 mt-1"
+                          : "max-h-0 opacity-0"
+                      }
+                    `}
+                  >
+                    <div className="ml-8 space-y-1 pb-1">
+                      {payrollSubMenu.map((item) => (
+                        <NavLink key={item.id} to={item.path} className={linkClass}>
+                          {item.icon}
+                          <span>{item.label}</span>
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <NavLink to="/my-salary" className={linkClass}>
+                  <MdReceiptLong size={20} />
+                  {!collapsed && <span>My Salary</span>}
+                </NavLink>
+              )}
             </div>
           </div>
         </nav>
@@ -324,9 +289,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           <div className="flex items-center gap-3">
             <div className="avatar placeholder">
               <div className="bg-primary text-primary-content rounded-full w-9 flex items-center justify-center">
-               {
+                <img src={user?.imageUrl || "https://i.pravatar.cc/100?img=12"} alt="User" />
+               {/* {
                  user?.name ? user.name.charAt(0).toUpperCase() : "U"
-               }
+               } */}
               </div>
             </div>
 

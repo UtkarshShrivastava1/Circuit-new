@@ -13,7 +13,7 @@ const auth = async (req, res, next) => {
     // ------------------------------
     
     // Check Authorization Header
-    // console.log("Authorization Header:", req.headers);
+    //"Authorization Header:", req.headers);
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer ")

@@ -1,5 +1,6 @@
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
+const Activity = require('../models/Activity');
 // -----------------------------------------------------------
 // Add Task
 // -----------------------------------------------------------
@@ -61,6 +62,26 @@ const addTask = async (req, res) => {
     });
 
     await task.save();
+
+ // 2. Insert the Activity Log here!
+    await Activity.create({
+      organization: orgId,
+      user: req.user.userId || req.user._id, 
+      action: "Task Assigned",
+      message: `Created a new task: '${task.title}'`,
+      referenceId: task._id,
+      referenceModel: "Task"
+    });
+    
+    // 3. Emit Realtime Notification
+    const io = req.app.get("io");
+    if (io) {
+      console.log("📡 Emitting 'new_notification' via socket.io for Task Assigned");
+      io.emit("new_notification", {
+        action: "Task Assigned",
+        message: `Created a new task: '${task.title}'`
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -134,6 +155,16 @@ const updateTask = async (req, res) => {
       });
     }
 
+    // Update the Activity log to reflect the change
+    // By updating `updatedAt`, you can sort your Admin Dashboard by `updatedAt: -1` so this jumps to the top!
+    await Activity.findOneAndUpdate(
+      { referenceId: taskId, referenceModel: "Task" },
+      { 
+        action: "Task Updated", 
+        message: `Updated task: '${updatedTask.title}'`
+      }
+    );
+
     return res.json({
       success: true,
       message: "Task updated successfully",
@@ -179,6 +210,9 @@ const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    // Delete the related activity so it disappears from the recent activity feed
+    await Activity.deleteMany({ referenceId: taskId, referenceModel: "Task" });
 
     return res.json({
       success: true,

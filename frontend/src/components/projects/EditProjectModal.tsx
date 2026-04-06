@@ -131,7 +131,6 @@ export default function EditProjectModal({
     };
     fetchParticipants();
   }, [project]);
-  console.log(orgUsers, "Org users for participant management");
   const formatDate = (d?: string | Date) =>
     d ? new Date(d).toISOString().split("T")[0] : "";
 

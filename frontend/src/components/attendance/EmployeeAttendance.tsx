@@ -43,8 +43,10 @@ const EmployeeAttendance = () => {
     };
 
     useEffect(() => {
-      if (slug) {
-        setLoading(true);
+      if (!slug) return;
+
+      const fetchAttendance = (isSilent = false) => {
+        if (!isSilent) setLoading(true);
         getMyAttendance(slug, filters)
           .then((res) => {
             const responseData = res.data?.data || res.data || [];
@@ -88,9 +90,14 @@ const EmployeeAttendance = () => {
             setRecords([]);
           })
           .finally(() => {
-            setLoading(false);
+            if (!isSilent) setLoading(false);
           });
-      }
+      };
+
+      fetchAttendance();
+      // Auto-refresh every 30 seconds to show admin approvals
+      const intervalId = setInterval(() => fetchAttendance(true), 30000);
+      return () => clearInterval(intervalId);
     }, [slug, filters, user?.name]);
 
          
@@ -122,7 +129,10 @@ const EmployeeAttendance = () => {
            );
 
     if (loading) {
-      return <div className="p-6 text-center">Loading your attendance...</div>;
+      return <div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading your attendance...</p>
+      </div>;
     }
 
   return (

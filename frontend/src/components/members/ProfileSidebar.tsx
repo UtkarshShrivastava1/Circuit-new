@@ -253,6 +253,8 @@ import {
 import { updateMember } from "@/services/memberService";
 import { toast } from "react-toastify";
 import { getOrganizationSlug } from "@/utils/auth";
+import { useAuth } from "@/auth/AuthContext";
+import { uploadImage } from "@/services/uploadService";
 
 interface Props {
   member: Member;
@@ -260,8 +262,11 @@ interface Props {
 }
 
 export default function ProfileSidebar({ member, onUpdate }: Props) {
+  const { auth } = useAuth();
+  const slug = auth?.slug;
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Member>(member);
+  const [isUploading, setIsUploading] = useState(false);
 
 
 
@@ -276,22 +281,40 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
   };
 
   const handleSave = () => {
-    const slug = getOrganizationSlug();
-    updateMember(slug, member._id, formData)
+    // const targetId = member._id || (member as any).userId || member.id;
+
+    // Remove immutable identifier fields to prevent MongoDB errors during update
+    const { _id, ...payload } = formData as any;
+ 
+
+
+    updateMember(slug, _id , payload)
       .then((response) => {
-        // console.log("Member updated successfully:", response.data);
         toast.success("Member updated successfully");
-        onUpdate?.(response.data); // Pass the updated
+        setIsEditing(false);
+        onUpdate?.(response.data); // Pass the updated data from backend
       })
       .catch((error) => {
-        toast.error("Error updating member");
+        toast.error("Error updating member",error);
         console.error("Error updating member:", error);
-        // Optionally, you can show an error message to the user here
       });
+  };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setIsEditing(false);
-    onUpdate?.(formData);
+    try {
+      setIsUploading(true);
+      const imgUrl = await uploadImage(file);
+      // Update both properties to handle any frontend mismatches safely
+      setFormData((prev) => ({ ...prev, imageUrl: imgUrl}));
+    } catch (error) {
+      toast.error("Failed to upload image", error );
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -303,6 +326,7 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
           <button
             onClick={isEditing ? handleSave : handleEditToggle}
             className="cursor-pointer absolute top-3 right-3 bg-base-100 text-base-content p-2 rounded-full shadow"
+
           >
             {isEditing ? <SaveIcon size={14} /> : <Edit2Icon size={14} />}
           </button>
@@ -310,17 +334,31 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
 
         {/* AVATAR */}
         <div className="relative flex justify-center -mt-12">
-          <div className="w-24 h-24 rounded-full bg-base-100 border-4 border-base-100 shadow-lg flex items-center justify-center overflow-hidden">
-            {formData?.imgUrl?.trim() ? (
+          <div className="w-24 h-24 rounded-full bg-base-100 border-4 border-base-100 shadow-lg flex items-center justify-center overflow-hidden relative group">
+            {(formData?.imageUrl || formData?.imgUrl)?.trim() ? (
               <img
-                src={formData.imgUrl}
+                src={formData.imageUrl || formData.imgUrl}
                 alt={formData.name || "User"}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover ${isUploading ? "opacity-50" : ""}`}
               />
             ) : (
               <span className="text-3xl font-semibold text-base-content/40">
                 {(formData?.name?.[0] || "?").toUpperCase()}
               </span>
+            )}
+
+            {isEditing && (
+              <label className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs">
+                <Edit2Icon size={16} className="mb-1" />
+                {isUploading ? "..." : "Change"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                />
+              </label>
             )}
           </div>
         </div>
