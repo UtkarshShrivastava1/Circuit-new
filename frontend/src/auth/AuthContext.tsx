@@ -4,6 +4,7 @@ import API from "@/api/axios";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type User = {
+  userId: string;
   name: string;
   email: string;
   role: string;

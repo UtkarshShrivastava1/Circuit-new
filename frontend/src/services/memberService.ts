@@ -8,7 +8,7 @@ import API from "../api/axios";
  * @param {string} slug - The organization's slug.
  * @returns {Promise} Axios promise.
  */
-export const getMembers = (organizationId : any ) => API.get(`/${organizationId}/members`);
+export const getMembers = (slug : string ) => API.get(`/${slug}/members`);
 
 /**
  * Creates a new employee/member in an organization.

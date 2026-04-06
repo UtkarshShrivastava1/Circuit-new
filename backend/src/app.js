@@ -11,6 +11,7 @@ const taskRoutes = require("./routes/task.routes");
 const leaveRoutes = require("./routes/leave.routes");
 const holidayRoutes = require("./routes/holiday.routes");
 const leavePolicyRoutes = require("./routes/leavePolicy.routes");
+const notificationRoutes = require("./routes/notification.routes");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -51,7 +52,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api", leaveRoutes);
 app.use("/api", holidayRoutes);
 app.use("/api", leavePolicyRoutes);
-
+app.use("/api", notificationRoutes);
 // Define a simple GET API endpoint
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from the backend!' });

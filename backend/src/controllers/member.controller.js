@@ -103,7 +103,8 @@ exports.createEmployee = async (req, res) => {
     });
 
     res.status(500).json({
-      message: "Server error"
+      message: "Server error",
+      error: error.message
     });
 
   }

@@ -194,6 +194,7 @@ console.log("Organization found:", org);
 
     // Set user details in a non-httpOnly cookie so the frontend can access it
     res.cookie("user", JSON.stringify({
+      userId: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -217,6 +218,7 @@ console.log("Organization found:", org);
      
         slug: org.slug,
          user: {
+          userId: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -251,6 +253,7 @@ exports.getMe =  async (req, res) => {
     const org = await Organization.findById(user.organization);
     res.json({
       user: {
+        userId: user._id,
         name: user.name,
         email: user.email,
         role: user.role,

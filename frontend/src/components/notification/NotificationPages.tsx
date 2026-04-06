@@ -1,31 +1,41 @@
 import type { Notification } from "@/type/notification";
-import { MdAttachFile, MdOpenInNew } from "react-icons/md";
+import { Trash2 } from "lucide-react";
+import { MdAttachFile, MdEdit, MdOpenInNew } from "react-icons/md";
 
 interface Props {
   notifications: Notification[];
   currentUserId: string;
+  currentUserRole: string;
+  onEdit: (notification: Notification) => void;
+  onDelete: (id: string) => void;
 }
 
 export default function NotificationPage({
   notifications,
   currentUserId,
+  currentUserRole,
+  onEdit,
+  onDelete,
 }: Props) {
-  // const visibleNotifications = notifications.filter(
-  //   (n) =>
-  //     n.targetUserIds.length === 0 || n.targetUserIds.includes(currentUserId),
-  // );
-  const visibleNotifications = notifications.filter(
-    (n) =>
-      n.targetUserIds.length === 0 ||
-      n.targetUserIds.includes(currentUserId) ||
-      n.createdBy === currentUserId,
-  );
+  const canManage = ["admin", "owner"].includes(currentUserRole);
+  const visibleNotifications = notifications.filter((n) => {
+    const targets = n.targetUserIds ?? [];
+
+    return (
+      n.createdBy === currentUserId || // sender always see
+      targets.length === 0 || // no target = all
+      targets.includes(currentUserId) || // specific user
+      n.sendTo === "all" //
+    );
+  });
   return (
     <div className="space-y-6">
       {visibleNotifications.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 
+        <div
+          className="flex flex-col items-center justify-center py-16 
 bg-base-100 border border-base-300 
-rounded-2xl shadow-sm text-base-content/60">
+rounded-2xl shadow-sm text-base-content/60"
+        >
           <p className=" text-sm">No Notifications Yet </p>
         </div>
       ) : (
@@ -38,16 +48,18 @@ rounded-2xl shadow-sm text-base-content/60">
                 key={n.id}
                 className={`rounded-2xl p-5 shadow-sm border transition
     ${
-     n.priority === "urgent"
-  ? "border-l-4 border-error bg-error/5"
-  : "border-base-300 bg-base-100"
+      n.priority === "urgent"
+        ? "border-l-4 border-error bg-error/5"
+        : "border-base-300 bg-base-100"
     }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-base-content">{n.title}</h3>
+                    <h3 className="font-semibold text-base-content">
+                      {n.title}
+                    </h3>
                   </div>
-
+              <div className="flex items-center gap-2">
                   <p className="text-xs text-base-content/60 mt-1">
                     {new Date(n.createdAt).toLocaleString("en-IN", {
                       day: "numeric",
@@ -57,15 +69,34 @@ rounded-2xl shadow-sm text-base-content/60">
                       minute: "2-digit",
                     })}
                   </p>
+
+                    {canManage && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => onEdit(n)}
+                          className="text-xs px-2 py-1 rounded-lg bg-base-200 hover:bg-base-300 transition"
+                        >
+                        <MdEdit size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => onDelete(n.id)}
+                          className="text-xs px-2 py-1 rounded-lg bg-error/10 text-error hover:bg-error/20 transition"
+                        >
+                        <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-sm text-base-content/80 mt-3 leading-relaxed">
                   {n.message}
                 </p>
-                {n.attachmentUrl && (
+                {n.attachments?.length > 0 && (
                   <div className="mt-4">
                     <a
-                      href={n.attachmentUrl}
+                      href={n.attachments[0].fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-between bg-base-200 border border-base-300 rounded-xl px-4 py-3 hover:bg-base-300 transition group"
@@ -90,6 +121,7 @@ rounded-2xl shadow-sm text-base-content/60">
                         className="text-base-content/50 group-hover:text-base-content transition"
                       />
                     </a>
+                  
                   </div>
                 )}
               </div>
