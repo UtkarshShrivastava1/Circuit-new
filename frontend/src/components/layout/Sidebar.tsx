@@ -8,14 +8,14 @@ import {
   MdTask,
   MdChevronLeft,
   MdExpandMore,
-  MdExpandLess,
+  
   MdPayments,
   MdReceiptLong,
   MdHistory,
   MdNotifications,
   MdClose,
 } from "react-icons/md";
-import { FolderKanban, UserPlus, UserPlus2 } from "lucide-react";
+import { FolderKanban, UserPlus} from "lucide-react";
 
 type MenuItem = {
   id: string;

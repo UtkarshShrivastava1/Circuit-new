@@ -70,34 +70,23 @@ export default function Notifications() {
 
     fetchData();
   }, [auth?.slug, auth?.user?.userId]);
-  //add new notification to the list
-  // const handleAddNotification = (newNotification: any) => {
-  //   const formatted = formatNotification(newNotification);
-  //   setNotifications((prev) => [formatted, ...prev]);
-  // };
 
   const handleAddOrUpdateNotification = (notification: Notification) => {
-  setNotifications(prev => {
-    const exists = prev.find(n => n.id === notification.id);
-    if (exists) {
-      return prev.map(n => n.id === notification.id ? notification : n);
-    } else {
-      return [notification, ...prev];
-    }
-  });
-};
+    setNotifications((prev) => {
+      const exists = prev.find((n) => n.id === notification.id);
+      if (exists) {
+        return prev.map((n) => (n.id === notification.id ? notification : n));
+      } else {
+        return [notification, ...prev];
+      }
+    });
+  };
   //edit notification
   const handleEdit = (notification: Notification) => {
     setEditingNotification(notification);
     setOpen(true); // 👈 same modal reuse
   };
-  const handleUpdateNotification = (updated: any) => {
-  const formatted = formatNotification(updated);
 
-  setNotifications((prev) =>
-    prev.map((n) => (n.id === formatted.id ? formatted : n))
-  );
-};
   //delete notification
   const handleDelete = async (id: string) => {
     try {
@@ -168,17 +157,17 @@ export default function Notifications() {
 
         {/* Modal */}
         {["admin", "owner"].includes(currentUserRole) && (
-         <SendNotificationModal
-  open={open}
-  onClose={() => {
-    setOpen(false);
-    setEditingNotification(null);
-  }}
-  onSend={handleAddOrUpdateNotification}
-  members={members}
-  currentAdminId={currentUserId}
-  editingNotification={editingNotification}
-/>
+          <SendNotificationModal
+            open={open}
+            onClose={() => {
+              setOpen(false);
+              setEditingNotification(null);
+            }}
+            onSend={handleAddOrUpdateNotification}
+            members={members}
+            currentAdminId={currentUserId}
+            editingNotification={editingNotification}
+          />
         )}
       </div>
     </div>
