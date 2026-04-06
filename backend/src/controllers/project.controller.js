@@ -305,4 +305,36 @@ const participants = project.participants
     });
   }
 };
-module.exports = { createProject, getProjects,editProject, deleteProject, getProjectParticipants };
+
+
+const getProjectById = async (req, res) => {
+  try {
+    const orgId = req.organization._id; // ye auth middleware se milega
+    const { projectId } = req.params;
+
+    if (!projectId) {
+      return res.status(400).json({ message: "Project ID is required" });
+    }
+
+    const project = await Project.findOne({
+      _id: projectId,
+      orgId, // org filter
+    })
+      .populate("participants.user")
+     
+      .exec();
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    res.json({
+      success: true,
+      project,
+    });
+  } catch (err) {
+    console.error("Get Project By ID Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+module.exports = { createProject, getProjects,editProject, deleteProject, getProjectParticipants ,getProjectById };

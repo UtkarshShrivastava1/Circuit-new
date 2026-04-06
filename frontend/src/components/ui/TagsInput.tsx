@@ -63,6 +63,9 @@ export default function TagsInput({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onBlur={() => {
+  if (input.trim()) addTag();
+}}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();

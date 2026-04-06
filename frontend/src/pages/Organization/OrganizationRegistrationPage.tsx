@@ -9,7 +9,7 @@ export default function OrganizationPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-200 p-4 md:p-6">
 
       <div className="relative w-full max-w-6xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-
+              
         {/* MOBILE TOP BANNER */}
         <div className="lg:hidden relative  bg-gradient-to-br from-blue-700 via-blue-600 to-blue-300 text-white flex flex-col justify-center items-center text-center py-10 px-6 overflow-hidden">
 

@@ -37,6 +37,7 @@ module.exports = async (req,res,next)=>{
   const org = await Organization.findOne({ slug });
   logger.debug("Organization lookup result", { organization: org });
   logger.info("Tenant resolved", { tenantId: org?.slug });
+  logger.info("Tenant resolved", { tenantId: org?._id });
 
   if(!org) return res.status(404).json({msg:"Tenant not found"});
 

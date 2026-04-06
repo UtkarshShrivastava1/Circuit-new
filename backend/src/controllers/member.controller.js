@@ -125,7 +125,8 @@ exports.createEmployee = async (req, res) => {
     });
 
     res.status(500).json({
-      message: "Server error"
+      message: "Server error",
+      error: error.message
     });
 
   }
@@ -326,6 +327,21 @@ exports.deactivateEmployee = async (req, res) => {
 // ------------------------------------------------ 
 // GET MEMBERS
 // ------------------------------------------------
+exports.getEmployees = async (req, res) => {
+  try {
+    const organization = req.organization._id;
+
+    logger.info("Get employees request", { organization });
+
+    const employees = await User.find({ organization }).select("-password");
+
+    // return consistent object
+    res.json({ users: employees });
+  } catch (error) {
+    logger.error("Get employees failed", { error: error.message });
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 exports.getMembers = async (req, res) => {
   try{

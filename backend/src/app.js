@@ -16,6 +16,7 @@ const payrollRoutes = require("./routes/payroll.routes");
 const salarySlipRoutes = require("./routes/salarySlip.routes.js");
 const uploadImageRoutes = require("./routes/uploadRoutes.js");
 const activityRoutes = require("./routes/activity.routes.js");
+const notificationRoutes = require("./routes/notification.routes.js");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -61,7 +62,7 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/projects", projectRoutes); 
 app.use("/api/upload", uploadImageRoutes); 
 app.use("/api/activity", activityRoutes);
-
+app.use("/api", notificationRoutes);
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({
 //   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined

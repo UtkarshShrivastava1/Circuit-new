@@ -1,108 +1,3 @@
-
-// import EmptyState from "../components/ui/EmptyState";
-// import ProjectGrid from "../components/projects/ProjectGrid";
-// import type { Project, ProjectFilter } from "../type/project";
-// import { useEffect, useState } from "react";
-// import ProjectDrawer from "../components/projects/ProjectDrawer";
-// import ProjectDetails from "../components/projects/ProjectDetails";
-// import ProjectGridSkeleton from "@/components/projects/ProjectGridSkeleton";
-// import ProjectFilters from "@/components/projects/ProjectFilters";
-// import { useAuth } from "@/auth/AuthContext";
-// import api from "@/services/api";
-
-// export default function Projects() {
-//   const { auth } = useAuth();
-//   console.log("Auth in Projects:", auth);
-
-//   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-//   const [projects, setProjects] = useState<Project[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filter, setFilter] = useState<ProjectFilter>("all");
-
-//   useEffect(() => {
-//     const fetchProjects = async () => {
-//       try {
-//         setLoading(true);
-
-//         const res = await api.get(`/projects/${auth.slug}/getProjects`, {
-//           params: filter !== "all" ? { projectState: filter } : {},
-//         });
-//         const mappedProjects = res.data.projects.map((p: any) => ({
-//           id: p._id,
-//           name: p.projectName || "Untitled Project",
-//           status: p.projectState?.toLowerCase() || "active",
-//           progress: 0,
-//           manager: p.participants?.[0]?.user?.name || "N/A",
-//           teamCount: p.participants?.length || 0,
-//           dueDate: p.endDate
-//             ? new Date(p.endDate).toLocaleDateString("en-GB", {
-//                 day: "2-digit",
-//                 month: "short",
-//                 year: "numeric",
-//               })
-//             : "No deadline",
-//         }));
-
-//         setProjects(mappedProjects);
-//       } catch (error) {
-//         console.error("Failed to load projects", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (auth?.token && auth?.slug) {
-//       fetchProjects();
-//     }
-//   }, [auth?.token, auth?.slug, filter]);
-//   console.log(projects);
-//   console.log(auth.role);
-//   const filteredProjects = projects;
-
-//   return (
-//     <div>
-//       <ProjectFilters value={filter} onChange={setFilter} />
-//       {loading ? (
-//         <ProjectGridSkeleton />
-//       ) : filteredProjects.length === 0 ? (
-//         <EmptyState
-//         title={`No ${filter === "all" ? "" : filter} projects`}
-//     description="Try switching filters or create a new project"
-//           action={
-//             <button className="btn btn-outline btn-sm">Create Project</button>
-//           }
-//         />
-//       ) : (
-//         <div className="space-y-4">
-          
-
-//           <ProjectGrid
-//             projects={filteredProjects}
-//             onOpen={(project) => setSelectedProject(project)}
-//             onDelete={(id) =>
-//               setProjects((prev) => prev.filter((p) => p.id !== id))
-//             }
-//           canDelete={auth.role ? ["admin", "owner", "manager"].includes(auth.role) : false}
-//           />
-//         </div>
-//       )}
-
-//       <ProjectDrawer
-//         open={!!selectedProject}
-//         onClose={() => setSelectedProject(null)}
-//       >
-//         {selectedProject && (
-//           <ProjectDetails
-//             project={selectedProject}
-//             onClose={() => setSelectedProject(null)}
-//           />
-//         )}
-//       </ProjectDrawer>
-//     </div>
-//   );
-// }
-
-
 import EmptyState from "../components/ui/EmptyState";
 import ProjectGrid from "../components/projects/ProjectGrid";
 import type { Project, ProjectFilter } from "../type/project";
@@ -112,7 +7,7 @@ import ProjectDetails from "../components/projects/ProjectDetails";
 import ProjectGridSkeleton from "@/components/projects/ProjectGridSkeleton";
 import ProjectFilters from "@/components/projects/ProjectFilters";
 import { useAuth } from "@/auth/AuthContext";
-import api from "@/services/api";
+
 import { toast } from "react-toastify";
 import { getProject, deleteProject } from "@/services/projectServices";
 // import { getOrganizationSlug } from "@/utils/auth";
@@ -155,7 +50,8 @@ export default function Projects() {
           name: p.projectName || "Untitled Project",
           status: p.projectState || "active",
           progress: 0,
-          manager: p.participants?.[0]?.user?.name || "N/A",
+          
+          manager:  managerUser?.user?.name || "N/A",
           teamCount: p.participants?.length || 0,
           dueDate: p.endDate
             ? new Date(p.endDate).toLocaleDateString("en-GB", {
@@ -164,7 +60,9 @@ export default function Projects() {
                 year: "numeric",
               })
             : "No deadline",
-        }));
+        }
+        });
+
         setProjects(mappedProjects);
         setLoading(false);
       } catch (error) {
@@ -202,8 +100,6 @@ export default function Projects() {
       {/* Project Filters */}
       <ProjectFilters value={filter} onChange={setFilter} />
 
-      
-
       {/* Projects Grid */}
       {loading ? (
         <ProjectGridSkeleton />
@@ -211,15 +107,13 @@ export default function Projects() {
         <EmptyState
           title={`No ${filter === "all" ? "" : filter} projects`}
           description="Try switching filters or create a new project"
-         
         />
       ) : (
         <div className="space-y-4">
           <ProjectGrid
             projects={filteredProjects}
             onOpen={(project) => setSelectedProject(project)}
-           onDelete={canDelete ? handleDeleteProject : undefined}
-           
+            onDelete={canDelete ? handleDeleteProject : undefined}
           />
         </div>
       )}

@@ -1,3 +1,5 @@
+const cloudinary = require("../config/cloudinary");
+const streamifier = require("streamifier");
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
 const Activity = require('../models/Activity');
@@ -5,9 +7,9 @@ const Activity = require('../models/Activity');
 // Add Task
 // -----------------------------------------------------------
 
-
 const addTask = async (req, res) => {
   try {
+    console.log("TAG FIELD:", req.body.tag);
     const orgId = req.organization._id;
     const userRole = req.user.role;
     const { projectId } = req.params;
@@ -16,13 +18,51 @@ const addTask = async (req, res) => {
       title,
       description,
       priority,
-      attachments,
       status,
       assignedTo,
       dueDate,
       tag,
       subtasks,
     } = req.body;
+    
+    let parsedSubtasks = [];
+
+    let parsedTags = [];
+
+    if (req.body.tag) {
+      if (typeof req.body.tag === "string") {
+        parsedTags = JSON.parse(req.body.tag);
+      } else {
+        parsedTags = req.body.tag;
+      }
+    }
+    if (req.body.subtasks) {
+      if (typeof req.body.subtasks === "string") {
+        parsedSubtasks = JSON.parse(req.body.subtasks);
+      } else {
+        parsedSubtasks = req.body.subtasks;
+      }
+    }
+    const files = req.files || [];
+
+    // Upload attachments to Cloudinary
+    const uploadedAttachments = [];
+
+    for (const file of files) {
+      const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "tasks" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          },
+        );
+
+        streamifier.createReadStream(file.buffer).pipe(stream);
+      });
+
+      uploadedAttachments.push(result.secure_url);
+    }
 
     // Role check
     if (!["admin", "manager", "owner"].includes(userRole)) {
@@ -39,29 +79,30 @@ const addTask = async (req, res) => {
       });
     }
 
-    // Basic validation
     if (!title) {
       return res.status(400).json({
         message: "Title is required",
       });
     }
 
-    // Create task
     const task = new Task({
       organization: orgId,
       projectId,
       title,
       description,
       priority,
-      attachments,
+      attachments: uploadedAttachments,
       status,
-      assignedTo,
+      assignedTo: assignedTo ? [assignedTo] : [],
       dueDate,
-      tag,
-      subtasks, // checklist support
+      tag: parsedTags,
+      subtasks: parsedSubtasks,
     });
+    
 
     await task.save();
+    const populatedTask = await Task.findById(task._id)
+  .populate("assignedTo", "name");
 
  // 2. Insert the Activity Log here!
     await Activity.create({
@@ -86,7 +127,7 @@ const addTask = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Task created successfully",
-      data: task,
+      data: populatedTask,
     });
   } catch (error) {
     console.error("Create Task Error:", error);
@@ -97,19 +138,16 @@ const addTask = async (req, res) => {
     });
   }
 };
-
-
 // -----------------------------------------------------------
 // Update Task
 // -----------------------------------------------------------
+
 const updateTask = async (req, res) => {
   try {
     const orgId = req.organization._id;
     const userRole = req.user.role;
-
     const { projectId, taskId } = req.params;
 
-    // Role check
     if (!["admin", "manager", "owner"].includes(userRole)) {
       return res.status(403).json({
         success: false,
@@ -117,11 +155,10 @@ const updateTask = async (req, res) => {
       });
     }
 
-    const {
+    let {
       title,
       description,
       priority,
-      attachments,
       status,
       assignedTo,
       dueDate,
@@ -134,19 +171,54 @@ const updateTask = async (req, res) => {
     if (title !== undefined) updateFields.title = title;
     if (description !== undefined) updateFields.description = description;
     if (priority !== undefined) updateFields.priority = priority;
-    if (attachments !== undefined) updateFields.attachments = attachments;
     if (status !== undefined) updateFields.status = status;
     if (assignedTo !== undefined) updateFields.assignedTo = assignedTo;
     if (dueDate !== undefined) updateFields.dueDate = dueDate;
     if (tag !== undefined) updateFields.tag = tag;
-    if (subtasks !== undefined) updateFields.subtasks = subtasks;
 
+    // FIX: subtasks string -> JSON
+    const parsedSubtasks = JSON.parse(subtasks);
 
-    const updatedTask = await Task.findOneAndUpdate(
-      { _id: taskId, projectId, organization: orgId },
-      updateFields,
-      { new: true, runValidators: true }
-    );
+    updateFields.subtasks = parsedSubtasks.map((sub) => ({
+      ...(sub._id && sub._id.length === 24 ? { _id: sub._id } : {}),
+      title: sub.title,
+      completed: sub.completed,
+    }));
+    // FILE UPLOAD SUPPORT
+    let uploadedAttachments = [];
+
+    if (req.files && req.files.length > 0) {
+      uploadedAttachments = await Promise.all(
+        req.files.map((file) => {
+          return new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+              { folder: "tasks" },
+              (error, result) => {
+                if (error) reject(error);
+                else resolve(result.secure_url);
+              },
+            );
+            streamifier.createReadStream(file.buffer).pipe(stream);
+          });
+        }),
+      );
+    }
+    console.log(req.files);
+    const updateQuery = { ...updateFields };
+
+    if (uploadedAttachments.length > 0) {
+      updateQuery.$push = {
+        attachments: { $each: uploadedAttachments },
+      };
+    }
+
+   const updatedTask = await Task.findOneAndUpdate(
+  { _id: taskId, projectId, organization: orgId },
+  updateQuery,
+  { new: true, runValidators: true },
+)
+.populate("assignedTo", "name email")
+.populate("subtasks");
 
     if (!updatedTask) {
       return res.status(404).json({
@@ -155,31 +227,19 @@ const updateTask = async (req, res) => {
       });
     }
 
-    // Update the Activity log to reflect the change
-    // By updating `updatedAt`, you can sort your Admin Dashboard by `updatedAt: -1` so this jumps to the top!
-    await Activity.findOneAndUpdate(
-      { referenceId: taskId, referenceModel: "Task" },
-      { 
-        action: "Task Updated", 
-        message: `Updated task: '${updatedTask.title}'`
-      }
-    );
-
-    return res.json({
+    res.json({
       success: true,
       message: "Task updated successfully",
       data: updatedTask,
     });
-
   } catch (error) {
     console.error("Update Task Error:", error);
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
       message: "Server error",
     });
   }
 };
-
 //------------------------------------------------------------
 // Delete Task
 // ------------------------------------------------------------
@@ -219,7 +279,6 @@ const deleteTask = async (req, res) => {
       message: "Task deleted successfully",
       data: deletedTask,
     });
-
   } catch (error) {
     console.error("Delete Task Error:", error);
     return res.status(500).json({
@@ -233,7 +292,69 @@ const deleteTask = async (req, res) => {
 //Get Tasks
 //-----------------------------
 
+// const getTasks = async (req, res) => {
+//   try {
+//     const orgId = req.organization._id;
+//     const userId = req.user._id;
+//     const userRole = req.user.role;
 
+//     const { projectId } = req.params;
+//     const { filter } = req.query;
+
+//     let query = {
+//       organization: orgId,
+//       projectId,
+//     };
+
+//     // Employee  only their tasks
+//     if (!["admin", "manager", "owner"].includes(userRole)) {
+//       query.assignedTo = userId;
+//     }
+
+//     const now = new Date();
+
+//     // Overdue tasks
+//     if (filter === "overdue") {
+//       query.dueDate = { $lt: now };
+//       query.status = { $ne: "Completed" };
+//     }
+
+//     // High priority tasks
+//     if (filter === "high") {
+//       query.priority = "High";
+//     }
+
+//     // This week tasks
+//     if (filter === "week") {
+//       const startOfWeek = new Date();
+//       startOfWeek.setDate(now.getDate() - now.getDay());
+
+//       const endOfWeek = new Date();
+//       endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+//       query.dueDate = {
+//         $gte: startOfWeek,
+//         $lte: endOfWeek,
+//       };
+//     }
+
+//     const tasks = await Task.find(query)
+//       .populate("assignedTo", "name email")
+//       .sort({ createdAt: -1 });
+
+//     res.json({
+//       success: true,
+//       count: tasks.length,
+//       data: tasks,
+//     });
+//   } catch (err) {
+//     console.error("Get Tasks Error:", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
 
 const getTasks = async (req, res) => {
   try {
@@ -246,10 +367,14 @@ const getTasks = async (req, res) => {
 
     let query = {
       organization: orgId,
-      projectId,
     };
 
-    // Employee  only their tasks
+    // If projectId provided → filter by project
+    if (projectId) {
+      query.projectId = projectId;
+    }
+
+    // Employee → only their tasks
     if (!["admin", "manager", "owner"].includes(userRole)) {
       query.assignedTo = userId;
     }
@@ -262,12 +387,12 @@ const getTasks = async (req, res) => {
       query.status = { $ne: "Completed" };
     }
 
-    // High priority tasks
+    // High priority
     if (filter === "high") {
       query.priority = "High";
     }
 
-    // This week tasks
+    // This week
     if (filter === "week") {
       const startOfWeek = new Date();
       startOfWeek.setDate(now.getDate() - now.getDay());
@@ -290,7 +415,6 @@ const getTasks = async (req, res) => {
       count: tasks.length,
       data: tasks,
     });
-
   } catch (err) {
     console.error("Get Tasks Error:", err);
     res.status(500).json({
@@ -299,4 +423,93 @@ const getTasks = async (req, res) => {
     });
   }
 };
-module.exports = { addTask, updateTask, deleteTask, getTasks };
+// -----------------------------------------------------------
+//Update Task Status
+// -----------------------------------------------------------
+const updateTaskStatus = async (req, res) => {
+  try {
+    const orgId = req.organization._id;
+
+    const { projectId, taskId } = req.params;
+    const { status } = req.body;
+
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: taskId, projectId, organization: orgId },
+      { status },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Task status updated successfully",
+      data: updatedTask,
+    });
+  } catch (error) {
+    console.error("Update Task Status Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+//-------------------------------------------
+//Update SubTask Status
+//-------------------------------------
+const updateSubtaskStatus = async (req, res) => {
+  try {
+    const { taskId, subtaskId } = req.params;
+    const orgId = req.organization._id;
+
+    const task = await Task.findOne({
+      _id: taskId,
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    const subtask = task.subtasks.id(subtaskId);
+
+    if (!subtask) {
+      return res.status(404).json({
+        success: false,
+        message: "Subtask not found",
+      });
+    }
+
+    subtask.completed = !subtask.completed;
+
+    await task.save();
+
+    res.json({
+      success: true,
+      message: "Subtask updated",
+      data: subtask,
+    });
+  } catch (error) {
+    console.error("Update subtask error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+module.exports = {
+  addTask,
+  updateTask,
+  deleteTask,
+  getTasks,
+  updateTaskStatus,
+  updateSubtaskStatus,
+};

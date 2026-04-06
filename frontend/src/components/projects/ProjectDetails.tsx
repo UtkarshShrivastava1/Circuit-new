@@ -98,6 +98,7 @@
 
 
 // ProjectDetails.tsx
+
 import StatusBadge from "../ui/StatusBadge";
 import type { Project, Participant } from "../../type/project";
 import { useState } from "react";

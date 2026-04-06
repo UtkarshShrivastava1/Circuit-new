@@ -8,12 +8,12 @@ import {
   MdTask,
   MdChevronLeft,
   MdExpandMore,
-  MdExpandLess,
+  
   MdPayments,
   MdReceiptLong,
   MdHistory,
   MdNotifications,
-  MdClose
+  MdClose,
 } from "react-icons/md";
 import { FolderKanban, UserPlus } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
@@ -107,7 +107,16 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const user = auth?.user;
   const isManagement = ['admin', 'owner', 'manager'].includes(user?.role || '');
   const location = useLocation();
+  const filteredManagementMenu = managementMenu.filter((item) => {
+    // Items restricted to admin/owner
+    const adminOnlyIds = ["addMember", "createMember", "createProject"];
 
+    if (adminOnlyIds.includes(item.id)) {
+      return user?.role === "admin" || user?.role === "owner";
+    }
+
+    return true; // everyone can see other items
+  });
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
       "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
@@ -121,14 +130,14 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
   return (
     <>
-              <div
-          onClick={onClose}
-          className={`
+      <div
+        onClick={onClose}
+        className={`
             fixed inset-0 bg-black/40 z-40 lg:hidden
             transition-opacity duration-300
             ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
           `}
-        />
+      />
       {/* <aside
         className={`
     h-screen bg-base-200 border-r border-base-300 flex flex-col
@@ -139,8 +148,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         `}
       > */}
 
-            <aside
-          className={`
+      <aside
+        className={`
             fixed lg:static
             top-0 left-0
             z-50
@@ -150,7 +159,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
             ${isOpen ? "translate-x-0" : "-translate-x-full"}
             lg:translate-x-0
           `}
-        >
+      >
         {/* HEADER */}
         <div className="flex items-center gap-3 px-4 py-4 border-2 border-base-300">
           <div
@@ -173,11 +182,14 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
             </p>
           </div>
 
-          <button className="text-lg btn btn-ghost btn-xs border-2 border-base-content-400 rounded-ee-none flex items-center justify-center lg:hidden"
-           onClick={onClose}
+          <button
+            className="text-lg btn btn-ghost btn-xs border-2 border-base-content-400 rounded-ee-none flex items-center justify-center lg:hidden"
+            onClick={onClose}
           >
-            <MdClose className={`transition-transform 
-              `}/> 
+            <MdClose
+              className={`transition-transform 
+              `}
+            />
           </button>
 
           <button
@@ -221,7 +233,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
             )}
 
             <div className="space-y-1">
-              {managementMenu.map((item) => (
+              {filteredManagementMenu.map((item) => (
                 <NavLink key={item.id} to={item.path} className={linkClass}>
                   {item.icon}
                   {!collapsed && <span>{item.label}</span>}
@@ -298,8 +310,13 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
             {!collapsed && (
               <div>
-                <p className="text-sm font-semibold"> {user?.name || "User Name"}</p>
-                <p className="text-xs text-base-content/60 capitalize">{user?.role || "Administrator"}</p>
+                <p className="text-sm font-semibold">
+                  {" "}
+                  {user?.name || "User Name"}
+                </p>
+                <p className="text-xs text-base-content/60 capitalize">
+                  {user?.role || "Administrator"}
+                </p>
               </div>
             )}
           </div>

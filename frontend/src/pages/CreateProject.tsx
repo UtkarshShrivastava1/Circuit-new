@@ -1,3 +1,4 @@
+import API from "@/api/axios";
 import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
@@ -48,11 +49,6 @@ const CreateProject = () => {
     setActiveTab(tab);
   };
 
-  // const handleCreateProject = async () => {
-  //   if (participants.length === 0) {
-  //     toast.error("Add at least one participant");
-  //     return;
-  //   }
   
 
   //   try {
@@ -105,7 +101,7 @@ const handleCreateProject = async () => {
     const payload = {
       ...projectData,
       domain: finalDomain,
-       participants: participants.map(p => ({
+       participants: participants?.map(p => ({
     user: p.userId,   
     role: p.role,
     responsibility: p.responsibility

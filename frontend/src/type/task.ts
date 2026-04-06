@@ -2,21 +2,22 @@ export type TaskStatus = "pending" | "in-progress" | "completed";
 export type TaskPriority = "low" | "medium" | "high";
 
 export type ChecklistItem = {
-  id: string;
-  text: string;
+  _id: string;
+  title: string;
   completed: boolean;
 };
 
 export type Task = {
-  id: string;
+  projectId: any;
+  _id: string;
   title: string;
   description?: string;
-  assignee?: string;
+  assignedTo?: { _id: string; name: string }[];
   status: "pending" | "in-progress" | "completed";
   priority: "low" | "medium" | "high";
   dueDate?: string;
   createdAt: string;
-  tags?: string[];
+  tag?: string[];
   attachments?: File[];
-  checklist?: ChecklistItem[];
+  subtasks?: ChecklistItem[];
 };

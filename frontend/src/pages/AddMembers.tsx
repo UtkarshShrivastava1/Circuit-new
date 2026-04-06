@@ -131,6 +131,8 @@ const AddMember = () => {
       console.error("error",error);
        const errorMessage = error.response?.data?.message || "Failed to register employee";
       toast.error("Failed to register employee",errorMessage);
+      
+      
 
     } finally {
       setAdding(false);

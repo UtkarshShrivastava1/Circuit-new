@@ -2,21 +2,23 @@ const mongoose = require("mongoose");
 
 const organizationSchema = new mongoose.Schema(
   {
-    
-    name:{
+ 
+    organizationName:{
       type: String,
       required: true,
       trim: true,
     },
-    adminName:{
+    organizationEmail:{
       type: String,
       required: true,
       trim: true,
     },
-    password:{
+   ownerName:{
       type: String,
       required: true,
+      trim: true,
     },
+   
     slug:{
       type: String,
       required: true,
@@ -28,11 +30,7 @@ const organizationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    role:{
-      type: String,
-      enum: ["owner", "admin", "member"],
-      default: "member",
-    },
+   
     registrationNumber:{
       type: String,
       trim: true,
@@ -42,7 +40,7 @@ const organizationSchema = new mongoose.Schema(
       trim: true,
     },
 
-   
+ 
 
     address: {
       addressLine:{

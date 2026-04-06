@@ -1,103 +1,72 @@
+
+
+
 import { useParams, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageContainer from "../components/ui/PageContainer";
 
-// import tab components
+// tab components
 import ProjectTasks from "../components/projects/ProjectTasks";
 import ProjectMembers from "../components/projects/ProjectMembers";
 import ProjectActivity from "../components/projects/ProjectActivity";
 import ProjectChat from "@/components/projects/ProjectChat";
+
+import { useAuth } from "@/auth/AuthContext";
+import { getProjectById } from "@/services/projectService";
+import { getTasksByProjectId } from "@/services/taskService"; // renamed service
 
 type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat";
 
 export default function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-const tabFromUrl = searchParams.get("tab") as ProjectTab | null;
-const [activeTab, setActiveTab] = useState<ProjectTab>(
-  tabFromUrl || "overview"
-);
+  const tabFromUrl = searchParams.get("tab") as ProjectTab | null;
+  const [activeTab, setActiveTab] = useState<ProjectTab>(tabFromUrl || "overview");
 
+  const [project, setProject] = useState<any>(null);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  const { auth } = useAuth();
+  const slug = auth.slug;
 
-  const project = {
-    id,
-    name: "Office ERP System",
-    status: "active",
-    description:
-      "An internal ERP system to manage attendance, projects, tasks, and employees.",
-    progress: 65,
-    manager: "Alex Kumar",
-    team: [
-      { id: "1", name: "Alex Kumar", role: "Manager" },
-      { id: "2", name: "Rahul Sharma", role: "Developer" },
-      { id: "3", name: "Ankit Verma", role: "Designer" },
-      { id: "4", name: "Neha Singh", role: "QA" },
-    ],
-    activity: [
-      "Project created",
-      "Attendance module completed",
-      "Tasks module in progress",
-      "New member added to project",
-    ],
-    tasks: [
-      {
-        id: "1",
-        title: "Fix Payroll Bug",
-        status: "in-progress",
-        priority: "high",
-        due: "2026-02-25",
-      },
-      {
-        id: "2",
-        title: "Client Demo Prep",
-        status: "todo",
-        priority: "medium",
-        due: "2026-02-22",
-      },
-      {
-        id: "3",
-        title: "Attendance API",
-        status: "completed",
-        priority: "low",
-        due: "2026-02-18",
-      },
-      {
-        id: "4",
-        title: "Dashboard UI",
-        status: "in-progress",
-        priority: "high",
-        due: "2026-02-20",
-      },
-      {
-        id: "5",
-        title: "Form Ui",
-        status: "pending",
-        priority: "high",
-        due: "2026-02-19",
-      },
-    ],
-  };
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
 
-  const latestTasks = [...project.tasks]
-    .sort((a, b) => new Date(b.due).getTime() - new Date(a.due).getTime())
-    .slice(0, 3);
-  const totalTasks = project.tasks.length;
-  const completedTasks = project.tasks.filter(
-    (t) => t.status === "completed",
-  ).length;
-  const inProgressTasks = project.tasks.filter(
-    (t) => t.status === "in-progress",
-  ).length;
-  const highPriorityTasks = project.tasks.filter((t) => t.priority === "high");
-  const pendingTasks = project.tasks.filter(
-    (t) => t.status === "pending",
-  ).length;
+    const fetchData = async () => {
+      try {
+        const projectData = await getProjectById(id, slug);
+        setProject(projectData);
+
+        const taskData = await getTasksByProjectId(id, slug); // fetch all tasks for this project
+        setTasks(taskData);
+      } catch (err) {
+        console.error("ProjectWorkspace Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [id, slug]);
+
+  if (loading || !project) 
+    return <PageContainer title="Loading..." subtitle="">Loading...</PageContainer>;
+
+  // ===== Metrics for Overview =====
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.status === "completed").length;
+  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
+  const pendingTasks = tasks.filter(t => t.status === "pending").length;
+  const highPriorityTasks = tasks.filter(t => t.priority === "high");
 
   const today = new Date();
-  const overdueTasks = project.tasks.filter(
-    (t) => new Date(t.due) < today && t.status !== "completed",
-  );
+  const overdueTasks = tasks.filter(t => new Date(t.dueDate) < today && t.status !== "completed");
+
+  const latestTasks = [...tasks]
+    .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+    .slice(0, 3);
 
   const tabs: { key: ProjectTab; label: string }[] = [
     { key: "overview", label: "Overview" },
@@ -106,27 +75,24 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
     { key: "activity", label: "Activity" },
     { key: "chat", label: "Chat" },
   ];
+  const manager = project.participants.find(
+  (p) => p.role === "Manager"
+);
+
 
   return (
-    <PageContainer
-      title={project.name}
-      subtitle={`Managed by ${project.manager}`}
-    >
-      {/* ===== Tabs (ClickUp-style) ===== */}
+    
+    <PageContainer title={project.name} subtitle={`Managed by ${manager?.user.name || "Unknown"}`}>
+      {/* Tabs */}
       <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
-        {tabs.map((tab) => {
+        {tabs.map(tab => {
           const isActive = activeTab === tab.key;
-
           return (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-             className={`px-4 py-2 text-sm font-medium transition flex-shrink-0
-                ${
-                 isActive
-  ? "border-b-2 border-primary text-primary bg-primary/5"
-  : "text-base-content/60 hover:text-base-content hover:bg-base-200"
-                }`}
+              className={`px-4 py-2 text-sm font-medium transition flex-shrink-0
+                ${isActive ? "border-b-2 border-primary text-primary bg-primary/5" : "text-base-content/60 hover:text-base-content hover:bg-base-200"}`}
             >
               {tab.label}
             </button>
@@ -134,168 +100,132 @@ const [activeTab, setActiveTab] = useState<ProjectTab>(
         })}
       </div>
 
-      {/* ===== TAB CONTENT ===== */}
-
-      {/* OVERVIEW */}
+      {/* Tab Content */}
       {activeTab === "overview" && (
         <>
-         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
-              <p className="text-xs text-base-content/60">Total Tasks</p>
-              <p className="text-lg font-semibold text-base-content">{totalTasks}</p>
-            </div>
-
-            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
-              <p className="text-xs text-base-content/60">Completed</p>
-              <p className="text-lg font-semibold text-success">
-                {completedTasks}
-              </p>
-            </div>
-
-            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
-              <p className="text-xs text-base-content/60">In Progress</p>
-              <p className="text-lg font-semibold text-primary">
-                {inProgressTasks}
-              </p>
-            </div>
-
-            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
-              <p className="text-xs text-base-content/60">Pending</p>
-              <p className="text-lg font-semibold text-warning">
-                {pendingTasks}
-              </p>
-            </div>
-
-            <div className="bg-base-200 border border-base-300 rounded-lg p-4 text-center">
-              <p className="text-xs text-base-content/60">High Priority</p>
-              <p className="text-lg font-semibold text-error">
-                {highPriorityTasks.length}
-              </p>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+            <StatCard label="Total Tasks" value={totalTasks} />
+            <StatCard label="Completed" value={completedTasks} color="success" />
+            <StatCard label="In Progress" value={inProgressTasks} color="primary" />
+            <StatCard label="Pending" value={pendingTasks} color="warning" />
+            <StatCard label="High Priority" value={highPriorityTasks.length} color="error" />
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* LEFT */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Description */}
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold text-base-content mb-2">
-                  Description
-                </h3>
-                <p className="text-sm text-base-content/70">
-                  {project.description}
-                </p>
-              </div>
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold mb-3 text-base-content">High Priority Tasks</h3>
-
-                {highPriorityTasks.length === 0 ? (
-                  <p className="text-sm text-base-content/60">
-                    No high priority tasks 🎉
-                  </p>
-                ) : (
-                  <ul className="space-y-2 text-sm">
-                    {highPriorityTasks.slice(0, 3).map((task) => (
-                      <li key={task.id} className="flex justify-between">
-                       <span className="text-base-content">{task.title}</span>
-                        <span className="text-error text-xs">High</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold mb-3 text-base-content">Latest Tasks</h3>
-
-                <ul className="space-y-2 text-sm">
-                  {latestTasks.map((task) => (
-                    <li key={task.id} className="flex justify-between">
-                   <span className="text-base-content">{task.title}</span>
-                      <span className="text-base-content/60 text-xs">
-                        {task.due}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Progress */}
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <div className="flex justify-between text-sm text-base-content mb-2">
-                  <span>Progress</span>
-                  <span>{project.progress}%</span>
-                </div>
-
-                <progress
-                  className="progress progress-primary w-full"
-                  value={project.progress}
-                  max={100}
-                />
-              </div>
+              <DescriptionCard description={project.description} />
+              <HighPriorityTasksCard tasks={highPriorityTasks} />
+              <LatestTasksCard tasks={latestTasks} />
+              {/* <ProgressCard progress={project.progress} /> */}
             </div>
 
             {/* RIGHT */}
             <div className="space-y-6">
-              {overdueTasks.length > 0 && (
-                <div className="bg-error/5 border border-error/30 rounded-lg p-4 text-base-content">
-                  <h3 className="font-semibold text-error mb-2">
-                    ⚠ {overdueTasks.length} Overdue Tasks
-                  </h3>
-
-                  <ul className="text-sm space-y-1">
-                    {overdueTasks.slice(0, 3).map((task) => (
-                      <li key={task.id}>{task.title}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {/* Team */}
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold text-base-content mb-3">
-                  Team Members
-                </h3>
-
-                <ul className="space-y-2 text-sm">
-                  {project.team.map((member) => (
-                    <li
-                      key={member.id}
-                      className="flex justify-between text-base-content"
-                    >
-                      <span>{member.name}</span>
-                      <span className="text-base-content/60">
-                        {member.role}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Activity */}
-              <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-                <h3 className="font-semibold text-base-content mb-3">
-                  Recent Activity
-                </h3>
-
-                <ul className="space-y-2 text-sm text-base-content/70">
-                  {project.activity.map((item, i) => (
-                    <li key={i}>• {item}</li>
-                  ))}
-                </ul>
-              </div>
+              {overdueTasks.length > 0 && <OverdueTasksCard tasks={overdueTasks} />}
+              <TeamCard team={project.participants || []} />
+              {/* <ActivityCard activity={project.activity || []} /> */}
             </div>
           </div>
         </>
       )}
 
-      {/* TASKS */}
       {activeTab === "tasks" && <ProjectTasks projectId={id!} />}
-
-      {/* MEMBERS */}
       {activeTab === "members" && <ProjectMembers />}
-
-      {/* ACTIVITY */}
       {activeTab === "activity" && <ProjectActivity />}
       {activeTab === "chat" && <ProjectChat />}
     </PageContainer>
   );
 }
+
+/* ====== Small Reusable Components ====== */
+const StatCard = ({ label, value, color }: { label: string; value: number; color?: string }) => (
+  <div className={`bg-base-200 border border-base-300 rounded-lg p-4 text-center ${color ? `text-${color}` : ""}`}>
+    <p className="text-xs text-base-content/60">{label}</p>
+    <p className="text-lg font-semibold">{value}</p>
+  </div>
+);
+
+const DescriptionCard = ({ description }: { description: string }) => (
+  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+    <h3 className="font-semibold mb-2">Description</h3>
+    <p className="text-sm text-base-content/70">{description}</p>
+  </div>
+);
+
+const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
+  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+    <h3 className="font-semibold mb-3">High Priority Tasks</h3>
+    {tasks.length === 0 ? (
+      <p className="text-sm text-base-content/60">No high priority tasks 🎉</p>
+    ) : (
+      <ul className="space-y-2 text-sm">
+        {tasks.slice(0, 3).map(task => (
+          <li key={task.id} className="flex justify-between">
+            <span>{task.title}</span>
+            <span className="text-error text-xs">High</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);
+
+const LatestTasksCard = ({ tasks }: { tasks: any[] }) => (
+  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+    <h3 className="font-semibold mb-3">Latest Tasks</h3>
+    <ul className="space-y-2 text-sm">
+      {tasks.map(task => (
+        <li key={task.id} className="flex justify-between">
+          <span>{task.title}</span>
+          <span className="text-base-content/60 text-xs"> {new Date(task.dueDate || task.due).toLocaleDateString("en-GB")}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+// const ProgressCard = ({ progress }: { progress: number }) => (
+//   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+//     <div className="flex justify-between text-sm text-base-content mb-2">
+//       <span>Progress</span>
+//       <span>{progress}%</span>
+//     </div>
+//     <progress className="progress progress-primary w-full" value={progress} max={100} />
+//   </div>
+// );
+
+const OverdueTasksCard = ({ tasks }: { tasks: any[] }) => (
+  <div className="bg-error/5 border border-error/30 rounded-lg p-4">
+    <h3 className="font-semibold text-error mb-2">⚠ {tasks.length} Overdue Tasks</h3>
+    <ul className="text-sm space-y-1">
+      {tasks.slice(0, 3).map(task => (
+        <li key={task.id}>{task.title}</li>
+      ))}
+    </ul>
+  </div>
+);
+
+const TeamCard = ({ team }: { team: any[] }) => (
+ <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+  <h3 className="font-semibold text-base-content mb-3">Team Members</h3>
+  <ul className="space-y-2 text-sm">
+    {team.map((member: any) => (
+      <li key={member.user._id} className="flex justify-between text-base-content">
+        <span>{member.user.name || "Unknown"}</span>
+        <span className="text-base-content/60">{member.role}</span>
+      </li>
+    ))}
+  </ul>
+ </div>
+);
+const ActivityCard = ({ activity }: { activity: string[] }) => (
+  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+    <h3 className="font-semibold mb-3">Recent Activity</h3>
+    <ul className="space-y-2 text-sm text-base-content/70">
+      {activity.map((item, i) => (
+        <li key={i}>• {item}</li>
+      ))}
+    </ul>
+  </div>
+);

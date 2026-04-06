@@ -1,10 +1,10 @@
 
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-// import * as jwt_decode from "jwt-decode";
 import API from "@/api/axios";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 type User = {
+  userId: string;
   name: string;
   email: string;
   role: string;
@@ -16,25 +16,11 @@ type AuthState = {
   slug: string | null;
 };
 
-// type AuthState = {
-//   token: string | null;
-//   slug: string | null;
-//   role: string | null;
-//   userId: string | null;
-// };
-
-// type DecodedToken = {
-//   userId: string;
-//   organization: string;
-//   role: string;
-//   iat: number;
-//   exp: number;
-// }; 
-
 type AuthContextType = {
   auth: AuthState;
-  login:  (data: { user: User; slug: string }) => void;
+  login: (data: { user: User; slug: string }) => void;
   logout: () => void;
+  loading: boolean;
 };
 
 // const getInitialAuth = (): AuthState => {
@@ -53,8 +39,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-
-   const [auth, setAuth] = useState<AuthState>({
+  const [auth, setAuth] = useState<AuthState>({
     user: null,
     slug: null,
   });
@@ -67,8 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
        const res = await API.get("/auth/me");
 
-        //  console.log("User from /me:", res.data);
-        //  console.log("User's slug:", res.data.slug);
+         console.log("User from /me:", res.data);
+         console.log("User's slug:", res.data.slug);
 
         // Update AuthContext
         setAuth({
@@ -88,7 +73,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  
   const login = (data: { user: User; slug: string }) => {
     const newAuth = {
       user: data.user,
@@ -99,47 +83,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    
 
   };
-
-
-
-  // const [auth, setAuth] = useState<AuthState>(getInitialAuth);
-
-  // const login = (data: { token: string; slug: string }) => {
-  //   let role: string | null = null;
-  //   let userId: string | null = null;
-
-  //   try {
-  //     // ✅ Decode JWT safely
-  // const payload = (jwt_decode as any)(data.token) as DecodedToken;
-  // console.log("payload", payload);
- 
-  //     role = payload.role ? payload.role.toLowerCase() : null; // fallback if undefined
-  //     userId = payload.userId ?? null;
-      
-  //   } catch (e) {
-  //     console.warn("Failed to decode token:", e); 
-  //   }
-
-  //   const newAuth: AuthState = {
-  //     token: data.token,
-  //     slug: data.slug,
-  //     role,
-  //     userId,
-  //   };
-
-  //   setAuth(newAuth);
-  //   localStorage.setItem("auth", JSON.stringify(newAuth));
-  // };
-
-  // const logout = () => {
-  //   setAuth({
-  //     token: null,
-  //     slug: null,
-  //     role: null,
-  //     userId: null,
-  //   });
-  //   localStorage.removeItem("auth");
-  // };
 
   const logout = async () => {
     try {
@@ -156,8 +99,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       slug: null,
     });
   };
-
-
 
   return (
     <AuthContext.Provider value={{ auth, login, logout, loading }}>

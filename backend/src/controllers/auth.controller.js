@@ -38,18 +38,30 @@ try {
 
 exports.registerCompany = async (req, res) => {
   try {
-    console.log(req.body)
-    const { companyName, adminName, email, password } = req.body;
+    console.log(req.body);
 
-    if (!companyName || !adminName || !email || !password) {
+    const {
+      organizationName,
+      ownerName,
+      organizationEmail,
+      ownerEmail,
+      password,
+      registrationNumber,
+      phoneNumber,
+      address = {},
+    } = req.body;
+
+    // Required fields check
+    if (!organizationName || !ownerName || !organizationEmail || !ownerEmail || !password) {
       return res.status(400).json({
-        message: "All fields are required",
+        message: "Required fields missing",
       });
     }
 
-    const slug = generateSlug(companyName);
+    // Create slug
+    const slug = generateSlug(organizationName);
 
-    // Check slug
+    // Check slug already exists
     const existingOrg = await Organization.findOne({ slug });
     if (existingOrg) {
       return res.status(400).json({
@@ -57,26 +69,40 @@ exports.registerCompany = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Check organization email
+    const emailExists = await Organization.findOne({ organizationEmail });
+    if (emailExists) {
+      return res.status(400).json({
+        message: "Organization email already registered",
+      });
+    }
 
-    const organizationId = uuidv4();
 
+    // Create organization
     const org = await Organization.create({
-      organizationId,
-      companyName,
-      adminName,
-      email,
-      password: hashedPassword,
+      organizationName,
+      ownerName,
+      organizationEmail,
+      ownerEmail,
+     
       slug,
-      role: "owner",
+      registrationNumber,
+      phoneNumber,
+      address: {
+        addressLine: address.addressLine,
+        city: address.city,
+        state: address.state,
+        country: address.country,
+        pincode: address.pincode,
+      },
       subscriptionStatus: "trial",
     });
 
+    // Create owner user
     await User.create({
-      name: adminName,
-      email,
-      password, // User schema pre-save hook will hash this automatically
+      name: ownerName,
+      email: ownerEmail,
+      password, // user schema will hash it
       organization: org._id,
       slug,
       role: "owner",
@@ -84,18 +110,16 @@ exports.registerCompany = async (req, res) => {
 
     return res.status(201).json({
       message: "Organization created successfully",
+      organizationId: org._id,
       slug,
-      organizationId,
     });
   } catch (error) {
     console.error("Register company error:", error);
-
     return res.status(500).json({
       message: "Server error",
     });
   }
 };
-
 
 
 // ------------------------------------------------------
@@ -172,6 +196,7 @@ exports.login = async (req, res) => {
     // Set cookie server-side to prevent "quote" issues from frontend serialization
     res.cookie("token", token, {
       httpOnly: true,
+        sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
@@ -183,6 +208,7 @@ exports.login = async (req, res) => {
       token: token,
        imageUrl: user.imageUrl || null,
       userId:user._id,
+      userId: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
@@ -213,12 +239,15 @@ exports.login = async (req, res) => {
     //     slug: user.slug,
     //   },
     // });
+    
       return res.json({
         message: "Login successful",
-        token,
+     
+        slug: org.slug,
          user: {
           
         userId:user._id,
+          userId: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -250,6 +279,30 @@ exports.login = async (req, res) => {
 
 };
 
+
+
+
+exports.getMe =  async (req, res) => {
+  try {
+    const user = req.user; // attached by middleware
+    console.log("Authenticated user in getMe:", user);
+    const org = await Organization.findById(user.organization);
+    res.json({
+      user: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization: user.organization,
+       
+      },
+       slug: org.slug 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 exports.logout = (req, res) => {
  
   res.clearCookie("token");

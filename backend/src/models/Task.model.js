@@ -38,15 +38,10 @@ const taskSchema=new mongoose.Schema({
     enum: ['low', 'medium', 'high'],
     default: 'medium',
   },
-  attachments:[
-    {
-      filename: String,
-      url: String,
-    }
-  ],
+  attachments:[String],
   status:{
     type: String,
-    enum: ['pending', 'in progress', 'completed'],
+    enum: ['pending', 'in-progress', 'completed'],
     default: 'pending',
   },
   assignedTo:[
@@ -58,10 +53,7 @@ const taskSchema=new mongoose.Schema({
   dueDate:{
     type: Date,
   },
-  tag:{
-    type: String,
-    trim: true,
-  },
+  tag:[String],
    subtasks: [subTaskSchema],
 },
 { timestamps: true }
