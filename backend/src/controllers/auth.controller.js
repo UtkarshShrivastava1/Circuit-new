@@ -282,7 +282,7 @@ exports.login = async (req, res) => {
 
 
 
-exports.getMe =  async (req, res) => {
+exports.getMe =  async (req, res) => { 
   try {
     const user = req.user; // attached by middleware
     console.log("Authenticated user in getMe:", user);

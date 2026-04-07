@@ -14,7 +14,7 @@ import Notifications from "./pages/Notifications";
 import SettingsPage from "./pages/Settings";
 // import Settings from "./pages/Settings";
 // import HomePage from "./pages/HomePage";
-import OrganizationPage from "./pages/Organization/OrganizationRegistrtaionPage";
+import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage";
 import { useAuth } from "./auth/AuthContext";
 
 

@@ -75,14 +75,14 @@ export default function ProjectWorkspace() {
     { key: "activity", label: "Activity" },
     { key: "chat", label: "Chat" },
   ];
-  const manager = project.participants.find(
-  (p) => p.role === "Manager"
-);
+  const manager = project.participants?.find(
+    (p: any) => p.role === "Manager"
+  );
 
 
   return (
     
-    <PageContainer title={project.name} subtitle={`Managed by ${manager?.user.name || "Unknown"}`}>
+    <PageContainer title={project.projectName || project.name || "Untitled Project"} subtitle={`Managed by ${manager?.user?.name || "Unknown"}`}>
       {/* Tabs */}
       <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
         {tabs.map(tab => {
@@ -131,8 +131,13 @@ export default function ProjectWorkspace() {
       )}
 
       {activeTab === "tasks" && <ProjectTasks projectId={id!} />}
-      {activeTab === "members" && <ProjectMembers />}
-      {activeTab === "activity" && <ProjectActivity />}
+      {activeTab === "members" && (
+        <ProjectMembers 
+          project={project} 
+          onUpdateProject={(updatedProject) => setProject(updatedProject)} 
+        />
+      )}
+      {activeTab === "activity" && <ProjectActivity projectId={id!} />}
       {activeTab === "chat" && <ProjectChat />}
     </PageContainer>
   );
@@ -210,9 +215,9 @@ const TeamCard = ({ team }: { team: any[] }) => (
  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
   <h3 className="font-semibold text-base-content mb-3">Team Members</h3>
   <ul className="space-y-2 text-sm">
-    {team.map((member: any) => (
-      <li key={member.user._id} className="flex justify-between text-base-content">
-        <span>{member.user.name || "Unknown"}</span>
+    {team.map((member: any, i: number) => (
+      <li key={member.user?._id || i} className="flex justify-between text-base-content">
+        <span>{member.user?.name || "Unknown"}</span>
         <span className="text-base-content/60">{member.role}</span>
       </li>
     ))}

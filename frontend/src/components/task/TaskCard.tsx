@@ -9,8 +9,9 @@ interface Props {
 }
 
 export function KanbanTaskCard({ task, index, onClick }: Props) {
+  const draggableId = String(task._id || task.id);
   return (
-    <Draggable draggableId={task.id} index={index}>
+    <Draggable draggableId={draggableId} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}

@@ -41,6 +41,7 @@ export default function Projects() {
         setLoading(true);
        
         const res = await getProject(slug);
+        // console.log(res)
         // api.get(`/projects/${auth.slug}/getProjects`, {
         //   params: filter !== "all" ? { projectState: filter } : {},
         // });
@@ -51,7 +52,7 @@ export default function Projects() {
           status: p.projectState || "active",
           progress: 0,
           
-          manager:  managerUser?.user?.name || "N/A",
+          manager: p.participants?.find((part: any) => part.role === "Manager")?.user?.name || "N/A",
           teamCount: p.participants?.length || 0,
           dueDate: p.endDate
             ? new Date(p.endDate).toLocaleDateString("en-GB", {
@@ -61,7 +62,7 @@ export default function Projects() {
               })
             : "No deadline",
         }
-        });
+        ));
 
         setProjects(mappedProjects);
         setLoading(false);
@@ -77,7 +78,7 @@ export default function Projects() {
     } else {
       setLoading(false);
     }
-  }, [slug, filter]);
+  }, [slug]);
 
   const handleDeleteProject = async (id: string) => {
   try {
@@ -92,8 +93,11 @@ export default function Projects() {
 };
 
 
-
-  const filteredProjects = projects;
+  const filteredProjects =
+    filter === "all"
+      ? projects
+      : projects.filter((p) => p.status?.toLowerCase() === filter.toLowerCase());
+  console.log(filteredProjects);
 
   return (
     <div>

@@ -107,6 +107,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const user = auth?.user;
   const isManagement = ['admin', 'owner', 'manager'].includes(user?.role || '');
   const location = useLocation();
+    const managementMenu = getManagementMenu(isManagement);
   const filteredManagementMenu = managementMenu.filter((item) => {
     // Items restricted to admin/owner
     const adminOnlyIds = ["addMember", "createMember", "createProject"];
@@ -126,7 +127,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
     ].join(" ");
 
   const isPayrollActive = location.pathname.startsWith("/payroll");
-  const managementMenu = getManagementMenu(isManagement);
+
 
   return (
     <>
