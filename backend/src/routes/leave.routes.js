@@ -6,25 +6,25 @@ const tenant = require("../middlewares/tenant.middleware");
 const leaveController = require("../controllers/Leave.controller");
 
 // All leave routes require authentication and tenant context
-// The :organizationId param is used by the tenant middleware to set req.organization
+// The :slug param is used by the tenant middleware to set req.organization
 
 // User/Employee Routes
 router.post(
-  "/:organizationId/leaves/apply",
+  "/:slug/leaves/apply",
   auth,
   tenant,
   leaveController.applyLeave
 );
 
 router.get(
-  "/:organizationId/leaves/my",
+  "/:slug/leaves/my",
   auth,
   tenant,
   leaveController.getMyLeaves
 );
 
 router.patch(
-  "/:organizationId/leaves/:leaveId/cancel",
+  "/:slug/leaves/:leaveId/cancel",
   auth,
   tenant,
   leaveController.cancelLeave
@@ -32,40 +32,40 @@ router.patch(
 
 // Admin/Manager Routes
 router.get(
-  "/:organizationId/leaves/all",
+  "/:slug/leaves/all",
   auth,
   tenant,
   leaveController.getAllLeaves
 );
 
 router.patch(
-  "/:organizationId/leaves/bulk-status",
+  "/:slug/leaves/bulk-status",
   auth,
   tenant,
   leaveController.bulkUpdateLeaveStatus
 );
 
 router.get(
-  "/:organizationId/leaves/:leaveId",
+  "/:slug/leaves/:leaveId",
   auth,
   tenant,
   leaveController.getLeaveById
 );
 
 router.patch(
-  "/:organizationId/leaves/:leaveId/status",
-  auth,
+  "/:slug/leaves/:leaveId/status",
+  auth, 
   tenant,
   leaveController.updateLeaveStatus
 );
 router.put(
-  "/:organizationId/leaves/:leaveId",
+  "/:slug/leaves/:leaveId",
   auth,
   tenant,
   leaveController.updateLeave
 )
 router.delete(
-  "/:organizationId/leaves/:leaveId",
+  "/:slug/leaves/:leaveId",
   auth,
   tenant,
   leaveController.deleteLeave

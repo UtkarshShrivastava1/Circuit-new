@@ -21,14 +21,21 @@ import { applyLeave, getMyLeaves, deleteLeave, updateLeave } from "@/services/le
 import { getHolidays } from "@/services/holidayService";
 import { getLeavePolicy } from "@/services/leavePolicyService";
 import { toast } from "react-toastify";
+// import { getOrganizationSlug } from "@/utils/auth";
+// import { getUser } from "@/utils/getUser";
+import { useAuth } from "@/auth/AuthContext";
+import { socket } from "@/socket";
 
 
 export default function EmployeeLeaveDashboard() {
+  const { auth } = useAuth();
+   const user = auth.user;
   const [open, setOpen] = useState(false);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [policy, setPolicy] = useState<any>(null);
   const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const [selectedLeave, setSelectedLeave] =
     useState<LeaveRequest | null>(null);
@@ -44,27 +51,43 @@ export default function EmployeeLeaveDashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userDataStr = sessionStorage.getItem("user");
-        if (!userDataStr) return;
         
-        const user = JSON.parse(userDataStr);
-        const organizationId = user.organization;
+       if (!auth.slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
 
+      
+       if (!user) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
+
+        
+  
         const [response, holidaysRes, policyRes] = await Promise.all([
-          getMyLeaves(organizationId),
-          getHolidays(organizationId),
-          getLeavePolicy(organizationId)
+          getMyLeaves(auth.slug),
+          getHolidays(auth.slug),
+          getLeavePolicy(auth.slug)
         ]);
+        // if (response.status !== 200) {
+        //   throw new Error("Failed to fetch leave requests");
+        // }
+
+        if (response.status === 304) return; // keep old data
+        console.log(response.data)
         
         const fetchedLeaves: LeaveRequest[] = response.data.leaves.map((leave: any) => ({
           id: leave._id,
-          employee: user.name || "Employee",
+          employee: leave.name || user.name || "Employee",
           type: leave.leaveType,
           fromDate: leave.startDate ? leave.startDate.split("T")[0] : "",
           toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
           reason: leave.reason,
           status: leave.status,
         }));
+
+        
 
         setRequests(fetchedLeaves);
         setHolidays(holidaysRes.data.holidays || []);
@@ -78,32 +101,48 @@ export default function EmployeeLeaveDashboard() {
     };
 
     fetchData();
-  }, []);
+  }, [refreshTrigger, auth.slug, user]);
+
+  // Real-time socket listener to refresh dashboard
+  useEffect(() => {
+    if (auth?.user) {
+      const onNotification = (data: any) => {
+        if (data?.action?.toLowerCase().includes("leave")) {
+          console.log("🔄 Real-time leave update received. Refreshing dashboard...");
+          setRefreshTrigger((prev) => prev + 1);
+        }
+      };
+
+      socket.on("new_notification", onNotification);
+
+      return () => {
+        socket.off("new_notification", onNotification);
+      };
+    }
+  }, [auth?.user]);
 
   const handleApplyLeave = async (leave: any) => {
     try {
       // 1. Get Organization ID and User context from Session Storage
-      const userDataStr = sessionStorage.getItem("user");
-      if (!userDataStr) {
-        toast.error("User session not found.");
-        addNotification({ title: "Error", message: "User session not found.", type: "error" });
-        return;
-      }
-      
-      const user = JSON.parse(userDataStr);
-      const organizationId = user.organization;
+     
+      // const slug = getOrganizationSlug();
+       if (!auth.slug) {
+         toast.error("User data not found. Please log in again.");
+         return;
+       }
 
-      const payload = { ...leave, name: user.name };
+     
+
+      const payload = { ...leave, name: auth.user?.name };
 
       // 2. Call the backend API via leaveService
-      const response = await applyLeave(organizationId, payload);
+      const response = await applyLeave(auth.slug, payload);
       const savedLeave = response.data.leave;
-      console.log("Leave applied successfully:", savedLeave);
 
       // 3. Update local state with the new response from DB
       const newLeave: LeaveRequest = {
         id: savedLeave._id,
-        employee: user.name || "Employee",
+        employee: auth.user?.name || "Employee",
         type: savedLeave.leaveType,
         fromDate: savedLeave.startDate ? savedLeave.startDate.split("T")[0] : leave.fromDate,
         toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : leave.toDate,
@@ -140,11 +179,9 @@ export default function EmployeeLeaveDashboard() {
     if (!confirmDelete) return;
 
     try {
-      const userDataStr = sessionStorage.getItem("user");
-      if (!userDataStr) return;
-      const user = JSON.parse(userDataStr);
+      if (!user) return;
       
-      await deleteLeave(user.organization, id);
+      await deleteLeave(auth.slug, id);
       setRequests((prev) => prev.filter((r) => r.id !== id));
       toast.success("Leave deleted successfully");
     } catch (error: any) {
@@ -155,11 +192,14 @@ export default function EmployeeLeaveDashboard() {
 
   const handleUpdateLeave = async (updatedLeave: any) => {
     try {
-      const userDataStr = sessionStorage.getItem("user");
-      if (!userDataStr) return;
-      const user = JSON.parse(userDataStr);
+     
+        if (!auth.slug) {
+          toast.error("User data not found. Please log in again.");
+          return;
+        }
+
       
-      const response = await updateLeave(user.organization, updatedLeave.id, updatedLeave);
+      const response = await updateLeave(auth.slug, updatedLeave.id, updatedLeave);
       const savedLeave = response.data.leave;
       
       setRequests((prev) =>

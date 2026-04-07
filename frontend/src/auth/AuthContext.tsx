@@ -23,6 +23,19 @@ type AuthContextType = {
   loading: boolean;
 };
 
+// const getInitialAuth = (): AuthState => {
+//   const stored = localStorage.getItem("auth");
+//   console.log("stored" ,stored );
+//   if (stored) {
+//     try {
+//       return JSON.parse(stored);
+//     } catch (e) {
+//       console.warn("Failed to parse auth from localStorage:", e);
+//     }
+//   }
+//   return { token: null, slug: null, role: null, userId: null };
+// };
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

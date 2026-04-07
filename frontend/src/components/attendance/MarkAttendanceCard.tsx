@@ -6,15 +6,20 @@ import {
   MdHomeWork,
   MdAccessTime
 } from "react-icons/md";
+import { markAttendance , getMyAttendance } from "@/services/attendanceService";
+import { useAuth } from "@/auth/AuthContext";
+import { toast } from "react-toastify";
 
 type AttendanceMode = "office" | "wfh" | "half-day";
-type AttendanceStatus = "not-marked" | "pending" | "approved";
+type AttendanceStatus = "not-marked" | "pending" | "approved" | "rejected";
 
 export default function MarkAttendanceCard() {
+  const { auth } = useAuth();
   const [mode, setMode] = useState<AttendanceMode>("office");
   const [status, setStatus] = useState<AttendanceStatus>("not-marked");
   const [location, setLocation] = useState<string | null>(null);
   const [loadingLocation, setLoadingLocation] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(true);
 
   const today = new Date().toLocaleDateString("en-IN", {
     weekday: "long",
@@ -52,8 +57,68 @@ export default function MarkAttendanceCard() {
     else setLocation(null);
   }, [mode]);
 
+  useEffect(() => {
+    if (!auth.slug) {
+      setLoadingStatus(false);
+      return;
+    }
+
+    const checkStatus = (isSilent = false) => {
+      if (!isSilent) setLoadingStatus(true);
+      const todayISO = new Date().toISOString().split("T")[0];
+
+      getMyAttendance(auth.slug, { date: todayISO })
+        .then((res) => {
+          const attendanceForToday = res.data?.data || [];
+          if (attendanceForToday.length > 0) {
+            const todaysDoc = attendanceForToday[0];
+            if (todaysDoc && todaysDoc.record) {
+              const backendStatus = (todaysDoc.record.status || "").toUpperCase();
+              if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
+                setStatus("approved");
+              } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
+                setStatus("rejected");
+              } else if (backendStatus === "PENDING") {
+                setStatus("pending");
+              }
+            }
+          }
+        })
+        .catch(() => { /* Fail silently, assume not marked */ })
+        .finally(() => { if (!isSilent) setLoadingStatus(false); });
+    };
+
+    checkStatus();
+    // Auto-refresh every 30 seconds to catch admin approval
+    const intervalId = setInterval(() => checkStatus(true), 30000);
+    return () => clearInterval(intervalId);
+  }, [auth.slug]);
+
   const submitAttendance = () => {
-    setStatus("pending");
+    if (!auth.user || !auth.slug) return;
+
+    let lat, lon;
+    if (mode === "office" && location && !location.includes("denied")) {
+      [lat, lon] = location.split(",").map(s => parseFloat(s.trim()));
+    }
+
+    const attendanceData = {
+      date: new Date().toISOString().split("T")[0], // 'YYYY-MM-DD'
+      departmentId: auth.user.department || undefined,
+      latitude: lat,
+      longitude: lon,
+    };
+
+    markAttendance(auth.slug , attendanceData)
+      .then(() => {
+        setStatus("pending");
+        toast.success("Attendance submitted for approval!");
+      })
+      .catch((err) => {
+        console.error("Attendance submission failed:", err);
+        const errorMessage = err.response?.data?.message || "Failed to submit attendance. Please try again.";
+        toast.error(errorMessage);
+      });
   };
 
   return (
@@ -67,7 +132,7 @@ export default function MarkAttendanceCard() {
           <p className="text-sm text-base-content/60">{today}</p>
         </div>
 
-        {status !== "not-marked" && <StatusBadge status="pending" />}
+        {status !== "not-marked" && <StatusBadge status={status} />}
       </div>
 
       {/* TIME */}
@@ -130,14 +195,14 @@ export default function MarkAttendanceCard() {
       {/* ACTION */}
       <div className="mt-6">
         {status === "not-marked" ? (
-          <Button className="w-full" onClick={submitAttendance}>
-            Submit Attendance
+          <Button className="w-full" onClick={submitAttendance} disabled={loadingStatus}>
+            {loadingStatus ? "Checking Status..." : "Submit Attendance"}
           </Button>
         ) : (
           <div className="rounded-xl p-4 text-center neu-inset">
-            <p className="text-sm font-medium">Attendance submitted</p>
+            <p className="text-sm font-medium capitalize">Attendance for today is {status}</p>
             <p className="text-xs text-base-content/60 mt-1">
-              Awaiting admin approval
+              You can view details in the 'Records' tab.
             </p>
           </div>
         )}

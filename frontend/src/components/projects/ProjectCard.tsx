@@ -20,6 +20,8 @@ export default function ProjectCard({
 }: Props) {
   const navigate = useNavigate();
 
+  
+
   return (
     <div className="group bg-base-200 border border-base-300 rounded-xl p-6 hover:shadow-lg transition relative w-full min-w-[280px] max-w-md">
       {/* HEADER */}
@@ -38,6 +40,7 @@ export default function ProjectCard({
           />
 
           {canDelete && onDelete && (
+            <div className="lg:tooltip" data-tip="Delete project">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -60,6 +63,7 @@ export default function ProjectCard({
             >
               <FaTrash className="w-3 h-4" />
             </button>
+            </div>
           )}
         </div>
       </div>

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 import { MdNotifications ,MdMenu } from "react-icons/md";
 import type { Notification } from "@/type/notification";
-import { logout } from "../../services/authService";
+import { useAuth } from "../../auth/AuthContext";
+import { toast } from "react-toastify";
+import { uploadImage } from "@/services/uploadService";
 
 
 interface HeaderProps {
@@ -14,6 +16,11 @@ export default function Header({ onMenuClick }: HeaderProps)  {
   const { theme, setTheme } = useTheme();
   const [notifications, setNotifications] =
     useState<Notification[]>([]);
+  const { auth, logout } = useAuth();
+  const user = auth?.user;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
 
   const currentUserId = "1"; // from auth later
  
@@ -47,14 +54,30 @@ export default function Header({ onMenuClick }: HeaderProps)  {
     );
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      const imgUrl = await uploadImage(file);
+
+      toast.success("Avatar uploaded successfully!");
+      // TODO: Here you can update your auth context or user profile with data.imageUrl
+    } catch (error) {
+      console.error("Avatar upload failed", error);
+      toast.error("Failed to upload avatar");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
   
 
   const handleLogout=()=>{
-    localStorage.removeItem('theme');
-    localStorage.removeItem('token');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('user');
-
+    localStorage.removeItem("theme");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     logout();
     navigate("/login");
   }
@@ -175,11 +198,20 @@ export default function Header({ onMenuClick }: HeaderProps)  {
           >
             <div className="w-8 md:w-9 rounded-full">
               <img
-                src="https://i.pravatar.cc/100?img=12"
+                src={user?.imageUrl || "https://i.pravatar.cc/100?img=12"}
                 alt="User avatar"
+                className={isUploading ? "opacity-50" : ""}
               />
             </div>
           </label>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+          />
 
           <ul
             tabIndex={0}
@@ -196,8 +228,11 @@ export default function Header({ onMenuClick }: HeaderProps)  {
             <li className="menu-title">
               <span>Admin</span>
             </li>
-            <li onClick={()=>navigate("/adminProfile/1")}>
+            <li onClick={()=>navigate(`/profile/${user?.userId}`)}>
               <a>Profile</a>
+            </li>
+            <li onClick={() => fileInputRef.current?.click()}>
+              <a>{isUploading ? "Uploading..." : "Change Avatar"}</a>
             </li>
             <li onClick={()=>navigate("/settings")}>
               <a>Settings</a>

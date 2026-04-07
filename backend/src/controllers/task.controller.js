@@ -2,6 +2,7 @@ const cloudinary = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
+const Activity = require('../models/Activity');
 // -----------------------------------------------------------
 // Add Task
 // -----------------------------------------------------------
@@ -102,6 +103,26 @@ const addTask = async (req, res) => {
     await task.save();
     const populatedTask = await Task.findById(task._id)
   .populate("assignedTo", "name");
+
+ // 2. Insert the Activity Log here!
+    await Activity.create({
+      organization: orgId,
+      user: req.user.userId || req.user._id, 
+      action: "Task Assigned",
+      message: `Created a new task: '${task.title}'`,
+      referenceId: task._id,
+      referenceModel: "Task"
+    });
+    
+    // 3. Emit Realtime Notification
+    const io = req.app.get("io");
+    if (io) {
+      console.log("📡 Emitting 'new_notification' via socket.io for Task Assigned");
+      io.emit("new_notification", {
+        action: "Task Assigned",
+        message: `Created a new task: '${task.title}'`
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -249,6 +270,9 @@ const deleteTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+    // Delete the related activity so it disappears from the recent activity feed
+    await Activity.deleteMany({ referenceId: taskId, referenceModel: "Task" });
 
     return res.json({
       success: true,

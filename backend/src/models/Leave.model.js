@@ -7,9 +7,8 @@ const leaveSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    organization: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Organization",
+    slug: {
+      type: String,
       required: true,
     },
     name: {

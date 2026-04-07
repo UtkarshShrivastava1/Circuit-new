@@ -24,7 +24,7 @@ try {
 
 const app = require("./app");
 const { connectDB } = require("./config/db");
-// const { initializeSocket } = require("./services/socket.service");
+const { initializeSocket } = require("./services/socket.service");
 const config = require("./config");
 const logger = require("./common/libs/logger");
 
@@ -80,15 +80,15 @@ async function boot() {
   // ------------------------------------------------------------
   // SOCKET + REDIS
   // ------------------------------------------------------------
-  // process.stdout.write(chalk.yellow("📡 SOCKET + REDIS ......... "));
-  // try {
-  //   io = await initializeSocket(server);
-  //   console.log(chalk.green("✔ READY"));
-  // } catch (err) {
-  //   console.log(chalk.yellow("⚠ FALLBACK MODE"));
-  //   logger.warn("Socket init failed. Running without Redis adapter.");
-  //   io = null;
-  // }
+  process.stdout.write(chalk.yellow("📡 SOCKET + REDIS ......... "));
+  try {
+    io = await initializeSocket(server);
+    console.log(chalk.green("✔ READY"));
+  } catch (err) {
+    console.log(chalk.yellow("⚠ FALLBACK MODE"));
+    logger.warn("Socket init failed. Running without Redis adapter.");
+    io = null;
+  }
 
   divider();
 

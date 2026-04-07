@@ -31,7 +31,7 @@ interface Props {
           >
             {tasks.map((task, index) => (
               <KanbanTaskCard
-                key={task.id}
+                key={task._id || task.id}
                 task={task}
                 index={index}
                 onClick={() => onTaskClick(task)}

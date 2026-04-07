@@ -7,7 +7,7 @@ const holidayController = require("../controllers/Holiday.controller");
 
 // Add a new holiday
 router.post(
-  "/:organizationId/holidays",
+  "/:slug/holidays",
   auth,
   tenant,
   holidayController.addHoliday
@@ -15,21 +15,21 @@ router.post(
 
 // Get all holidays for the organization
 router.get(
-  "/:organizationId/holidays",
+  "/:slug/holidays",
   auth,
   tenant,
   holidayController.getHolidays
 );
 
 router.put(
-  "/:organizationId/holidays/:holidayId",
+  "/:slug/holidays/:holidayId",
   auth,
   tenant,
   holidayController.updateHoliday
 );
 
 router.delete(
-  "/:organizationId/holidays/:holidayId",
+  "/:slug/holidays/:holidayId",
   auth,
   tenant,
   holidayController.deleteHoliday

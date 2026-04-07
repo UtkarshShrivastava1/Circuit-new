@@ -1,246 +1,106 @@
-import { useState } from "react";
-import type { PayrollRecord } from "../../type/payslip";
-import { MOCK_PAYROLL } from "../../mock/payroll";
-import { MdDownload, MdVisibility, MdFilterList } from "react-icons/md";
+import React, { useEffect, useState } from "react";
+import { getMonthlyList, markSlipPaid, downloadSlipPdf } from "@/services/payrollService";
+import { useAuth } from "@/auth/AuthContext";
+import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import Input from "@/components/ui/Input";
-import StatusBadge from "../ui/StatusBadge";
 
-/* ---------------- COMPONENT ---------------- */
+export default function Payhistory() {
+  const { auth } = useAuth();
+  const [slips, setSlips] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
 
-export default function PayrollHistory() {
-  const [records] = useState<PayrollRecord[]>(MOCK_PAYROLL);
-  const [monthFilter, setMonthFilter] = useState("");
-  const [search, setSearch] = useState("");
+  const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, name: new Date(0, i).toLocaleString('default', { month: 'long' }) }));
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
 
-  const filtered = records.filter((r) => {
-    const matchesMonth = monthFilter ? r.month === monthFilter : true;
+  const fetchHistory = async () => {
+    setLoading(true);
+    try {
+      const res = await getMonthlyList(auth.slug, { month, year });
+      setSlips(res.data?.data || []);
+    } catch (error) {
+      toast.error("Failed to fetch payroll history.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const matchesSearch = r.employeeName
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  useEffect(() => {
+    if (auth.slug) fetchHistory();
+  }, [auth.slug, month, year]);
 
-    return matchesMonth && matchesSearch;
-  });
+  const handleMarkPaid = async (slipId: string) => {
+    const transactionId = window.prompt("Enter Transaction/UTR Number:");
+    if (!transactionId) return;
+
+    try {
+      await markSlipPaid(auth.slug, slipId, { transactionId, paymentMode: "NEFT" });
+      toast.success("Marked as PAID");
+      fetchHistory();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update status.");
+    }
+  };
+
+  const handleDownload = async (slipId: string, empName: string) => {
+    try {
+      const blob = await downloadSlipPdf(auth.slug, slipId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Payslip_${empName.replace(/\s+/g, '_')}_${month}_${year}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error("Failed to download payslip.");
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
+      <div className="flex gap-4 mb-4 items-center bg-base-100 p-4 rounded-xl shadow-sm border border-base-300">
+        <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-48">
+          {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
+        </Select>
+        <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-32">
+          {years.map(y => <option key={y} value={y}>{y}</option>)}
+        </Select>
+        <Button variant="primary" onClick={fetchHistory} disabled={loading}>
+          {loading ? "Loading..." : "Filter Results"}
+        </Button>
+      </div>
 
-      {/* FILTER BAR */}
-      {/* FILTER BAR */}
-<div className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:items-center sm:justify-between shadow">
-
-  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-
-    <Input
-      placeholder="Search employee..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="w-full sm:w-56 bg-base-200 border-base-300 text-base-content placeholder:text-base-content/75"
-    />
-
-    <Select
-      value={monthFilter}
-      onChange={(e) => setMonthFilter(e.target.value)}
-      className="w-full sm:w-40 bg-base-200 border-base-300 text-base-content pr-8"
-    >
-      <option value="">All Months</option>
-      <option value="2026-01">Jan 2026</option>
-      <option value="2026-02">Feb 2026</option>
-    </Select>
-
-    <Button
-      variant="outline"
-      className="flex items-center gap-2 border-base-300 hover:bg-base-200"
-    >
-      <MdFilterList size={18} />
-      Advanced Filter
-    </Button>
-
-  </div>
-</div>
-      {/* TABLE */}
-      {/* <div className="bg-base-100 text-base-content border border-base-300 rounded-xl overflow-hidden">
-  <div className="overflow-x-auto">
-
-        <table className="table w-full ">
-          <thead>
+      <div className="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-base-200">
             <tr>
-              <th>Employee</th>
-              <th>Month</th>
-              <th>Gross</th>
-              <th>Deductions</th>
-              <th>Net Pay</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th className="p-4">Employee</th>
+              <th className="p-4">Net Salary</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Actions</th>
             </tr>
           </thead>
-
           <tbody>
-            {filtered.map((record) => (
-              <tr key={record.id} className="hover:bg-base-200 text-base-content">
-
-                <td>
-                  <div>
-                    <p className="font-medium text-base-content">
-                      {record.employeeName}
-                    </p>
-                    <p className="text-xs text-base-content/60">
-                      {record.role}
-                    </p>
-                  </div>
+            {slips.map((slip) => (
+              <tr key={slip._id} className="border-t border-base-300 hover:bg-base-50">
+                <td className="p-4">{slip.employeeName || slip.employeeId}</td>
+                <td className="p-4 font-semibold">₹{slip.netSalary}</td>
+                <td className="p-4">
+                  <span className={`px-2 py-1 rounded text-xs font-bold ${slip.paymentStatus === 'PAID' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>{slip.paymentStatus}</span>
                 </td>
-
-                <td>{record.month}</td>
-
-                <td>₹ {record.gross}</td>
-                <td className="text-error">
-                  ₹ {record.deductions}
+                <td className="p-4 flex gap-2">
+                  {slip.paymentStatus === "PENDING" && <Button variant="primary" size="sm" onClick={() => handleMarkPaid(slip._id)}>Mark Paid</Button>}
+                  <Button variant="outline" size="sm" onClick={() => handleDownload(slip._id, slip.employeeName || 'Employee')}>Download</Button>
                 </td>
-
-                <td className="font-semibold text-primary">
-                  ₹ {record.netPay}
-                </td>
-
-                <td>
-                 
-                  <StatusBadge status={record.status} />
-                </td>
-
-                <td>
-                  <div className="flex gap-2">
-
-                    <button className="btn btn-sm btn-ghost text-base-content">
-                      <MdVisibility size={18} />
-                    </button>
-
-                    <button className="btn btn-sm btn-ghost text-base-content">
-                      <MdDownload size={18} />
-                    </button>
-
-                  </div>
-                </td>
-
               </tr>
             ))}
+            {slips.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-base-content/60">No records found for this month.</td></tr>}
           </tbody>
         </table>
-  </div> */}
-
-      <div className="hidden md:block bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow">
-        <div className="overflow-x-auto">
-          <table className="table w-full text-base-content">
-            <thead className="bg-base-200 text-base-content">
-              <tr>
-                <th>Employee</th>
-                <th>Month</th>
-                <th>Gross</th>
-                <th>Deductions</th>
-                <th>Net Pay</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filtered.map((record) => (
-                <tr key={record.id} className="hover:bg-base-200">
-                  <td>
-                    <div>
-                      <p className="font-medium">{record.employeeName}</p>
-                      <p className="text-xs text-base-content/60">
-                        {record.role}
-                      </p>
-                    </div>
-                  </td>
-
-                  <td>{record.month}</td>
-
-                  <td>₹ {record.gross}</td>
-
-                  <td className="text-error">₹ {record.deductions}</td>
-
-                  <td className="font-semibold text-primary">
-                    ₹ {record.netPay}
-                  </td>
-
-                  <td>
-                    <StatusBadge status={record.status} />
-                  </td>
-
-                  <td>
-                    <div className="flex gap-2">
-                      <button className="btn btn-sm btn-ghost">
-                        <MdVisibility size={18} />
-                      </button>
-
-                      <button className="btn btn-sm btn-ghost">
-                        <MdDownload size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </div>
-
-      <div className="md:hidden space-y-4">
-        {filtered.map((record) => (
-          <div
-            key={record.id}
-            className="bg-base-100 border border-base-300 rounded-xl p-4 shadow"
-          >
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <p className="font-semibold text-base-content">
-                  {record.employeeName}
-                </p>
-                <p className="text-xs text-base-content/60">{record.role}</p>
-              </div>
-
-              <StatusBadge status={record.status} />
-            </div>
-
-            <div className="text-sm space-y-1 text-base-content/80">
-              <p>
-                <span className="font-medium">Month:</span> {record.month}
-              </p>
-              <p>
-                <span className="font-medium">Gross:</span> ₹ {record.gross}
-              </p>
-
-              <p className="text-error">
-                <span className="font-medium">Deductions:</span> ₹{" "}
-                {record.deductions}
-              </p>
-
-              <p className="font-semibold text-primary">
-                Net Pay: ₹ {record.netPay}
-              </p>
-            </div>
-
-            <div className="flex gap-3 mt-3">
-              <button className="btn btn-sm btn-outline  btn-primary flex-1 ">
-                <MdVisibility size={18} />
-              </button>
-
-              <button className="btn btn-success btn-sm btn-outline flex-1">
-                <MdDownload size={18} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="p-6 text-center text-sm text-base-content/60">
-          No payroll records found.
-        </div>
-      )}
     </div>
   );
 }

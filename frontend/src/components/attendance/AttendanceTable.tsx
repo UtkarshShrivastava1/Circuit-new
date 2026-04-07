@@ -1,20 +1,40 @@
 import { useState } from "react";
 import StatusBadge from "../ui/StatusBadge";
 import Button from "../ui/Button";
-import type { AttendanceRecord } from "../../type/attendance";
+import type { AttendanceRecord, UserRole } from "../../type/attendance";
 import Table from "../ui/Table";
-
-
+import { useAuth } from "@/auth/AuthContext";
+import { approveAttendance } from "@/services/attendanceService";
+import { toast } from "react-toastify";
 
 interface Props {
-  records: AttendanceRecord[];
+  records: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[];
   role: UserRole;
+  onUpdate: () => void;
 }
 
 
-export default function AttendanceTable({ records, role }: Props) {
-  const isAdmin = role === "admin";
+export default function AttendanceTable({ records, role, onUpdate }: Props) {
+  const isAdmin = role === "admin" || role === "owner";
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const { auth } = useAuth();
+
+  const handleApproval = async (
+    attendanceDocId: string,
+    employeeId: string,
+    status: "PRESENT" | "ABSENT"
+  ) => {
+    if (!auth?.slug) return;
+    await toast.promise(
+      approveAttendance(auth.slug, attendanceDocId, { employeeId, status }),
+      {
+        pending: "Updating status...",
+        success: "Status updated!",
+        error: "Update failed.",
+      }
+    );
+    onUpdate();
+  };
 
   const selectableRecords = records.filter(
     (r) => r.status === "pending"
@@ -38,6 +58,25 @@ export default function AttendanceTable({ records, role }: Props) {
     );
   };
 
+  const handleBulkAction = async (status: "PRESENT" | "ABSENT") => {
+    if (!auth?.slug) return;
+    const selectedRecords = records.filter((r) => selectedIds.includes(r.id));
+
+    const promises = selectedRecords.map((rec) =>
+      approveAttendance(auth.slug!, rec.attendanceDocId, { employeeId: rec.employeeId, status })
+    );
+
+    await toast.promise(Promise.all(promises), {
+      pending: `Updating ${promises.length} records...`,
+      success: `${promises.length} records updated successfully!`,
+      error: "Some updates failed. Please review.",
+    });
+    onUpdate();
+    setSelectedIds([]);
+  };
+
+   
+
   return (
     <div className="bg-base-100 border border-base-300 rounded-lg overflow-hidden">
      <div className="overflow-x-auto">
@@ -46,8 +85,8 @@ export default function AttendanceTable({ records, role }: Props) {
         <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-4 py-3 flex justify-between items-center">
           <span className="text-sm">{selectedIds.length} selected</span>
           <div className="flex gap-2">
-            <Button variant="primary">Approve</Button>
-            <Button variant="error">Reject</Button>
+            <Button variant="primary" onClick={() => handleBulkAction("PRESENT")}>Approve</Button>
+            <Button variant="error" onClick={() => handleBulkAction("ABSENT")}>Reject</Button>
           </div>
         </div>
       )}
@@ -101,25 +140,25 @@ export default function AttendanceTable({ records, role }: Props) {
               <td className="text-right">
                 {r.status === "pending" && (
                   <div className="flex justify-end gap-2">
-                    <Button size="xs" variant="primary">
-                      Approve
+                    <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}>
+                      Present
                     </Button>
-                    <Button size="xs" variant="error">
-                      Reject
+                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}>
+                      Absent
                     </Button>
                   </div>
                 )}
                 {r.status === "rejected" && (
                   <div className="flex justify-end gap-2">
-                    <Button size="xs" variant="primary">
-                      Approve
+                    <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}>
+                      Present
                     </Button>
                   </div>
                 )}
                 {r.status === "approved" && (
                   <div className="flex justify-end gap-2">
-                    <Button size="xs" variant="error">
-                      Reject
+                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}>
+                     Absent
                     </Button>
                   </div>
                 )}

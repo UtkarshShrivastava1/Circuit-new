@@ -9,11 +9,14 @@ import ProjectFilters from "@/components/projects/ProjectFilters";
 import { useAuth } from "@/auth/AuthContext";
 
 import { toast } from "react-toastify";
-import API from "@/api/axios";
+import { getProject, deleteProject } from "@/services/projectServices";
+// import { getOrganizationSlug } from "@/utils/auth";
 
 export default function Projects() {
   const { auth } = useAuth();
-  console.log("Auth in Projects:", auth);
+  const slug = auth.slug;
+
+  // console.log("Auth in Projects:", auth);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -21,50 +24,35 @@ export default function Projects() {
   const [filter, setFilter] = useState<ProjectFilter>("all");
 
   // Helper to check roles
-  const hasRole = (roles: string[]) =>
-    auth.user?.role ? roles.includes(auth.user.role) : false;
+  const hasRole = (roles: string[]) => auth.user?.role ? roles.includes(auth.user?.role) : false;
 
   const canDelete = hasRole(["admin", "owner", "manager"]);
   const canEdit = hasRole(["admin", "owner"]);
+ 
 
-  console.log("Role:", auth.user?.role, "canDelete?", canDelete);
-  const handleDeleteProject = async (id: string) => {
-    console.log("Attempting to delete project with id:", id);
-    try {
-      await API.delete(`/projects/${auth.slug}/deleteProject/${id}`);
+// ------------------Delete Project------------------
 
-      setProjects((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Project deleted");
-      console.log("Project deleted");
-    } catch (error) {
-      toast.error("Failed to delete project");
-      console.error("Delete failed", error);
-    }
-  };
+
+
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-
-        const res = await API.get(`/projects/${auth.slug}/getProjects`, {
-          params: filter !== "all" ? { projectState: filter } : {},
-        });
-        console.log("Projects fetched:", res.data.projects);
-    
-
-        const mappedProjects = res.data.projects.map((p: any) => {
-          const managerUser = p.participants?.find((participant: any) =>
-            participant.role?.includes("Manager")
-          );
-         
-          return {
+       
+        const res = await getProject(slug);
+        // console.log(res)
+        // api.get(`/projects/${auth.slug}/getProjects`, {
+        //   params: filter !== "all" ? { projectState: filter } : {},
+        // });
+        const mappedProjects = (res.data?.projects || []).map((p: any) => ({
           ...p,
           id: p._id,
           name: p.projectName || "Untitled Project",
           status: p.projectState || "active",
           progress: 0,
           
-          manager:  managerUser?.user?.name || "N/A",
+          manager: p.participants?.find((part: any) => part.role === "Manager")?.user?.name || "N/A",
           teamCount: p.participants?.length || 0,
           dueDate: p.endDate
             ? new Date(p.endDate).toLocaleDateString("en-GB", {
@@ -74,9 +62,10 @@ export default function Projects() {
               })
             : "No deadline",
         }
-        });
+        ));
 
         setProjects(mappedProjects);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to load projects", error);
       } finally {
@@ -84,12 +73,31 @@ export default function Projects() {
       }
     };
 
-    if (auth.slug) {
+    if (slug) {
       fetchProjects();
+    } else {
+      setLoading(false);
     }
-  }, [auth.slug, filter]);
+  }, [slug]);
 
-  const filteredProjects = projects;
+  const handleDeleteProject = async (id: string) => {
+  try {
+    await deleteProject(slug, id);
+
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+    toast .success("Project deleted");
+    console.log("Project deleted");
+  } catch (error) {
+    console.error("Delete failed", error);
+  }
+};
+
+
+  const filteredProjects =
+    filter === "all"
+      ? projects
+      : projects.filter((p) => p.status?.toLowerCase() === filter.toLowerCase());
+  console.log(filteredProjects);
 
   return (
     <div>
@@ -121,6 +129,11 @@ export default function Projects() {
       >
         {selectedProject && (
           <ProjectDetails
+           onUpdate={(updated) => {
+             setProjects((prev) => 
+               prev.map((p) => (p.id === updated.id ? updated : p))
+             );
+           }}
             project={selectedProject}
             onClose={() => setSelectedProject(null)}
           />

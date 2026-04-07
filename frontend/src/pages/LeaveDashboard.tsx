@@ -1,12 +1,12 @@
 import AdminLeaveDashboard from "../components/Leave/AdminDashboard";
 import EmployeeLeaveDashboard from "../components/Leave/EmployeeLeaveDashboard";
-
-type UserRole = "admin" | "employee";
+import { useAuth } from "@/auth/AuthContext";
 
 export default function LeavePage() {
-  const role: UserRole = "admin"; // from auth later
+  const { auth } = useAuth();
+  const role = auth?.user?.role;
 
-  if (role === "admin") {
+  if (role === "admin" || role === "owner") {
     return <AdminLeaveDashboard />;
   }
 

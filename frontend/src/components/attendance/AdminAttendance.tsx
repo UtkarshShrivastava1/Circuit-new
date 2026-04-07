@@ -1,4 +1,4 @@
-import React, { useState ,useMemo ,Suspense } from 'react'
+import React, { useState ,useMemo ,Suspense, useEffect } from 'react'
 const  AttendanceFilters = React.lazy (()=> import('./AttendanceFilter') ) ;
 const EmptyState = React.lazy(()=> import("../ui/EmptyState"))
 const AttendanceSummaryCards = React.lazy(()=> import("../attendance/AttendanceSummaryCards"))
@@ -12,11 +12,13 @@ const StatusPills = React.lazy(()=> import("./FilertByStatus"));
 import useAttendanceFilters from "../attendance/UseAttendanceFilter";
 import  {usePagination}  from "../../hooks/usePagination";
 const Pagination = React.lazy(()=>import("../ui/Pagination"))
-import type { AttendanceRecord } from '@/type/attendance';
-import type { AttendanceStatus } from '@/type/attendance';
+import type { AttendanceRecord, UserRole, AttendanceStatus } from '@/type/attendance';
 import {Clock ,NotepadText } from "lucide-react"
 import MobileTabs from '../attendance/MobileTabs';
 import AttendanceMobileTopBar from './AttendanceMobileTopBar';
+import { useAuth } from '@/auth/AuthContext';
+import { getAllEmployees , getAttendance ,getManagerDepartments , getDepartmentEmployees} from '@/services/attendanceService';
+import { socket } from "@/socket";
 
 
 
@@ -25,7 +27,11 @@ type AttendanceTab = "records" | "mark";
 type Status = "all" | "approved" | "pending" | "rejected";
 
 const AdminAttendance = () => {
-  const role: UserRole = "admin"; // change to "employee"
+  const { auth } = useAuth();
+  const user = auth?.user;
+  const slug = auth?.slug;
+  const role: UserRole = user?.role || "admin";
+
 
   const [activeTab, setActiveTab] = useState<AttendanceTab>("records");
    const [statusFilter, setStatusFilter] = useState<Status>("all");
@@ -37,21 +43,70 @@ const AdminAttendance = () => {
        toDate?: string;
      }>({});
 
-     const records: AttendanceRecord[] = Array.from({ length: 100 }).map(
-         (_, i) => {
-           const status: AttendanceStatus =
-             i % 3 === 0 ? "pending" : i % 2 === 0 ? "approved" : "rejected";
-     
-           return {
-             id: String(i),
-             employee: `Employee ${i + 1}`,
-             date: "28 Jan 2026",
-             checkIn: "09:15 AM",
-             status,
-           };
-         },
-       );
+    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string })[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [refetchIndex, setRefetchIndex] = useState(0);
 
+    const refetch = () => setRefetchIndex(prev => prev + 1);
+
+    useEffect(() => {
+      if (slug) {
+        setLoading(true);
+       getAttendance(slug , filters  )
+          .then((res) => {
+            // The server returns { success: true, data: [...] }, we need to target the array
+            const responseData = res.data?.data || res.data || [];
+            const arr = Array.isArray(responseData) ? responseData : [];
+            
+            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[] = [];
+            arr.forEach((doc: any) => {
+              const formattedDate = new Date(doc.date).toLocaleDateString("en-IN", {
+                day: "2-digit", month: "short", year: "numeric"
+              });
+
+              (doc.records || []).forEach((record: any) => {
+                const employeeName = typeof record.employee === "object" && record.employee?.name 
+                  ? record.employee.name
+                  : "Unknown";
+                const employeeId = record.employee?._id;
+
+                if (!employeeId) return; // Cannot perform actions without an employee ID
+
+                const checkInTime = record.checkIn 
+                  ? new Date(record.checkIn).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) 
+                  : new Date(doc.createdAt || doc.date).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+                let mappedStatus: AttendanceStatus = "pending";
+                const backendStatus = (record.status || "").toUpperCase();
+                if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
+                    mappedStatus = "approved";
+                } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
+                    mappedStatus = "rejected";
+                } // PENDING is the default
+
+                formattedRecords.push({
+                  id: record._id,
+                  attendanceDocId: doc._id,
+                  employeeId: employeeId,
+                  employee: employeeName,
+                  date: formattedDate,
+                  checkIn: checkInTime,
+                  status: mappedStatus,
+                });
+              });
+            });
+
+            setRecords(formattedRecords);
+          })
+          .catch((error) => {
+            console.error("Failed to fetch attendance records", error);
+            setRecords([]);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    }, [slug, filters, refetchIndex]);
        
        
        const monthlySummary = useMemo(() => {
@@ -66,7 +121,7 @@ const AdminAttendance = () => {
            rejected,
            wfh: Math.floor(records.length * 0.2),
            halfDay: Math.floor(records.length * 0.1),
-           attendancePercentage: Math.round((present / records.length) * 100),
+           attendancePercentage: records.length > 0 ? Math.round((present / records.length) * 100) : 0,
          };
        }, [records]);
 
@@ -74,6 +129,10 @@ const AdminAttendance = () => {
    const filteredRecords = useAttendanceFilters(records, filters, statusFilter);
 
    const { page, setPage, totalPages, paginatedData } = usePagination(filteredRecords, 10);
+
+  if (loading) {
+    return <div className="p-6 text-center">Loading attendance...</div>;
+  }
 
   // return (
   //    <>
@@ -178,7 +237,10 @@ const AdminAttendance = () => {
   // )
 
   return (
-  <Suspense fallback={<div className="p-6">Loading...</div>}>
+  <Suspense fallback={<div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
+      </div>}>
     {/* <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4"> */}
     {filteredRecords.length === 0 ? (
       <EmptyState
@@ -248,7 +310,7 @@ const AdminAttendance = () => {
             />
 
             <div className="mt-4">
-              <AttendanceTable records={paginatedData} role={role} />
+              <AttendanceTable records={paginatedData} role={role} onUpdate={refetch} />
             </div>
 
             <div className="flex justify-end mt-4">

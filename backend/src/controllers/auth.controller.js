@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken");
 // const chalk = require("chalk");
 
@@ -30,6 +29,11 @@ try {
     bgRed: identity,
   };
 }
+
+
+// ------------------------------------------------------
+// REGISTER COMPANY
+// ------------------------------------------------------
 
 
 exports.registerCompany = async (req, res) => {
@@ -125,7 +129,7 @@ exports.registerCompany = async (req, res) => {
 exports.login = async (req, res) => {
 
   try {
-    console.log(req.body);
+    console.log("req.body",req.body);
 
     const { email, password } = req.body;
 
@@ -171,19 +175,24 @@ exports.login = async (req, res) => {
      
 
     const secret = process.env.JWT_SECRET || config.JWT_SECRET;
+   const org = await Organization.findById(user.organization);
 
     const token = jwt.sign(
-      {
+      { imageUrl: user.imageUrl || null,
         userId: user._id,
          name: user.name,
         organization: user.organization,
         role: user.role,
-      },
+        slug: org.slug,
+        department: user.department || null,
+
+},
       secret,
       { expiresIn: "1d" }
     );
-const org = await Organization.findById(user.organization);
-console.log("Organization found:", org);
+
+
+   
     // Set cookie server-side to prevent "quote" issues from frontend serialization
     res.cookie("token", token, {
       httpOnly: true,
@@ -192,18 +201,27 @@ console.log("Organization found:", org);
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
+    
+
     // Set user details in a non-httpOnly cookie so the frontend can access it
     res.cookie("user", JSON.stringify({
+      token: token,
+       imageUrl: user.imageUrl || null,
+      userId:user._id,
       userId: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       organization: user.organization,
+      slug: org.slug,
+      department: user.department || null,
     
     }), {
       secure: process.env.NODE_ENV === "production",
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
+
+    
     
 
     logger.info(`Login success: ${email}`);
@@ -212,22 +230,40 @@ console.log("Organization found:", org);
       chalk.blue(`🔐 User logged in: ${email}`)
     );
 
+    // return res.json({
+    //   message: "Login successful",
+    //   user: {
+    //     name: user.adminName,
+    //     email: user.email,
+    //     role: user.role,
+    //     slug: user.slug,
+    //   },
+    // });
     
       return res.json({
         message: "Login successful",
      
         slug: org.slug,
          user: {
+          
+        userId:user._id,
           userId: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
         organization: user.organization,
+        slug: org.slug,
+        department: user.department || null,
+        imageUrl: user.imageUrl || null,
       
       },
       });
       
 
+    // res.json({
+    //   token,
+    //   slug: org.slug
+    // });
 
   } catch (error) {
 
@@ -246,7 +282,7 @@ console.log("Organization found:", org);
 
 
 
-exports.getMe =  async (req, res) => {
+exports.getMe =  async (req, res) => { 
   try {
     const user = req.user; // attached by middleware
     console.log("Authenticated user in getMe:", user);
@@ -275,4 +311,29 @@ exports.logout = (req, res) => {
   return res.json({
     message: "Logged out successfully",
   });
+};
+
+//auth.controller
+exports.getMe =  async (req, res) => {
+  try {
+    const user = req.user; // attached by middleware
+    console.log("Authenticated user in getMe:", user);
+    const org = await Organization.findById(user.organization);
+    res.json({
+      user: {
+        userId:user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        organization: user.organization,
+        department: user.department || null,
+         imageUrl: user.imageUrl || null,
+         token: req.cookies.token || null,
+      },
+       slug: org.slug ,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 };

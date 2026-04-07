@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import type { Project, Participant } from "../../type/project";
 import { useAuth } from "@/auth/AuthContext";
-
+import API from "@/api/axios";
 import { getMembers } from "@/services/memberService";
 
 interface Props {
@@ -92,7 +92,8 @@ export default function EditProjectModal({
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await getMembers(auth.slug); // fetch members using the service
+        const res = await getMembers(auth.slug);
+        API.get(`/${auth.slug}/getMembers`);
         setOrgUsers(res.data.members || res.data.users || []);
       } catch (err) {
         console.error(err);

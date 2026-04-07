@@ -2,9 +2,8 @@ const mongoose = require("mongoose");
 
 const holidaySchema = new mongoose.Schema(
   {
-    organization: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Organization",
+   slug: {
+      type: String,
       required: true,
     },
     date: {

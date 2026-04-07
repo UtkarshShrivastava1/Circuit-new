@@ -1,197 +1,164 @@
-import { useState } from "react";
-import { type SalaryStructure } from "../components/salary/SalaryStructureCard";
-import SalaryStructureModal from "../components/salary/SalaryStructureModal";
+import { useState, useEffect, useMemo } from "react";
 import Button from "@/components/ui/Button";
-import EmptyState from "@/components/ui/EmptyState";
-import { MdAdd } from "react-icons/md";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
-import { EMPLOYEES, type Employee } from "../type/Salary";
 import StatutorySettingsCard from "@/components/salary/StatutorySettingsCard";
 import SalarySlipPreview from "@/components/salary/SalarySlipPreview";
+import { useAuth } from "@/auth/AuthContext";
+import { getAllEmployees } from "@/services/attendanceService";
+import { setStructure } from "@/services/payrollService";
+import api from "@/services/api";
+import { toast } from "react-toastify";
+import { MdCurrencyRupee } from "react-icons/md";
+import { getMembers } from "@/services/memberService";
 
-/* ---------- MOCK DATA ---------- */
-
-// const INITIAL_STRUCTURES: SalaryStructure[] = [
-//   {
-//     id: "1",
-//     name: "Salman Khan",
-//     role: "Junior Developer",
-//     basic: 25000,
-//     hra: 8000,
-//     allowances: 3000,
-//     bonus: 2000,
-//     deductions: 1500,
-//   },
-//   {
-//     id: "2",
-//     name: "Aamir Khan",
-//     role: "Senior Developer",
-//     basic: 50000,
-//     hra: 15000,
-//     allowances: 8000,
-//     bonus: 5000,
-//     deductions: 4000,
-//   },
-// ];
-
-const INITIAL_STRUCTURES: Employee[] = [
-  { Employee_id: "1", Employee_name: "Vinay Kumar" },
-  { Employee_id: "2", Employee_name: "Rahul Sharma" },
-  { Employee_id: "3", Employee_name: "Priya Patel" },
-  { Employee_id: "4", Employee_name: "Amitabh Bachchan" },
-  { Employee_id: "5", Employee_name: "Deepika Padukone" },
-  { Employee_id: "6", Employee_name: "Salman Khan" },
-  { Employee_id: "7", Employee_name: "Kareena Kapoor" },
-];
+interface Employee {
+  _id: string;
+  name: string;
+  email: string;
+}
 
 /* ---------- COMPONENT ---------- */
 
 export default function SalaryStructureDashboard() {
-  const [structures, setStructures] =
-    useState<SalaryStructure[]>(INITIAL_STRUCTURES);
-  const [employeeNames] = useState<Employee[]>(EMPLOYEES);
+  const { auth } = useAuth();
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
-  const [openModal, setOpenModal] = useState(false);
-  const [editingStructure, setEditingStructure] =
-    useState<SalaryStructure | null>(null);
+  // Form State
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
+  const [monthlyGross, setMonthlyGross] = useState(0);
   const [limitPF, setLimitPF] = useState(true);
 
-  /* ---------- CREATE / UPDATE ---------- */
-
-  const handleSave = (data: SalaryStructure) => {
-    if (editingStructure) {
-      // Update
-      setStructures((prev) => prev.map((s) => (s.id === data.id ? data : s)));
-      setEditingStructure(null);
-    } else {
-      // Create
-      setStructures((prev) => [...prev, { ...data, id: crypto.randomUUID() }]);
+  useEffect(() => {
+    if (auth.slug) {
+      setLoading(true);
+      getMembers(auth.slug)
+        .then((res) => {
+        
+          setEmployees(res.data?.members || []);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch employees", err);
+          toast.error("Failed to fetch employees.");
+        })
+        .finally(() => setLoading(false));
     }
-  };
+  }, [auth.slug]);
 
-  /* ---------- DELETE ---------- */
+  const salaryComponents = useMemo(() => {
+    const gross = monthlyGross > 0 ? monthlyGross : 0;
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Delete this salary structure?")) return;
+    // Basic is 50% of Gross
+    const basic = gross * 0.5;
 
-    setStructures((prev) => prev.filter((s) => s.id !== id));
-  };
+    // HRA is 40% of Basic
+    const hra = basic * 0.4;
 
-  /* ---------- EDIT ---------- */
+    // Special Allowance is the remainder
+    const special = gross - basic - hra;
 
-  const handleEdit = (structure: SalaryStructure) => {
-    setEditingStructure(structure);
-    setOpenModal(true);
-  };
+    // EPF is 12% of Basic, capped at 15000 if limitPF is true
+    let epfContribution = 0;
+    if (limitPF && basic > 15000) {
+      epfContribution = 15000 * 0.12;
+    } else {
+      epfContribution = basic * 0.12;
+    }
 
-  /* ---------- OPEN CREATE ---------- */
+    // Professional Tax (simple slab for example)
+    const professionalTax = gross > 10000 ? 200 : 0;
 
-  const handleCreate = () => {
-    setEditingStructure(null);
-    setOpenModal(true);
+    const totalDeductions = epfContribution + professionalTax;
+    const netSalary = gross - totalDeductions;
+
+    return {
+      basic: Math.round(basic),
+      da: 0, // For future use
+      hra: Math.round(hra),
+      special: Math.round(special),
+      epf: Math.round(epfContribution),
+      professionalTax: Math.round(professionalTax),
+      grossSalary: Math.round(gross),
+      deductions: Math.round(totalDeductions),
+      netSalary: Math.round(netSalary),
+    };
+  }, [monthlyGross, limitPF]);
+
+  const handleSaveStructure = async () => {
+    if (!selectedEmployeeId || monthlyGross <= 0) {
+      toast.error("Please select an employee and enter a valid gross salary.");
+      return;
+    }
+
+    setGenerating(true);
+    const payload = {
+      employeeId: selectedEmployeeId,
+      monthlyGross,
+      taxRegime: "new",
+      limitPF
+    };
+
+    try {
+      // Important: Ensure this endpoint matches your admin.payroll.routes.js exactly
+      await setStructure(auth.slug, payload);
+      toast.success("Salary structure saved successfully!");
+      // Reset form
+      setSelectedEmployeeId("");
+      setMonthlyGross(0);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Failed to save salary structure.";
+      toast.error(errorMessage);
+      console.error(error);
+    } finally {
+      setGenerating(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        {/* <div>
-          <h2 className="text-xl font-semibold text-base-content">
-            Salary Structures
-          </h2>
-          <p className="text-sm text-base-content/60">
-            Manage employee salary templates
-          </p>
-        </div> */}
-
-        <Button variant="primary" onClick={handleCreate}>
-          <MdAdd className="mr-1" size={18} />
-          Add Structure
-        </Button>
-      </div>
-
-      {/* CONTENT */}
-      {structures.length === 0 ? (
-        <EmptyState
-          title="No salary structures"
-          description="Create your first salary structure"
-          action={
-            <Button variant="primary" onClick={handleCreate}>
-              Create Structure
-            </Button>
-          }
-        />
-      ) : (
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 w-full h-fit   ">
-            {/* LEFT SIDE */}
-            <div className="bg-base-100 border-3 border-base-300 rounded-2xl p-6 shadow-sm space-y-2 h-fit ">
-              <h3 className="text-lg font-semibold text-base-content">
-                Target Selection
-              </h3>
-
-              {/* Select Employee */}
-              <div className="space-y-2">
-                <label className="text-xs text-base-content ">
-                  Select Employee
-                </label>
-
-                <Select className="w-full text-base-content">
-                  <option value="">Choose employee</option>
-                  {employeeNames.map((emp) => (
-                    <option key={emp.id} value={emp.id}>
-                      {emp.name}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-
-              {/* Monthly Gross */}
-              <div className="space-y-2 ">
-                <label className="text-xs text-base-content/60">
-                  Monthly Gross
-                </label>
-
-                <Input
-                
-                  type="number"
-                  placeholder="Enter amount"
-                  className="w-full placeholder:text-base-content/60 text-base-content"
-                />
-              </div>
-            </div>
-
-            <div className="w-full mt-2  h-1/2">
-              <StatutorySettingsCard checked={limitPF} onChange={setLimitPF} />
-            </div>
-
-          </div>
-            <div className="w-full">
-              <SalarySlipPreview
-                data={{
-                  basic: 5000,
-                  da: 1000,
-                  hra: 2000,
-                  special: 1500,
-                  epf: 0,
-                  professionalTax: 200,
-                }}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* LEFT SIDE - CONFIGURATION */}
+        <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
+          <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+            <h3 className="text-lg font-semibold text-base-content">
+              Configure Salary
+            </h3>
+            
+            <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="w-full text-base-content" disabled={loading}>
+              <option value="">{loading ? "Loading..." : "Choose employee"}</option>
+              {employees.map((emp) => (
+                <option key={emp._id} value={emp._id}>
+                  {emp.name}
+                </option>
+              ))}
+            </Select>
+            
+            <div className="relative">
+              <MdCurrencyRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/60" />
+              <Input
+                type="number"
+                placeholder="Enter Monthly Gross"
+                value={monthlyGross || ""}
+                onChange={(e) => setMonthlyGross(Number(e.target.value))}
+                className="w-full placeholder:text-base-content/60 text-base-content pl-8"
               />
             </div>
+          </div>
+          <StatutorySettingsCard checked={limitPF} onChange={setLimitPF} />
         </div>
-      )}
 
-      {/* MODAL */}
-      <SalaryStructureModal
-        open={openModal}
-        onClose={() => {
-          setOpenModal(false);
-          setEditingStructure(null);
-        }}
-        onSave={handleSave}
-        initialData={editingStructure}
-      />
+        {/* RIGHT SIDE - PREVIEW */}
+        <div className="w-full md:w-2/3 lg:w-3/4">
+          <SalarySlipPreview data={salaryComponents} />
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+            <Button variant="primary" onClick={handleSaveStructure} disabled={generating || !selectedEmployeeId || monthlyGross <= 0}>
+              {generating && selectedEmployeeId ? "Saving..." : "Save Salary Structure"}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

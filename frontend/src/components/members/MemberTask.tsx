@@ -587,7 +587,10 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
       <div className="hidden md:block overflow-x-auto">
 
         {loading ? (
-          <p>Loading...</p>
+         <div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
+      </div>
         ) : filteredTasks.length === 0 ? (
           <p>No {activeStatus} tasks</p>
         ) : (

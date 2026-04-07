@@ -158,11 +158,14 @@ export default function ProjectWorkspace() {
         </>
       )}
 
-      {activeTab === "tasks" && (
-        <ProjectTasks projectId={id!} projectRole={projectRole} />
+      {activeTab === "tasks" && <ProjectTasks projectId={id!} />}
+      {activeTab === "members" && (
+        <ProjectMembers 
+          project={project} 
+          onUpdateProject={(updatedProject) => setProject(updatedProject)} 
+        />
       )}
-      {activeTab === "members" && <ProjectMembers />}
-      {activeTab === "activity" && <ProjectActivity />}
+      {activeTab === "activity" && <ProjectActivity projectId={id!} />}
       {activeTab === "chat" && <ProjectChat />}
     </PageContainer>
   );

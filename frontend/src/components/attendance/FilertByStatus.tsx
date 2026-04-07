@@ -12,8 +12,8 @@ interface Props {
   const items: { id: Status; label: string }[] = [
     { id: "all", label: "All" },
     { id: "approved", label: "Approved" },
-    { id: "pending", label: "Pending" },
-    { id: "rejected", label: "Rejected" },
+    // { id: "pending", label: "Pending" },
+    { id: "rejected", label: "Absent" },
   ];
 
   return (

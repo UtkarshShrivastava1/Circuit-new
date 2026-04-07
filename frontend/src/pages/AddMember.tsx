@@ -4,8 +4,10 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash, FaPen ,FaUser} from "react-icons/fa";
 import { createMember } from "../services/memberService";
+import { useAuth } from "@/auth/AuthContext";
+import { uploadImage } from "@/services/uploadService";
 
-type UserRole = "member" | "manager" | "admin";
+type UserRole = "employee" | "manager" | "admin";
 type Errors = {
   name?: string;
   email?: string;
@@ -19,8 +21,11 @@ type Errors = {
 
 
 const AddMember = () => {
+  const { auth } = useAuth();
+  const slug = auth?.slug;
   const [adding, setAdding] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Errors>({});
 
   const [formData, setFormData] = useState({
@@ -45,9 +50,8 @@ const AddMember = () => {
   passport: "",
 
   // Employment
-  role: "member" as UserRole,
+  role: "employee" as UserRole,
   designation: "",   // ✅ ADD THIS
-  department: "",    // optional but recommended
   joiningDate: "",
   previousCompany: "",
 
@@ -125,6 +129,7 @@ const AddMember = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
     }
   };
@@ -135,20 +140,22 @@ const AddMember = () => {
 
      setAdding(true);
      try {
-       let organizationID = "";
-       const userData = sessionStorage.getItem("user");
-       if (userData) {
-         const user = JSON.parse(userData);
-         console.log(user)
-         console.log(user.organization)
-         
-       
-         // Assuming the backend expects the organization ID as the slug in the URL
-         organizationID = user.organization; 
+       if (!slug) {
+         toast.error("Organization details not found. Please log in again.");
+         return;
        }
-       console.log(organizationID)
 
-      await createMember(organizationID, formData);
+       let imgUrl = "";
+       if (selectedFile) {
+         imgUrl = await uploadImage(selectedFile);
+       }
+
+       const finalData = {
+         ...formData,
+         imageUrl: imgUrl
+       };
+
+      await createMember(slug, finalData);
 
       toast.success("Employee Registered Successfully");
       
@@ -168,9 +175,8 @@ const AddMember = () => {
         aadhaar: "",
         pan: "",
         passport: "",
-        role: "member" as UserRole,
+        role: "employee" as UserRole,
         designation: "",
-        department: "",
         joiningDate: "",
         previousCompany: "",
         bankName: "",
@@ -178,6 +184,7 @@ const AddMember = () => {
         ifscCode: "",
       });
       setPreview(null);
+      setSelectedFile(null);
       setErrors({});
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to register employee";
@@ -336,15 +343,6 @@ const AddMember = () => {
               <option>Other</option>
             </select>
 
-
-            <input
-              name="email"
-              type="designations "
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-              className={inputStyle}
-            />
               </div>
             <div>
 
@@ -519,7 +517,7 @@ const AddMember = () => {
               onChange={handleChange}
               className={inputStyle}
             >
-              <option value="member">Member</option>
+              <option value="employee">Employee</option>
               <option value="manager">Manager</option>
               <option value="admin">Admin</option>
             </select>
@@ -547,20 +545,6 @@ const AddMember = () => {
     {errors.designation}
   </p>
 )}
-            {/* Department */}
-<select
-  name="department"
-  value={formData.department}
-  onChange={handleChange}
-  className={inputStyle}
->
-  <option value="">Select Department</option>
-  <option value="engineering">Engineering</option>
-  <option value="hr">Human Resources</option>
-  <option value="finance">Finance</option>
-  <option value="marketing">Marketing</option>
-  <option value="operations">Operations</option>
-</select>
 
             <input
               type="date"

@@ -2,7 +2,7 @@ import API from "@/api/axios";
 import { useAuth } from "@/auth/AuthContext";
 import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
-
+import { createProject } from "@/services/projectServices";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -50,9 +50,40 @@ const CreateProject = () => {
   };
 
   
- const { auth } = useAuth();
-  // get auth context for slug and token
+
+  //   try {
+  //     setCreating(true);
+  //     const finalDomain =
+  //       projectData.domain === "other"
+  //         ? projectData.customDomain
+  //         : projectData.domain;
+  //     const { customDomain, ...rest } = projectData;
+  //     const finalPayload = {
+  //       ...rest,
+  //       domain: finalDomain,
+  //       participants,
+  //     };
+
+  //     console.log("FINAL DATA:", finalPayload);
+
+    
+
+  //     setProjectData(initialProjectState);
+  //     setParticipants([]);
+  //     setActiveTab("Project Info");
+
+  //     toast.success("Project created successfully 🎉");
+  //   } catch (error) {
+  //     console.error("Project creation failed", error);
+  //   } finally {
+  //     setCreating(false);
+  //   }
+  // };
+ // make sure this is your axios instance or fetch wrapper
+ const { auth } = useAuth(); // get auth context for slug and token
+ const slug = auth.slug;
 const handleCreateProject = async () => {
+  
   if (participants.length === 0) {
     toast.error("Add at least one participant");
     return;
@@ -79,7 +110,7 @@ const handleCreateProject = async () => {
     };
 
     // Send POST request to backend
-    const res = await API.post(`/projects/${auth.slug}/createProject`, payload);
+    const res = await createProject(slug, payload)
 
     if (res.data.success) {
       toast.success("Project created successfully ");
@@ -99,8 +130,7 @@ const handleCreateProject = async () => {
 };
   
   
-  
-  console.log("running");
+
 
   return (
     <div className="min-h-screen bg-base-100 px-4 py-6 sm:py-10 flex justify-center">

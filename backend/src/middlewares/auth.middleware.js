@@ -3,6 +3,7 @@ const config = require("../config");
 const User = require("../models/User.model");
 const logger = require("../common/libs/logger");
 
+
 const auth = async (req, res, next) => {
   try {
     let token;
@@ -12,7 +13,7 @@ const auth = async (req, res, next) => {
     // ------------------------------
     
     // Check Authorization Header
-    console.log("Authorization Header:", req.headers);
+    //"Authorization Header:", req.headers);
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer ")
@@ -91,4 +92,19 @@ const auth = async (req, res, next) => {
   }
 };
 
+// RestrictTo Middleware: Checks if the logged-in user has the required role
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    // req.user.role is populated by the protect middleware above
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to perform this action.",
+      });
+    }
+    next();
+  };
+};
+
 module.exports = auth;
+module.exports.restrictTo = restrictTo;

@@ -65,6 +65,8 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
               {canEdit && (
                 <td className="text-center">
                   <div className="flex items-center justify-center gap-2">
+                    <div className="lg:tooltip" data-tip="hello">
+
                     <button
                       className="btn btn-sm btn-ghost hover:bg-primary/10"
                       onClick={(e) => {
@@ -74,7 +76,11 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
                     >
                       <FileEdit size={16} />
                     </button>
+                    </div>
 
+
+
+                    <div className="lg:tooltip" data-tip="Delete">
                     <button
                       className="btn btn-sm btn-ghost hover:bg-error/10 text-error"
                       onClick={(e) => {
@@ -97,6 +103,11 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
                     >
                       <Trash2Icon size={16} />
                     </button>
+                      </div>    
+
+
+
+
                   </div>
                 </td>
               )}

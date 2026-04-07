@@ -108,6 +108,7 @@ type MemberCardProps = {
 const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
   const navigate = useNavigate();
 
+
   return (
    <div className="relative bg-base-100 rounded-xl shadow-md border border-base-300 w-full overflow-hidden">
 
@@ -128,7 +129,7 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
         <div className="absolute -bottom-8 left-5">
           <div className="relative">
             <img
-              src={member.imgUrl?.trim() ? member.imgUrl : "/user1.png"}
+              src={(member.imageUrl || member.imgUrl)?.trim() ? (member.imageUrl || member.imgUrl) : "/user1.png"}
               className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-4 border-white object-cover bg-white"
             />
 

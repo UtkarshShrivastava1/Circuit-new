@@ -8,4 +8,4 @@ export type AttendanceRecord = {
   status: AttendanceStatus;
 };
 
-export type UserRole = "admin" | "employee";
+export type UserRole = "admin" | "employee" | "owner";

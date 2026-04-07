@@ -1,10 +1,13 @@
 const Project = require("../models/Project.model");
+const Activity = require('../models/Activity');
+const logger = require("../common/libs/logger.js");
 
 // -----------------------------------------------------------------------------
 //Create a new project
 // ---------------------------------------------------------------
 const createProject = async (req, res) => {
   try {
+    logger.info("Received request to create project with data", { body: req.body, userId: req.user._id, organizationId: req.organization._id });
     const {
       projectName,
       projectState,
@@ -70,6 +73,26 @@ const createProject = async (req, res) => {
       participants: uniqueParticipants,
       orgId,
     });
+
+     // 2. Insert the Activity Log here!
+    await Activity.create({
+      organization: orgId,
+      user: req.user.userId || req.user._id,
+      action: "Project Created",
+      message: `New project '${project.projectName}' was created`,
+      referenceId: project._id,
+      referenceModel: "Project"
+    });
+
+    // 3. Emit Realtime Notification
+    const io = req.app.get("io");
+    if (io) {
+      console.log("📡 Emitting 'new_notification' via socket.io for Project Created");
+      io.emit("new_notification", {
+        action: "Project Created",
+        message: `New project '${project.projectName}' was created`
+      });
+    }
 
     return res.status(201).json({
       success: true,
@@ -182,6 +205,15 @@ const editProject = async (req, res) => {
 
     await project.save();
 
+    // Update the Activity log to reflect the change
+    await Activity.findOneAndUpdate(
+      { referenceId: projectId, referenceModel: "Project" },
+      { 
+        action: "Project Updated", 
+        message: `Updated project: '${project.projectName}'`
+      }
+    );
+
     res.json({
       success: true,
       message: "Project updated successfully",
@@ -221,6 +253,9 @@ const deleteProject = async (req, res) => {
     if (!deleted) {
       return res.status(404).json({ message: "Project not found" });
     }
+
+    // Delete the related activity
+    await Activity.deleteMany({ referenceId: projectId, referenceModel: "Project" });
 
     res.json({
       success: true,

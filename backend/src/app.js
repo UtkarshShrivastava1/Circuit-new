@@ -8,10 +8,15 @@ const authRoutes = require("./routes/auth.routes");
 const memberRoutes = require("./routes/member.routes");
 const projectRoutes = require("./routes/project.routes");
 const taskRoutes = require("./routes/task.routes");
-const leaveRoutes = require("./routes/leave.routes");
+const leavesRoutes = require("./routes/leave.routes");
+const leavepolicyRoutes = require("./routes/leavePolicy.routes");
 const holidayRoutes = require("./routes/holiday.routes");
-const leavePolicyRoutes = require("./routes/leavePolicy.routes");
-const notificationRoutes = require("./routes/notification.routes");
+const attendanceRoutes = require("./routes/attendance.routes");
+const payrollRoutes = require("./routes/payroll.routes");
+const salarySlipRoutes = require("./routes/salarySlip.routes.js");
+const uploadImageRoutes = require("./routes/uploadRoutes.js");
+const activityRoutes = require("./routes/activity.routes.js");
+const notificationRoutes = require("./routes/notification.routes.js");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -25,7 +30,7 @@ app.use(helmet());
 
 // CORS Configuration
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:5173",
+  origin: process.env.CORS_ORIGIN || "*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
@@ -34,7 +39,7 @@ app.use(cors({
 app.use(morgan("dev"));
 
 // Response Compression
-app.use(compression());
+app.use(compression()); 
 
 // Body Parsers
 app.use(express.json({ limit: "50mb" }));
@@ -47,16 +52,25 @@ app.use(cookieParser());
 app.use("/", routes);
 app.use("/api/auth", authRoutes);
 app.use("/api", memberRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/projects", projectRoutes);  
-app.use("/api", leaveRoutes);
+app.use("/api", leavesRoutes);
+app.use("/api", leavepolicyRoutes);
 app.use("/api", holidayRoutes);
-app.use("/api", leavePolicyRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/payroll", payrollRoutes);
+app.use("/api/salary-slip", salarySlipRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/projects", projectRoutes); 
+app.use("/api/upload", uploadImageRoutes); 
+app.use("/api/activity", activityRoutes);
 app.use("/api", notificationRoutes);
 // Define a simple GET API endpoint
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from the backend!' });
-});
+// app.get('/', (req, res) => {const api = axios.create({
+//   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined
+//   // ...
+// });
+
+//   res.json({ message: 'Hello from the backend!' });
+// });
 
 // ------------------------------------------------------------
 // ERROR HANDLING

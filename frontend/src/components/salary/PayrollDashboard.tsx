@@ -1,73 +1,94 @@
+import { useState, useEffect } from 'react';
 import Table  from "../ui/Table"
 import StatusBadge from '../ui/StatusBadge';
 import Button from '../ui/Button';
 import { useNavigate } from 'react-router-dom';
-
-const records = [
-  {
-    id: "1",
-    employee: "Salman Khan",
-    date: "2024-08-31",
-    checkIn: "09:00 AM",
-    status: "Unpaid",
-    amount: "$3000",
-  },
-  {
-    id: "2",
-    employee: "Aamir Khan",
-    date: "2024-08-31",
-    checkIn: "09:15 AM",
-    status: "Paid",
-    amount: "$5000",
-  },
-  {
-    id: "3",
-    employee: "Shahrukh Khan",
-    date: "2024-08-31",
-    checkIn: "08:45 AM",
-    status: "Unpaid",
-    amount: "$4000",
-  },
-];
+import { useAuth } from '@/auth/AuthContext';
+import { getAllPayroll } from '@/services/payrollService';
+import { getAllEmployees } from '@/services/attendanceService';
 
 const PayrollDashboard = () => {
-    const isAdmin = true; // Change to false to test non-admin view
-    // const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+    const { auth } = useAuth();
+    const navigate = useNavigate();
+    const isAdmin = auth?.user?.role === 'admin' || auth?.user?.role === 'owner';
+    
+    const [payrolls, setPayrolls] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({
+      thisMonthTotal: 0,
+      pendingAmount: 0,
+      pendingCount: 0,
+      activeStaff: 0
+    });
 
-    // const toggleSelect = (id: string) => {
-    //   setSelectedIds((prev) =>
-    //     prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    //   );
-    // }
+    useEffect(() => {
+      if (auth.slug) {
+        setLoading(true);
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
 
-    // Add this helper function above your component
-const getProgressValue = (status: string) => {
-  switch (status.toLowerCase()) {
-    case 'paid': return 100;
-    case 'approved': return 90;
-    case 'pending': return 50;
-    case 'unpaid': 
-    case 'rejected': return 0;
-    default: return 0;
-  }
-};
-const navigate = useNavigate();
+        Promise.all([
+          getAllPayroll(auth.slug, { month: currentMonth, year: currentYear }),
+          getAllEmployees(auth.slug)
+        ])
+          .then(([payrollRes, employeesRes]) => {
+            const fetchedPayrolls = payrollRes.data?.data?.payrolls || [];
+            const fetchedEmployees = employeesRes.data?.data || [];
 
+            setPayrolls(fetchedPayrolls);
+
+            let totalPayroll = 0;
+            let pendingAmt = 0;
+            let pendingCnt = 0;
+
+            fetchedPayrolls.forEach((p: any) => {
+              const amount = p.netSalary || 0;
+              totalPayroll += amount;
+              if (p.status !== 'PAID') {
+                pendingAmt += amount;
+                pendingCnt += 1;
+              }
+            });
+
+            setStats({
+              thisMonthTotal: totalPayroll,
+              pendingAmount: pendingAmt,
+              pendingCount: pendingCnt,
+              activeStaff: fetchedEmployees.length
+            });
+          })
+          .catch(err => console.error("Failed to fetch dashboard data", err))
+          .finally(() => setLoading(false));
+      }
+    }, [auth.slug]);
+
+    const getProgressValue = () => {
+      if (payrolls.length === 0) return 0;
+      const paidCount = payrolls.filter(p => p.status === 'PAID').length;
+      return Math.round((paidCount / payrolls.length) * 100);
+    };
+
+    if (loading) {
+      return <div className="flex flex-col justify-center items-center h-screen bg-base-100">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
+      </div>;
+    }
 
   return (
     <div>
-       {/* <div className="stats stats-vertical sm:stats-horizontal shadow bg-base-100 w-full mb-6"> */}
        <div className="stats stats-vertical sm:stats-horizontal bg-base-200 border border-base-content/10 shadow-md w-full mb-6">
-  {/* This Month Revenue */}
+  {/* This Month Payroll */}
   <div className="stat">
     <div className="stat-figure text-primary/90">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-8 h-8">
         <path stroke="currentColor" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
     </div>
-    <div className="stat-title">This Month Revenue</div>
-    <div className="stat-value text-primary">₹1,20,000</div>
-    <div className="stat-desc">+12% from last month</div>
+    <div className="stat-title">This Month Payroll</div>
+    <div className="stat-value text-primary">₹ {stats.thisMonthTotal.toLocaleString()}</div>
+    <div className="stat-desc">Total net salary generated</div>
   </div>
 
   {/* Pending Disbursement */}
@@ -78,8 +99,8 @@ const navigate = useNavigate();
       </svg>
     </div>
     <div className="stat-title">Pending Disbursement</div>
-    <div className="stat-value text-primary">₹45,000</div>
-    <div className="stat-desc text-warning">3 payrolls</div>
+    <div className="stat-value text-primary">₹ {stats.pendingAmount.toLocaleString()}</div>
+    <div className="stat-desc text-warning">{stats.pendingCount} payroll(s)</div>
   </div>
 
   {/* Active Staff */}
@@ -90,8 +111,8 @@ const navigate = useNavigate();
       </svg>
     </div>
     <div className="stat-title">Active Staff</div>
-    <div className="stat-value text-primary">28</div>
-    <div className="stat-desc">↑ 2 from last month</div>
+    <div className="stat-value text-primary">{stats.activeStaff}</div>
+    <div className="stat-desc">Currently employed</div>
   </div>
 </div>
 
@@ -117,11 +138,11 @@ const navigate = useNavigate();
       <div className="flex items-center gap-1.5">
         <progress 
           className="progress progress-primary w-20 h-1.5 shadow-inner" 
-          value={getProgressValue(records.find(r => r.status === "Paid")?.status || "pending")} 
+          value={getProgressValue()} 
           max="100"
         />
         <span className="text-xs font-mono text-primary font-semibold">
-          {getProgressValue(records.find(r => r.status === "Paid")?.status || "pending")}%
+          {getProgressValue()}%
         </span>
       </div>
     </div>
@@ -129,98 +150,59 @@ const navigate = useNavigate();
   </div>
 </div>
 
-{/* <div className="overflow-x-auto">
-
-      <Table headers={["Employee", "Month","Salary","Status","Quick Action"]}
-
-      >
- {records.map((r) => (
-          <tr key={r.id} className="text-base-content">
-
-            {/* ✅ Checkbox only for admin 
-            {/* {isAdmin && (
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(r.id)}
-                  disabled={r.status !== "pending"}
-                  onChange={() => toggleSelect(r.id)}
-                />
-              </td>
-            )} 
-
-            <td>{r.employee}</td>
-            <td>{r.date}</td>
-             
-            <td>{r.amount}</td>
-
-          <td>
-              <StatusBadge status={r.status}  />
-            </td>
-
-            {/* ✅ Action column only for admin 
-            {isAdmin && (
-              <td className="text-right">
-                {/* {r.status === "Paid" || r.status === "Unpaid" && ( 
-                  <div className="flex justify-left gap-2">
-                    <Button size="xs" variant="primary"
-                    onClick={() => navigate(`/payroll/${r.id}`)}
-                    >
-                      Manage
-                    </Button>
-                  </div>
-                {/* )} 
-               
-              </td>
-            )}
-          </tr>
-        ))}
-
-
-      </Table>
-</div> */}
 {/* Desktop Table */}
 <div className="hidden md:block">
   <div className="overflow-x-auto">
     <Table headers={["Employee", "Month", "Salary", "Status", "Quick Action"]}>
-      {records.map((r) => (
-        <tr key={r.id}>
-          <td className="text-base-content">{r.employee}</td>
-          <td className="text-base-content">{r.date}</td>
-          <td className="text-base-content">{r.amount}</td>
-          <td><StatusBadge status={r.status} /></td>
-          {isAdmin && (
-            <td>
-              <Button
-                size="xs"
-                variant="primary"
-                onClick={() => navigate(`/payroll/${r.id}`)}
-              >
-                Manage
-              </Button>
-            </td>
-          )}
+      {payrolls.length === 0 ? (
+        <tr>
+          <td colSpan={5} className="text-center py-6 text-base-content/60">
+            No payrolls generated for this month.
+          </td>
         </tr>
-      ))}
+      ) : (
+        payrolls.slice(0, 5).map((r) => (
+          <tr key={r._id}>
+            <td className="text-base-content">{r.employee?.name || 'Unknown'}</td>
+            <td className="text-base-content">{r.month}/{r.year}</td>
+            <td className="text-base-content">₹ {r.netSalary?.toLocaleString() || 0}</td>
+            <td><StatusBadge status={r.status?.toLowerCase() || 'pending'} /></td>
+            {isAdmin && (
+              <td>
+                <Button
+                  size="xs"
+                  variant="primary"
+                  onClick={() => navigate(`/payroll/history`)}
+                >
+                  Manage
+                </Button>
+              </td>
+            )}
+          </tr>
+        ))
+      )}
     </Table>
   </div>
 </div>
 
 {/* Mobile Card Layout */}
 <div className="md:hidden space-y-4">
-  {records.map((r) => (
+  {payrolls.length === 0 ? (
+    <div className="text-center py-4 text-base-content/60">No payrolls generated for this month.</div>
+  ) : (
+    payrolls.slice(0, 5).map((r) => (
     <div
-      key={r.id}
+      key={r._id}
       className="bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm"
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold">{r.employee}</h3>
-        <StatusBadge status={r.status} />
+        <h3 className="font-semibold">{r.employee?.name || 'Unknown'}</h3>
+        <StatusBadge status={r.status?.toLowerCase() || 'pending'} />
       </div>
 
       <div className="text-sm text-base-content/60 space-y-1">
-        <p><span className="font-medium">Month:</span> {r.date}</p>
-        <p><span className="font-medium">Salary:</span> {r.amount}</p>
+        <p><span className="font-medium">Month:</span> {r.month}/{r.year}</p>
+        <p><span className="font-medium">Salary:</span> ₹ {r.netSalary?.toLocaleString() || 0}</p>
       </div>
 
       {isAdmin && (
@@ -229,14 +211,15 @@ const navigate = useNavigate();
             size="sm"
             variant="primary"
             className="w-full"
-            onClick={() => navigate(`/payroll/${r.id}`)}
+            onClick={() => navigate(`/payroll/history`)}
           >
             Manage Payroll
           </Button>
         </div>
       )}
     </div>
-  ))}
+    ))
+  )}
 </div>
       
     </div>

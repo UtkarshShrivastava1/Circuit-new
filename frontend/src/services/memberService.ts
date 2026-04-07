@@ -8,7 +8,7 @@ import API from "../api/axios";
  * @param {string} slug - The organization's slug.
  * @returns {Promise} Axios promise.
  */
-export const getMembers = (slug : string ) => API.get(`/${slug}/members`);
+export const getMembers = (slug : any ) => API.get(`/${slug}/members`);
 
 /**
  * Creates a new employee/member in an organization.
@@ -16,18 +16,17 @@ export const getMembers = (slug : string ) => API.get(`/${slug}/members`);
  * @param {object} memberData - The data for the new member (e.g., { name, email, password, role }).
  * @returns {Promise} Axios promise.
  */
-export const createMember = (organizationId : any , memberData : any) =>
-  API.post(`/${organizationId}/members`, memberData);
+export const createMember = (slug : any , memberData : any) =>
+  API.post(`/${slug}/members`, memberData);
 
-export const getMemberById = (organizationId : any , userId : any) =>
-  API.get(`/${organizationId}/members/${userId}`);
+export const getMemberById = (slug : any , userId : any) =>
+  API.get(`/${slug}/members/${userId}`);
 
-export const deleteMember = (organizationId : any , userId : any) =>
-  API.delete(`/${organizationId}/members/${userId}`);
+export const deleteMember = (slug : any , userId : any) =>
+  API.delete(`/${slug}/members/${userId}`);
 
-export const updateMember = (organizationId : any , userId : any, memberData : any) =>
-  API.patch(`/${organizationId}/members/${userId}`, memberData);
-
+export const updateMember = (slug : any , userId : any, memberData : any) =>
+  API.patch(`/${slug}/members/${userId}`, memberData); 
 
 
 /**
