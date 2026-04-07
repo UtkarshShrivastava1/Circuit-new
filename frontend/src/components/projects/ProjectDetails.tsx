@@ -151,7 +151,7 @@ console.log("ProjectDetails auth:", project, auth);
 
       <StatusBadge
         status={
-          project.status === "active" || project.status === "completed"
+          project.status === "Active" || project.status === "Completed"
             ? "approved"
             : "pending"
         }

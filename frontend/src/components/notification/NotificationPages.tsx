@@ -42,7 +42,7 @@ rounded-2xl shadow-sm text-base-content/60"
         <div className="space-y-4">
           {visibleNotifications.map((n) => {
             const isUnread = !n.readBy.includes(currentUserId);
-
+            console.log("Notification", n, "isUnread:", isUnread);
             return (
               <div
                 key={n.id}

@@ -1,9 +1,10 @@
 // import React, { useState, useEffect } from "react";
 import { MdDelete } from "react-icons/md";
-import api from "@/services/api";
+
 import { useAuth } from "@/auth/AuthContext";
-import { useEffect, useState } from "react";
-import API from "@/api/axios";
+
+import { getMembers } from "@/services/memberService";
+import {  useEffect, useState } from "react";
 
 interface User {
   _id: string;
@@ -46,7 +47,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
 
     const fetchUsers = async () => {
       try {
-        const res = await API.get(`/${auth.slug}/getMembers`);
+        const res = await getMembers(auth.slug); // fetch members using the service
         console.log("Org users:", res.data);
         setUsers(res.data.members); 
       } catch (err) {

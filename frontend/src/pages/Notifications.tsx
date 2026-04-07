@@ -53,7 +53,7 @@ export default function Notifications() {
           getNotifications(slug),
         ]);
         console.log("🔥 RAW BACKEND DATA:", notificationRes.data.data);
-        // ✅ MEMBERS FIX
+        //  MEMBERS FIX
         const formattedMembers = memberRes.data.members.map((m: any) => ({
           id: m._id,
           name: m.name,
@@ -84,11 +84,12 @@ export default function Notifications() {
   //edit notification
   const handleEdit = (notification: Notification) => {
     setEditingNotification(notification);
-    setOpen(true); // 👈 same modal reuse
+    setOpen(true); // same modal reuse
   };
 
   //delete notification
   const handleDelete = async (id: string) => {
+    console.log("Attempting to delete notification with ID:", id);
     try {
       if (!Swal) return;
 

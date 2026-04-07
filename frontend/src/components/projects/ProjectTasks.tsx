@@ -46,6 +46,8 @@ type Role = "admin" | "manager" | "employee" | "owner";
 
 interface Props {
   projectId: string;
+  projectRole: string;
+
 }
 
 /* ================= TASK DRAWER ================= */
@@ -375,17 +377,21 @@ function TaskDrawer({
 
 /* ================= MAIN COMPONENT ================= */
 
-export default function ProjectTasks({ projectId }: Props) {
+export default function ProjectTasks({ projectId ,projectRole }: Props) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showNewTask, setShowNewTask] = useState(false);
 
   const { auth } = useAuth();
 
-  const canEditTask = ["admin", "owner", "manager"].includes(auth.user?.role);
+const canEditTask =
+  ["admin", "owner"].includes(auth.user?.role) ||
+  ["Manager"].includes(projectRole);
 
-  const canDelete = ["admin", "owner"].includes(auth.user?.role);
+const canDelete =
+  ["admin", "owner"].includes(auth.user?.role) ||
 
+  ["Manager"].includes(projectRole);
   /* ================= FETCH TASKS ================= */
 
   const toggleSubtask = async (
@@ -558,19 +564,13 @@ export default function ProjectTasks({ projectId }: Props) {
                     <td>{task.assignee}</td>
 
                     <td onClick={(e) => e.stopPropagation()}>
-                      {canEditTask ? (
+                     
                         <TaskStatusSelect
                           value={task.status}
                           onChange={(s) => updateTaskStatus(task.id, s)}
                           disabled={auth.user?.role === "employee"}
                         />
-                      ) : (
-                        <StatusBadge
-                          status={
-                            task.status === "completed" ? "approved" : "pending"
-                          }
-                        />
-                      )}
+                     
                     </td>
 
                     <td>

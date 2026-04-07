@@ -1,10 +1,9 @@
-
-
 import StatusBadge from "../ui/StatusBadge";
 import type { Project } from "../../type/project";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaCalendarAlt, FaTrash } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
+import Swal from "sweetalert2";
 
 interface Props {
   project: Project;
@@ -32,7 +31,7 @@ export default function ProjectCard({
         <div className="flex items-center gap-2">
           <StatusBadge
             status={
-              project.status === "active" || project.status === "completed"
+              project.status === "Active" || project.status === "Completed"
                 ? "approved"
                 : "pending"
             }
@@ -42,9 +41,19 @@ export default function ProjectCard({
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                if (confirm(`Delete project "${project.name}"?`)) {
-                  onDelete(project.id);
-                }
+                Swal.fire({
+                  title: "Are you sure?",
+                  text: `Delete project "${project.name}"?`,
+                  icon: "warning",
+                  showCancelButton: true,
+                  confirmButtonColor: "#d33",
+                  cancelButtonColor: "#3085d6",
+                  confirmButtonText: "Yes, delete it!",
+                }).then((result) => {
+                  if (result.isConfirmed) {
+                    onDelete(project.id);
+                  }
+                });
               }}
               className="btn btn-xs btn-ghost text-error hover:bg-error/10"
               title="Delete project"
@@ -94,7 +103,10 @@ export default function ProjectCard({
           >
             Open
           </button>
-          <button  onClick={() => navigate(`/projects/${project.id}?tab=chat`)} className="px-4 py-2 flex items-center gap-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition">
+          <button
+            onClick={() => navigate(`/projects/${project.id}?tab=chat`)}
+            className="px-4 py-2 flex items-center gap-2 rounded-xl border border-gray-300 hover:bg-gray-100 transition"
+          >
             <MdChat size={18} />
           </button>
         </div>

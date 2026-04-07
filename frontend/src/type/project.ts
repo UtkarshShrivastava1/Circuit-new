@@ -1,4 +1,4 @@
-export type ProjectStatus = "active" | "completed" | "on hold";
+export type ProjectStatus = "Active" | "Completed" | "On Hold";
 export type ProjectFilter = "all" | ProjectStatus;
 
 
