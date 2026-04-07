@@ -1,6 +1,4 @@
 
-
-
 import { useState, useEffect } from "react";
 import type { Project, Participant } from "../../type/project";
 import { useAuth } from "@/auth/AuthContext";
