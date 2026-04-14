@@ -11,8 +11,9 @@ import ProjectChat from "@/components/projects/ProjectChat";
 import { useAuth } from "@/auth/AuthContext";
 import { getProjectById } from "@/services/projectService";
 import { getTasksByProjectId } from "@/services/taskService"; // renamed service
+import WorkUpdate from "./WorkUpdate";
 
-type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat";
+type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat" | "workUpdates";
 
 export default function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>();
@@ -83,6 +84,7 @@ export default function ProjectWorkspace() {
     { key: "members", label: "Members" },
     { key: "activity", label: "Activity" },
     { key: "chat", label: "Chat" },
+    {key: "workUpdates", label: "Work Updates" },
   ];
   const manager = project.participants.find((p) => p.role === "Manager");
 
@@ -167,6 +169,7 @@ export default function ProjectWorkspace() {
       )}
       {activeTab === "activity" && <ProjectActivity projectId={id!} />}
       {activeTab === "chat" && <ProjectChat />}
+      {activeTab === "workUpdates" && <WorkUpdate slug={auth.slug} projectId={id!} />}
     </PageContainer>
   );
 }

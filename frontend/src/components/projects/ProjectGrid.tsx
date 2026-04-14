@@ -35,23 +35,30 @@ interface Props {
   onOpen?: (project: Project) => void;
   onDelete?: (id: string) => void;
   canDelete?: boolean;
+  canEdit?: boolean;
+    onUpdate: (updated: Project) => void;
 }
 
 export default function ProjectGrid({
   projects,
   onOpen,
   onDelete,
+  onUpdate,
+  canEdit,
   canDelete,
 }: Props) {
   return (
-    <div className=" grid gap-6 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
+    <div className=" grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 ">
       {projects.map((project) => (
         <ProjectCard
           key={project.id}
           project={project}
+          canEdit={canEdit}
           onOpen={() => onOpen?.(project)}
           onDelete={onDelete}
           canDelete={canDelete}
+          onUpdate={onUpdate}
+          
         />
       ))}
     </div>

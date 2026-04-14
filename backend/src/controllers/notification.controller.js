@@ -1,6 +1,6 @@
 
 const User = require("../models/User.model");
-const cloudinary = require("../config/cloudinary");
+const { cloudinary } = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const NotificationModel = require("../models/Notification.model");
 const sendNotification = async (req, res) => {

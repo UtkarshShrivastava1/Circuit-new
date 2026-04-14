@@ -49,6 +49,12 @@ const coreMenu: MenuItem[] = [
     path: "/projects",
     icon: <MdWorkspaces size={20} />,
   },
+  {
+    id: "workUpdates",
+    label: "Work Updates",
+    path: "/work-updates",
+   icon: <MdWorkspaces size={20} />,
+  }
 ];
 
 const getManagementMenu = (isManagement: boolean): MenuItem[] => {

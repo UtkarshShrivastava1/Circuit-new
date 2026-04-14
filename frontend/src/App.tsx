@@ -16,6 +16,7 @@ import SettingsPage from "./pages/Settings";
 // import HomePage from "./pages/HomePage";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage";
 import { useAuth } from "./auth/AuthContext";
+import WorkUpdates from "./pages/WorkUpdate";
 
 
 /* Pages (lazy) */
@@ -138,6 +139,12 @@ export default function App() {
                 </PageContainer>
               }
             />
+            <Route path="/work-updates" element={
+              <WorkUpdates/>
+
+
+            }
+            />
             <Route
               path="/tasks"
               element={
@@ -164,6 +171,7 @@ export default function App() {
                 </PageContainer>
               }
             />
+
 
             {/* Payroll - Restricted to Admin, Owner, and Manager */}
             {isManagement && (
