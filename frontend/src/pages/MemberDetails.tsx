@@ -37,7 +37,7 @@ const MemberDetails = () => {
   if (!member) return <p>Member not found</p>;
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
+    <div className="flex flex-col lg:flex-column xl:flex-row gap-4 sm:gap-6 px-3 sm:px-4 lg:px-6 xl:px-7 py-4">
       <ProfileSidebar member={member} />
 
       <div className="flex-1">

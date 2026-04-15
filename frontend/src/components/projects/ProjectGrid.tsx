@@ -48,7 +48,7 @@ export default function ProjectGrid({
   canDelete,
 }: Props) {
   return (
-    <div className=" grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 ">
+   <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 justify-items-center">
       {projects.map((project) => (
         <ProjectCard
           key={project.id}
