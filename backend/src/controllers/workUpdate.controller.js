@@ -99,26 +99,44 @@ const addWorkUpdate = async (req, res) => {
 
 // Get work updates
 
+
+
+
 const getWorkUpdates = async (req, res) => {
   try {
     const orgId = req.organization._id;
     const userId = req.user.userId || req.user._id;
     const userRole = req.user.role;
 
-    const { projectId } = req.query; // 👈 ADD THIS
-    console.log("Project ID from query:", projectId); // Debug log
+    const { projectId } = req.query;
+
     let query = {
       organization: orgId,
     };
 
-    // ✅ Role-based filtering
-    if (!["admin", "manager", "owner"].includes(userRole)) {
-      query.createdBy = userId;
-    }
-
-    // ✅ Project-based filtering (NEW 🔥)
+    // If projectId exists → get all participants
     if (projectId) {
+      const project = await ProjectModel.findById(projectId);
+
+      if (!project) {
+        return res.status(404).json({
+          success: false,
+          message: "Project not found",
+        });
+      }
+
+      
+      const participants = project.participants.map(p => p.user);
+
+      // Show updates of all participants
       query.projectId = projectId;
+      query.createdBy = { $in: participants };
+    } 
+    else {
+      //  Normal role-based filtering
+      if (!["admin", "manager", "owner"].includes(userRole)) {
+        query.createdBy = userId;
+      }
     }
 
     const updates = await WorkUpdateModel.find(query)
@@ -139,7 +157,6 @@ const getWorkUpdates = async (req, res) => {
     });
   }
 };
-
 // Edit work update
 
 const editWorkUpdate = async (req, res) => {
@@ -150,7 +167,7 @@ const editWorkUpdate = async (req, res) => {
     const { updateId } = req.params;
     const { description, status, projectId } = req.body;
  
-    // 🔍 Find update
+    // Find update
     const workUpdate = await WorkUpdateModel.findOne({
       _id: updateId,
       organization: orgId,
@@ -165,7 +182,7 @@ const editWorkUpdate = async (req, res) => {
       });
     }
 
-    // 🔐 STRICT: Only creator can edit
+    //  STRICT: Only creator can edit
     if (workUpdate.createdBy.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
@@ -173,7 +190,7 @@ const editWorkUpdate = async (req, res) => {
       });
     }
 
-    // 📁 Upload new attachments
+    //  Upload new attachments
     const files = req.files || [];
     const uploadedAttachments = [];
 
@@ -193,7 +210,7 @@ const editWorkUpdate = async (req, res) => {
       uploadedAttachments.push(result.secure_url);
     }
 
-    // ✏️ Update fields
+    // Update fields
     if (description) workUpdate.description = description;
     if (status) workUpdate.status = status;
 
