@@ -46,9 +46,9 @@ export default function EmployeePayslip() {
   if (loading) return <div className="p-6">Loading your payslips...</div>;
 
   return (
-    <div className="bg-base-100 p-6 rounded-xl shadow-sm border border-base-300">
+    <div className="bg-base-100 p-6 rounded-xl shadow-sm border border-base-content">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left  text-base-content border-base-content">
           <thead>
             <tr className="bg-base-200">
               <th className="p-4 border-b border-base-300">Month / Year</th>
@@ -68,7 +68,7 @@ export default function EmployeePayslip() {
                   <span className={`px-3 py-1 rounded-full text-xs font-semibold ${slip.paymentStatus === 'PAID' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>{slip.paymentStatus}</span>
                 </td>
                 <td className="p-4 border-b border-base-200">
-                  <Button variant="outline" size="sm" onClick={() => handleDownload(slip._id, slip.month, slip.year)} disabled={downloading === slip._id}>
+                  <Button variant="outline" size="sm" className="border-base-content" onClick={() => handleDownload(slip._id, slip.month, slip.year)} disabled={downloading === slip._id}>
                     {downloading === slip._id ? "Downloading..." : "Download PDF"}
                   </Button>
                 </td>

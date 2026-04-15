@@ -99,10 +99,12 @@ export default function Header({ onMenuClick }: HeaderProps)  {
           targetUserIds: n.recipients || [],
           createdBy: n.createdBy?._id,
           createdAt: n.createdAt,
-          readBy: n.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user || r.userId || r._id)) || [],
+          readBy: n.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user?._id || r.user || r.userId || r._id)) || [],
           attachments: n.attachments || [],
           sendTo: n.sendTo,
         }));
+
+        console.log("formatted : ",formatted)
      
         setNotifications(formatted);
       } catch (err) {
@@ -130,10 +132,12 @@ export default function Header({ onMenuClick }: HeaderProps)  {
         targetUserIds: data.recipients || [],
         createdBy: data.createdBy?._id || "system",
         createdAt: data.createdAt || new Date().toISOString(),
-        readBy: data.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user || r.userId || r._id)) || [],
+        readBy: data.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user?._id || r.user || r.userId || r._id)) || [],
         attachments: data.attachments || [],
         sendTo: data.sendTo || "all",
       };
+
+      console.log("newNotif : ",newNotif)
       
       setNotifications((prev) => [newNotif, ...prev]);
     };
@@ -264,7 +268,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
           <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-content/60 group-hover:text-primary-content transition-colors" size={20} />
           <div className="w-full bg-black/10 hover:bg-black/20 dark:bg-white/10 dark:hover:bg-white/20 border border-transparent group-hover:border-primary-content/20 text-primary-content rounded-xl pl-10 pr-3 py-2 text-sm flex items-center justify-between transition-all shadow-inner">
             <span className="truncate opacity-80">Search projects, tasks, employees...</span>
-            <span className="hidden sm:inline-flex items-center justify-center text-[10px] bg-black/20 dark:bg-white/20 px-2 py-0.5 rounded-md font-mono border border-transparent text-primary-content/90 font-medium">⌘K</span>
+            <span className="hidden sm:inline-flex items-center justify-center text-[10px] bg-black/20 dark:bg-white/20 px-2 py-0.5 rounded-md font-mono border border-transparent text-primary-content/90 font-medium">⌘ K</span>
           </div>
         </div>
       </div>

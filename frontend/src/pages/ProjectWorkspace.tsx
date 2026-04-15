@@ -180,6 +180,8 @@ export default function ProjectWorkspace() {
       
       {activeTab === "workUpdates" && <WorkUpdate slug={auth.slug} projectId={id!} />}
     </PageContainer>
+    </PageContainer>
+
   );
 }
 

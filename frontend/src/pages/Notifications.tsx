@@ -31,7 +31,7 @@ export default function Notifications() {
     targetUserIds: n.recipients || [],
     createdBy: n.createdBy?._id,
     createdAt: n.createdAt,
-    readBy: n.readBy || [],
+    readBy: n.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user?._id || r.user || r.userId || r._id)) || [],
     attachments: n.attachments || [],
     sendTo: n.sendTo,
   });
@@ -50,7 +50,7 @@ export default function Notifications() {
           getMembers(slug),
           getNotifications(slug),
         ]);
-        console.log("🔥 RAW BACKEND DATA:", notificationRes.data.data);
+        // console.log("🔥 RAW BACKEND DATA:", notificationRes.data.data);
         //  MEMBERS FIX
         const formattedMembers = memberRes.data.members.map((m: any) => ({
           id: m._id,

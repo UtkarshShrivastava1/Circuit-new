@@ -13,8 +13,14 @@
 --color-base-content: oklch(22% 0.03 255);
 
 /* ================= PRIMARY ================= */
---color-primary: oklch(55% 0.18 295);
---color-primary-content: oklch(98% 0.01 295);
+--color-primary: oklch(35% 0.10 300);
+--color-primary-content: oklch(98% 0.01 300);
+
+/* --color-primary: oklch(40% 0.14 275);
+--color-primary-content: oklch(98% 0.01 275); */
+
+/* --color-primary: oklch(38% 0.13 280);
+--color-primary-content: oklch(98% 0.01 280); */
 
 /* ================= SECONDARY ================= */
 --color-secondary: oklch(55% 0.04 255);
