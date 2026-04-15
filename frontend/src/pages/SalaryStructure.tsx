@@ -5,17 +5,24 @@ import Select from "@/components/ui/Select";
 import StatutorySettingsCard from "@/components/salary/StatutorySettingsCard";
 import SalarySlipPreview from "@/components/salary/SalarySlipPreview";
 import { useAuth } from "@/auth/AuthContext";
-import { getAllEmployees } from "@/services/attendanceService";
+// import { getAllEmployees } from "@/services/attendanceService";
 import { setStructure } from "@/services/payrollService";
-import api from "@/services/api";
+// import api from "@/services/api";
 import { toast } from "react-toastify";
 import { MdCurrencyRupee } from "react-icons/md";
 import { getMembers } from "@/services/memberService";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 interface Employee {
   _id: string;
   name: string;
   email: string;
+}
+
+interface CustomRow {
+  id: string;
+  label: string;
+  amount: number;
 }
 
 /* ---------- COMPONENT ---------- */
@@ -30,6 +37,17 @@ export default function SalaryStructureDashboard() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [monthlyGross, setMonthlyGross] = useState(0);
   const [limitPF, setLimitPF] = useState(true);
+  
+  const [salaryData, setSalaryData] = useState({
+    basic: 0,
+    da: 0,
+    hra: 0,
+    special: 0,
+    epf: 0,
+    professionalTax: 0,
+    customEarnings: [] as CustomRow[],
+    customDeductions: [] as CustomRow[],
+  });
 
   useEffect(() => {
     if (auth.slug) {
@@ -47,7 +65,7 @@ export default function SalaryStructureDashboard() {
     }
   }, [auth.slug]);
 
-  const salaryComponents = useMemo(() => {
+  useEffect(() => {
     const gross = monthlyGross > 0 ? monthlyGross : 0;
 
     // Basic is 50% of Gross
@@ -70,20 +88,16 @@ export default function SalaryStructureDashboard() {
     // Professional Tax (simple slab for example)
     const professionalTax = gross > 10000 ? 200 : 0;
 
-    const totalDeductions = epfContribution + professionalTax;
-    const netSalary = gross - totalDeductions;
-
-    return {
+    setSalaryData(prev => ({
       basic: Math.round(basic),
       da: 0, // For future use
       hra: Math.round(hra),
       special: Math.round(special),
       epf: Math.round(epfContribution),
       professionalTax: Math.round(professionalTax),
-      grossSalary: Math.round(gross),
-      deductions: Math.round(totalDeductions),
-      netSalary: Math.round(netSalary),
-    };
+      customEarnings: prev.customEarnings || [],
+      customDeductions: prev.customDeductions || [],
+    }));
   }, [monthlyGross, limitPF]);
 
   const handleSaveStructure = async () => {
@@ -93,11 +107,19 @@ export default function SalaryStructureDashboard() {
     }
 
     setGenerating(true);
+    const calculatedGross = 
+      salaryData.basic + 
+      salaryData.da + 
+      salaryData.hra + 
+      salaryData.special + 
+      salaryData.customEarnings.reduce((sum, item) => sum + item.amount, 0);
+
     const payload = {
       employeeId: selectedEmployeeId,
-      monthlyGross,
+      monthlyGross: calculatedGross > 0 ? calculatedGross : monthlyGross,
       taxRegime: "new",
-      limitPF
+      limitPF,
+      ...salaryData
     };
 
     try {
@@ -107,6 +129,11 @@ export default function SalaryStructureDashboard() {
       // Reset form
       setSelectedEmployeeId("");
       setMonthlyGross(0);
+      setSalaryData(prev => ({
+        ...prev,
+        customEarnings: [],
+        customDeductions: [],
+      }));
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Failed to save salary structure.";
       toast.error(errorMessage);
@@ -116,8 +143,36 @@ export default function SalaryStructureDashboard() {
     }
   };
 
+  const handleAddCustomRow = (type: 'earning' | 'deduction') => {
+    const key = type === 'earning' ? 'customEarnings' : 'customDeductions';
+    setSalaryData(prev => ({
+      ...prev,
+      [key]: [...prev[key], { id: crypto.randomUUID(), label: '', amount: 0 }]
+    }));
+  };
+
+  const handleChangeCustomRow = (type: 'earning' | 'deduction', id: string, field: 'label' | 'amount', value: string | number) => {
+    const key = type === 'earning' ? 'customEarnings' : 'customDeductions';
+    setSalaryData(prev => ({
+      ...prev,
+      [key]: prev[key].map(row => 
+        row.id === id ? { ...row, [field]: value } : row
+      )
+    }));
+  };
+
+  const handleRemoveCustomRow = (type: 'earning' | 'deduction', id: string) => {
+    const key = type === 'earning' ? 'customEarnings' : 'customDeductions';
+    setSalaryData(prev => ({
+      ...prev,
+      [key]: prev[key].filter(row => row.id !== id)
+    }));
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
+      <Breadcrumbs />
+
       <div className="flex flex-col md:flex-row gap-6">
         {/* LEFT SIDE - CONFIGURATION */}
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
@@ -151,7 +206,14 @@ export default function SalaryStructureDashboard() {
 
         {/* RIGHT SIDE - PREVIEW */}
         <div className="w-full md:w-2/3 lg:w-3/4">
-          <SalarySlipPreview data={salaryComponents} />
+          <SalarySlipPreview 
+            data={salaryData} 
+            editable={true} 
+            onChange={(key, value) => setSalaryData(prev => ({ ...prev, [key]: value }))}
+            onAddCustomRow={handleAddCustomRow}
+            onChangeCustomRow={handleChangeCustomRow}
+            onRemoveCustomRow={handleRemoveCustomRow}
+          />
           <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
             <Button variant="primary" onClick={handleSaveStructure} disabled={generating || !selectedEmployeeId || monthlyGross <= 0}>
               {generating && selectedEmployeeId ? "Saving..." : "Save Salary Structure"}

@@ -5,6 +5,7 @@ const { successResponse } = require('../utils/response.js');
 const { asyncHandler } = require('../middlewares/error.middleware.js');
 const { ValidationError, NotFoundError, ForbiddenError } = require('../utils/errors.js');
 const logger = require("../common/libs/logger.js")
+const { getIO } = require('../services/socket.service.js');
 
 // Mark Department Attendance - MULTI-TENANT
 const markDepartmentAttendance = asyncHandler(async (req, res) => {
@@ -126,6 +127,15 @@ const markDepartmentAttendance = asyncHandler(async (req, res) => {
     totalEmployees,
     markedBy: userId,
     location: (latitude && longitude) ? { latitude, longitude, accuracy } : undefined
+  });
+
+
+  const io = getIO();
+
+  io.to(userId).emit("notification", {
+    title: "New Attendance Marked",
+    message: `Attendance for ${queryDate.toDateString()} has been marked.`,
+    type: "attendance",
   });
 
   return successResponse(res, 'Attendance marked successfully', newAttendance);
@@ -335,6 +345,7 @@ const getDepartmentEmployees = asyncHandler(async (req, res) => {
       status: record ? record.status : "NOT_MARKED",
 
       checkIn: record?.checkIn || null,
+      mode: record?.mode || null,
       checkOut: record?.checkOut || null,
       remarks: record?.remarks || "",
     };
@@ -387,7 +398,7 @@ if (userRole !== 'admin' && userRole !== 'owner') {
 const markAttendance = asyncHandler(async (req, res) => {
   const userId = req.user.id || req.user._id;
   const orgId = req.organization._id || req.organization;
-  const { latitude, longitude, accuracy, departmentId, date } = req.body;
+  const { latitude, longitude, accuracy, departmentId, date, mode } = req.body;
 
   // Auto date handling: Use current date if not provided, normalized to start of day
   const queryDate = date ? new Date(date) : new Date();
@@ -408,6 +419,28 @@ const markAttendance = asyncHandler(async (req, res) => {
     employee: userId,
     status: 'PENDING',
     checkIn: new Date(),
+    mode: mode || 'office',
+  };
+
+  // Helper to notify admins via socket
+  const notifyAdmins = async () => {
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: orgId, role: { $in: ['admin', 'owner', 'manager'] } });
+      const employee = await User.findById(userId);
+      const empName = employee ? employee.name : "An employee";
+      
+      admins.forEach(admin => {
+        // Changed to 'new_notification' to trigger Header.tsx sound & badge
+        io.to(admin._id.toString()).emit('new_notification', {
+          title: "New Attendance",
+          message: `${empName} marked their attendance.`,
+          priority: "normal"
+        });
+      });
+    } catch (err) {
+      logger.error("Socket emit failed", err);
+    }
   };
 
   if (existing) {
@@ -418,6 +451,7 @@ const markAttendance = asyncHandler(async (req, res) => {
       // Update existing record instead of creating a duplicate
       existing.records[recordIndex].checkIn = new Date();
       existing.records[recordIndex].status = 'PENDING';
+      existing.records[recordIndex].mode = mode || 'office';
     } else {
       existing.records.push(newRecord);
     }
@@ -430,6 +464,8 @@ const markAttendance = asyncHandler(async (req, res) => {
 
     existing.markModified('records');
     await existing.save();
+
+    await notifyAdmins();
 
     return successResponse(res, 'Attendance marked successfully', existing);
   }
@@ -447,6 +483,8 @@ const markAttendance = asyncHandler(async (req, res) => {
     markedBy: userId, 
     location: (latitude && longitude) ? { latitude, longitude, accuracy } : undefined
   });
+
+  await notifyAdmins();
 
   return successResponse(res, 'Attendance marked successfully', newAttendance);
 });
@@ -504,6 +542,18 @@ const approveAttendance = asyncHandler(async (req, res) => {
 
   attendance.markModified('records');
   await attendance.save();
+
+  // Notify the employee about the status update
+  try {
+    const io = getIO();
+    io.to(employeeId.toString()).emit('new_notification', {
+      title: "Attendance Updated",
+      message: status === "PRESENT" ? "Your attendance is approved ✅" : `Your attendance status has been updated to ${status}.`,
+      priority: "normal"
+    });
+  } catch (err) {
+    logger.error("Socket emit failed", err);
+  }
 
   return successResponse(res, 'Attendance approved successfully', attendance);
 });

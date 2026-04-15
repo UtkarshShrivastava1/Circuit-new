@@ -90,7 +90,7 @@ export default function LeaveCalendar({
   };
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-xl p-6">
+    <div className="bg-base-100 border border-base-300 rounded-xl p-6 text-base-content">
 
       <h3 className="text-lg font-semibold mb-4">
         Leave Calendar

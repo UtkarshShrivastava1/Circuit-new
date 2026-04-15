@@ -129,7 +129,6 @@ exports.registerCompany = async (req, res) => {
 exports.login = async (req, res) => {
 
   try {
-    console.log("req.body",req.body);
 
     const { email, password } = req.body;
 

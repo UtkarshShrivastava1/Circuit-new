@@ -1,8 +1,9 @@
 
 const User = require("../models/User.model");
-const cloudinary = require("../config/cloudinary");
+const { cloudinary } = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const NotificationModel = require("../models/Notification.model");
+const { getIO } = require("../services/socket.service.js");
 const sendNotification = async (req, res) => {
   try {
     const { title, message, priority, sendTo, recipients } = req.body;
@@ -69,6 +70,16 @@ const sendNotification = async (req, res) => {
       createdBy,
     });
 
+    // Emit Realtime Notification via socket.io
+    try {
+      const io = getIO();
+      finalRecipients.forEach(recipientId => {
+        io.to(recipientId.toString()).emit("new_notification", notification);
+      });
+    } catch (err) {
+      console.error("Socket emit failed for custom notification", err);
+    }
+
     res.status(201).json({
       success: true,
       message: "Notification sent successfully",
@@ -84,7 +95,7 @@ const sendNotification = async (req, res) => {
       error: error.message,
     });
   }
-};
+}; 
 
 
 const getNotifications = async (req, res) => {
@@ -255,10 +266,56 @@ const deleteNotification = async (req, res) => {
   }
 };
 
+// Mark a single notification as read
+const markAsRead = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId || req.user._id;
+
+    const notification = await NotificationModel.findByIdAndUpdate(
+      id,
+      { $addToSet: { readBy: userId } }, //  prevents duplicate IDs
+      { new: true }
+    );
+
+    if (!notification) {
+      return res.status(404).json({ success: false, message: "Notification not found" });
+    }
+
+    res.json({ success: true, data: notification });
+  } catch (error) {
+    console.error("Mark as Read Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// Mark all notifications as read for the current user
+const markAllAsRead = async (req, res) => {
+  try {
+    const userId = req.user.userId || req.user._id;
+
+    await NotificationModel.updateMany(
+      { 
+        organization: req.organization._id,
+        readBy: { $ne: userId } // Only update documents the user hasn't read yet
+      },
+      { $addToSet: { readBy: userId } }
+    );
+
+    res.json({ success: true, message: "All notifications marked as read" });
+  } catch (error) {
+    console.error("Mark All As Read Error:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
 module.exports = {
   sendNotification,
   getNotifications,
   updateNotification,
-  deleteNotification
+  deleteNotification,
+  markAllAsRead,
+  markAsRead
 };
   

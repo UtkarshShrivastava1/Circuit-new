@@ -1,6 +1,8 @@
 const Project = require("../models/Project.model");
 const Activity = require('../models/Activity');
 const logger = require("../common/libs/logger.js");
+const { getIO } = require("../services/socket.service.js");
+const User = require("../models/User.model.js");
 
 // -----------------------------------------------------------------------------
 //Create a new project
@@ -84,14 +86,20 @@ const createProject = async (req, res) => {
       referenceModel: "Project"
     });
 
-    // 3. Emit Realtime Notification
-    const io = req.app.get("io");
-    if (io) {
-      console.log("📡 Emitting 'new_notification' via socket.io for Project Created");
-      io.emit("new_notification", {
-        action: "Project Created",
-        message: `New project '${project.projectName}' was created`
+    // 3. Emit Realtime Notification to Admins/Managers
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: orgId, role: { $in: ['admin', 'owner', 'manager'] } });
+      
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit('new_notification', {
+          title: "Project Created",
+          message: `A new project '${project.projectName}' was created.`,
+          priority: "normal"
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed for project creation", err);
     }
 
     return res.status(201).json({

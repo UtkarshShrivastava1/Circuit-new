@@ -43,6 +43,7 @@ export default function ProjectGrid({
   onDelete,
   canDelete,
 }: Props) {
+
   return (
     <div className=" grid gap-6 grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
       {projects.map((project) => (

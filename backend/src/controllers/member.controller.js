@@ -3,6 +3,7 @@
 const User = require("../models/User.model");
 const Activity = require('../models/Activity');
 const inviteService = require("../services/invite.service");
+const { getIO } = require("../services/socket.service.js");
 const logger = require("../common/libs/logger");
 
 // Safe Chalk Import (Handles ESM/CJS mismatch or missing package)
@@ -106,14 +107,21 @@ exports.createEmployee = async (req, res) => {
       referenceModel: "User"
     });
 
-    // 3. Emit Realtime Notification
-    const io = req.app.get("io");
-    if (io) {
-      console.log("📡 Emitting 'new_notification' via socket.io for Member Added");
-      io.emit("new_notification", {
-        action: "Member Added",
-        message: `Added a new member: ${user.name}`
+    // 3. Emit Realtime Notification to Admins/Managers
+    try {
+      const io = getIO();
+      // Exclude the admin who is performing the action
+      const admins = await User.find({ organization, role: { $in: ['admin', 'owner', 'manager'] }, _id: { $ne: req.user.userId || req.user._id } });
+      
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit('new_notification', {
+          title: "New Member Added",
+          message: `A new member, ${user.name}, has been added.`,
+          priority: "normal"
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed for member creation", err);
     }
 
     res.status(201).json(user);

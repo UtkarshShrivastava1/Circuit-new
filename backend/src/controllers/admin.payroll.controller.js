@@ -8,6 +8,7 @@ const { successResponse } = require('../utils/response.js');
 const { asyncHandler } = require('../middlewares/error.middleware.js');
 const { ValidationError, NotFoundError } = require('../utils/errors.js');
 const logger = require("../common/libs/logger.js");
+const { getIO } = require('../services/socket.service.js');
 
 // ✅ GET: Fetch basic employee stats for payroll preparation
 const getEmployeePayrollStats = asyncHandler(async (req, res) => {
@@ -161,12 +162,18 @@ const runMonthlyPayroll = asyncHandler(async (req, res) => {
       const monthlyBasic = Math.round(structure.earnings.basic * overrideFactor);
       const monthlyHRA = Math.round(structure.earnings.hra * overrideFactor);
       const monthlyDA = Math.round((structure.earnings.da || 0) * overrideFactor);
-      const monthlySpecial = baseGross - (monthlyBasic + monthlyHRA + monthlyDA); 
+      const monthlySpecial = Math.round((structure.earnings.specialAllowance || 0) * overrideFactor); 
+
+      const monthlyCustomEarnings = (structure.customEarnings || []).map(item => ({ ...item, amount: Math.round(item.amount * overrideFactor) }));
+      const monthlyCustomDeductions = (structure.customDeductions || []).map(item => ({ ...item, amount: Math.round(item.amount * overrideFactor) }));
+
+      const totalMonthlyCustomEarnings = monthlyCustomEarnings.reduce((sum, item) => sum + item.amount, 0);
+      const totalMonthlyCustomDeductions = monthlyCustomDeductions.reduce((sum, item) => sum + item.amount, 0);
       
       // PF Calculation
-      let pfBasis = monthlyBasic + monthlyDA;
-      if (structure.limitPF && pfBasis > 15000) pfBasis = 15000;
-      const epfEmployee = Math.round(pfBasis * 0.12);
+      const monthlyEpfEmployee = Math.round((structure.deductions.epfEmployee || 0) * overrideFactor);
+      const monthlyProfTax = Math.round((structure.deductions.professionalTax || 200) * overrideFactor);
+      const monthlyTds = Math.round((structure.deductions.tds || 0) * overrideFactor);
 
       const monthlySlip = new Payroll({
         organization: organizationId,
@@ -174,21 +181,23 @@ const runMonthlyPayroll = asyncHandler(async (req, res) => {
         month: month.toString(),
         year: parseInt(year),
         ctc: structure.ctc,
-        grossSalary: finalMonthlyGross,
+        grossSalary: finalMonthlyGross + totalMonthlyCustomEarnings,
         earnings: {
           basic: monthlyBasic,
           hra: monthlyHRA,
           da: monthlyDA,
-          specialAllowance: monthlySpecial > 0 ? monthlySpecial : 0,
+          specialAllowance: monthlySpecial,
           extraActivities: extras
         },
         deductions: {
-          epfEmployee,
-          professionalTax: 200,
-          tds: structure.deductions.tds || 0
+          epfEmployee: monthlyEpfEmployee,
+          professionalTax: monthlyProfTax,
+          tds: monthlyTds
         },
+        customEarnings: monthlyCustomEarnings,
+        customDeductions: monthlyCustomDeductions,
         statutory: structure.statutory,
-        netSalary: finalMonthlyGross - (epfEmployee + 200 + (structure.deductions.tds || 0)),
+        netSalary: finalMonthlyGross + totalMonthlyCustomEarnings - (monthlyEpfEmployee + monthlyProfTax + monthlyTds + totalMonthlyCustomDeductions),
         taxRegime: structure.taxRegime,
         isTemplate: false,
         paymentStatus: 'PENDING'
@@ -305,6 +314,18 @@ const markPayrollPaid = asyncHandler(async (req, res) => {
   );
 
   if (!slip) throw new NotFoundError("Payroll slip not found");
+
+  try {
+    const io = getIO();
+    io.to(slip.employee.toString()).emit("new_notification", {
+      title: "Salary Paid 💰",
+      message: `Your salary has been paid via ${paymentMode || 'NEFT'}.`,
+      priority: "high"
+    });
+  } catch (err) {
+    logger.error("Socket emit failed", err);
+  }
+
   return successResponse(res, "Payment status updated to PAID", slip);
 });
 
@@ -684,6 +705,7 @@ const downloadSalarySlip = asyncHandler(async (req, res) => {
       ["Special Allowance", slip.earnings?.specialAllowance],
       ["Bonus", slip.earnings?.bonus],
     ];
+    (slip.customEarnings || []).forEach(item => earnings.push([item.label, item.amount]));
 
     const deductions = [
       ["EPF", slip.deductions?.epfEmployee],
@@ -691,6 +713,7 @@ const downloadSalarySlip = asyncHandler(async (req, res) => {
       ["TDS", slip.deductions?.tds],
       ["Other", slip.deductions?.otherDeductions],
     ];
+    (slip.customDeductions || []).forEach(item => deductions.push([item.label, item.amount]));
 
     const maxRows = Math.max(earnings.length, deductions.length);
 
@@ -711,7 +734,8 @@ const downloadSalarySlip = asyncHandler(async (req, res) => {
       (slip.deductions?.epfEmployee || 0) +
       (slip.deductions?.professionalTax || 0) +
       (slip.deductions?.tds || 0) +
-      (slip.deductions?.otherDeductions || 0);
+      (slip.deductions?.otherDeductions || 0) +
+      (slip.customDeductions || []).reduce((sum, d) => sum + d.amount, 0);
 
     doc.font("Helvetica-Bold");
 

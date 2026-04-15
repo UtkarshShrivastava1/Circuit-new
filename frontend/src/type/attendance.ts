@@ -1,4 +1,4 @@
-export type AttendanceStatus = "pending" | "approved" | "rejected";
+export type AttendanceStatus = "pending" | "approved" | "absent";
 
 export type AttendanceRecord = {
   id: string;

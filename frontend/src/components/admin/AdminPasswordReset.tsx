@@ -1,6 +1,7 @@
 
 
 import { useState } from "react";
+import Button from "../ui/Button";
 
 interface AdminPasswordProps {
   id: string;
@@ -15,8 +16,7 @@ const AdminPasswordReset = ({ id }: AdminPasswordProps) => {
 
     try {
       setLoading(true);
-      console.log("Resetting password for admin:", id);
-      console.log("New password:", password);
+      // console.log("New password:", password);
     } catch (error) {
       console.error(error);
     } finally {
@@ -48,13 +48,13 @@ const AdminPasswordReset = ({ id }: AdminPasswordProps) => {
       </div>
 
       {/* Button */}
-      <button
+      <Button
         onClick={handleReset}
         disabled={!password.trim() || loading}
         className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-300 text-white py-2 rounded-lg font-medium transition-all duration-200"
       >
         {loading ? "Resetting..." : "Reset Password"}
-      </button>
+      </Button>
 
     </div>
   );

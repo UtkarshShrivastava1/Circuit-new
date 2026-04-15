@@ -19,4 +19,10 @@ export const sendNotification = (organizationSlug: string, formData: FormData) =
    export const deleteNotification = (organizationSlug: string, notificationId: string) =>  
   API.delete(`/${organizationSlug}/notification/${notificationId}`);
 
+export const markAsRead = (organizationSlug: string, notificationId: string) =>
+  API.put(`/${organizationSlug}/${notificationId}/read`);
+
+export const markAllAsRead = (organizationSlug: string) =>
+  API.put(`/${organizationSlug}/read-all`);
+
   

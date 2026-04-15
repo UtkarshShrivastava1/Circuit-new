@@ -29,15 +29,18 @@
 const Organization = require("../models/Organization.model");
 const logger = require("../common/libs/logger");
 
+const divider = "----------------------------------------";
+
 module.exports = async (req,res,next)=>{
 
   const { slug } = req.params;
   logger.info("Resolving tenant for organization", { slug });
 
   const org = await Organization.findOne({ slug });
-  logger.debug("Organization lookup result", { organization: org });
+  // logger.debug("Organization lookup result", { organization: org });
   logger.info("Tenant resolved", { tenantId: org?.slug });
   logger.info("Tenant resolved", { tenantId: org?._id });
+   divider && logger.info(divider);
 
   if(!org) return res.status(404).json({msg:"Tenant not found"});
 

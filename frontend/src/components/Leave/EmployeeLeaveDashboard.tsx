@@ -25,6 +25,7 @@ import { toast } from "react-toastify";
 // import { getUser } from "@/utils/getUser";
 import { useAuth } from "@/auth/AuthContext";
 import { socket } from "@/socket";
+import Pagination from "@/components/ui/Pagination"
 
 
 export default function EmployeeLeaveDashboard() {
@@ -36,6 +37,9 @@ export default function EmployeeLeaveDashboard() {
   const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 6;
 
   const [selectedLeave, setSelectedLeave] =
     useState<LeaveRequest | null>(null);
@@ -108,7 +112,7 @@ export default function EmployeeLeaveDashboard() {
     if (auth?.user) {
       const onNotification = (data: any) => {
         if (data?.action?.toLowerCase().includes("leave")) {
-          console.log("🔄 Real-time leave update received. Refreshing dashboard...");
+          // console.log("🔄 Real-time leave update received. Refreshing dashboard...");
           setRefreshTrigger((prev) => prev + 1);
         }
       };
@@ -159,6 +163,16 @@ export default function EmployeeLeaveDashboard() {
         message: `Your ${leave.type} leave has been submitted successfully.`,
         type: "info",
       });
+
+      // 🟢 Emit real-time notification to Admins
+      if (socket) {
+        socket.emit("notifyAdmins", {
+          title: "New Leave Request",
+          message: `${auth.user?.name} has requested a ${leave.type} leave.`,
+          type: "leave",
+        });
+        console.log(`${auth.user?.name} has requested a ${leave.type} leave. Notification sent to admins.`);
+      }
 
       setOpen(false);
     } catch (error: any) {
@@ -220,6 +234,12 @@ export default function EmployeeLeaveDashboard() {
     }
   };
 
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(requests.length / ITEMS_PER_PAGE) || 1;
+  const paginatedRequests = requests.slice(
+    (page - 1) * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE
+  );
    
 
   return (
@@ -301,13 +321,20 @@ export default function EmployeeLeaveDashboard() {
       )}
 
       {active === "my-leaves" && (
+        <>
         <LeaveCards
-          requests={requests}
+          requests={paginatedRequests}
           onView={(leave) =>
             setSelectedLeave(leave)
           }
           onDelete={handleDeleteLeave}
         />
+
+        <Pagination 
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage} />
+        </>
       )}
 
       {active === "balance" && (

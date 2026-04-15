@@ -9,12 +9,17 @@ import {
 import { markAttendance , getMyAttendance } from "@/services/attendanceService";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
+// TODO: Adjust this import path to match your actual frontend socket file!
+import { socket } from "@/socket";
 
 type AttendanceMode = "office" | "wfh" | "half-day";
 type AttendanceStatus = "not-marked" | "pending" | "approved" | "rejected";
 
 export default function MarkAttendanceCard() {
   const { auth } = useAuth();
+  const user = auth?.user;
+  const currentUserName = user?.name || "Someone";
+
   const [mode, setMode] = useState<AttendanceMode>("office");
   const [status, setStatus] = useState<AttendanceStatus>("not-marked");
   const [location, setLocation] = useState<string | null>(null);
@@ -84,7 +89,12 @@ export default function MarkAttendanceCard() {
             }
           }
         })
-        .catch(() => { /* Fail silently, assume not marked */ })
+        .catch(() => { /* Fail silently, assume not marked */
+
+          
+          setStatus("not-marked");
+
+         })
         .finally(() => { if (!isSilent) setLoadingStatus(false); });
     };
 
@@ -94,32 +104,41 @@ export default function MarkAttendanceCard() {
     return () => clearInterval(intervalId);
   }, [auth.slug]);
 
-  const submitAttendance = () => {
-    if (!auth.user || !auth.slug) return;
+const submitAttendance = () => {
+  if (!auth.user || !auth.slug) return;
 
-    let lat, lon;
-    if (mode === "office" && location && !location.includes("denied")) {
-      [lat, lon] = location.split(",").map(s => parseFloat(s.trim()));
-    }
+  let lat, lon;
+  if (mode === "office" && location && !location.includes("denied")) {
+    [lat, lon] = location.split(",").map(s => parseFloat(s.trim()));
+  }
 
-    const attendanceData = {
-      date: new Date().toISOString().split("T")[0], // 'YYYY-MM-DD'
-      departmentId: auth.user.department || undefined,
-      latitude: lat,
-      longitude: lon,
-    };
-
-    markAttendance(auth.slug , attendanceData)
-      .then(() => {
-        setStatus("pending");
-        toast.success("Attendance submitted for approval!");
-      })
-      .catch((err) => {
-        console.error("Attendance submission failed:", err);
-        const errorMessage = err.response?.data?.message || "Failed to submit attendance. Please try again.";
-        toast.error(errorMessage);
-      });
+  const attendanceData = {
+    date: new Date().toISOString().split("T")[0],
+    departmentId: auth.user.department || undefined,
+    latitude: lat,
+    longitude: lon,
+    mode: mode,
   };
+
+  markAttendance(auth.slug, attendanceData)
+    .then(() => {
+      setStatus("pending");
+      toast.success("Attendance submitted for approval!");
+      
+      // 🟢 Emit real-time notification to Admins
+      if (socket) {
+        socket.emit("notifyAdmins", {
+          title: "Attendance Marked",
+          message: `${currentUserName} has checked in (${mode}).`,
+          type: "attendance",
+        });
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      toast.error("Failed to submit attendance");
+    });
+};
 
   return (
     <div className="max-w-md w-full rounded-2xl p-6 bg-base-100 neu">

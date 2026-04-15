@@ -7,15 +7,15 @@ const MarkAttendanceCard = React.lazy(()=> import("../attendance/MarkAttendanceC
 const CenteredContainer =React.lazy(()=> import("@/components/ui/CenteredContainer"))
 const AttendanceTabs = React.lazy(()=> import("../attendance/AttendanceTab"))
 import useAttendanceFilters from "../attendance/UseAttendanceFilter";
-import  {usePagination}  from "../../hooks/usePagination";
 import type {
   AttendanceRecord,
   AttendanceStatus,
   UserRole,
 } from "../../type/attendance";
-const Pagination = React.lazy(()=>import("../ui/Pagination"))
 import { useAuth } from '@/auth/AuthContext';
 import { getMyAttendance } from '@/services/attendanceService';
+import { useNotificationSocket } from '@/hooks/notifiaction';
+import {usePagination} from '@/hooks/usePagination';
 
 type AttendanceTab = "records" | "mark";
 type Status = "all" | "approved" | "pending" | "rejected";
@@ -35,12 +35,15 @@ const EmployeeAttendance = () => {
          toDate?: string;
        }>({});
   
-    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string })[]>([]);
+    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[]>([]);
     const [loading, setLoading] = useState(true);
+    const [refetchIndex, setRefetchIndex] = useState(0);
 
-    const refetch = () => {
-      // Placeholder for refetch logic if needed
-    };
+    const refetch = () => setRefetchIndex(prev => prev + 1);
+
+     
+
+    useNotificationSocket(user?._id || user?.userId, refetch);
 
     useEffect(() => {
       if (!slug) return;
@@ -52,7 +55,7 @@ const EmployeeAttendance = () => {
             const responseData = res.data?.data || res.data || [];
             const arr = Array.isArray(responseData) ? responseData : [];
             
-            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[] = [];
+            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[] = [];
             arr.forEach((doc: any) => {
               if (!doc.record) return;
 
@@ -80,6 +83,7 @@ const EmployeeAttendance = () => {
                 date: formattedDate,
                 checkIn: checkInTime,
                 status: mappedStatus,
+                mode: doc.record.mode || "office",
               });
             });
 
@@ -98,7 +102,7 @@ const EmployeeAttendance = () => {
       // Auto-refresh every 30 seconds to show admin approvals
       const intervalId = setInterval(() => fetchAttendance(true), 30000);
       return () => clearInterval(intervalId);
-    }, [slug, filters, user?.name]);
+    }, [slug, filters, user?.name, refetchIndex]);
 
          
   
@@ -162,31 +166,36 @@ const EmployeeAttendance = () => {
         ) : (
         <>
           {/* FILTER BAR */}
-          <div className="bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
-            <AttendanceFilters
-              isAdmin={false}
-              name={filters.name}
-              fromDate={filters.fromDate}
-              toDate={filters.toDate}
-              onChange={setFilters}
-            />
+          <div className="flex flex-col gap-4 bg-base-100 border border-base-200 shadow-sm rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-base-content/70 uppercase tracking-wider">
+              Filter Records
+            </h3>
+            
+            <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-end w-full">
+              <div className="flex-1 w-full">
+                <AttendanceFilters
+                  isAdmin={false}
+                  name={filters.name}
+                  fromDate={filters.fromDate}
+                  toDate={filters.toDate}
+                  onChange={setFilters}
+                />
+              </div>
 
-            <StatusPills
-              value={statusFilter}
-              onChange={setStatusFilter}
-            />
+              <div className="w-full xl:w-auto flex-shrink-0">
+                <label className="text-xs text-base-content/60 block mb-1.5">
+                  Status
+                </label>
+                <StatusPills
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="mt-4">
-            <AttendanceTable records={paginatedData} role={role} onUpdate={refetch} />
-          </div>
-
-          <div className="flex justify-end mt-4">
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onChange={setPage}
-            />
+                <AttendanceTable records={filteredRecords} role={role} onUpdate={refetch} />
           </div>
         </>
       ))}

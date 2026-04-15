@@ -7,6 +7,11 @@ const attendanceRecordSchema = new mongoose.Schema({
     enum: ['PRESENT', 'ABSENT', 'HALF_DAY', 'ON_LEAVE', 'HOLIDAY', 'PENDING'], 
     required: true 
   },
+  mode: {
+    type: String,
+    enum: ['office', 'wfh', 'half-day'],
+    default: 'office'
+  },
   checkIn: { type: Date },
   checkOut: { type: Date },
   remarks: { type: String, default: '' }

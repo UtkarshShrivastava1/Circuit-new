@@ -14,7 +14,7 @@ export default function PageContainer({
   children,
 }: PageContainerProps) {
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {(title || subtitle || action) && (
         <div className="flex items-start justify-between">
           <div>

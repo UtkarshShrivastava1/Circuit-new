@@ -1,6 +1,6 @@
 import type { AttendanceRecord } from "@/type/attendance";
 
-type Status = "all" | "approved" | "pending" | "rejected";
+type Status = "all" | "approved" | "pending" | "rejected" | "absent";
 
  function useAttendanceFilters(
   records: AttendanceRecord[],

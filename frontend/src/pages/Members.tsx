@@ -6,6 +6,8 @@ import type { Member } from "@/type/member";
 import { getMembers, deleteMember } from "@/services/memberService";
 // import { getOrganizationSlug } from "@/utils/auth";
 import { useAuth } from "@/auth/AuthContext";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+
 
 // export const dummyMembers: Member[] = [
 //   {
@@ -94,10 +96,13 @@ export default function Members() {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      {members.map((member) => (
-        <MemberCard key={member._id} member={member} isAdmin={true} onDelete={handleDelete} />
-      ))}
+    <div className="p-4 sm:p-6 space-y-6">
+      <Breadcrumbs  />
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+        {members.map((member) => (
+          <MemberCard key={member._id} member={member} isAdmin={true} onDelete={handleDelete} />
+        ))}
+      </div>
     </div>
   );
 }

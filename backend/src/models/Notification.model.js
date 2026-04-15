@@ -54,7 +54,7 @@ const notificationSchema = new mongoose.Schema(
       required: true,
     },
 
-    createdBy: {
+    createdBy: { 
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,

@@ -98,6 +98,8 @@
 
 import type { Member } from "@/type/member";
 import { useNavigate } from "react-router";
+import { MdOutlineAdminPanelSettings, MdOutlinePersonOutline } from "react-icons/md";
+
 
 type MemberCardProps = {
   member: Member;
@@ -110,23 +112,23 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
 
 
   return (
-   <div className="relative bg-base-100 rounded-xl shadow-md border border-base-300 w-full overflow-hidden">
+    <div className="group relative bg-base-100 rounded-2xl shadow-sm hover:shadow-md border border-base-200 w-full overflow-hidden transition-all duration-200 flex flex-col">
 
       {/* Header */}
-      <div className="relative h-20 bg-primary/30">
+        <div className="h-24 bg-gradient-to-r from-primary/20 to-secondary/20 relative">
         <span
-          className={`absolute top-3 right-3 text-xs px-3 py-1 rounded-full font-medium
-          ${
-            member.status === "active"
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-200 text-gray-600"
-          }`}
+           className={`absolute top-3 right-3 text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full font-bold
+            ${
+              member.status === "active"
+                ? "bg-success/20 text-success"
+                : "bg-base-300 text-base-content/60"
+            }`}
         >
           {member.status}
         </span>
 
         {/* Avatar */}
-        <div className="absolute -bottom-8 left-5">
+        {/* <div className="absolute -bottom-8 left-5">
           <div className="relative">
             <img
               src={(member.imageUrl || member.imgUrl)?.trim() ? (member.imageUrl || member.imgUrl) : "/user1.png"}
@@ -142,47 +144,64 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
               }`}
             />
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Body */}
-      <div className="pt-12 pb-5 px-4 sm:px-5 flex flex-col sm:flex-row sm:items-center gap-4">
+       {/* Body Content */}
+      <div className="px-5 pb-6 flex flex-col items-center flex-1">
+        {/* Avatar */}
+        <div className="relative -mt-12 mb-3">
+          <img
+            src={(member.imageUrl || member.imgUrl)?.trim() ? (member.imageUrl || member.imgUrl) : "/user1.png"}
+            alt={member.name}
+            className="w-24 h-24 rounded-full border-4 border-base-100 object-cover bg-base-200 shadow-sm"
+          />
+          <span
+            className={`absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-base-100
+              ${
+                member.status === "active"
+                  ? "bg-success"
+                  : "bg-base-content/40"
+              }`}
+          />
+        </div>
 
         {/* Info */}
-        <div className="flex-1 min-w-0 flex flex-col gap-1">
-       <h2 className="text-base font-semibold truncate text-base-content">
-            {member.name}
+        <h2 className="text-lg font-bold truncate w-full text-center text-base-content">
+           {member.name}
           </h2>
 
-          <p className="text-sm text-base-content/70 truncate">
-            {member.email}
-          </p>
+           <p className="text-sm text-base-content/60 truncate w-full text-center mb-3">
+          {member.email}
+        </p>
 
-         <span
- className={`w-fit mt-2 px-3 py-1 text-xs rounded-full
- ${member.role === "admin"
-   ? "bg-error/20 text-error"
-   : "bg-base-200 text-base-content/70"}
-`}
->
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-base-200 text-base-content/70 capitalize mt-auto">
+          {member.role === 'admin' ? (
+            <MdOutlineAdminPanelSettings className="text-error" size={16} />
+          ) : (
+            <MdOutlinePersonOutline className="text-primary" size={16} />
+          )}
+          <span className={member.role === 'admin' ? 'text-error' : 'text-primary'}>
             {member.role}
           </span>
         </div>
 
         {/* Actions */}
         {isAdmin && (
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
-
+            <div className="flex gap-2 w-full mt-6">
             <button
               onClick={() => navigate(`/members/${member._id}`)}
-              className="px-4 py-2 text-sm bg-primary text-primary-content rounded-lg hover:opacity-90"
+                           className="flex-1 py-2 text-sm font-semibold bg-primary text-primary-content rounded-xl hover:bg-primary/90 transition-colors"
+            
             >
               Manage
             </button>
 
             <button
               onClick={() => onDelete?.(member._id)}
-              className="px-4 py-2 text-sm bg-error text-error-content rounded-lg hover:opacity-90"
+              className="flex-1 py-2 text-sm font-semibold bg-error/10 text-error rounded-xl hover:bg-error hover:text-error-content transition-colors"
+           
             >
               Delete
             </button>

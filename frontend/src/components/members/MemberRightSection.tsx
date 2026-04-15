@@ -83,10 +83,11 @@ export default function MemberRightSection({ memberId }: { memberId: string }) {
   return (
     <div className="flex-1  ">
     
- <Tabs<RightTab>
+      <Tabs<RightTab>
         value={activeTab}
         onChange={setActiveTab}
         tabs={memberTabs}
+       
       />
 
       {activeTab === "projects" && (

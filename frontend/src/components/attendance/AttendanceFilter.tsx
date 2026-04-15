@@ -1,4 +1,4 @@
-import { useState } from "react";
+// import { useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 
@@ -22,7 +22,7 @@ export default function AttendanceFilters({
   isAdmin = false,
 }: Props) {
   return (
-    <div className="hidden md:flex bg-base-100 border border-base-300 rounded-lg p-4  flex-col md:flex-row gap-4 items-end">
+    <div className="flex flex-col md:flex-row gap-4 items-start md:items-end w-full text-base-content">
       {/* Name search (Admin only) */}
       {isAdmin && (
         <div className="flex flex-col gap-1 w-full md:w-1/3">
@@ -40,9 +40,7 @@ export default function AttendanceFilters({
               })
             }
             placeholder=" Search by name"
-            className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
-                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
-                focus:outline-none"
+            className="w-full px-4 py-2.5 rounded-xl border border-base-300 bg-base-100 text-base-content focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
           />
         </div>
       )}
@@ -63,9 +61,7 @@ export default function AttendanceFilters({
               toDate,
             })
           }
-          className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
-                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
-                focus:outline-none"
+          className="w-full px-4 py-2.5 rounded-xl border border-base-content bg-base-100 text-base-content focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
         />
       </div>
 
@@ -84,20 +80,20 @@ export default function AttendanceFilters({
               toDate: e.target.value,
             })
           }
-          className="w-full px-4 py-3 rounded-xl bg-[#ecf0f3]
-                shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
-                focus:outline-none"
+          className="w-full px-4 py-2.5 rounded-xl border border-base-content bg-base-100 text-base-content focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
         />
       </div>
 
       {/* Clear */}
-      <Button
-        // className="btn btn-ghost border border-base-300      shadow-[inset_4px_4px_8px_#c8ccd1,inset_-4px_-4px_8px_#ffffff]
-        //         focus:outline-none"
-        onClick={() => onChange({})}
-      >
-        Reset
-      </Button>
+      <div className="w-full md:w-auto flex justify-end text-base-content border border-base-content rounded-xl ">
+        <Button
+          variant="outline"
+          className="w-full md:w-auto h-[46px]"
+          onClick={() => onChange({})}
+        >
+          Reset
+        </Button>
+      </div>
     </div>
   );
 }

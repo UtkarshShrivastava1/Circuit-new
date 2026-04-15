@@ -488,7 +488,7 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
   );
 
   return (
-    <div className="p-4 w-full">
+    <div className="p-4 w-full text-base-content">
 
       <h2 className="text-xl font-semibold mb-4">Tasks</h2>
 

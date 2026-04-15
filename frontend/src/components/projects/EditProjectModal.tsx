@@ -500,13 +500,15 @@ export default function EditProjectModal({
             const user = orgUsers.find((u) => u._id === p.user);
 
             return (
-              <div key={p.user} className="flex items-center gap-2 mb-2">
+              <div key={p.user} className="flex items-center gap-2 mb-2 overflow-hidden">
                 <span className="flex-1">
-                  {user?.name || "Unknown"} ({p.role}) - {p.responsibility}
+                  {user?.name || "Unknown"} ({p.role}) 
                 </span>
+                <hr className="text-gray-800 w-0.5 h-full"/>
+                <span className="flex-1">{p.responsibility}</span>
 
                 <button
-                  className="btn btn-sm btn-error"
+                  className="btn btn-sm btn-error text-secondary-content"
                   onClick={() => removeParticipant(p.user)}
                 >
                   Remove

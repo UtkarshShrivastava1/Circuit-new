@@ -430,7 +430,7 @@ export default function ProjectTasks({ projectId }: Props) {
     const fetchTasks = async () => {
       try {
         const res = await API.get(`/tasks/${auth.slug}/getTasks/${projectId}`);
-        console.log("Fetched tasks:", res.data.data); // Debug log
+        // console.log("Fetched tasks:", res.data.data); // Debug log
 
         const formattedTasks = res.data.data.map((t: any) => ({
           id: t._id,
@@ -473,6 +473,7 @@ export default function ProjectTasks({ projectId }: Props) {
         `/tasks/${auth.slug}/updateTaskStatus/${projectId}/${taskId}`,
         { status: newStatus },
       );
+      toast.success("Task status updated");
     } catch (err) {
       console.error("Status update failed", err);
       setTasks(previousTasks);
@@ -500,6 +501,7 @@ export default function ProjectTasks({ projectId }: Props) {
 
       if (data.success) {
         setTasks((prev) => prev.filter((t) => t.id !== id));
+        toast.success("Task deleted");
         setSelectedTask(null);
       }
     } catch (error) {
@@ -583,7 +585,8 @@ export default function ProjectTasks({ projectId }: Props) {
                     >
                       {canEditTask && (
                         <button
-                          className="btn btn-xs  m-1.5"
+                          className="btn btn-xs m-1.5"
+                          title="Edit Task"
                           onClick={() =>
                             setSelectedTask({
                               ...task,
@@ -598,6 +601,7 @@ export default function ProjectTasks({ projectId }: Props) {
                       {canDelete && (
                         <button
                           className="btn btn-xs btn-error"
+                          title="Delete Task"
                           onClick={() => deleteTask(task.id)}
                         >
                           <Trash size={16} />

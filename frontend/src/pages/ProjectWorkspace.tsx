@@ -14,6 +14,7 @@ import ProjectChat from "@/components/projects/ProjectChat";
 import { useAuth } from "@/auth/AuthContext";
 import { getProjectById } from "@/services/projectService";
 import { getTasksByProjectId } from "@/services/taskService"; // renamed service
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat";
 
@@ -83,6 +84,10 @@ export default function ProjectWorkspace() {
   return (
     
     <PageContainer title={project.projectName || project.name || "Untitled Project"} subtitle={`Managed by ${manager?.user?.name || "Unknown"}`}>
+      <div className="mb-4">
+        <Breadcrumbs />
+      </div>
+
       {/* Tabs */}
       <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
         {tabs.map(tab => {
@@ -103,7 +108,7 @@ export default function ProjectWorkspace() {
       {/* Tab Content */}
       {activeTab === "overview" && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-6">
             <StatCard label="Total Tasks" value={totalTasks} />
             <StatCard label="Completed" value={completedTasks} color="success" />
             <StatCard label="In Progress" value={inProgressTasks} color="primary" />
@@ -137,8 +142,8 @@ export default function ProjectWorkspace() {
           onUpdateProject={(updatedProject) => setProject(updatedProject)} 
         />
       )}
-      {activeTab === "activity" && <ProjectActivity projectId={id!} />}
-      {activeTab === "chat" && <ProjectChat />}
+      {activeTab === "activity" && <ProjectActivity projectId={id!} />} 
+      {activeTab === "chat" && <ProjectChat projectId={id!} currentUser={auth.user} />}
     </PageContainer>
   );
 }
