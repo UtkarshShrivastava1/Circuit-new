@@ -148,7 +148,7 @@ export default function ProjectDetails({ project, onClose, onUpdate }: Props) {
 
       <StatusBadge
         status={
-          project.status === "active" || project.status === "completed"
+          project.status === "Active" || project.status === "Completed"
             ? "approved"
             : "pending"
         }

@@ -1,6 +1,3 @@
-
-
-
 import { useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageContainer from "../components/ui/PageContainer";
@@ -15,14 +12,17 @@ import { useAuth } from "@/auth/AuthContext";
 import { getProjectById } from "@/services/projectService";
 import { getTasksByProjectId } from "@/services/taskService"; // renamed service
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import WorkUpdate from "./WorkUpdate";
 
-type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat";
+type ProjectTab = "overview" | "tasks" | "members" | "activity" | "chat" | "workUpdates";
 
 export default function ProjectWorkspace() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get("tab") as ProjectTab | null;
-  const [activeTab, setActiveTab] = useState<ProjectTab>(tabFromUrl || "overview");
+  const [activeTab, setActiveTab] = useState<ProjectTab>(
+    tabFromUrl || "overview",
+  );
 
   const [project, setProject] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
@@ -52,21 +52,31 @@ export default function ProjectWorkspace() {
     fetchData();
   }, [id, slug]);
 
-  if (loading || !project) 
-    return <PageContainer title="Loading..." subtitle="">Loading...</PageContainer>;
+  if (loading || !project)
+    return (
+      <PageContainer title="Loading..." subtitle="">
+        Loading...
+      </PageContainer>
+    );
 
   // ===== Metrics for Overview =====
   const totalTasks = tasks.length;
-  const completedTasks = tasks.filter(t => t.status === "completed").length;
-  const inProgressTasks = tasks.filter(t => t.status === "in-progress").length;
-  const pendingTasks = tasks.filter(t => t.status === "pending").length;
-  const highPriorityTasks = tasks.filter(t => t.priority === "high");
+  const completedTasks = tasks.filter((t) => t.status === "completed").length;
+  const inProgressTasks = tasks.filter(
+    (t) => t.status === "in-progress",
+  ).length;
+  const pendingTasks = tasks.filter((t) => t.status === "pending").length;
+  const highPriorityTasks = tasks.filter((t) => t.priority === "high");
 
   const today = new Date();
-  const overdueTasks = tasks.filter(t => new Date(t.dueDate) < today && t.status !== "completed");
+  const overdueTasks = tasks.filter(
+    (t) => new Date(t.dueDate) < today && t.status !== "completed",
+  );
 
   const latestTasks = [...tasks]
-    .sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
+    .sort(
+      (a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime(),
+    )
     .slice(0, 3);
 
   const tabs: { key: ProjectTab; label: string }[] = [
@@ -75,11 +85,15 @@ export default function ProjectWorkspace() {
     { key: "members", label: "Members" },
     { key: "activity", label: "Activity" },
     { key: "chat", label: "Chat" },
+    {key: "workUpdates", label: "Work Updates" },
   ];
-  const manager = project.participants?.find(
-    (p: any) => p.role === "Manager"
-  );
+  const manager = project.participants.find((p) => p.role === "Manager");
 
+  const projectRole = project?.participants?.find(
+    (p) => p.user._id === auth.user?.userId,
+  )?.role;
+  console.log("User's role in project:", projectRole);
+  console.log("Project Data:", project);
 
   return (
     
@@ -88,9 +102,13 @@ export default function ProjectWorkspace() {
         <Breadcrumbs />
       </div>
 
+    <PageContainer
+      title={project.projectName}
+      subtitle={`Managed by ${manager?.user.name || "Unknown"}`}
+    >
       {/* Tabs */}
       <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
-        {tabs.map(tab => {
+        {tabs.map((tab) => {
           const isActive = activeTab === tab.key;
           return (
             <button
@@ -110,10 +128,22 @@ export default function ProjectWorkspace() {
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-6">
             <StatCard label="Total Tasks" value={totalTasks} />
-            <StatCard label="Completed" value={completedTasks} color="success" />
-            <StatCard label="In Progress" value={inProgressTasks} color="primary" />
+            <StatCard
+              label="Completed"
+              value={completedTasks}
+              color="success"
+            />
+            <StatCard
+              label="In Progress"
+              value={inProgressTasks}
+              color="primary"
+            />
             <StatCard label="Pending" value={pendingTasks} color="warning" />
-            <StatCard label="High Priority" value={highPriorityTasks.length} color="error" />
+            <StatCard
+              label="High Priority"
+              value={highPriorityTasks.length}
+              color="error"
+            />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -127,7 +157,9 @@ export default function ProjectWorkspace() {
 
             {/* RIGHT */}
             <div className="space-y-6">
-              {overdueTasks.length > 0 && <OverdueTasksCard tasks={overdueTasks} />}
+              {overdueTasks.length > 0 && (
+                <OverdueTasksCard tasks={overdueTasks} />
+              )}
               <TeamCard team={project.participants || []} />
               {/* <ActivityCard activity={project.activity || []} /> */}
             </div>
@@ -144,13 +176,26 @@ export default function ProjectWorkspace() {
       )}
       {activeTab === "activity" && <ProjectActivity projectId={id!} />} 
       {activeTab === "chat" && <ProjectChat projectId={id!} currentUser={auth.user} />}
+      {activeTab === "activity" && <ProjectActivity projectId={id!} />}
+      
+      {activeTab === "workUpdates" && <WorkUpdate slug={auth.slug} projectId={id!} />}
     </PageContainer>
   );
 }
 
 /* ====== Small Reusable Components ====== */
-const StatCard = ({ label, value, color }: { label: string; value: number; color?: string }) => (
-  <div className={`bg-base-200 border border-base-300 rounded-lg p-4 text-center ${color ? `text-${color}` : ""}`}>
+const StatCard = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color?: string;
+}) => (
+  <div
+    className={`bg-base-200 border border-base-300 rounded-lg p-4 text-center ${color ? `text-${color}` : ""}`}
+  >
     <p className="text-xs text-base-content/60">{label}</p>
     <p className="text-lg font-semibold">{value}</p>
   </div>
@@ -167,10 +212,10 @@ const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
     <h3 className="font-semibold mb-3">High Priority Tasks</h3>
     {tasks.length === 0 ? (
-      <p className="text-sm text-base-content/60">No high priority tasks 🎉</p>
+      <p className="text-sm text-base-content/60">No high priority tasks </p>
     ) : (
       <ul className="space-y-2 text-sm">
-        {tasks.slice(0, 3).map(task => (
+        {tasks.slice(0, 3).map((task) => (
           <li key={task.id} className="flex justify-between">
             <span>{task.title}</span>
             <span className="text-error text-xs">High</span>
@@ -184,14 +229,21 @@ const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
 const LatestTasksCard = ({ tasks }: { tasks: any[] }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
     <h3 className="font-semibold mb-3">Latest Tasks</h3>
-    <ul className="space-y-2 text-sm">
-      {tasks.map(task => (
-        <li key={task.id} className="flex justify-between">
-          <span>{task.title}</span>
-          <span className="text-base-content/60 text-xs"> {new Date(task.dueDate || task.due).toLocaleDateString("en-GB")}</span>
-        </li>
-      ))}
-    </ul>
+    {tasks.length === 0 ? (
+      <p className="text-sm text-base-content/60">No latest tasks </p>
+    ) : (
+      <ul className="space-y-2 text-sm">
+        {tasks.map((task) => (
+          <li key={task.id} className="flex justify-between">
+            <span>{task.title}</span>
+            <span className="text-base-content/60 text-xs">
+              {" "}
+              {new Date(task.dueDate || task.due).toLocaleDateString("en-GB")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    )}
   </div>
 );
 
@@ -207,9 +259,11 @@ const LatestTasksCard = ({ tasks }: { tasks: any[] }) => (
 
 const OverdueTasksCard = ({ tasks }: { tasks: any[] }) => (
   <div className="bg-error/5 border border-error/30 rounded-lg p-4">
-    <h3 className="font-semibold text-error mb-2">⚠ {tasks.length} Overdue Tasks</h3>
+    <h3 className="font-semibold text-error mb-2">
+      ⚠ {tasks.length} Overdue Tasks
+    </h3>
     <ul className="text-sm space-y-1">
-      {tasks.slice(0, 3).map(task => (
+      {tasks.slice(0, 3).map((task) => (
         <li key={task.id}>{task.title}</li>
       ))}
     </ul>
@@ -217,17 +271,20 @@ const OverdueTasksCard = ({ tasks }: { tasks: any[] }) => (
 );
 
 const TeamCard = ({ team }: { team: any[] }) => (
- <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-  <h3 className="font-semibold text-base-content mb-3">Team Members</h3>
-  <ul className="space-y-2 text-sm">
-    {team.map((member: any, i: number) => (
-      <li key={member.user?._id || i} className="flex justify-between text-base-content">
-        <span>{member.user?.name || "Unknown"}</span>
-        <span className="text-base-content/60">{member.role}</span>
-      </li>
-    ))}
-  </ul>
- </div>
+  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+    <h3 className="font-semibold text-base-content mb-3">Team Members</h3>
+    <ul className="space-y-2 text-sm">
+      {team.map((member: any) => (
+        <li
+          key={member.user._id}
+          className="flex justify-between text-base-content"
+        >
+          <span>{member.user.name || "Unknown"}</span>
+          <span className="text-base-content/60">{member.role}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
 );
 const ActivityCard = ({ activity }: { activity: string[] }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">

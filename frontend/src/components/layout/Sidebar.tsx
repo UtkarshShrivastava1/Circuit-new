@@ -79,6 +79,12 @@ const projectsSubMenu: MenuItem[] = [
     path: "/createProject",
     icon: <FolderKanban size={18} />,
   },
+  {
+    id: "workUpdates",
+    label: "Work Updates",
+    path: "/work-updates",
+   icon: <MdWorkspaces size={20} />,
+  }
 ];
 
 const payrollSubMenu: MenuItem[] = [

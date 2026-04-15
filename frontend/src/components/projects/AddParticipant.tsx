@@ -1,6 +1,6 @@
-// import React, { useState, useEffect } from "react";
+
 import { MdDelete } from "react-icons/md";
-import api from "@/services/api";
+
 import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useState } from "react";
 import { getMembers } from "@/services/memberService";

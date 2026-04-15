@@ -7,7 +7,6 @@ import ProjectDetails from "../components/projects/ProjectDetails";
 import ProjectGridSkeleton from "@/components/projects/ProjectGridSkeleton";
 import ProjectFilters from "@/components/projects/ProjectFilters";
 import { useAuth } from "@/auth/AuthContext";
-
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { getProject, deleteProject } from "@/services/projectServices";
@@ -17,7 +16,6 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 export default function Projects() {
   const { auth } = useAuth();
   const slug = auth.slug;
-
   // console.log("Auth in Projects:", auth);
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -128,6 +126,12 @@ export default function Projects() {
             projects={filteredProjects}
             onOpen={(project) => setSelectedProject(project)}
             onDelete={canDelete ? handleDeleteProject : undefined}
+            canEdit={canEdit}
+            onUpdate={(updated) => {
+             setProjects((prev) => 
+               prev.map((p) => (p.id === updated.id ? updated : p))
+             );
+           }}
           />
         </div>
       )}

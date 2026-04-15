@@ -16,6 +16,7 @@ import SettingsPage from "./pages/Settings";
 // import HomePage from "./pages/HomePage";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage";
 import { useAuth } from "./auth/AuthContext";
+import WorkUpdates from "./pages/WorkUpdate";
 
 
 /* Pages (lazy) */
@@ -143,6 +144,12 @@ useEffect(() => {
                 // </PageContainer>
               }
             />
+            <Route path="/work-updates" element={
+              <WorkUpdates/>
+
+
+            }
+            />
             <Route
               path="/tasks"
               element={
@@ -169,6 +176,7 @@ useEffect(() => {
                 </PageContainer>
               }
             />
+
 
             {/* Payroll - Restricted to Admin, Owner, and Manager */}
             {isManagement && (

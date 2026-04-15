@@ -1,8 +1,6 @@
-
-
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { FaEye, FaEyeSlash, FaPen ,FaUser} from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaPen, FaUser } from "react-icons/fa";
 import { createMember } from "../services/memberService";
 import { useAuth } from "@/auth/AuthContext";
 import { uploadImage } from "@/services/uploadService";
@@ -19,8 +17,6 @@ type Errors = {
   pan?: string;
   designation?: string;
 };
-
-
 const AddMember = () => {
   const { auth } = useAuth();
   const slug = auth?.slug;
@@ -30,98 +26,96 @@ const AddMember = () => {
   const [errors, setErrors] = useState<Errors>({});
 
   const [formData, setFormData] = useState({
-  // Personal
-  name: "",
-  email: "",
-  password: "",
-  phone: "",
-  gender: "",
-  dateOfBirth: "",
-  currentAddress: "",
-  permanentAddress: "",
+    // Personal
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    gender: "",
+    dateOfBirth: "",
+    currentAddress: "",
+    permanentAddress: "",
 
-  // Emergency
-  emergencyName: "",
-  emergencyPhone: "",
-  emergencyRelation: "",
+    // Emergency
+    emergencyName: "",
+    emergencyPhone: "",
+    emergencyRelation: "",
 
-  // Identity
-  aadhaar: "",
-  pan: "",
-  passport: "",
+    // Identity
+    aadhaar: "",
+    pan: "",
+    passport: "",
 
-  // Employment
-  role: "employee" as UserRole,
-  designation: "",   // ✅ ADD THIS
-  joiningDate: "",
-  previousCompany: "",
+    // Employment
+    role: "employee" as UserRole,
+    designation: "", // ✅ ADD THIS
+    joiningDate: "",
+    previousCompany: "",
 
-  // Financial
-  bankName: "",
-  accountNumber: "",
-  ifscCode: "",
-});
+    // Financial
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+  });
 
- const validate = () => {
-  let newErrors: Errors = {};
+  const validate = () => {
+    let newErrors: Errors = {};
 
-  // Name
-  if (!formData.name.trim()) {
-    newErrors.name = "Name is required";
-  }
+    // Name
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
 
-  // Email
-  if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-    newErrors.email = "Enter a valid email address";
-  }
+    // Email
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
 
-  // Password
-  if (formData.password.length < 6) {
-    newErrors.password = "Password must be at least 6 characters";
-  }
+    // Password
+    if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
 
-  // Phone (Indian 10-digit)
-  if (!/^[6-9]\d{9}$/.test(formData.phone)) {
-    newErrors.phone = "Enter valid 10-digit Indian mobile number";
-  }
+    // Phone (Indian 10-digit)
+    if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      newErrors.phone = "Enter valid 10-digit Indian mobile number";
+    }
 
-  // Emergency Phone
-  if (
-    formData.emergencyPhone &&
-    !/^[6-9]\d{9}$/.test(formData.emergencyPhone)
-  ) {
-    newErrors.emergencyPhone =
-      "Enter valid 10-digit emergency number";
-  }
+    // Emergency Phone
+    if (
+      formData.emergencyPhone &&
+      !/^[6-9]\d{9}$/.test(formData.emergencyPhone)
+    ) {
+      newErrors.emergencyPhone = "Enter valid 10-digit emergency number";
+    }
 
-  // Aadhaar (12 digits only)
-  if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar)) {
-    newErrors.aadhaar = "Aadhaar must be exactly 12 digits";
-  }
+    // Aadhaar (12 digits only)
+    if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar)) {
+      newErrors.aadhaar = "Aadhaar must be exactly 12 digits";
+    }
 
-  // PAN (ABCDE1234F)
-  if (
-    formData.pan &&
-    !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase())
-  ) {
-    newErrors.pan =
-      "PAN must be in format ABCDE1234F";
-  }
+    // PAN (ABCDE1234F)
+    if (
+      formData.pan &&
+      !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase())
+    ) {
+      newErrors.pan = "PAN must be in format ABCDE1234F";
+    }
 
-  if (!formData.designation) {
-  newErrors.designation = "Designation is required";
-}
+    if (!formData.designation) {
+      newErrors.designation = "Designation is required";
+    }
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const [preview, setPreview] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -137,29 +131,29 @@ const AddMember = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-     if (!validate()) return;
+    if (!validate()) return;
 
-     setAdding(true);
-     try {
-       if (!slug) {
-         toast.error("Organization details not found. Please log in again.");
-         return;
-       }
+    setAdding(true);
+    try {
+      if (!slug) {
+        toast.error("Organization details not found. Please log in again.");
+        return;
+      }
 
-       let imgUrl = "";
-       if (selectedFile) {
-         imgUrl = await uploadImage(selectedFile);
-       }
+      let imgUrl = "";
+      if (selectedFile) {
+        imgUrl = await uploadImage(selectedFile);
+      }
 
-       const finalData = {
-         ...formData,
-         imageUrl: imgUrl
-       };
+      const finalData = {
+        ...formData,
+        imageUrl: imgUrl,
+      };
 
       await createMember(slug, finalData);
 
       toast.success("Employee Registered Successfully");
-      
+
       // Reset form state
       setFormData({
         name: "",
@@ -188,7 +182,8 @@ const AddMember = () => {
       setSelectedFile(null);
       setErrors({});
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Failed to register employee";
+      const errorMessage =
+        error.response?.data?.message || "Failed to register employee";
       toast.error(errorMessage);
     } finally {
       setAdding(false);
@@ -196,7 +191,7 @@ const AddMember = () => {
   };
 
   const inputStyle =
-  "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
+    "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
 
   return (
   <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
@@ -207,10 +202,12 @@ const AddMember = () => {
         onSubmit={handleSubmit}
         className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
       >
-        <h2 className="text-2xl text-base-content font-semibold">Employee Onboarding</h2>
+        <h2 className="text-2xl text-center text-base-content font-semibold">
+          Employee Onboarding
+        </h2>
 
         {/* PROFILE IMAGE */}
-        <div className="flex flex-col items-center justify-center">
+        {/* <div className="flex flex-col items-center justify-center">
           <input
             type="file"
             accept="image/*"
@@ -250,38 +247,76 @@ const AddMember = () => {
             <label className="text-center text-sm text-gray-800 mt-2">
               {preview ? "Change Image" : "Click to Upload"}
             </label>
-        </div>
+        </div> */}
 
-        {/* ================= PERSONAL INFO ================= */}
-        <section className="space-y-6">
-          {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
-            
-          </h3> */}
+        {/* <div className="flex gap-8 items-start"> */}
 
-          <div >
-            <fieldset className="gap-5 grid md:grid-cols-1 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
-                Personal Information
-              </legend>
+        {/* RIGHT SIDE - PERSONAL INFO */}
+        <div className="flex-1">
+          <fieldset className="grid md:grid-cols-2 gap-6 border-2 rounded-xl border-base-content/20 p-6">
+            <legend className="text-lg font-bold text-gray-700 px-2">
+              Personal Information
+            </legend>
+            <div className="flex gap-4 items-start md:col-span-2">
+              {/* Profile Image */}
+              <div className="flex flex-col items-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  id="imageUpload"
+                  onChange={handleImageChange}
+                />
 
-              <div className="grid md:grid-cols-2 gap-6">
+                <div className="relative w-30 h-30">
+                  <label
+                    htmlFor="imageUpload"
+                    className="w-30 h-30 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center cursor-pointer overflow-hidden"
+                  >
+                    {preview ? (
+                      <img
+                        src={preview}
+                        alt="Profile"
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <FaUser size={30} className="text-gray-400" />
+                    )}
+                  </label>
 
-            <input
-              name="name"
-              value={formData.name}
-              placeholder="Full Name"
-              onChange={handleChange}
-              className={inputStyle}
-            />
+                  {preview && (
+                    <label
+                      htmlFor="imageUpload"
+                      className="absolute bottom-0 right-0 bg-indigo-600 text-white p-1 rounded-full cursor-pointer"
+                    >
+                      <FaPen size={10} />
+                    </label>
+                  )}
+                </div>
 
-            <input
-              name="email"
-              type="email"
-              value={formData.email}
-              placeholder="Email"
-              onChange={handleChange}
-              className={inputStyle}
-            />
+                <p className="text-xs mt-2 text-gray-500">Upload</p>
+              </div>
+
+              {/* Name Email  */}
+              <div className="flex-1 grid gap-4">
+                <input
+                  name="name"
+                  value={formData.name}
+                  placeholder="Full Name"
+                  onChange={handleChange}
+                  className={inputStyle}
+                />
+
+                <input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  placeholder="Email"
+                  onChange={handleChange}
+                  className={inputStyle}
+                />
+              </div>
+            </div>
 
             {/* Password */}
             <div className="relative">
@@ -295,16 +330,10 @@ const AddMember = () => {
               />
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+                onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
               >
-                {showPassword ? (
-                  <FaEyeSlash />
-                ) : (
-                  <FaEye />
-                )}
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
 
@@ -312,18 +341,9 @@ const AddMember = () => {
               type="text"
               name="phone"
               placeholder="Contact"
+              onChange={handleChange}
               value={formData.phone}
-              maxLength={10}
-              onChange={(e) => {
-                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
-                if (value.length <= 10) {
-                  setFormData((prev) => ({
-                    ...prev,
-                    phone: value,
-                  }));
-                }
-              }}
-                className={inputStyle}
+              className={inputStyle}
             />
 
             <input
@@ -341,40 +361,28 @@ const AddMember = () => {
               onChange={handleChange}
               className={`${inputStyle}`}
             >
-              <option  value="">Select Gender</option>
+              <option value="">Select Gender</option>
               <option>Male</option>
               <option>Female</option>
               <option>Other</option>
             </select>
 
-              </div>
-            <div>
-
-
-        <textarea
-            name="currentAddress"
-            placeholder="Current Address"
-            value={formData.currentAddress}
-            onChange={handleChange}
-            className={inputStyle}
-          />
-          <textarea
-            name="permanentAddress"
-            placeholder="Permanent Address"
-            value={formData.permanentAddress}
-            onChange={handleChange}
-            className={inputStyle}
-          />
-         
-
-          </div>
-            </fieldset>
-          </div>
-
-
-
-          
-        </section>
+            <textarea
+              name="currentAddress"
+              placeholder="Current Address"
+              value={formData.currentAddress}
+              onChange={handleChange}
+              className={inputStyle}
+            />
+            <textarea
+              name="permanentAddress"
+              placeholder="Permanent Address"
+              value={formData.permanentAddress}
+              onChange={handleChange}
+              className={inputStyle}
+            />
+          </fieldset>
+        </div>
 
         {/* ================= EMERGENCY ================= */}
         <section className="space-y-6">
@@ -384,51 +392,49 @@ const AddMember = () => {
 
           <div className=" gap-6">
             <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+                Emergency Contact
+              </legend>
 
-            <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
-              Emergency Contact
-            </legend>
+              <input
+                name="emergencyName"
+                value={formData.emergencyName}
+                placeholder="Contact Name"
+                onChange={handleChange}
+                className={inputStyle}
+              />
 
-            <input
-              name="emergencyName"
-              value={formData.emergencyName}
-              placeholder="Contact Name"
-              onChange={handleChange}
-              className={inputStyle}
-            />
-            
+              <input
+                type="text"
+                name="emergencyPhone"
+                placeholder="Contact Phone"
+                value={formData.emergencyPhone}
+                maxLength={10}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "");
+                  if (value.length <= 10) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      emergencyPhone: value,
+                    }));
+                  }
+                }}
+                className={inputStyle}
+              />
 
-            <input
-                    type="text"
-                    name="emergencyPhone"
-                    placeholder="Contact Phone"
-                    value={formData.emergencyPhone}
-                    maxLength={10}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "");
-                      if (value.length <= 10) {
-                        setFormData((prev) => ({
-                          ...prev,
-                          emergencyPhone: value,
-                        }));
-                      }
-                    }}
-                    className={inputStyle}
-                  />
+              {errors.emergencyPhone && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.emergencyPhone}
+                </p>
+              )}
 
-                  {errors.emergencyPhone && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.emergencyPhone}
-                    </p>
-                  )}
-
-            <input
-              name="emergencyRelation"
-              value={formData.emergencyRelation}
-              placeholder="Relation"
-              onChange={handleChange}
-              className={inputStyle}
-            />
+              <input
+                name="emergencyRelation"
+                value={formData.emergencyRelation}
+                placeholder="Relation"
+                onChange={handleChange}
+                className={inputStyle}
+              />
             </fieldset>
           </div>
         </section>
@@ -445,7 +451,7 @@ const AddMember = () => {
                 Identity & Legal Details
               </legend>
 
-            <input
+              <input
                 name="aadhaar"
                 placeholder="Aadhaar Number"
                 value={formData.aadhaar}
@@ -463,43 +469,36 @@ const AddMember = () => {
               />
 
               {errors.aadhaar && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.aadhaar}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.aadhaar}</p>
               )}
 
+              <input
+                name="pan"
+                placeholder="PAN Number"
+                value={formData.pan}
+                maxLength={10}
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase();
+                  setFormData((prev) => ({
+                    ...prev,
+                    pan: value,
+                  }));
+                }}
+                className={inputStyle}
+              />
 
-            <input
-                  name="pan"
-                  placeholder="PAN Number"
-                  value={formData.pan}
-                  maxLength={10}
-                  onChange={(e) => {
-                    const value = e.target.value.toUpperCase();
-                    setFormData((prev) => ({
-                      ...prev,
-                      pan: value,
-                    }));
-                  }}
-                  className={inputStyle}
-                />
+              {errors.pan && (
+                <p className="text-red-500 text-sm mt-1">{errors.pan}</p>
+              )}
 
-                {errors.pan && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.pan}
-                  </p>
-                )}
-
-
-            <input
-              name="passport"
-              value={formData.passport}
-              placeholder="Passport Number"
-              onChange={handleChange}
-              className={inputStyle}
-            />
+              <input
+                name="passport"
+                value={formData.passport}
+                placeholder="Passport Number"
+                onChange={handleChange}
+                className={inputStyle}
+              />
             </fieldset>
-
           </div>
         </section>
 
@@ -508,64 +507,65 @@ const AddMember = () => {
           {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Employment Details
           </h3> */}
-<div className=" gap-6">
-  <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-<legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
-  Employment Details
-</legend>
+          <div className=" gap-6">
+            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+                Employment Details
+              </legend>
 
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className={inputStyle}
+              >
+                <option value="employee">Employee</option>
+                <option value="manager">Manager</option>
+                <option value="admin">Admin</option>
+              </select>
 
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className={inputStyle}
-            >
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </select>
+              {/* Designation */}
+              <select
+                name="designation"
+                value={formData.designation}
+                onChange={handleChange}
+                className={inputStyle}
+              >
+                <option value="">Select Designation</option>
+                <option value="software-engineer">Software Engineer</option>
+                <option value="senior-software-engineer">
+                  Senior Software Engineer
+                </option>
+                <option value="team-lead">Team Lead</option>
+                <option value="project-manager">Project Manager</option>
+                <option value="hr-manager">HR Manager</option>
+                <option value="ui-ux-designer">UI/UX Designer</option>
+                <option value="qa-engineer">QA Engineer</option>
+                <option value="devops-engineer">DevOps Engineer</option>
+                <option value="intern">Intern</option>
+              </select>
+              {errors.designation && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.designation}
+                </p>
+              )}
 
-            {/* Designation */}
-            <select
-              name="designation"
-              value={formData.designation}
-              onChange={handleChange}
-              className={inputStyle}
-            >
-              <option value="">Select Designation</option>
-              <option value="software-engineer">Software Engineer</option>
-              <option value="senior-software-engineer">Senior Software Engineer</option>
-              <option value="team-lead">Team Lead</option>
-              <option value="project-manager">Project Manager</option>
-              <option value="hr-manager">HR Manager</option>
-              <option value="ui-ux-designer">UI/UX Designer</option>
-              <option value="qa-engineer">QA Engineer</option>
-              <option value="devops-engineer">DevOps Engineer</option>
-              <option value="intern">Intern</option>
-            </select>
-{errors.designation && (
-  <p className="text-red-500 text-sm mt-1">
-    {errors.designation}
-  </p>
-)}
+              <input
+                type="date"
+                name="joiningDate"
+                value={formData.joiningDate}
+                onChange={handleChange}
+                className={inputStyle}
+              />
 
-            <input
-              type="date"
-              name="joiningDate"
-              value={formData.joiningDate}
-              onChange={handleChange}
-              className={inputStyle}
-            />
-
-            <input
-              name="previousCompany"
-              value={formData.previousCompany}
-              placeholder="Previous Company"
-              onChange={handleChange}
-              className={inputStyle}
-            />
-  </fieldset>
+              <input
+                name="previousCompany"
+                value={formData.previousCompany}
+                placeholder="Previous Company"
+                onChange={handleChange}
+                className={inputStyle}
+              />
+            </fieldset>
           </div>
         </section>
 
@@ -575,36 +575,34 @@ const AddMember = () => {
             Financial Details
           </h3> */}
 
-
           <div className=" gap-6">
-          <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
+            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
               <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
-              Bank Account Details
-            </legend>
+                Bank Account Details
+              </legend>
 
-
-            <input
-              name="bankName"
-              value={formData.bankName}
-              placeholder="Bank Name"
-              onChange={handleChange}
-              className={inputStyle}
-            />
-            <input
-              name="accountNumber"
-              value={formData.accountNumber}
-              placeholder="Account Number"
-              onChange={handleChange}
-              className={inputStyle}
-            />
-            <input
-              name="ifscCode"
-              value={formData.ifscCode}
-              placeholder="IFSC Code"
-              onChange={handleChange}
-              className={inputStyle}
-            />
-          </fieldset>
+              <input
+                name="bankName"
+                value={formData.bankName}
+                placeholder="Bank Name"
+                onChange={handleChange}
+                className={inputStyle}
+              />
+              <input
+                name="accountNumber"
+                value={formData.accountNumber}
+                placeholder="Account Number"
+                onChange={handleChange}
+                className={inputStyle}
+              />
+              <input
+                name="ifscCode"
+                value={formData.ifscCode}
+                placeholder="IFSC Code"
+                onChange={handleChange}
+                className={inputStyle}
+              />
+            </fieldset>
           </div>
         </section>
 

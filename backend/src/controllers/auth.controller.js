@@ -200,8 +200,7 @@ exports.login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
 
-    
-
+  
     // Set user details in a non-httpOnly cookie so the frontend can access it
     res.cookie("user", JSON.stringify({
       token: token,
@@ -241,7 +240,7 @@ exports.login = async (req, res) => {
     
       return res.json({
         message: "Login successful",
-     
+      token: token,
         slug: org.slug,
          user: {
           
