@@ -66,7 +66,7 @@ const salarySummary = useMemo(() => {
     <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-md space-y-6">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between pb-4 border-b border-base-300">
+      <div className="flex items-center justify-between pb-4 border-b border-base-600">
         <div>
           <h2 className="text-lg font-semibold text-base-content">
             Pro-forma Salary Slip

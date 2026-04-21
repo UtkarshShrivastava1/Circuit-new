@@ -176,7 +176,8 @@ export default function SalaryStructureDashboard() {
       <div className="flex flex-col md:flex-row gap-6">
         {/* LEFT SIDE - CONFIGURATION */}
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
-          <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+          {/* <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit"> */}
+          <div className="bg-base-200 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
             <h3 className="text-lg font-semibold text-base-content">
               Configure Salary
             </h3>
@@ -205,7 +206,7 @@ export default function SalaryStructureDashboard() {
         </div>
 
         {/* RIGHT SIDE - PREVIEW */}
-        <div className="w-full md:w-2/3 lg:w-3/4">
+        <div className="w-full md:w-2/3 lg:w-3/4  ">
           <SalarySlipPreview 
             data={salaryData} 
             editable={true} 

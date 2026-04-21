@@ -4,9 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { useAuth } from "@/auth/AuthContext";
 import { useEffect, useState } from "react";
 import { getMembers } from "@/services/memberService";
-import { getOrganizationSlug } from "@/utils/auth";
 
-import API from "@/api/axios";
 
 interface User {
   _id: string;
@@ -97,7 +95,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
     users.find((u) => u._id === id)?.name || "Unknown";
 
   return (
-    <div className="bg-base-200/40 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-base-300 space-y-6 transition-all">
+    <div className="bg-base-200/40 backdrop-blur-md p-4 sm:p-6 rounded-xl border border-base-300 space-y-4 transition-all text-sm">
       <h2 className="text-xl font-semibold mb-4 text-base-content">
         Add Participant
       </h2>
@@ -107,7 +105,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         name="userId"
         value={form.userId}
         onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        className="w-full px-3 py-2 rounded-lg bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 text-base-content"
       >
         <option value="">Select User</option>
         {users?.map((user) => (
@@ -122,7 +120,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         name="role"
         value={form.role}
         onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        className="w-full px-3 py-2 rounded-lg bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 text-base-content"
       >
         <option value="">Select Role</option>
         <option value="Member">Project Member</option>
@@ -134,7 +132,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         name="responsibility"
         value={form.responsibility}
         onChange={handleChange}
-        className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200"
+        className="w-full px-3 py-2 rounded-lg bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 text-base-content"
       >
         <option value="">Select Responsibility</option>
         <option value="Frontend Development">Frontend Development</option>
@@ -152,13 +150,13 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
       {/* Add Button */}
       <button
         onClick={handleAdd}
-        className="w-full py-3 rounded-xl bg-primary text-primary-content font-semibold hover:opacity-90 transition-all shadow-md active:scale-[0.98]"
+        className="w-full py-2 rounded-lg text-sm bg-primary text-primary-content font-medium hover:opacity-90 transition-all shadow-md active:scale-[0.98]"
       >
         Add Participant
       </button>
 
       {/* Participants List */}
-      <div className="mt-6 space-y-3">
+      <div className="mt-4 space-y-2">
         <h3 className="text-sm uppercase tracking-wide text-base-content/60 font-semibold">
           Project Members
         </h3>
@@ -168,13 +166,13 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
           participants?.map((p, index) => (
             <div
               key={index}
-              className="bg-base-100 border border-base-300 p-4 rounded-xl flex justify-between items-start shadow-sm hover:shadow-md transition-all"
+              className="bg-base-100 border border-base-300 p-3 rounded-lg flex justify-between items-start shadow-sm hover:shadow-md transition-all"
             >
               <div>
-                <p className="font-semibold text-base-content">
+                <p className="font-semibold text-base-content text-sm mb-1">
                   {getUserName(p.userId)}
                 </p>
-                <p className="text-sm text-base-content/60">Role: {p.role}</p>
+                <p className="text-sm   text-base-content/60">Role: {p.role}</p>
                 <p className="text-sm text-base-content/60">
                   {p.responsibility}
                 </p>
@@ -183,7 +181,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
                 onClick={() => handleDelete(index)}
                 className="text-error hover:scale-110 transition-transform"
               >
-                <MdDelete size={18} />
+                <MdDelete size={16} />
               </button>
             </div>
           ))
@@ -194,7 +192,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
       <button
         onClick={onCreate}
         disabled={creating}
-        className="w-full mt-6 py-3 rounded-xl bg-primary text-primary-content font-semibold hover:opacity-90 transition-all shadow-md disabled:opacity-60 active:scale-[0.98]"
+        className="w-full mt-6 py-2 rounded-lg bg-primary text-primary-content font-medium hover:opacity-90 transition-all shadow-md disabled:opacity-60 active:scale-[0.98]"
       >
         {creating ? "Creating Project..." : "Create Project"}
       </button>

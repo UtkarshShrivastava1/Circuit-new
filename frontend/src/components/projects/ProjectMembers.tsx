@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/auth/AuthContext";
-import API from "@/api/axios";
 import { toast } from "react-toastify";
 import { updateProject } from "@/services/projectServices";
 import { getMembers } from "@/services/memberService";
@@ -136,7 +135,7 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
           Team Members
         </h3>
 
-        <button className="btn btn-sm btn-outline" onClick={() => setShowModal(true)}>
+        <button className="btn btn-sm" onClick={() => setShowModal(true)}>
           + Add Member
         </button>
       </div>

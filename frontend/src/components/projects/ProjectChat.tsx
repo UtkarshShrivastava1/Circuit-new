@@ -156,7 +156,7 @@ export default function ProjectChat({ projectId, currentUser }: Props) {
             <div
               className={`max-w-xs px-4 py-2 rounded-2xl shadow-sm text-sm  ${
                 isOwnMessage
-                  ? "bg-primary text-primary-content"
+                  ? "bg-purple-400 text-primary-content"
                   : "bg-base-200 text-base-content"
               }`}
             >
@@ -179,8 +179,9 @@ export default function ProjectChat({ projectId, currentUser }: Props) {
       <div className="border-t border-base-300 p-3 flex gap-2">
         <input
           type="text"
+         
           placeholder="Type a message..."
-          className="input input-bordered w-full"
+          className="input input-bordered w-full placeholder:text-base-content/70 text-base-content"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}

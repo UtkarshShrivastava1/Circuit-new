@@ -397,7 +397,7 @@ export default function SendNotificationModal({
 
         {/* Attachment */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-base-content">
             Attachment (optional)
           </label>
 
@@ -450,7 +450,7 @@ export default function SendNotificationModal({
         {/* Priority + Target */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
+            <label className="text-sm font-medium text-base-content">
               Priority
             </label>
             <Select
@@ -464,7 +464,7 @@ export default function SendNotificationModal({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Send To</label>
+            <label className="text-sm font-medium text-base-content">Send To</label>
             <Select value={target} onChange={(e) => setTarget(e.target.value)}>
               <option value="all">All Employees</option>
               {members.map((m) => (
