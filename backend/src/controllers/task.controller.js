@@ -1,8 +1,11 @@
-const cloudinary = require("../config/cloudinary");
+const { cloudinary } = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
 const Activity = require('../models/Activity');
+const { getIO } = require("../services/socket.service.js");
+const User = require("../models/User.model.js");
+const { sendEmailNotification } = require("../utils/notifier");
 // -----------------------------------------------------------
 // Add Task
 // -----------------------------------------------------------
@@ -102,7 +105,7 @@ const addTask = async (req, res) => {
 
     await task.save();
     const populatedTask = await Task.findById(task._id)
-  .populate("assignedTo", "name");
+  .populate("assignedTo", "name email");
 
  // 2. Insert the Activity Log here!
     await Activity.create({
@@ -113,15 +116,42 @@ const addTask = async (req, res) => {
       referenceId: task._id,
       referenceModel: "Task"
     });
-    
-    // 3. Emit Realtime Notification
-    const io = req.app.get("io");
-    if (io) {
-      console.log("📡 Emitting 'new_notification' via socket.io for Task Assigned");
-      io.emit("new_notification", {
-        action: "Task Assigned",
-        message: `Created a new task: '${task.title}'`
-      });
+
+     
+    // 3. Emit Realtime Notification via Socket Service
+    try {
+      const io = getIO();
+      console.log(`📡 Emitting 'new_notification' to user ${assignedTo}`);
+      
+      // Only notify the assigned user (or default to everyone if unassigned)
+      if (assignedTo) {
+        io.to(assignedTo.toString()).emit("new_notification", {
+          title: "New Task Assigned",
+          message: `You have been assigned a new task: '${task.title}'`
+        });
+      }
+    } catch (socketErr) {
+      console.error("Failed to emit socket notification:", socketErr.message);
+    }
+
+    // 4. Dispatch Email
+    try {
+      if (populatedTask.assignedTo && populatedTask.assignedTo.length > 0) {
+        for (const user of populatedTask.assignedTo) {
+          if (user.email) {
+            const emailHtml = `
+              <h3>New Task Assigned</h3>
+              <p>Hello <b>${user.name}</b>,</p>
+              <p>You have been assigned a new task: <b>${task.title}</b></p>
+              <p><b>Priority:</b> ${priority || "Normal"}<br/><b>Due Date:</b> ${dueDate ? new Date(dueDate).toDateString() : "N/A"}</p>
+              <p>Please log in to your dashboard to view the details.</p>
+            `;
+            await sendEmailNotification(user.email, `New Task Assigned: ${task.title}`, emailHtml);
+          }
+        }
+      }
+    } catch (notifierErr) {
+      console.error("Failed to send external notifications:", notifierErr.message);
     }
 
     res.status(201).json({
@@ -226,6 +256,21 @@ const updateTask = async (req, res) => {
         message: "Task not found",
       });
     }
+
+  // 🟢 Notify the assigned employee when an admin updates their task
+  try {
+    const io = getIO();
+    if (updatedTask.assignedTo && updatedTask.assignedTo.length > 0) {
+      updatedTask.assignedTo.forEach(user => {
+        io.to(user._id.toString()).emit("new_notification", {
+          title: "Task Updated",
+          message: `The task '${updatedTask.title}' has been updated.`
+        });
+      });
+    }
+  } catch (err) {
+    console.error("Socket emit failed for task update", err);
+  }
 
     res.json({
       success: true,
@@ -446,6 +491,20 @@ const updateTaskStatus = async (req, res) => {
       });
     }
 
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: orgId, role: { $in: ['admin', 'manager', 'owner'] } });
+      
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "Task Status Updated",
+          message: `Task '${updatedTask.title}' status changed to ${status}.`
+        });
+      });
+    } catch (err) {
+      console.error("Socket emit failed for task status update", err);
+    }
+
     return res.json({
       success: true,
       message: "Task status updated successfully",
@@ -464,7 +523,7 @@ const updateTaskStatus = async (req, res) => {
 //Update SubTask Status
 //-------------------------------------
 const updateSubtaskStatus = async (req, res) => {
-  try {
+  try { 
     const { taskId, subtaskId } = req.params;
     const orgId = req.organization._id;
 
@@ -492,6 +551,21 @@ const updateSubtaskStatus = async (req, res) => {
 
     await task.save();
 
+    // 🟢 Notify Admins when an employee updates a subtask
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: orgId, role: { $in: ['admin', 'manager', 'owner'] } });
+      
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "Subtask Updated",
+          message: `Subtask '${subtask.title}' in '${task.title}' was marked ${subtask.completed ? 'completed' : 'incomplete'}.`
+        });
+      });
+    } catch (err) {
+      console.error("Socket emit failed for subtask status update", err);
+    }
+
     res.json({
       success: true,
       message: "Subtask updated",
@@ -505,6 +579,8 @@ const updateSubtaskStatus = async (req, res) => {
     });
   }
 };
+
+
 module.exports = {
   addTask,
   updateTask,

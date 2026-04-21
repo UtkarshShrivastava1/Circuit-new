@@ -35,8 +35,8 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
   };
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-xl p-6 space-y-6">
-      <div className="flex justify-between items-center border-b border-base-300 pb-3">
+    <div className="bg-base-100 border  rounded-xl p-6 space-y-6 border-base-content">
+      <div className="flex justify-between items-center border-base-300 pb-3 text-base-content border-b-1 border-b-base-content">
         <h3 className="text-lg font-semibold">
           Company Leave Policy
         </h3>

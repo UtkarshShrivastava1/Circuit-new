@@ -15,7 +15,7 @@ export default function Tabs<T extends string>({
   tabs,
 }: TabsProps<T>) {
   return (
-    <div className="tabs tabs-boxed bg-base-200 w-fit mb-6">
+    <div className="tabs tabs-boxed bg-base-200 w-fit mb-6 text-base-content">
       {tabs.map((tab) => (
         <button
           key={tab.key}

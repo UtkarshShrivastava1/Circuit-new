@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { getEmployees, runMonthly } from "@/services/payrollService";
-import { getMembers } from "@/services/memberService";
+// import { getMembers } from "@/services/memberService";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import PageHeader from "../ui/PageHeader";
+import { MdReceipt } from "react-icons/md";
 
 export default function GeneratePaySlip() {
   const { auth } = useAuth();
@@ -41,16 +43,33 @@ export default function GeneratePaySlip() {
 
     try {
       const res = await runMonthly(auth.slug, payload);
-      console.log("Res : " ,res)
-      toast.success(res.data?.message || "Payroll generated successfully!");
+      
+      const failed = res.data?.data?.failed || [];
+      const success = res.data?.data?.success || [];
+      
+      if (failed.length > 0) {
+        let reason = failed[0].reason;
+        if (reason.includes("E11000") || reason.toLowerCase().includes("duplicate")) {
+          reason = "Payslips for this month already exist.";
+        }
+        toast.warning(`${success.length} generated, ${failed.length} failed: ${reason}`);
+      } else {
+        toast.success(res.data?.message || "Payroll generated successfully!");
+      }
+
       setSelectedEmployees([]);
       setManualAmount("");
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to generate payroll";
-      toast.error(msg);
       const details = error.response?.data?.details;
       if (details && details.length > 0) {
-        toast.error(`Reason: ${details[0].reason}`);
+        let reason = details[0].reason;
+        if (reason.includes("E11000") || reason.toLowerCase().includes("duplicate")) {
+          reason = "Payslips for this month already exist.";
+        }
+        toast.error(`Failed: ${reason}`);
+      } else {
+        const msg = error.response?.data?.message || "Failed to generate payroll";
+        toast.error(msg);
       }
     } finally {
       setLoading(false);
@@ -65,8 +84,10 @@ export default function GeneratePaySlip() {
   const deselectAll = () => setSelectedEmployees([]);
 
   return (
-    <div className="bg-base-100 p-6 md:p-8 rounded-xl shadow-sm border border-base-300 max-w-3xl mx-auto space-y-6">
-      <h2 className="text-2xl font-bold border-b border-base-200 pb-4">Generate Payslips</h2>
+    <div className="bg-base-100 p-6 md:p-8 rounded-xl shadow-sm border border-base-content max-w-3xl mx-auto space-y-6 text-base-content">
+       <PageHeader title={"Generate Payslips"} subtitle={"Create monthly payroll"} icon={<MdReceipt />} />
+       <hr className="border-base-content" />
+      {/* <h2 className="text-2xl font-bold border-b border-secondary-content pb-4"></h2> */}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
@@ -99,8 +120,8 @@ export default function GeneratePaySlip() {
         <div className="flex justify-between items-center mb-3">
           <label className="text-md font-bold">Select Eligible Employees</label>
           <div className="space-x-2">
-            <Button variant="outline" size="sm" onClick={selectAll}>Select All</Button>
-            <Button variant="outline" size="sm" onClick={deselectAll}>Deselect All</Button>
+            <Button variant="secondary" size="sm" onClick={selectAll}>Select All</Button>
+            <Button variant="ghost" size="sm" className="border border-base-content" onClick={deselectAll}>Deselect All</Button>
           </div>
         </div>
         <div className="border border-base-300 rounded-lg max-h-64 overflow-y-auto p-2 space-y-1 bg-base-50">

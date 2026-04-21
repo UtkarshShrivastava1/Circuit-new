@@ -16,7 +16,6 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
   const role = auth?.user?.role;
   const canEdit = ["admin", "manager", "owner"].includes(role || "");
 
-  console.log("Rendering TaskTable with tasks:", tasks);
   if (tasks.length === 0) {
     return (
       <div className="bg-base-100 border border-base-300 rounded-lg p-6 text-center text-sm text-base-content/60">
@@ -65,7 +64,7 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
               {canEdit && (
                 <td className="text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <div className="lg:tooltip" data-tip="hello">
+                    <div className="lg:tooltip" data-tip="Edit">
 
                     <button
                       className="btn btn-sm btn-ghost hover:bg-primary/10"

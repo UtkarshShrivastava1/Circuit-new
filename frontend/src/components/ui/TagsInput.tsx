@@ -46,7 +46,7 @@ export default function TagsInput({
   return (
     <div
       className={`flex flex-wrap items-center gap-2 px-2 py-1.5 
-      rounded-lg border border-base-300 bg-base-100
+      rounded-lg border border-base-300 bg-base-100 text-base-content
       ${disabled ? "opacity-50" : ""}`}
     >
       {/* Existing tags */}

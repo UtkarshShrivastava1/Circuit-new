@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { connect, socket } from "@/ws";
+import { useEffect, useState , useRef } from "react";
+import { useAuth } from "@/auth/AuthContext"; // Import useAuth
+import API from "@/api/axios";
 
 interface Message {
   _id: string;
@@ -9,7 +12,11 @@ interface Message {
   createdAt: string;
 }
 
-const currentUserId = "u2"; // later auth se aayega
+interface Props {
+  projectId: string;
+  currentUser: any; // Ideally more specific type like { userId: string; name: string; ... }
+}
+
 
 function formatTime(dateString: string) {
   return new Date(dateString).toLocaleTimeString([], {
@@ -18,51 +25,91 @@ function formatTime(dateString: string) {
   });
 }
 
-export default function ProjectChat() {
-  const projectId = "123"; 
-  const [messages, setMessages] = useState<Message[]>([
-    // Dummy backend-like data
-    {
-      _id: "1",
-      senderId: "u1",
-      senderName: "Alex Kumar",
-      text: "Hey team, please update task status.",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      _id: "2",
-      senderId: "u2",
-      senderName: "You",
-      text: "Working on Dashboard UI 👍",
-      createdAt: new Date().toISOString(),
-    },
-  ]);
-
+export default function ProjectChat({ projectId, currentUser }: Props) {
+  const socketRef = useRef<any>(null); // Use any for now, better to type the socket.io client
+  const name = currentUser?.name || "Unknown User";
+  const {auth} = useAuth();
+  // console.log(currentUser)
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null); // For auto-scrolling
+
+  // Initialize the Audio object once
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    audioRef.current = new Audio("/sounds/notification.mp3"); 
+    
+    // Catch missing file errors gracefully
+    audioRef.current.onerror = () => {
+      console.warn("Could not load sound file. Please ensure /sounds/notification.mp3 exists in your frontend/public folder.");
+    };
+  }, []);
 
   // 🔥 Future: Load from backend
   useEffect(() => {
-    async function fetchMessages() {
-      try {
-        // const res = await fetch("/api/projects/123/messages");
-        // const data = await res.json();
-        // setMessages(data);
-      } catch (err) {
-        console.log("Backend not connected yet");
-      }
-    }
+    socketRef.current = connect(); // Connect to WebSocket
 
-    fetchMessages();
-  }, []);
+    // Join the specific project room
+    socketRef.current.emit("joinProject", projectId,currentUser?.name);
+
+    // Listen for room join notifications
+    socketRef.current.on("joinRoom", (notification: string) => {
+      console.log("notification",notification);
+    });
+
+    // Listen for incoming messages from others
+    socketRef.current.on("newMessage", (message: Message) => {
+      setMessages((prev) => {
+        // Prevent duplicates if the server broadcasts the message back to sender
+        if (prev.some((m) => m._id === message._id)) return prev;
+        
+        // Play sound if the message is from someone else
+        const isOwnMessage = message.senderId === (currentUser?.userId || currentUser?._id);
+        if (!isOwnMessage && audioRef.current) {
+          audioRef.current.currentTime = 0;
+          audioRef.current.play().catch((error) => {
+            console.warn("Browser blocked the notification sound.", error);
+          });
+        }
+        
+        return [...prev, message];
+      });
+    });
+
+    // Fetch historical messages from backend
+    const fetchHistory = async () => {
+      try {
+        const res = await API.get(`/messages/${auth.slug}/${projectId}`);
+        setMessages(res.data.messages || []);
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+      }
+    };
+    fetchHistory();
+
+    // Proper React cleanup function to avoid duplicate listeners
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("joinRoom");
+        socketRef.current.off("newMessage");
+        // socketRef.current.emit("leaveProject", projectId);
+      }
+    };
+  }, [projectId]); // Re-run effect if projectId changes
+
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = async () => {
     if (!newMessage.trim()) return;
 
     const optimisticMessage: Message = {
       _id: Date.now().toString(),
-      senderId: currentUserId,
-      senderName: "You",
+      senderId: currentUser?.userId || currentUser?._id, // Use actual user ID
+      senderName: currentUser?.name || "You", // Use actual user name
       text: newMessage,
       createdAt: new Date().toISOString(),
       projectId,
@@ -75,15 +122,16 @@ export default function ProjectChat() {
     try {
       setLoading(true);
 
-      // 🔥 Future API call
-      // await fetch("/api/projects/123/messages", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ text: newMessage }),
-      // });
+      // Emit message to server via socket.io
+      socketRef.current.emit("sendMessage", {
+        projectId,
+        senderId: currentUser?.userId || currentUser?._id,
+        senderName: currentUser?.name || "You",
+        text: newMessage,
+      });
 
     } catch (err) {
-      console.log("Message saved locally only");
+      console.log("Message saved locally only",err);
     } finally {
       setLoading(false);
     }
@@ -94,34 +142,37 @@ export default function ProjectChat() {
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((msg) => (
-          <div
+        {messages.map((msg) => {
+          const isOwnMessage = msg.senderId === currentUser?.userId || msg.senderId === currentUser?._id;
+          return (
+            <div
             key={msg._id}
             className={`flex ${
-              msg.senderId === currentUserId
+              isOwnMessage
                 ? "justify-end"
                 : "justify-start"
             }`}
           >
             <div
-             className={`max-w-xs px-4 py-2 rounded-2xl shadow-sm text-sm  ${
-               msg.senderId === currentUserId
-  ? "bg-primary text-primary-content"
-  : "bg-base-200 text-base-content"
+              className={`max-w-xs px-4 py-2 rounded-2xl shadow-sm text-sm  ${
+                isOwnMessage
+                  ? "bg-primary text-primary-content"
+                  : "bg-base-200 text-base-content"
               }`}
             >
-              <div className="flex justify-between items-center mb-1">
-              <p className="font-medium text-xs text-base-content/60">
+              <div className="flex justify-between items-center mb-1 gap-1">
+              <p className="font-medium text-xs text-base-content">
                   {msg.senderName}
                 </p>
-              <p className="text-[10px] text-base-content/60">
+              <p className="text-[10px] text-base-content">
                   {formatTime(msg.createdAt)}
                 </p>
               </div>
               <p>{msg.text}</p>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Input */}

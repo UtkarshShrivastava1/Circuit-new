@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash, FaPen, FaUser } from "react-icons/fa";
 import { createMember } from "../services/memberService";
 import { useAuth } from "@/auth/AuthContext";
 import { uploadImage } from "@/services/uploadService";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 type UserRole = "employee" | "manager" | "admin";
 type Errors = {
@@ -193,7 +194,10 @@ const AddMember = () => {
     "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
 
   return (
-    <div className="min-h-screen  flex justify-center p-6 ">
+  <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
+      <div className="w-full max-w-5xl">
+        <Breadcrumbs />
+      </div>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"

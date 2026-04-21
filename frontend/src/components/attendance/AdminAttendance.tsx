@@ -10,25 +10,24 @@ const StatusPills = React.lazy(()=> import("./FilertByStatus"));
  import AttendanceTable from "../attendance/AttendanceTable";
 
 import useAttendanceFilters from "../attendance/UseAttendanceFilter";
-import  {usePagination}  from "../../hooks/usePagination";
-const Pagination = React.lazy(()=>import("../ui/Pagination"))
 import type { AttendanceRecord, UserRole, AttendanceStatus } from '@/type/attendance';
 import {Clock ,NotepadText } from "lucide-react"
 import MobileTabs from '../attendance/MobileTabs';
 import AttendanceMobileTopBar from './AttendanceMobileTopBar';
 import { useAuth } from '@/auth/AuthContext';
-import { getAllEmployees , getAttendance ,getManagerDepartments , getDepartmentEmployees} from '@/services/attendanceService';
-import { socket } from "@/socket";
+import {  getAttendance } from '@/services/attendanceService';
+import Button from '../ui/Button';
 
 
 
 
 type AttendanceTab = "records" | "mark";
-type Status = "all" | "approved" | "pending" | "rejected";
+type Status = "all" | "approved" | "pending" | "absent";
 
 const AdminAttendance = () => {
   const { auth } = useAuth();
-  const user = auth?.user;
+  const user =  auth?.user;
+  const userId = user?.userId;
   const slug = auth?.slug;
   const role: UserRole = user?.role || "admin";
 
@@ -43,12 +42,18 @@ const AdminAttendance = () => {
        toDate?: string;
      }>({});
 
-    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string })[]>([]);
+    const [records, setRecords] = useState<(AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[]>([]);
     const [loading, setLoading] = useState(true);
     const [refetchIndex, setRefetchIndex] = useState(0);
 
     const refetch = () => setRefetchIndex(prev => prev + 1);
 
+    // Listen for real-time notifications (e.g. attendanceMarked) and auto-refresh the table
+   
+    
+    
+    
+    
     useEffect(() => {
       if (slug) {
         setLoading(true);
@@ -58,7 +63,7 @@ const AdminAttendance = () => {
             const responseData = res.data?.data || res.data || [];
             const arr = Array.isArray(responseData) ? responseData : [];
             
-            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[] = [];
+            const formattedRecords: (AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[] = [];
             arr.forEach((doc: any) => {
               const formattedDate = new Date(doc.date).toLocaleDateString("en-IN", {
                 day: "2-digit", month: "short", year: "numeric"
@@ -81,7 +86,7 @@ const AdminAttendance = () => {
                 if (backendStatus === "PRESENT" || backendStatus === "HALF_DAY") {
                     mappedStatus = "approved";
                 } else if (backendStatus === "REJECTED" || backendStatus === "ABSENT") {
-                    mappedStatus = "rejected";
+                    mappedStatus = "absent";
                 } // PENDING is the default
 
                 formattedRecords.push({
@@ -92,11 +97,13 @@ const AdminAttendance = () => {
                   date: formattedDate,
                   checkIn: checkInTime,
                   status: mappedStatus,
+                  mode: record.mode || "office",
                 });
               });
             });
 
             setRecords(formattedRecords);
+             
           })
           .catch((error) => {
             console.error("Failed to fetch attendance records", error);
@@ -112,13 +119,13 @@ const AdminAttendance = () => {
        const monthlySummary = useMemo(() => {
          const present = records.filter(r => r.status === "approved").length;
          const pending = records.filter(r => r.status === "pending").length;
-         const rejected = records.filter(r => r.status === "rejected").length;
+         const absent = records.filter(r => r.status === "absent").length;
        
          return {
            totalDays: records.length,
            present,
            pending,
-           rejected,
+           absent,
            wfh: Math.floor(records.length * 0.2),
            halfDay: Math.floor(records.length * 0.1),
            attendancePercentage: records.length > 0 ? Math.round((present / records.length) * 100) : 0,
@@ -127,114 +134,13 @@ const AdminAttendance = () => {
 
 
    const filteredRecords = useAttendanceFilters(records, filters, statusFilter);
-
-   const { page, setPage, totalPages, paginatedData } = usePagination(filteredRecords, 10);
+   
 
   if (loading) {
     return <div className="p-6 text-center">Loading attendance...</div>;
   }
 
-  // return (
-  //    <>
-  //         {filteredRecords.length === 0 ? (
-  //           <EmptyState
-  //             title="No attendance records"
-  //             description="Attendance will appear here"
-  //           />
-  //         ) : (
-  //           <>
-  //             {/* TABS  */}
-  //             <div className="mb-4">
-  //               <div className="tabs tabs-boxed bg-base-200 inline-flex">
-  //                 <button
-  //                   className={`tab ${
-  //                     activeTab === "records" ? "tab-active" : ""
-  //                   }`}
-  //                   onClick={() => setActiveTab("records")}
-  //                 >
-  //                   📋 Records
-  //                 </button>
-
-  //                 <button
-  //                   className={`tab ${
-  //                     activeTab === "mark" ? "tab-active" : ""
-  //                   }`}
-  //                   onClick={() => setActiveTab("mark")}
-  //                 >
-  //                   🕒  Attendance Summary
-  //                 </button>
-  //               </div>
-  //             </div>
-
-  //             {/* TAB CONTENT  */}
-  //             {activeTab === "records" && (
-  //               <>
-  //                 {/* {/* FILTER BAR  */}
-
-  //                 <AttendanceFilterDrawer
-  //                   open={showFilters}
-  //                   onClose={() => setShowFilters(false)}
-  //                   filters={filters}
-  //                   status={statusFilter}
-  //                   onFilterChange={setFilters}
-  //                   onStatusChange={setStatusFilter}
-  //                   isAdmin={role === "admin"}
-  //                 />
-
-  //                 {/* DESKTOP FILTER BAR */}
-  //                 <div className="hidden md:block bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
-  //                   <AttendanceFilters
-  //                     isAdmin={role === "admin"}
-  //                     name={filters.name}
-  //                     fromDate={filters.fromDate}
-  //                     toDate={filters.toDate}
-  //                     onChange={setFilters}
-  //                   />
-
-  //                   <StatusPills
-  //                     value={statusFilter}
-  //                     onChange={setStatusFilter}
-  //                   />
-  //                 </div>
-  //                 <AttendanceMobileTopBar
-  //                   isAdmin={role === "admin"}
-  //                   name={filters.name}
-  //                   fromDate={filters.fromDate}
-  //                   toDate={filters.toDate}
-  //                   onChange={setFilters}
-  //                   onOpenFilters={() => setShowFilters(true)}
-  //                 />
-
-  //                 <div className="mt-4">
-  //                   <Suspense fallback={<div>Loading...</div>} >
-
-  //                   <AttendanceTable records={paginatedData} role={role} />
-  //                   </Suspense>
-  //                 </div>
-
-  //                 <div className="flex justify-end mt-4">
-  //                   <Pagination
-  //                     page={page}
-  //                     totalPages={totalPages}
-  //                     onChange={setPage}
-  //                   />
-  //                 </div>
-  //               </>
-  //             )}
-
-
-  //             {activeTab === "mark" && (<>
-              
-  //             <AttendanceSummaryCards summary={monthlySummary} />
-              
-  //              </>) 
-              
-              
-  //             }
-  //           </>
-  //         )}
-  //       </>
-  // )
+  
 
   return (
   <Suspense fallback={<div className="flex flex-col justify-center items-center h-screen bg-base-100">
@@ -242,30 +148,31 @@ const AdminAttendance = () => {
         <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
       </div>}>
     {/* <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-4"> */}
-    {filteredRecords.length === 0 ? (
+    {/* {filteredRecords.length === 0 ? (
       <EmptyState
         title="No attendance records"
         description="Attendance will appear here"
       />
     ) : (
+    )} */}
       <>
         {/* TABS */}
         <div className="mb-4">
-          <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden ">
+          <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden gap-3  p-2 ">
           {/* <div className="hidden md:flex tabs tabs-boxed bg-base-200 w-fit"> */}
-            <button
+            <Button
               className={`tab ${activeTab === "records" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("records")}
             >
               <NotepadText/> Records
-            </button>
+            </Button>
 
-            <button
+            <Button
               className={`tab ${activeTab === "mark" ? "tab-active" : ""} gap-2`}
               onClick={() => setActiveTab("mark")}
             >
               <Clock/> Attendance Summary
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -283,20 +190,34 @@ const AdminAttendance = () => {
               isAdmin={role === "admin"}
             />
 
-            <div className="hidden md:block bg-base-100 border border-base-300 rounded-lg p-4 space-y-3">
-              <AttendanceFilters
-                isAdmin={role === "admin"}
-                name={filters.name}
-                fromDate={filters.fromDate}
-                toDate={filters.toDate}
-                onChange={setFilters}
-              />
+          {/* DESKTOP FILTER BAR */}
+          <div className="hidden md:flex flex-col gap-4 bg-base-100 border border-base-200 shadow-sm rounded-xl p-5">
+            <h3 className="text-sm font-semibold text-base-content/70 uppercase tracking-wider">
+              Filter Records
+            </h3>
+            
+            <div className="flex flex-col xl:flex-row gap-6 items-start xl:items-end w-full">
+              <div className="flex-1 w-full">
+                <AttendanceFilters
+                  isAdmin={role === "admin"}
+                  name={filters.name}
+                  fromDate={filters.fromDate}
+                  toDate={filters.toDate}
+                  onChange={setFilters}
+                />
+              </div>
 
-              <StatusPills
-                value={statusFilter}
-                onChange={setStatusFilter}
-              />
+              <div className="w-full xl:w-auto flex-shrink-0">
+                <label className="text-xs text-base-content/60 block mb-1.5">
+                  Status
+                </label>
+                <StatusPills
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                />
+              </div>
             </div>
+          </div>
            
 
 
@@ -310,15 +231,7 @@ const AdminAttendance = () => {
             />
 
             <div className="mt-4">
-              <AttendanceTable records={paginatedData} role={role} onUpdate={refetch} />
-            </div>
-
-            <div className="flex justify-end mt-4">
-              <Pagination
-                page={page}
-                totalPages={totalPages}
-                onChange={setPage}
-              />
+              <AttendanceTable records={filteredRecords} role={role} onUpdate={refetch} />
             </div>
 
           </>
@@ -328,7 +241,6 @@ const AdminAttendance = () => {
           <AttendanceSummaryCards summary={monthlySummary} />
         )}
       </>
-    )}
 
     <MobileTabs active={activeTab} onChange={setActiveTab}/>
     {/* </div> */}

@@ -10,7 +10,7 @@ interface Props {
     fromDate?: string;
     toDate?: string;
   };
-  status: "all" | "approved" | "pending" | "rejected";
+  status: "all" | "approved" | "pending" | "absent";
   onFilterChange: (v: any) => void;
   onStatusChange: (v: any) => void;
   isAdmin: boolean;
@@ -41,10 +41,10 @@ export default function AttendanceFilterDrawer({
     <div className="w-10 h-1 bg-base-300 rounded-full"></div>
   </div>
         <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-base-content">
+          <h3 className="font-semibold text-base-content ">
             Filters
           </h3>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} className="text-base-content/70">
             ✕
           </Button>
         </div>
@@ -63,7 +63,7 @@ export default function AttendanceFilterDrawer({
         />
 
         <Button
-          className="w-full"
+          className="w-full border-base-content"
           variant="primary"
           onClick={onClose}
         >

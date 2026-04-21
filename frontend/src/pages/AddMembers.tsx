@@ -3,6 +3,7 @@ import { FaEye, FaEyeSlash, FaUser, FaShieldAlt, FaBriefcase, FaUniversity, FaUs
 import { toast } from "react-toastify";
 import { createMember } from "../services/memberService";
 // import { getOrganizationSlug } from "@/utils/auth";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { useAuth } from "@/auth/AuthContext";
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
@@ -146,6 +147,7 @@ const AddMember = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-50 flex items-start justify-center p-6 pt-10">
+      
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
         .form-wrap { font-family: 'DM Sans', sans-serif; }
@@ -170,6 +172,9 @@ const AddMember = () => {
       `}</style>
 
       <div className="form-wrap w-full max-w-3xl">
+        <div className="mb-6">
+          <Breadcrumbs />
+        </div>
 
         {/* Header */}
         <div className="mb-8 flex items-center gap-5">

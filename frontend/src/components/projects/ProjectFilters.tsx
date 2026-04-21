@@ -7,7 +7,7 @@ interface Props {
 
 export default function ProjectFilters({ value, onChange }: Props) {
   return (
-    <div className="tabs tabs-boxed bg-base-200 w-fit mb-4">
+    <div className="tabs tabs-boxed bg- w-fit mb-4 text-base-content">
       {(["all", "active", "completed", "on hold"] as Filter[]).map(
         (f) => (
           <button

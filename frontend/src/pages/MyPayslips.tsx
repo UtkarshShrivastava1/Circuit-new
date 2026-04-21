@@ -3,6 +3,7 @@ import { getMyHistory, downloadSlipPdf } from "@/services/payrollService";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 export default function MyPayslips() {
   const { auth } = useAuth();
@@ -47,7 +48,9 @@ export default function MyPayslips() {
   if (loading) return <div>Loading your payslips...</div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6">
+      <Breadcrumbs />
+
       <h2 className="text-2xl font-bold">My Payslips</h2>
       
       <div className="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">

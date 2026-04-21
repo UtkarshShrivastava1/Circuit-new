@@ -229,7 +229,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import type { Notification } from "@/type/notification";
 import { useAuth } from "@/auth/AuthContext";
-import { sendNotification } from "@/services/notificationService";
+import { sendNotification, updateNotification } from "@/services/notificationService";
 import { toast } from "react-toastify";
 
 interface Member {
@@ -279,6 +279,7 @@ export default function SendNotificationModal({
           : editingNotification.targetUserIds[0] || "all",
       );
       setExistingAttachments(editingNotification.attachments || []);
+      console.log("editingNotification",editingNotification)
       setFile(null); // reset file for new upload if needed
     } else {
       // reset modal if not editing
@@ -320,11 +321,15 @@ export default function SendNotificationModal({
         formData.append("attachments", file);
       }
 
-      const res = await sendNotification(organizationSlug, formData);
+      const res = editingNotification 
+        ? await updateNotification(organizationSlug, editingNotification._id, formData)
+        : await sendNotification(organizationSlug, formData);
 
       if (res?.data?.success) {
         onSend(res.data.data);
-        toast.success("Notification sent successfully!");
+        toast.success(
+          editingNotification ? "Notification updated successfully!" : "Notification sent successfully!"
+        );
         setTitle("");
         setMessage("");
         setPriority("normal");

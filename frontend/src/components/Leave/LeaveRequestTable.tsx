@@ -3,6 +3,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import type { LeaveRequest } from "@/type/leave";
 import { leaveTypeIcon } from "@/type/leave";
 import { useState } from "react";
+import Pagination from "@/components/ui/Pagination";
 
 interface Props {
   requests: LeaveRequest[];
@@ -20,15 +21,13 @@ export default function LeaveRequestTable({
   onBulkApprove,
   onBulkReject,
 }: Props) {
-  if (requests.length === 0) {
-    return (
-      <div className="text-center text-sm text-base-content/60 p-6">
-        No leave requests found
-      </div>
-    );
-  }
-
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  const totalPages = Math.ceil(requests.length / pageSize) || 1;
+  const validPage = Math.min(currentPage, totalPages);
+  const currentRequests = requests.slice((validPage - 1) * pageSize, validPage * pageSize);
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -79,10 +78,10 @@ export default function LeaveRequestTable({
 
       {/* ================= DESKTOP TABLE ================= */}
       <div className="hidden md:block bg-base-100 border border-base-300 rounded-lg overflow-hidden">
-        <table className="table table-zebra w-full text-base-content">
+        <table className="table table-zebra w-full text-base-content ">
           <thead>
-            <tr>
-              <th>
+            <tr className="bg-base-300" >
+              <th >
                 <input type="checkbox" 
                 checked={selectedIds.length === requests.length && requests.length > 0}
                 onChange={handleSelectAll}
@@ -98,9 +97,16 @@ export default function LeaveRequestTable({
           </thead>
 
           <tbody> 
-            {requests.map((r) => {
-              const Icon = leaveTypeIcon[r.type];
-              return (
+            {currentRequests.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-10 text-base-content/60 font-medium">
+                  No leave requests found
+                </td>
+              </tr>
+            ) : (
+              currentRequests.map((r) => {
+                const Icon = leaveTypeIcon[r.type];
+                return (
                 <tr key={r.id}>
                   <td className="font-medium">
 
@@ -128,38 +134,44 @@ export default function LeaveRequestTable({
 
                   <td className="text-right">
                     <div className="flex justify-end gap-2">
-                      {(r.status === "pending" || r.status === "rejected") && (
-                        <Button
-                          size="xs"
-                          variant="primary"
-                          onClick={() => onApprove(r.id)}
-                        >
-                          Approve
-                        </Button>
-                      )}
-                      {(r.status === "pending" || r.status === "approved") && (
-                        <Button
-                          size="xs"
-                          variant="error"
-                          onClick={() => onReject(r.id)}
-                        >
-                          Reject
-                        </Button>
-                      )}
+                      <Button
+                        size="xs"
+                        variant="primary"
+                        onClick={() => onApprove(r.id)}
+                        disabled={r.status === "approved"}
+                        className={r.status === "approved" ? " cursor-not-allowed" : ""}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="error"
+                        onClick={() => onReject(r.id)}
+                        disabled={r.status === "rejected"}
+                        className={r.status === "rejected" ? " cursor-not-allowed" : ""}
+                      >
+                        Reject
+                      </Button>
                     </div>
                   </td>
                 </tr>
               );
-            })}
+            })
+          )}
           </tbody>
         </table>
       </div>
 
       {/* ================= MOBILE CARDS ================= */}
       <div className="md:hidden space-y-3">
-        {requests.map((r) => {
-          const Icon = leaveTypeIcon[r.type];
-          return (
+        {currentRequests.length === 0 ? (
+          <div className="text-center py-10 text-base-content/60 font-medium bg-base-100 border border-base-300 rounded-xl">
+            No leave requests found
+          </div>
+        ) : (
+          currentRequests.map((r) => {
+            const Icon = leaveTypeIcon[r.type];
+            return (
             <div
               key={r.id}
               className="bg-base-100 border border-base-300 rounded-xl p-4 space-y-3"
@@ -189,9 +201,33 @@ export default function LeaveRequestTable({
                 {r.toDate && ` → ${r.toDate}`}
               </div>
 
-              {(r.status === "pending" || r.status === "approved" || r.status === "rejected") && (
+
+              <div className="flex w-full gap-4 pt-2">
+                <Button
+                  className={`flex-1 ${r.status === "approved" ? "opacity-50 cursor-not-allowed" : ""}`}
+                  size="sm"
+                  variant="primary"
+                  onClick={() => onApprove(r.id)}
+                  disabled={r.status === "approved"}
+                >
+                  Approve
+                </Button>
+
+                <Button
+                  className={`flex-1 ${r.status === "rejected" ? "opacity-50 cursor-not-allowed" : ""}`}
+                  size="sm"
+                  variant="error"
+                  onClick={() => onReject(r.id)}
+                  disabled={r.status === "rejected"}
+                >
+                  Reject
+                </Button>
+              </div>
+
+              {/* {(r.status === "pending" ) && (
                 <div className="flex gap-2 pt-2">
                   {(r.status === "pending" || r.status === "rejected") && (
+                    <div className="gap-4">
                     <Button
                       className="flex-1"
                       size="sm"
@@ -200,8 +236,7 @@ export default function LeaveRequestTable({
                     >
                       Approve
                     </Button>
-                  )}
-                  {(r.status === "pending" || r.status === "approved") && (
+
                     <Button
                       className="flex-1"
                       size="sm"
@@ -210,13 +245,41 @@ export default function LeaveRequestTable({
                     >
                       Reject
                     </Button>
+                   
+                    </div>
+                  )}
+                  {(r.status === "approved") && (
+
+                    <div>
+                      
+                    
+                    <Button
+                      className="flex-1"
+                      size="sm"
+                      variant="error"
+                      onClick={() => onReject(r.id)}
+                    >
+                      Reject
+                    </Button>
+                    </div>
                   )}
                 </div>
-              )}
+              )} */}
             </div>
           );
-        })}
+        })
+      )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-6">
+          <Pagination
+            currentPage={validPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </>
   );
 }

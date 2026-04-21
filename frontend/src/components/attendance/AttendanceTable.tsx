@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import StatusBadge from "../ui/StatusBadge";
 import Button from "../ui/Button";
 import type { AttendanceRecord, UserRole } from "../../type/attendance";
@@ -6,9 +6,10 @@ import Table from "../ui/Table";
 import { useAuth } from "@/auth/AuthContext";
 import { approveAttendance } from "@/services/attendanceService";
 import { toast } from "react-toastify";
-
+// import { useNotificationSocket } from '@/hooks/notifiaction';
+import Pagination from "../ui/Pagination";
 interface Props {
-  records: (AttendanceRecord & { attendanceDocId: string; employeeId: string })[];
+  records: (AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[];
   role: UserRole;
   onUpdate: () => void;
 }
@@ -18,6 +19,24 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
   const isAdmin = role === "admin" || role === "owner";
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { auth } = useAuth();
+
+  /* ---------------- PAGINATION ---------------- */
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 7;
+
+  const totalPages = Math.ceil(records.length / ITEMS_PER_PAGE) || 1;
+  const validPage = Math.min(page, totalPages);
+
+  const paginatedRecords = records.slice(
+    (validPage - 1) * ITEMS_PER_PAGE,
+    validPage * ITEMS_PER_PAGE
+  );
+
+  // Reset page when filtering changes the total record count
+  useEffect(() => {
+    setPage(1);
+  }, [records.length]);
+
 
   const handleApproval = async (
     attendanceDocId: string,
@@ -33,10 +52,11 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
         error: "Update failed.",
       }
     );
+   
     onUpdate();
   };
 
-  const selectableRecords = records.filter(
+  const selectableRecords = paginatedRecords.filter(
     (r) => r.status === "pending"
   );
 
@@ -60,7 +80,7 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
 
   const handleBulkAction = async (status: "PRESENT" | "ABSENT") => {
     if (!auth?.slug) return;
-    const selectedRecords = records.filter((r) => selectedIds.includes(r.id));
+    const selectedRecords = paginatedRecords.filter((r) => selectedIds.includes(r.id));
 
     const promises = selectedRecords.map((rec) =>
       approveAttendance(auth.slug!, rec.attendanceDocId, { employeeId: rec.employeeId, status })
@@ -85,8 +105,8 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
         <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-4 py-3 flex justify-between items-center">
           <span className="text-sm">{selectedIds.length} selected</span>
           <div className="flex gap-2">
-            <Button variant="primary" onClick={() => handleBulkAction("PRESENT")}>Approve</Button>
-            <Button variant="error" onClick={() => handleBulkAction("ABSENT")}>Reject</Button>
+            <Button variant="primary" onClick={() => handleBulkAction("PRESENT")}>PRESENT</Button>
+            <Button variant="error" onClick={() => handleBulkAction("ABSENT")}>ABSENT</Button>
           </div>
         </div>
       )}
@@ -97,29 +117,41 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
         headers={[
           ...(isAdmin
             ? [
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  disabled={selectableRecords.length === 0}
-                  onChange={toggleSelectAll}
-                />,
+                <div className="w-10">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-sm rounded"
+                    checked={allSelected}
+                    disabled={selectableRecords.length === 0}
+                    onChange={toggleSelectAll}
+                  />
+                </div>,
               ]
             : []),
           "Employee",
           "Date",
           "Check In",
           "Status",
+          "Mode",
           ...(isAdmin ? ["Action"] : []),
         ]}
       >
-        {records.map((r) => (
+        {paginatedRecords.length === 0 ? (
+          <tr>
+            <td colSpan={isAdmin ? 7 : 5} className="text-center py-10 text-base-content/60 font-medium">
+              No attendance records found
+            </td>
+          </tr>
+        ) : (
+          paginatedRecords.map((r) => (
           <tr key={r.id} className="text-base-content text-sm">
 
             {/* ✅ Checkbox only for admin */}
             {isAdmin && (
-              <td>
+              <td className="w-10">
                 <input
                   type="checkbox"
+                  className="checkbox checkbox-sm rounded"
                   checked={selectedIds.includes(r.id)}
                   disabled={r.status !== "pending"}
                   onChange={() => toggleSelect(r.id)}
@@ -134,120 +166,56 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
             <td>
               <StatusBadge status={r.status} />
             </td>
+            <td className="capitalize">
+              {r.mode}
+            </td>
 
             {/* ✅ Action column only for admin */}
             {isAdmin && (
-              <td className="text-right">
-                {r.status === "pending" && (
-                  <div className="flex justify-end gap-2">
-                    <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}>
+              <td> 
+               
+                  <div className="flex justify-start gap-2">
+                    <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}
+                      className={`${r.status === "approved" ? "btn-disabled" : ""}`}
+                      >
                       Present
                     </Button>
-                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}>
+                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}
+                      className={`${r.status === "absent" ? "btn-disabled" : ""}`}
+                      >
                       Absent
                     </Button>
                   </div>
-                )}
-                {r.status === "rejected" && (
-                  <div className="flex justify-end gap-2">
+               
+                {/* {r.status === "absent" && (
+                  <div className="flex justify-start gap-2">
                     <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}>
                       Present
                     </Button>
                   </div>
                 )}
                 {r.status === "approved" && (
-                  <div className="flex justify-end gap-2">
-                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}>
+                  <div className="flex justify-start gap-2">
+                    <Button size="xs" variant="error" className="text-base-content" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}>
                      Absent
                     </Button>
                   </div>
-                )}
+                )} */}
               </td>
             )}
           </tr>
-        ))}
+          ))
+        )}
       </Table>
+      </div>
+      
+      <div className="flex justify-center sm:justify-end p-4 border-t border-base-300">
+        <Pagination
+          currentPage={validPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-{/* <table className="table table-zebra w-full">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={allSelected}
-                disabled={selectableRecords.length === 0}
-                onChange={toggleSelectAll}
-              />
-            </th>
-            <th>Employee</th>
-            <th>Date</th>
-            <th>Check In</th>
-            <th>Status</th>
-            <th className="text-right">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {records.map((r) => {
-            const isSelectable = r.status === "pending";
-
-            return (
-              <tr key={r.id} className="text-base-content">
-                <td>
-                  <input
-                    type="checkbox"
-                    disabled={!isSelectable}
-                    checked={selectedIds.includes(r.id)}
-                    onChange={() => toggleSelect(r.id)}
-                  />
-                </td>
-
-                <td>{r.employee}</td>
-                <td>{r.date}</td>
-                <td>{r.checkIn}</td>
-
-                <td>
-                  <StatusBadge status={r.status} />
-                </td>
-
-                <td className="text-right">
-                  {r.status === "pending" && (
-                    <div className="flex justify-end gap-2">
-                      <Button variant="primary" size="xs">
-                        Approve
-                      </Button>
-                      <Button variant="error" size="xs">
-                        Reject
-                      </Button>
-                    </div>
-                  )}
-
-                  {r.status === "approved" && (
-                    <Button variant="error" size="xs">
-                      Reject
-                    </Button>
-                  )}
-
-                  {r.status === "rejected" && (
-                    <Button variant="primary" size="xs">
-                      Approve
-                    </Button>
-                  )}
-                </td>
-                
-              </tr>
-            );
-          })}
-        </tbody>
-      </table> */}

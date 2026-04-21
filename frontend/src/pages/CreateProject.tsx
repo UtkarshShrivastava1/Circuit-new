@@ -4,6 +4,7 @@ import { AddParticipant } from "@/components/projects/AddParticipant";
 import CreateProjectForm from "@/components/projects/CreateProjectForm";
 import { createProject } from "@/services/projectServices";
 import { useState } from "react";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { toast } from "react-toastify";
 
 const TABS = ["Project Info", "Participants"];

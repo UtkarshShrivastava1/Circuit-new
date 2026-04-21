@@ -3,6 +3,7 @@ const User = require("../models/User.model");
 const logger = require("../common/libs/logger");
 const Activity = require('../models/Activity');
 const { getIO } = require("../services/socket.service");
+const { sendEmailNotification } = require("../utils/notifier");
 
 // Safe Chalk Import
 let chalk;
@@ -34,6 +35,25 @@ exports.applyLeave = async (req, res) => {
     // Assuming your auth middleware puts decoded JWT directly into req.user
     const userId = req.user.userId || req.user._id; 
     const slug = req.organization.slug; // Set by tenant middleware
+     // 👉 Save leave in DB (your existing logic)
+
+  console.log("📩 Leave applied by:", userId);
+
+
+    let processedAttachments = [];
+    if (attachments) {
+      if (typeof attachments === "string") {
+        try {
+          const parsed = JSON.parse(attachments);
+          processedAttachments = Array.isArray(parsed) ? parsed : [attachments];
+        } catch (e) {
+          processedAttachments = [attachments];
+        }
+      } else if (Array.isArray(attachments)) {
+        processedAttachments = attachments;
+      }
+      processedAttachments = processedAttachments.filter((item) => typeof item === "string" && item.trim() !== "");
+    }
 
     logger.info("Apply leave request", { userId, leaveType: type, startDate: fromDate, endDate: toDate });
 
@@ -45,7 +65,7 @@ exports.applyLeave = async (req, res) => {
       startDate: fromDate,
       endDate: type === "half-day" ? fromDate : toDate, // Default endDate to fromDate for half-days
       reason,
-      attachments,
+      attachments: processedAttachments,
       session: type === "half-day" ? session : undefined,
       emergency: emergency || false,
       status: "pending",
@@ -62,16 +82,35 @@ exports.applyLeave = async (req, res) => {
       referenceId: leave._id,
       referenceModel: "Leave"
     });
+    logger.info("Leave application activity logged", { userId, leaveId: leave._id });
     
-    // 3. Emit Realtime Notification
-    const io = req.app.get("io");
-    if (io) {
-      console.log("📡 Emitting 'new_notification' via socket.io for Leave Applied");
-      io.emit("new_notification", {
-        action: "Leave Applied",
-        message: ` ${name} applied for leave: ${type}`
+    // 3. Emit Realtime Notification to Admins/Managers
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: req.organization._id, role: { $in: ['admin', 'owner', 'manager'] } });
+      
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "New Leave Request",
+          message: `Employee ${name || userId} applied for leave`,
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed", err);
     }
+
+    // 4. Dispatch Email
+    try {
+      const emailHtml = `
+        <h3>New Leave Request</h3>
+        <p><b>${name || userId}</b> has requested ${type} leave.</p>
+        <p>Please log in to the Circuit ERP dashboard to approve or reject this request.</p>
+      `;
+      await sendEmailNotification("manager@company.com", "Action Required: Leave Request Pending", emailHtml);
+    } catch (notifierErr) {
+      logger.error("Failed to send external notifications", { error: notifierErr.message });
+    }
+
 
     res.status(201).json({
       message: "Leave application submitted successfully",
@@ -173,6 +212,7 @@ exports.getLeaveById = async (req, res) => {
 // ------------------------------------------------
 exports.updateLeaveStatus = async (req, res) => {
   try {
+    console.log(req.params)
     const { leaveId } = req.params;
     const { status, managerRemarks } = req.body;
     const approverId = req.user.userId || req.user._id;
@@ -192,7 +232,7 @@ exports.updateLeaveStatus = async (req, res) => {
         approvedBy: approverId,
         actionDate: new Date()
       },
-      { new: true }
+      { returnDocument: 'after' }
     ).populate("user", "name email");
     logger.info(`leaves:  ${leave}`);
 
@@ -211,23 +251,18 @@ exports.updateLeaveStatus = async (req, res) => {
       }
     );
 
-     // 🔥 EMIT SOCKET EVENT
-    const io = getIO();
+    const io = getIO(); 
 
-    io.emit("leaveStatusUpdated", {
-      leaveId: leave._id,
-      status: leave.status,
-      employeeId: leave.employee, // useful later
-    });
+    const employeeId = leave.user._id.toString();
+console.log("📡 Sending approval to employee:", employeeId);
 
-    // Emit Realtime Notification
-    const appIo = req.app.get("io");
-    if (appIo) {
-      appIo.emit("new_notification", {
-        action: `Leave ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-        message: `Leave ${status} for ${leave.name || leave.user?.email}`
-      });
-    }
+    io.to(employeeId).emit("new_notification", {
+      type: `leave-${status}`,
+      title: `Leave ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+      message: `Your leave request has been ${status} ${status === 'approved' ? '✅' : '❌'}`,
+});
+
+console.log("✅ Approval emitted to employee");
 
     res.json({ message: `Leave ${status} successfully`, leave });
   } catch (error) {
@@ -255,6 +290,9 @@ exports.bulkUpdateLeaveStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status. Must be 'approved' or 'rejected'" });
     }
 
+    // Fetch leaves so we can notify employees individually
+    const leaves = await Leave.find({ _id: { $in: leaveIds }, slug });
+
     const result = await Leave.updateMany(
       { _id: { $in: leaveIds }, slug },
       { 
@@ -267,12 +305,16 @@ exports.bulkUpdateLeaveStatus = async (req, res) => {
 
     console.log(chalk.yellow(`⚙ Bulk Leave ${status} → ${result.modifiedCount} requests`));
     
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("new_notification", {
-        action: "Bulk Leave Update",
-        message: `${result.modifiedCount} leave(s) updated to ${status}`
+    try {
+      const io = getIO();
+      leaves.forEach(leave => {
+        io.to(leave.user.toString()).emit("new_notification", {
+          title: "Leave Status Updated",
+          message: `Your leave request has been ${status}`,
+        });
       });
+    } catch (err) {
+      logger.error("Bulk update emit failed", err);
     }
 
     res.json({ message: `Successfully updated ${result.modifiedCount} leave(s) to ${status}`, modifiedCount: result.modifiedCount });
@@ -316,12 +358,17 @@ exports.cancelLeave = async (req, res) => {
       }
     );
 
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("new_notification", {
-        action: "Leave Cancelled",
-        message: `Leave cancelled by ${leave.name || 'user'}`
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: slug, role: { $in: ['admin', 'owner', 'manager'] } });
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "Leave Cancelled",
+          message: `Leave cancelled by ${leave.name || 'user'}`
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed", err);
     }
 
     res.json({ message: "Leave cancelled successfully", leave });
@@ -357,7 +404,21 @@ exports.updateLeave = async (req, res) => {
     leave.startDate = fromDate || leave.startDate;
     leave.endDate = type === "half-day" ? fromDate : (toDate || leave.endDate);
     leave.reason = reason || leave.reason;
-    if (attachments) leave.attachments = attachments;
+    
+    if (attachments !== undefined) {
+      let processedAttachments = [];
+      if (typeof attachments === "string") {
+        try {
+          const parsed = JSON.parse(attachments);
+          processedAttachments = Array.isArray(parsed) ? parsed : [attachments];
+        } catch (e) {
+          processedAttachments = [attachments];
+        }
+      } else if (Array.isArray(attachments)) {
+        processedAttachments = attachments;
+      }
+      leave.attachments = processedAttachments.filter((item) => typeof item === "string" && item.trim() !== "");
+    }
     if (session) leave.session = session;
     if (emergency !== undefined) leave.emergency = emergency;
 
@@ -373,12 +434,17 @@ exports.updateLeave = async (req, res) => {
       }
     );
 
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("new_notification", {
-        action: "Leave Updated",
-        message: `Leave request updated by ${leave.name || 'user'}`
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: slug, role: { $in: ['admin', 'owner', 'manager'] } });
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "Leave Updated",
+          message: `Leave request updated by ${leave.name || 'user'}`
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed", err);
     }
 
     res.json({ message: "Leave updated successfully", leave });
@@ -409,12 +475,17 @@ exports.deleteLeave = async (req, res) => {
     
     await Activity.deleteMany({ referenceId: leaveId, referenceModel: "Leave" });
     
-    const io = req.app.get("io");
-    if (io) {
-      io.emit("new_notification", {
-        action: "Leave Deleted",
-        message: `Leave deleted by user`
+    try {
+      const io = getIO();
+      const admins = await User.find({ organization: slug, role: { $in: ['admin', 'owner', 'manager'] } });
+      admins.forEach(admin => {
+        io.to(admin._id.toString()).emit("new_notification", {
+          title: "Leave Deleted",
+          message: `A leave request was deleted by the user.`
+        });
       });
+    } catch (err) {
+      logger.error("Socket emit failed", err);
     }
 
     res.json({ message: "Leave deleted successfully", leave });

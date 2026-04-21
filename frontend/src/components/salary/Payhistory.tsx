@@ -4,6 +4,8 @@ import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import Pagination from "@/components/ui/Pagination"
+import PageHeader from "../ui/PageHeader";
 
 export default function Payhistory() {
   const { auth } = useAuth();
@@ -11,6 +13,9 @@ export default function Payhistory() {
   const [loading, setLoading] = useState(false);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
 
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, name: new Date(0, i).toLocaleString('default', { month: 'long' }) }));
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
@@ -20,8 +25,9 @@ export default function Payhistory() {
     try {
       const res = await getMonthlyList(auth.slug, { month, year });
       setSlips(res.data?.data || []);
-    } catch (error) {
-      toast.error("Failed to fetch payroll history.");
+      setCurrentPage(1); // Reset to page 1 whenever we fetch new data
+    } catch (error : any) {
+      toast.error("Failed to fetch payroll history.",error);
     } finally {
       setLoading(false);
     }
@@ -59,8 +65,21 @@ export default function Payhistory() {
     }
   };
 
+  const totalPages = Math.ceil(slips.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentSlips = slips.slice(startIndex, startIndex + pageSize);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-base-content">
+       <PageHeader title={"Payroll History"} subtitle={"Overview"} />
       <div className="flex gap-4 mb-4 items-center bg-base-100 p-4 rounded-xl shadow-sm border border-base-300">
         <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-48">
           {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -73,10 +92,10 @@ export default function Payhistory() {
         </Button>
       </div>
 
-      <div className="bg-base-100 rounded-xl shadow-sm border border-base-300 overflow-hidden">
-        <table className="w-full text-left">
+      <div className="bg-base-100 rounded-xl shadow-sm border border-accent-content overflow-hidden">
+        <table className="w-full text-left border-base-content">
           <thead className="bg-base-200">
-            <tr>
+            <tr >
               <th className="p-4">Employee</th>
               <th className="p-4">Net Salary</th>
               <th className="p-4">Status</th>
@@ -84,7 +103,7 @@ export default function Payhistory() {
             </tr>
           </thead>
           <tbody>
-            {slips.map((slip) => (
+            {currentSlips.map((slip) => (
               <tr key={slip._id} className="border-t border-base-300 hover:bg-base-50">
                 <td className="p-4">{slip.employeeName || slip.employeeId}</td>
                 <td className="p-4 font-semibold">₹{slip.netSalary}</td>
@@ -93,13 +112,29 @@ export default function Payhistory() {
                 </td>
                 <td className="p-4 flex gap-2">
                   {slip.paymentStatus === "PENDING" && <Button variant="primary" size="sm" onClick={() => handleMarkPaid(slip._id)}>Mark Paid</Button>}
-                  <Button variant="outline" size="sm" onClick={() => handleDownload(slip._id, slip.employeeName || 'Employee')}>Download</Button>
+                   {slip.paymentStatus === "PAID" && <Button variant="primary" size="sm" className="btn-disabled" onClick={() => handleMarkPaid(slip._id)}>Mark Paid</Button>}  
+                  <Button variant="outline" size="sm" className="border border-base-content" onClick={() => handleDownload(slip._id, slip.employeeName || 'Employee')}>Download</Button>
                 </td>
               </tr>
             ))}
             {slips.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-base-content/60">No records found for this month.</td></tr>}
           </tbody>
         </table>
+
+        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
+
+        {totalPages > 1 && (
+          <div className="flex justify-between items-center p-4 bg-base-100 border-t border-base-300">
+            <span className="text-sm text-base-content/70">
+              Showing {startIndex + 1} to {Math.min(startIndex + pageSize, slips.length)} of {slips.length} entries
+            </span>
+            <div className="flex gap-2 items-center">
+              <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1}>Previous</Button>
+              <span className="px-3 text-sm font-medium">Page {currentPage} of {totalPages}</span>
+              <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages}>Next</Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

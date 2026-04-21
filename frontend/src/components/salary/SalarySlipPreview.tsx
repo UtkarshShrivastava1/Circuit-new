@@ -1,6 +1,12 @@
 import SalaryRow from "./salaryRow";
 import { useMemo } from "react";
 
+export interface CustomRow {
+  id: string;
+  label: string;
+  amount: number;
+}
+
 interface SalaryBreakdown {
   basic: number;
   da: number;
@@ -8,11 +14,18 @@ interface SalaryBreakdown {
   special: number;
   epf: number;
   professionalTax: number;
+  customEarnings?: CustomRow[];
+  customDeductions?: CustomRow[];
 }
 
 interface Props {
   data: SalaryBreakdown;
   isEstimate?: boolean;
+  editable?: boolean;
+  onChange?: (key: keyof SalaryBreakdown, value: number) => void;
+  onAddCustomRow?: (type: "earning" | "deduction") => void;
+  onChangeCustomRow?: (type: "earning" | "deduction", id: string, key: "label" | "amount", value: string | number) => void;
+  onRemoveCustomRow?: (type: "earning" | "deduction", id: string) => void;
 }
 
 
@@ -20,6 +33,11 @@ interface Props {
 export default function SalarySlipPreview({
   data,
   isEstimate = true,
+  editable = false,
+  onChange,
+  onAddCustomRow,
+  onChangeCustomRow,
+  onRemoveCustomRow,
 }: Props) {
   const parse = (value: any) => Number(value) || 0;
 
@@ -28,11 +46,13 @@ const salarySummary = useMemo(() => {
     parse(data.basic) +
     parse(data.da) +
     parse(data.hra) +
-    parse(data.special);
+      parse(data.special) +
+      (data.customEarnings || []).reduce((sum, item) => sum + parse(item.amount), 0);
 
   const totalDeductions =
     parse(data.epf) +
-    parse(data.professionalTax);
+      parse(data.professionalTax) +
+      (data.customDeductions || []).reduce((sum, item) => sum + parse(item.amount), 0);
 
   return {
     gross,
@@ -57,7 +77,7 @@ const salarySummary = useMemo(() => {
         </div>
 
         {isEstimate && (
-          <span className="badge badge-outline text-xs">
+          <span className="badge badge-outline  text-accent text-xs">
             ESTIMATE
           </span>
         )}
@@ -70,13 +90,31 @@ const salarySummary = useMemo(() => {
         </h3>
 
         <div className="space-y-2 text-sm">
-          <SalaryRow label="Basic Salary" amount={data.basic} />
-          <SalaryRow label="Dearness Allowance" amount={data.da} />
-          <SalaryRow label="House Rent Allowance" amount={data.hra} />
-          <SalaryRow label="Special Allowance" amount={data.special} />
+          <SalaryRow label="Basic Salary" amount={data.basic} editable={editable} onChange={(v) => onChange?.("basic", v)} />
+          <SalaryRow label="Dearness Allowance" amount={data.da} editable={editable} onChange={(v) => onChange?.("da", v)} />
+          <SalaryRow label="House Rent Allowance" amount={data.hra} editable={editable} onChange={(v) => onChange?.("hra", v)} />
+          <SalaryRow label="Special Allowance" amount={data.special} editable={editable} onChange={(v) => onChange?.("special", v)} />
+          {data.customEarnings?.map(row => (
+            <SalaryRow 
+              key={row.id} 
+              label={row.label} 
+              amount={row.amount} 
+              editable={editable} 
+              isCustom 
+              onLabelChange={(val) => onChangeCustomRow?.("earning", row.id, "label", val)}
+              onChange={(val) => onChangeCustomRow?.("earning", row.id, "amount", val)}
+              onRemove={() => onRemoveCustomRow?.("earning", row.id)}
+            />
+          ))}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-base-300 flex justify-between font-semibold text-base-content">
+        {editable && (
+          <button onClick={() => onAddCustomRow?.("earning")} className="text-xs text-primary font-medium hover:underline mt-2 inline-block">
+            + Add Earning Component
+          </button>
+        )}
+
+        <div className="mt-4 pt-3 border-t border-base-300 flex justify-between items-center font-semibold text-base-content">
           <span>Gross Earnings</span>
           <span>₹ {salarySummary.gross.toLocaleString()}</span>
         </div>
@@ -92,14 +130,34 @@ const salarySummary = useMemo(() => {
           <SalaryRow
             label="EPF Employee Share"
             amount={data.epf}
+            editable={editable} onChange={(v) => onChange?.("epf", v)}
           />
           <SalaryRow
             label="Professional Tax"
             amount={data.professionalTax}
+            editable={editable} onChange={(v) => onChange?.("professionalTax", v)}
           />
+          {data.customDeductions?.map(row => (
+            <SalaryRow 
+              key={row.id} 
+              label={row.label} 
+              amount={row.amount} 
+              editable={editable} 
+              isCustom 
+              onLabelChange={(val) => onChangeCustomRow?.("deduction", row.id, "label", val)}
+              onChange={(val) => onChangeCustomRow?.("deduction", row.id, "amount", val)}
+              onRemove={() => onRemoveCustomRow?.("deduction", row.id)}
+            />
+          ))}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-base-300 flex justify-between font-semibold text-error">
+        {editable && (
+          <button onClick={() => onAddCustomRow?.("deduction")} className="text-xs text-error font-medium hover:underline mt-2 inline-block">
+            + Add Deduction Component
+          </button>
+        )}
+
+        <div className="mt-4 pt-3 border-t border-base-300 flex justify-between items-center font-semibold text-error">
           <span>Total Deductions</span>
           <span>₹ {salarySummary.totalDeductions.toLocaleString()}</span>
         </div>

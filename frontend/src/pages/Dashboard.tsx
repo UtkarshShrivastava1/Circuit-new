@@ -1,16 +1,21 @@
 // import PageHeader from "../components/ui/PageHeader";
 import StatCard from "../components/ui/StatCard";
 import EmptyState from "../components/ui/EmptyState";
+import StatusBadge from "../components/ui/StatusBadge";
 import confetti from "canvas-confetti";
+import { Link, useNavigate } from "react-router-dom";
 import {
   MdPeople,
   MdEventAvailable,
   MdWorkspaces,
   MdPendingActions,
- 
+  MdAssignment,
+  MdPersonAdd,
+  MdFlightTakeoff,
+  MdReceiptLong,
 } from "react-icons/md";
 import { isBirthdayToday } from "@/utils/dateUtils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import SingleBirthdayCard from "@/components/members/SingleBirthdayCard";
 
 import BirthdayCarousel from "@/components/members/BirthdayCarousel";
@@ -21,6 +26,9 @@ import { getAttendance, getMyAttendance } from "@/services/attendanceService";
 import { getProject } from "@/services/projectServices";
 import api from "@/services/api";
 import { getAllLeaves } from "@/services/leaveService";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Pagination from "@/components/ui/Pagination";
 
 // Helper to format MongoDB timestamps to "x mins ago"
 function timeAgo(dateString: string) {
@@ -37,9 +45,28 @@ function timeAgo(dateString: string) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+const getActivityLink = (activity: any) => {
+  const combined = `${activity.action || activity.title || ""} ${activity.message || ""}`.toLowerCase();
+  if (combined.includes("leave")) return "/leaves";
+  if (combined.includes("task")) return "/tasks";
+  if (combined.includes("project")) return "/projects";
+  if (combined.includes("member") || combined.includes("user")) return "/members";
+  if (combined.includes("attendance")) return "/attendance";
+  return "#";
+};
+
+const attendanceTrendData = [
+  { name: 'Mon', present: 5, absent: 1 },
+  { name: 'Tue', present: 6, absent: 0 },
+  { name: 'Wed', present: 4, absent: 2 },
+  { name: 'Thu', present: 5, absent: 1 },
+  { name: 'Fri', present: 6, absent: 0 },
+];
+
 export default function Dashboard() {
   const { auth } = useAuth();
   const isAdmin = auth?.user?.role === "admin" || auth?.user?.role === "owner";
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState<Member[]>([]);
   const [statsData, setStatsData] = useState({
@@ -51,6 +78,11 @@ export default function Dashboard() {
   });
 
   const [activities, setActivities] = useState<any[]>([]);
+
+  // Pagination for activities
+  const [activityPage, setActivityPage] = useState(1);
+  const ACTIVITIES_PER_PAGE = 5; // Adjust this number as needed
+
 
   useEffect(() => {
     if (!auth.slug) return;
@@ -158,40 +190,76 @@ export default function Dashboard() {
       title: "Employees",
       value: statsData.totalEmployees,
       icon: <MdPeople size={20} />,
-      helperText: "Total active employees",
+      helperText: (
+        <span className="flex items-center gap-1 text-base-content/60 mt-1">
+          <span className="text-xs font-medium">Active workforce</span>
+        </span>
+      ),
     },
     {
       title: "Present Today",
       value: statsData.presentToday,
       icon: <MdEventAvailable size={20} />,
-      helperText: "Attendance marked",
+      helperText: (
+        <span className="flex items-center gap-1 text-base-content/60 mt-1">
+          <span className="text-xs font-medium">
+            {statsData.totalEmployees > 0 
+              ? `${Math.round((statsData.presentToday / statsData.totalEmployees) * 100)}% attendance rate` 
+              : "No data"}
+          </span>
+        </span>
+      ),
     },
     {
       title: "Active Projects",
       value: statsData.activeProjects,
       icon: <MdWorkspaces size={20} />,
-      helperText: "Ongoing projects",
+      helperText: (
+        <span className="flex items-center gap-1 text-base-content/60 mt-1">
+          <span className="text-xs font-medium">Stable</span>
+        </span>
+      ),
     },
     {
       title: "Pending Leaves",
       value: statsData.pendingLeaves,
       icon: <MdPendingActions size={20} />,
-      helperText: "Needs approval",
+      helperText: (
+        <span className="flex items-center gap-1 text-base-content/60 mt-1">
+          <span className="text-xs font-medium">Awaiting review</span>
+        </span>
+      ),
     },
   ];
 
   const employeeStats = [
     {
       title: "My Active Projects",
-      value: statsData.activeProjects,
+      value: (
+        <span className="inline-block text-left w-full">
+          {statsData.activeProjects}
+        </span>
+      ),
       icon: <MdWorkspaces size={20} />,
-      helperText: "Projects you are assigned to",
+      helperText: (
+        <span className="flex items-center justify-start gap-1 text-base-content/60 mt-1 w-full text-left">
+          <span className="text-xs font-medium">Projects you are assigned to</span>
+        </span>
+      ),
     },
     {
       title: "Today's Attendance",
-      value: statsData.myAttendanceStatus,
+      value: (
+        <span className="inline-block text-left w-full">
+          <StatusBadge status={statsData.myAttendanceStatus.replace('_', ' ').toLowerCase()} size="md" />
+        </span>
+      ),
       icon: <MdEventAvailable size={20} />,
-      helperText: "Your current status",
+      helperText: statsData.myAttendanceStatus === "PRESENT" ? (
+        <span className="flex items-center justify-start gap-1 text-success mt-1 font-medium text-xs w-full text-left">On time</span>
+      ) : (
+        <span className="flex items-center justify-start gap-1 text-base-content/60 mt-1 font-medium text-xs w-full text-left">Your current status</span>
+      ),
     },
   ];
 
@@ -222,14 +290,48 @@ export default function Dashboard() {
   return () => clearInterval(interval);
 }, [birthdayEmployees.length]);
  
+  // Group consecutive identical activities
+  const groupedActivities = useMemo(() => {
+    if (!activities || activities.length === 0) return [];
+    
+    const grouped = [];
+    let currentGroup = { ...activities[0], count: 1 };
+
+    for (let i = 1; i < activities.length; i++) {
+      const act = activities[i];
+      const sameUser = act.user && currentGroup.user && (act.user._id === currentGroup.user._id || act.user.name === currentGroup.user.name);
+      const sameAction = act.action && currentGroup.action && act.action === currentGroup.action;
+
+      if (sameUser && sameAction) {
+        currentGroup.count += 1;
+      } else {
+        grouped.push(currentGroup);
+        currentGroup = { ...act, count: 1 };
+      }
+    }
+    grouped.push(currentGroup);
+    return grouped;
+  }, [activities]);
+
+  // Activity pagination logic
+  const totalActivityPages = Math.ceil(groupedActivities.length / ACTIVITIES_PER_PAGE);
+  const paginatedActivities = groupedActivities.slice(
+    (activityPage - 1) * ACTIVITIES_PER_PAGE,
+    activityPage * ACTIVITIES_PER_PAGE
+  );
+
+  const primaryBtnClass = "btn btn-primary btn-sm shadow-sm transition-all hover:shadow-md font-medium";
+  const secondaryBtnClass = "btn btn-sm bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 hover:border-base-300 shadow-sm transition-all font-medium";
+
   return (
     <div className="p-6 space-y-6">
       {/* <PageHeader
         title="Dashboard"
         subtitle="Overview of your organization"
       /> */}
+      <Breadcrumbs/>
      {/* STATS */}
-      <div className={`grid grid-cols-1 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-4`}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
         {statsToRender.map((stat) => (
           <StatCard
             key={stat.title}
@@ -240,6 +342,30 @@ export default function Dashboard() {
           />
         ))}
       </div>
+      
+      {/* QUICK ACTIONS */}
+      <div>
+        <h2 className="text-lg font-semibold text-base-content mb-3">Quick Actions</h2>
+        <div className="flex flex-wrap gap-3">
+          {isAdmin ? (
+            <>
+              <Link to="/tasks" className={primaryBtnClass}><MdAssignment size={16} /> Assign Task</Link>
+              <Link to="/createProject" className={secondaryBtnClass}><MdWorkspaces size={16} /> Create Project</Link>
+              <Link to="/addMember" className={secondaryBtnClass}><MdPersonAdd size={16} /> Add Member</Link>
+              <Link to="/members" className={secondaryBtnClass}><MdPeople size={16} /> Team Directory</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/attendance" className={primaryBtnClass}><MdEventAvailable size={16} /> Attendance</Link>
+              <Link to="/tasks" className={secondaryBtnClass}><MdAssignment size={16} /> My Tasks</Link>
+              <Link to="/leaves" className={secondaryBtnClass}><MdFlightTakeoff size={16} /> Log Leave</Link>
+              <Link to="/my-salary" className={secondaryBtnClass}><MdReceiptLong size={16} /> Download Payslips</Link>
+              <Link to="/members" className={secondaryBtnClass}><MdPeople size={16} /> Team Directory</Link>
+            </>
+          )}
+        </div>
+      </div>
+
   {/* BIRTHDAY SECTION */}
 {birthdayEmployees.length > 0 && (
   <div className="mb-6">
@@ -277,6 +403,32 @@ export default function Dashboard() {
     )}
   </div>
 )}
+
+      {/* ATTENDANCE TREND GRAPH */}
+      {isAdmin && (
+        <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-base-content mb-4">Attendance Trend (This Week)</h2>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={attendanceTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: '#6b7280', fontSize: 12 }} 
+                  allowDecimals={false}
+                  domain={[0, Math.max(10, statsData.totalEmployees)]}
+                />
+                <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                <Bar dataKey="present" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Present" />
+                <Bar dataKey="absent" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Absent" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     
       {/* RECENT ACTIVITY (EMPTY STATE FOR NOW) */}
       <div>
@@ -284,12 +436,21 @@ export default function Dashboard() {
           Recent Activity
         </h2>
 
-        {activities.length > 0 ? (
+      {groupedActivities.length > 0 ? (
           <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
             <ul className="space-y-4">
-              {activities.map((activity) => (
+              {paginatedActivities.map((activity) => {
+                const link = getActivityLink(activity);
+                const isClickable = link !== "#";
                 
-                <li key={activity._id || activity.id} className="flex justify-between items-start sm:items-center text-sm border-b border-base-200 pb-3 last:border-0 last:pb-0">
+                return (
+                <li 
+                  key={activity._id || activity.id} 
+                  onClick={() => isClickable && navigate(link)}
+                  className={`flex justify-between items-start sm:items-center text-sm border-b border-base-200 pb-3 last:border-0 last:pb-0 ${
+                    isClickable ? "cursor-pointer hover:opacity-70 transition-opacity" : ""
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     {activity.user && (
                       <div className="w-9 h-9 rounded-full bg-base-200 border border-base-300 flex items-center justify-center overflow-hidden shrink-0">
@@ -297,14 +458,23 @@ export default function Dashboard() {
                           <img src={activity.user.imageUrl} alt={activity.user.name || "User"} className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-sm font-medium text-base-content/60">
-                            {(activity.user?.name || "?").toUpperCase()}
-                           
+                            {(activity.user?.name || "?")
+                              .trim()
+                              .split(" ")
+                              .map((n: string) => n[0])
+                              .filter(Boolean)
+                              .slice(0, 2)
+                              .join("")
+                              .toUpperCase() || "?"}
                           </span>
                         )} 
                       </div>
                     )}
                     <div className="flex flex-col">
-                      <span className="text-base-content font-medium">{activity.action || "Activity"}</span>
+                  <span className="text-base-content font-medium">
+                    {activity.action || "Activity"}
+                    {activity.count > 1 && <span className="text-primary ml-1 text-xs">({activity.count})</span>}
+                  </span>
                       <span className="text-base-content/70 text-xs">{activity.message || activity.title}</span>
                     </div>
                   </div>
@@ -312,8 +482,16 @@ export default function Dashboard() {
                     {activity.time || (activity.createdAt ? timeAgo(activity.createdAt) : "")}
                   </span>
                 </li>
-              ))}
+              )})}
             </ul>
+
+            <div className="mt-6">
+              <Pagination
+                currentPage={activityPage}
+                totalPages={totalActivityPages}
+                onPageChange={setActivityPage}
+              />
+            </div>
           </div>
         ) : (
           <EmptyState
@@ -322,6 +500,7 @@ export default function Dashboard() {
           />
         )}
       </div>
+
     </div>
   );
 }

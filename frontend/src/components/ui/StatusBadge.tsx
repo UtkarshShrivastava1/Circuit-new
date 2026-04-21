@@ -1,5 +1,5 @@
 interface StatusBadgeProps {
-  status: "pending" | "approved" | "rejected"| "Paid" | "Unpaid" | "generate";
+  status: "pending" | "approved" | "rejected" | "Paid" | "Unpaid" | "generate" | "absent" | "present" | "not marked" | "half day" | string;
   size?: "sm" | "md";
 }
 
@@ -14,17 +14,32 @@ const STATUS_CONFIG = {
     icon: "",
     className: "bg-success/20 text-success border-success/30",
   },
-  rejected: {
-    label: "Rejected",
+  absent: {
+    label: "Absent",
     icon: "",
     className: "bg-error/20 text-error border-error/30",
   },
-  Paid: {
+  present: {
+    label: "Present",
+    icon: "",
+    className: "bg-success/20 text-success border-success/30",
+  },
+  "not marked": {
+    label: "Not Marked",
+    icon: "",
+    className: "bg-warning/20 text-warning border-warning/30",
+  },
+  "half day": {
+    label: "Half Day",
+    icon: "",
+    className: "bg-info/20 text-info border-info/30",
+  },
+  paid: {
     label: "Paid",
     icon: "",
     className: "bg-success/20 text-success border-success/30",
   },
-  Unpaid: {
+  unpaid: {
     label: "Unpaid",
     icon: "",
     className: "bg-error/20 text-error border-error/30",
@@ -33,6 +48,11 @@ const STATUS_CONFIG = {
     label :"Generate",
     icon : "",
     className: "bg-warning/20 text-warning border-warning/30"
+  },
+  rejected: {
+    label :"rejected",
+    icon : "",
+    className: "bg-error/20 text-error border-error/30"
   },
   
 
@@ -53,7 +73,7 @@ export default function StatusBadge({
       className={`
         inline-flex items-center gap-1
         rounded-full border
-        ${size === "sm" ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm"}
+        ${size === "sm" ? "px-4 py-0.5 text-xs" : "px-3 py-1 text-sm"}
         font-medium
         ${config.className}
       `}

@@ -7,6 +7,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { login as loginService } from "../services/authService";
 import { useAuth } from "../auth/AuthContext";
 import { toast } from "react-toastify";
+import Button from "@/components/ui/Button";
+import { socket } from "@/services/socket";
 
 interface LoginProps {
   setToken?: React.Dispatch<React.SetStateAction<string>>;
@@ -51,7 +53,6 @@ const Login = ({ setToken }: LoginProps) => {
     try {
       setLoading(true);
       const response = await loginService(formData);
-      console.log(response)
 
       toast.success("Login successful");
 
@@ -68,6 +69,8 @@ const Login = ({ setToken }: LoginProps) => {
           localStorage.setItem("token", payload.token);
           if (setToken) setToken(payload.token);
         }
+
+        socket.emit("joinUserRoom", payload.user.id); // Join the user's personal notification room
 
         // ✅ Update AuthContext global state correctly
         contextLogin({ 
@@ -150,13 +153,13 @@ const Login = ({ setToken }: LoginProps) => {
 
             {error && <p className="text-red-300 text-sm">{error}</p>}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
               className="w-full bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-blue-100 hover:scale-[1.02] transition-all duration-200 disabled:opacity-60"
             >
               {loading ? "Logging in..." : "Login"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

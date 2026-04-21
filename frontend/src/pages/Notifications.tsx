@@ -12,6 +12,8 @@ import {
   getNotifications,
 } from "@/services/notificationService";
 import Swal from "sweetalert2";
+import Button from "@/components/ui/Button";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -29,17 +31,13 @@ export default function Notifications() {
     targetUserIds: n.recipients || [],
     createdBy: n.createdBy?._id,
     createdAt: n.createdAt,
-    readBy: n.readBy || [],
+    readBy: n.readBy?.map((r: any) => typeof r === 'string' ? r : (r.user?._id || r.user || r.userId || r._id)) || [],
     attachments: n.attachments || [],
     sendTo: n.sendTo,
   });
-  console.log("Auth Data in Notifications Page:", auth);
   const currentUserId = auth?.user?.userId || "";
   const currentUserRole = auth?.user?.role || "";
-  console.log("Current User ID:", currentUserId);
-  console.log("Current User Role:", currentUserRole);
 
-  console.log("Current User:", currentUserId);
   //fetch notifications on component mount
   useEffect(() => {
     if (!auth?.slug || !auth?.user?.userId) return;
@@ -52,7 +50,7 @@ export default function Notifications() {
           getMembers(slug),
           getNotifications(slug),
         ]);
-        console.log("🔥 RAW BACKEND DATA:", notificationRes.data.data);
+        // console.log("🔥 RAW BACKEND DATA:", notificationRes.data.data);
         //  MEMBERS FIX
         const formattedMembers = memberRes.data.members.map((m: any) => ({
           id: m._id,
@@ -71,13 +69,14 @@ export default function Notifications() {
     fetchData();
   }, [auth?.slug, auth?.user?.userId]);
 
-  const handleAddOrUpdateNotification = (notification: Notification) => {
+  const handleAddOrUpdateNotification = (rawNotification: any) => {
+    const formatted = formatNotification(rawNotification);
     setNotifications((prev) => {
-      const exists = prev.find((n) => n.id === notification.id);
+      const exists = prev.find((n) => n.id === formatted.id);
       if (exists) {
-        return prev.map((n) => (n.id === notification.id ? notification : n));
+        return prev.map((n) => (n.id === formatted.id ? formatted : n));
       } else {
-        return [notification, ...prev];
+        return [formatted, ...prev];
       }
     });
   };
@@ -115,12 +114,14 @@ export default function Notifications() {
   return (
     <div className="p-4 sm:p-6 text-base-content">
       <div className="max-w-3xl mx-auto space-y-6">
+        <Breadcrumbs />
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h1 className="text-xl sm:text-2xl font-semibold">Notifications</h1>
 
           {["admin", "owner"].includes(currentUserRole) && (
-            <button
+            <Button
               className="flex items-center justify-center gap-2 px-4 py-2.5
               rounded-xl bg-primary text-primary-content
               text-sm font-medium hover:bg-primary/90
@@ -129,7 +130,7 @@ export default function Notifications() {
             >
               <MdSend size={18} />
               Send Notification
-            </button>
+            </Button>
           )}
         </div>
 

@@ -8,8 +8,11 @@ import ProjectGridSkeleton from "@/components/projects/ProjectGridSkeleton";
 import ProjectFilters from "@/components/projects/ProjectFilters";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 import { getProject, deleteProject } from "@/services/projectServices";
 // import { getOrganizationSlug } from "@/utils/auth";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
+
 export default function Projects() {
   const { auth } = useAuth();
   const slug = auth.slug;
@@ -83,7 +86,7 @@ export default function Projects() {
 
     setProjects((prev) => prev.filter((p) => p.id !== id));
     toast .success("Project deleted");
-    console.log("Project deleted");
+    setSelectedProject(null);
   } catch (error) {
     console.error("Delete failed", error);
   }
@@ -94,10 +97,11 @@ export default function Projects() {
     filter === "all"
       ? projects
       : projects.filter((p) => p.status?.toLowerCase() === filter.toLowerCase());
-  console.log(filteredProjects);
 
   return (
-    <div>
+    <div className="p-4 sm:p-6 space-y-4">
+      <Breadcrumbs />
+
       {/* Project Filters */}
       <ProjectFilters value={filter} onChange={setFilter} />
 
@@ -105,10 +109,17 @@ export default function Projects() {
       {loading ? (
         <ProjectGridSkeleton />
       ) : filteredProjects.length === 0 ? (
-        <EmptyState
-          title={`No ${filter === "all" ? "" : filter} projects`}
-          description="Try switching filters or create a new project"
-        />
+        <div className="flex flex-col items-center justify-center py-12 bg-base-100 border border-base-300 rounded-xl text-center">
+          <EmptyState
+            title={`No ${filter === "all" ? "" : filter} projects`}
+            description="Try switching filters or create a new project to get started."
+          />
+          {canEdit && (
+            <Link to="/createProject" className="btn btn-primary mt-6">
+              + Get Started
+            </Link>
+          )}
+        </div>
       ) : (
         <div className="space-y-4">
           <ProjectGrid

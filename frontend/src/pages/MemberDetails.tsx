@@ -4,6 +4,7 @@ import ProfileSidebar from "@/components/members/ProfileSidebar";
 import MemberRightSection from "@/components/members/MemberRightSection";
 import type { Member } from "@/type/member";
 import { getMemberById } from "@/services/memberService";
+
 import { useAuth } from "@/auth/AuthContext";
 
 const MemberDetails = () => {

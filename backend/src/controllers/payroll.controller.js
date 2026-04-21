@@ -14,7 +14,7 @@ const generatePayroll = asyncHandler(async (req, res) => {
   const generatedBy = req.user.id || req.user._id;
 
   if (!month || month < 1 || month > 12) {
-    throw new ValidationError('Valid month (1-12) is required');
+    throw new ValidationError('Valid month (1-12) is required'); 
   }
   if (!year) {
     throw new ValidationError('Year is required');

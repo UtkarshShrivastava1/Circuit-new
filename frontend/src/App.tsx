@@ -64,36 +64,41 @@ export default function App() {
   const { auth } = useAuth();
   const isManagement = ['admin', 'owner', 'manager'].includes(auth?.user?.role || '');
 
-  useEffect(() => {
-    if (auth?.user) {
-      socket.connect();
+useEffect(() => {
+  if (!auth?.user) return;
 
-      const onConnect = () => {
-        console.log("✅ Socket connected successfully! ID:", socket.id);
-      };
+  const isAdmin =
+    auth.user.role === "admin" || auth.user.role === "owner";
 
-      const onNotification = (data: any) => {
-        console.log("🔔 Real-time notification received via socket:", data);
-        try {
-          // Ensure you have placed 'notification.mp3' in your frontend public/ directory
-          const audio = new Audio("/notification.mp3");
-          audio.play();
-        } catch (err) {
-          console.error("Audio play failed (maybe browser autoplay blocked it?):", err);
-        }
-      };
+  socket.connect();
 
-      socket.on("connect", onConnect);
-      socket.on("new_notification", onNotification);
+  const handleConnect = () => {
+    console.log("🟢 Socket connected:", socket.id);
 
-      return () => {
-        console.log("🔌 Socket disconnected");
-        socket.off("connect", onConnect);
-        socket.off("new_notification", onNotification);
-        socket.disconnect();
-      };
+    if (isAdmin) {
+      socket.emit("joinAdminRoom");
+      console.log("👑 Sent joinAdminRoom");
     }
-  }, [auth?.user]);
+
+    socket.emit("joinUserRoom", auth.user?.userId);
+  };
+
+  const handleNotification = (data: any) => {
+    console.log("🔔 Notification received:", data);
+
+    const audio = new Audio("/notification.mp3");
+    audio.play().catch(() => {});
+  };
+
+  socket.on("connect", handleConnect);
+  socket.on("notification", handleNotification);
+
+  return () => {
+    socket.off("connect", handleConnect);
+    socket.off("notification", handleNotification);
+    socket.disconnect();
+  };
+}, [auth?.user]);
 
   return (
     <>
@@ -118,25 +123,25 @@ export default function App() {
             <Route
               path="/"
               element={
-                <PageContainer title="Dashboard" subtitle="Overview">
                   <Dashboard />
-                </PageContainer>
+                // <PageContainer title="Dashboard" subtitle="Overview">
+                // </PageContainer>
               }
             />
             <Route
               path="/attendance"
               element={
-                <PageContainer title="Attendance" subtitle="Daily validation">
                   <Attendance />
-                </PageContainer>
+                // <PageContainer title="Attendance" subtitle="Daily validation">
+                // </PageContainer>
               }
             />
             <Route
               path="/projects"
               element={
-                <PageContainer title="Projects">
                   <Projects />
-                </PageContainer>
+                // <PageContainer title="Projects">
+                // </PageContainer>
               }
             />
             <Route path="/work-updates" element={
@@ -148,17 +153,17 @@ export default function App() {
             <Route
               path="/tasks"
               element={
-                <PageContainer title="Tasks">
                   <TaskDashboard />
-                </PageContainer>
+                // <PageContainer title="Tasks">
+                // </PageContainer>
               }
             />
             <Route
               path="/leaves"
               element={
-                <PageContainer title="My Leaves" subtitle="Track your leave requests">
                   <LeaveDashboard />
-                </PageContainer>
+                // <PageContainer title="My Leaves" subtitle="Track your leave requests">
+                // </PageContainer>
               }
             />
 
@@ -179,41 +184,41 @@ export default function App() {
                 <Route
                   path="/payroll/dashboard"
                   element={
-                    <PageContainer title="Payroll Dashboard">
                       <PayrollDashboard />
-                    </PageContainer>
+                    // <PageContainer title="Payroll Dashboard">
+                    // </PageContainer>
                   }
                 />
                 <Route
                   path="/payroll/salary-structure"
                   element={
-                    <PageContainer title="Salary Structure">
                       <SalaryStructure />
-                    </PageContainer>
+                    // <PageContainer title="Salary Structure">
+                    // </PageContainer>
                   }
                 />
                 <Route
                   path="/payroll/generate"
                   element={
-                    <PageContainer title="Generate Pay Slip">
                       <GeneratePaySlip />
-                    </PageContainer>
+                    // <PageContainer title="Generate Pay Slip">
+                    // </PageContainer>
                   }
                 />
                 <Route
                   path="/payroll/history"
                   element={
-                    <PageContainer title="Payroll History">
                       <PayHistory />
-                    </PageContainer>
+                    // <PageContainer title="Payroll History">
+                    // </PageContainer>
                   }
                 />
                 <Route
                   path="/payroll/policy"
                   element={
-                    <PageContainer title="Payroll Policy Setup">
                       <PayrollPolicySetup />
-                    </PageContainer>
+                    // <PageContainer title="Payroll Policy Setup">
+                    // </PageContainer>
                   }
                 />
               </>

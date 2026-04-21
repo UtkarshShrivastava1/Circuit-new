@@ -14,6 +14,7 @@ import {
 import StatCard from "@/components/ui/StatCard";
 import TaskTable from "@/components/task/TaskTable";
 import TaskKanban from "@/components/task/TaskKanbanComponent";
+import EmptyState from "@/components/ui/EmptyState";
 import TaskDrawer from "@/components/task/TaskDrawer";
 import TaskFilters from "@/components/task/TaskFilter";
 import type { Task } from "@/type/task";
@@ -22,6 +23,8 @@ import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 import API from "@/api/axios";
 import NewTaskModal from "@/components/projects/NewTaskModal";
+import Pagination from "@/components/ui/Pagination";
+import Breadcrumbs from "@/components/ui/Breadcrumbs";
 
 /* ---------------- TYPES ---------------- */
 
@@ -30,7 +33,7 @@ type TaskFilter = "all" | "this-week" | "high-priority" | "overdue";
 
 /* ---------------- CONSTANTS ---------------- */
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 7;
 
 /* ---------------- COMPONENT ---------------- */
 
@@ -38,7 +41,6 @@ export default function TaskDashboard() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [view, setView] = useState<TaskView>("table");
   const { auth } = useAuth();
 
   const [activeFilter, setActiveFilter] = useState<TaskFilter>("all");
@@ -48,7 +50,7 @@ export default function TaskDashboard() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<"table" | "kanban">("table");
 
-  console.log("Auth in Tasks:", auth);
+
 
   /* ---------------- FETCH TASKS ---------------- */
 
@@ -57,7 +59,6 @@ export default function TaskDashboard() {
       setLoading(true);
 
       const res = await API.get(`/tasks/${auth.slug}/getTasks`);
-      console.log("Tasks fetched:", res.data);
       if (res.data.success) {
         setTasks(res.data.data);
       }
@@ -108,8 +109,7 @@ export default function TaskDashboard() {
 
       switch (activeFilter) {
         case "this-week":
-          const diff =
-            (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+          const diff = (due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
           return diff >= 0 && diff <= 7;
 
         case "high-priority":
@@ -126,18 +126,21 @@ export default function TaskDashboard() {
 
   /* ---------------- PAGINATION ---------------- */
 
-  const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE) || 1;
+
+  // Prevent being stuck on an empty page if items are deleted or filtered
+  const validPage = Math.min(page, totalPages);
 
   const paginatedTasks = filteredTasks.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE,
+    (validPage - 1) * ITEMS_PER_PAGE,
+    validPage * ITEMS_PER_PAGE,
   );
 
   /* ---------------- RESET PAGE ---------------- */
 
   useEffect(() => {
     setPage(1);
-  }, [activeFilter, view]);
+  }, [activeFilter, active]);
 
   /* ---------------- RENDER ---------------- */
 
@@ -147,9 +150,11 @@ export default function TaskDashboard() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
+      <Breadcrumbs />
+
       {/* ================= STATS ================= */}
 
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <section className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <StatCard
           title="Total Tasks"
           value={tasks.length}
@@ -197,6 +202,7 @@ export default function TaskDashboard() {
 
         <div className="md:flex flex-wrap gap-2 w-full lg:w-auto hidden">
           <Button
+           size="sm"
             variant="primary"
             onClick={() => setOpen(true)}
             className="flex-1 sm:flex-none"
@@ -207,6 +213,7 @@ export default function TaskDashboard() {
           <Button
             size="sm"
             variant={active === "table" ? "primary" : "outline"}
+             className={`${active === "table" ? "text-white" : "text-base-content border-base-content"}`}
             onClick={() => setActive("table")}
           >
             <MdViewList size={18} className="mr-1" />
@@ -216,6 +223,7 @@ export default function TaskDashboard() {
           <Button
             size="sm"
             variant={active === "kanban" ? "primary" : "outline"}
+            className={`${active === "kanban" ? "text-white" : "text-base-content border-base-content"}`}
             onClick={() => setActive("kanban")}
           >
             <MdDashboard size={18} className="mr-1" />
@@ -227,7 +235,21 @@ export default function TaskDashboard() {
       {/* ================= CONTENT ================= */}
 
       <section className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-5">
-        {active === "table" && (
+        {filteredTasks.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <EmptyState
+              title="No tasks found"
+              description={
+                activeFilter === "all"
+                  ? "You don't have any tasks yet. Create one to get started!"
+                  : `You have no ${activeFilter.replace("-", " ")} tasks.`
+              }
+            />
+            <Button variant="primary" className="mt-6" onClick={() => setOpen(true)}>
+              + Get Started
+            </Button>
+          </div>
+        ) : active === "table" ? (
           <>
             <TaskTable
               tasks={paginatedTasks}
@@ -242,35 +264,13 @@ export default function TaskDashboard() {
               onDeleteTask={handleDeleteTask}
             />
 
-            {totalPages > 1 && (
-              <div className="flex justify-center sm:justify-end mt-4">
-                <div className="join w-full sm:w-auto">
-                  <button
-                    className="btn btn-sm join-item"
-                    disabled={page === 1}
-                    onClick={() => setPage((p) => p - 1)}
-                  >
-                    Prev
-                  </button>
-
-                  <button className="btn btn-sm join-item btn-disabled">
-                    Page {page} / {totalPages}
-                  </button>
-
-                  <button
-                    className="btn btn-sm join-item"
-                    disabled={page === totalPages}
-                    onClick={() => setPage((p) => p + 1)}
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              currentPage={validPage}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
           </>
-        )}
-
-        {active === "kanban" && (
+        ) : active === "kanban" ? (
           <div className="overflow-x-auto">
             <TaskKanban
               tasks={filteredTasks}
@@ -278,7 +278,7 @@ export default function TaskDashboard() {
               onTaskSelect={setSelectedTask}
             />
           </div>
-        )}
+        ) : null}
       </section>
 
       {/* ================= DRAWER ================= */}

@@ -12,6 +12,7 @@ import type { Tag } from "../../type/tag";
 import { useAuth } from "@/auth/AuthContext";
 import API from "@/api/axios";
 import type { ChecklistItem } from "@/type/task";
+import { toast } from "react-toastify";
 
 /* ================= TYPES ================= */
 
@@ -123,6 +124,19 @@ export default function NewTaskModal({
   /* ================= CREATE TASK ================= */
 
   const handleCreateTask = async () => {
+    const trimmedTitle = title.trim();
+
+    if (trimmedTitle.length < 5) {
+      toast.error("Task title must be at least 5 characters long");
+      return;
+    }
+
+    // Basic gibberish detection (keyboard mashing or repeating characters)
+    if (/(.)\1{4,}/.test(trimmedTitle) || /^(asd|qwe|zxc|123)/i.test(trimmedTitle)) {
+      toast.error("Please enter a meaningful task title");
+      return;
+    }
+
     try {
       setCreating(true);
 
@@ -176,6 +190,7 @@ export default function NewTaskModal({
           attachments,
           checklist,
         });
+        toast.success("Task created successfully");
 
         onClose();
       }
@@ -192,7 +207,7 @@ export default function NewTaskModal({
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="w-full max-w-2xl bg-base-100 rounded-2xl shadow-2xl border border-base-300">
         {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-base-300">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-base-300 text-base-content">
           <span className="text-lg font-semibold">Create Task</span>
 
           <button className="btn btn-sm btn-ghost" onClick={onClose}>
@@ -201,7 +216,7 @@ export default function NewTaskModal({
         </div>
 
         {/* BODY */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 text-base-content">
           {/* PROJECT SELECT (dashboard case) */}
           {!projectId && (
             <Select
@@ -222,9 +237,10 @@ export default function NewTaskModal({
           {/* TITLE */}
           <Input
             autoFocus
-            placeholder="Task title"
+        placeholder="Task title (min 5 characters)"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+        maxLength={100}
           />
 
           {/* META */}
@@ -281,7 +297,7 @@ export default function NewTaskModal({
           <button
             className="btn btn-primary"
             disabled={
-              !title ||
+          !title.trim() ||
               !assignee ||
               !dueDate ||
               !selectedProject ||

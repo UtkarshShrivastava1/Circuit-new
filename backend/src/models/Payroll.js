@@ -24,6 +24,12 @@ const payrollSchema = new mongoose.Schema({
     }]
   },
   
+  customEarnings: [{
+    id: { type: String },
+    label: { type: String },
+    amount: { type: Number, default: 0 }
+  }],
+
   // Deductions Breakdown
   deductions: {
     epfEmployee: { type: Number, default: 0 }, // 12% of Basic + DA
@@ -32,6 +38,12 @@ const payrollSchema = new mongoose.Schema({
     otherDeductions: { type: Number, default: 0 }
   },
   
+  customDeductions: [{
+    id: { type: String },
+    label: { type: String },
+    amount: { type: Number, default: 0 }
+  }],
+
   // Statutory (Outside In-hand)
   statutory: {
     epfEmployer: { type: Number, default: 0 },

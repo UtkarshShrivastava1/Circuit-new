@@ -8,7 +8,7 @@ interface TableProps {
 export default function Table({ headers, children }: TableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra w-full border-2 border-base-300 rounded-lg">
+      <table className="table table-zebra w-full border-2 border-base-400 rounded-lg">
         <thead>
           <tr className="bg-base-300 text-base-content uppercase">
             {headers.map((h,i) => (
