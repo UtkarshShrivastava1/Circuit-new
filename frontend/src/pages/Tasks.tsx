@@ -196,11 +196,11 @@ export default function TaskDashboard() {
       </section>
 
       {/* ================= FILTER + VIEW ================= */}
-
+{/* 
       <section className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <TaskFilters value={activeFilter} onChange={setActiveFilter} />
 
-        <div className="md:flex flex-wrap gap-2 w-full lg:w-auto hidden">
+        <div className="md:flex flex-wrap gap-2 w-full lg:w-auto ">
           <Button
            size="sm"
             variant="primary"
@@ -230,7 +230,50 @@ export default function TaskDashboard() {
             Kanban
           </Button>
         </div>
-      </section>
+      </section> */}
+
+      {/* ================= FILTER + VIEW ================= */}
+
+<section className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+  <TaskFilters value={activeFilter} onChange={setActiveFilter} />
+
+  <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+    
+    {/* NEW TASK → ALWAYS VISIBLE (mobile + desktop) */}
+    <Button
+      size="sm"
+      variant="primary"
+      onClick={() => setOpen(true)}
+      className="flex-1 sm:flex-none"
+    >
+      + New Task
+    </Button>
+
+    {/* THESE → ONLY DESKTOP */}
+    <div className="hidden md:flex gap-2">
+      <Button
+        size="sm"
+        variant={active === "table" ? "primary" : "outline"}
+        className={`${active === "table" ? "text-white" : "text-base-content border-base-content"}`}
+        onClick={() => setActive("table")}
+      >
+        <MdViewList size={18} className="mr-1" />
+        Table
+      </Button>
+
+      <Button
+        size="sm"
+        variant={active === "kanban" ? "primary" : "outline"}
+        className={`${active === "kanban" ? "text-white" : "text-base-content border-base-content"}`}
+        onClick={() => setActive("kanban")}
+      >
+        <MdDashboard size={18} className="mr-1" />
+        Kanban
+      </Button>
+    </div>
+
+  </div>
+</section>
 
       {/* ================= CONTENT ================= */}
 

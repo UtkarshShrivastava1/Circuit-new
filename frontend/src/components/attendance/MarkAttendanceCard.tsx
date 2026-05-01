@@ -178,7 +178,7 @@ const submitAttendance = () => {
               key={item.id}
               onClick={() => setMode(item.id as AttendanceMode)}
               className={`
-                rounded-xl py-3 text-sm font-medium
+                rounded-xl py-3 text-sm text-base-content font-medium
                 transition-all
                 ${mode === item.id ? "neu-inset text-primary" : "neu"}
               `}
@@ -196,7 +196,7 @@ const submitAttendance = () => {
       {mode === "office" && (
         <div className="mt-5 rounded-xl p-4 neu-inset">
           <p className="text-xs text-base-content/60 mb-1">Location</p>
-          <p className="text-sm">
+          <p className="text-sm text-base-content">
             {loadingLocation ? "Fetching location…" : location ?? "Not available"}
           </p>
         </div>

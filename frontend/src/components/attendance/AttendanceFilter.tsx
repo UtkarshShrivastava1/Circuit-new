@@ -21,6 +21,7 @@ export default function AttendanceFilters({
   onChange,
   isAdmin = false,
 }: Props) {
+  const today = new Date().toISOString().split("T")[0];
   return (
     // <div className="flex flex-col md:flex-row gap-4 items-start md:items-end w-full text-base-content">
     //   {/* Name search (Admin only) */}
@@ -97,7 +98,7 @@ export default function AttendanceFilters({
     // </div>
 
 
-    <div className="flex flex-col md:flex-row gap-3 items-start md:items-end w-full text-base-content text-sm">
+    <div className="flex flex-col md:flex-row gap-3 items-start md:items-end w-full text-base-content text-sm ">
 
   {/* Name search (Admin only) */}
   {isAdmin && (
@@ -128,7 +129,7 @@ export default function AttendanceFilters({
     </label>
     <input
       type="date"
-      value={fromDate}
+      value={fromDate || today}
       onChange={(e) =>
         onChange({
           name,
@@ -147,7 +148,7 @@ export default function AttendanceFilters({
     </label>
     <input
       type="date"
-      value={toDate}
+      value={toDate || today}
       onChange={(e) =>
         onChange({
           name,

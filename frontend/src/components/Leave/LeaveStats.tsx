@@ -71,14 +71,14 @@ export default function LeaveStats({ requests }: Props) {
         return (
           <div
             key={index}
-            className="bg-base-100 border border-base-300 rounded-xl p-4 shadow-sm hover:shadow-md transition"
+            className="bg-base-100 border border-base-300 rounded-xl p-4 shadow-sm hover:shadow-md transition "
           >
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-base-content/60">
                   {stat.title}
                 </p>
-                <p className="text-xl font-semibold">
+                <p className="text-xl text-base-content font-semibold">
                   {stat.value}
                 </p>
               </div>

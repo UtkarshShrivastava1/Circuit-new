@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { MdCurrencyRupee } from "react-icons/md";
 import { getMembers } from "@/services/memberService";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import GlobalPayoutConfig from "@/components/salary/GlobalPayoutConfiguration";
 
 interface Employee {
   _id: string;
@@ -48,7 +49,19 @@ export default function SalaryStructureDashboard() {
     customEarnings: [] as CustomRow[],
     customDeductions: [] as CustomRow[],
   });
+const [globalConfig, setGlobalConfig] = useState({
+  basic: 50,
+  hra: 20,
+  da: 10,
+});
 
+const handleGlobalChange = (key, value) => {
+  setGlobalConfig(prev => ({ ...prev, [key]: value }));
+};
+
+const handleGlobalSave = () => {
+  console.log(globalConfig);
+};
   useEffect(() => {
     if (auth.slug) {
       setLoading(true);
@@ -172,7 +185,14 @@ export default function SalaryStructureDashboard() {
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <Breadcrumbs />
-
+   {/* ✅ YAHI CALL KARNA HAI */}
+    <GlobalPayoutConfig
+      basic={globalConfig.basic}
+      hra={globalConfig.hra}
+      da={globalConfig.da}
+      onChange={handleGlobalChange}
+      onSave={handleGlobalSave}
+    />
       <div className="flex flex-col md:flex-row gap-6">
         {/* LEFT SIDE - CONFIGURATION */}
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">

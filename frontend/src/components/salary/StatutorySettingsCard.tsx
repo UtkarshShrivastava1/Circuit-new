@@ -12,14 +12,14 @@ export default function StatutorySettingsCard({
   onChange,
 }: Props) {
   return (
-    <div className="bg-white/10 border border-white/20 
-                    rounded-3xl p-6 text-base-content shadow-xl space-y-5">
+    <div className="bg-primary/50 text-primary-content border border-white/20 
+                    rounded-3xl p-6  shadow-xl space-y-5">
 
       {/* Title */}
       <div className="flex items-start justify-between">
 
         <div>
-          <p className="text-xs tracking-widest text-base-content/60 uppercase">
+          <p className="text-xs tracking-widest text-primary-content uppercase">
             2. Statutory Settings
           </p>
 
@@ -28,7 +28,7 @@ export default function StatutorySettingsCard({
           </h3>
         </div>
 
-        {/* Toggle */}
+        {/* Toggle
         <label className="cursor-pointer">
           <input
             type="checkbox"
@@ -36,7 +36,7 @@ export default function StatutorySettingsCard({
             onChange={(e) => onChange(e.target.checked)}
             className="toggle toggle-primary text-gray-600 w-full"
           />
-        </label>
+        </label> */}
       </div>
 
       {/* Info Box */}
@@ -49,7 +49,7 @@ export default function StatutorySettingsCard({
           className="text-white/70 mt-0.5"
         />
 
-        <p className="text-xs text-base-content/70 leading-relaxed">
+        <p className="text-xs text-primary-content leading-relaxed">
           If enabled, PF is calculated on a max basis of ₹15,000
           even if Basic + DA is higher. This is standard statutory
           policy.

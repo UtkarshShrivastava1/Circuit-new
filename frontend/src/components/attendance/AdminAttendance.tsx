@@ -253,7 +253,7 @@ const AdminAttendance = () => {
                 </div>
               </div>
             </div> */}
-<div className="hidden md:flex flex-col gap-3 bg-base-100 border border-base-200 shadow-sm rounded-xl p-3">
+<div className="hidden md:flex flex-col gap-3  border border-base-200 shadow-sm rounded-xl p-3 bg-white/40">
   <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wide">
     Filter Records
   </h3>
