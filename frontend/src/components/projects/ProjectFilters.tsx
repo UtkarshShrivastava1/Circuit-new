@@ -43,7 +43,9 @@ export default function ProjectFilters({ value, onChange }: Props) {
                 : "text-base-content hover:bg-base-100"
             }`}
         >
-          {f}
+        {f.split(" ").map(word => 
+  word.charAt(0).toUpperCase() + word.slice(1)
+).join(" ")}
         </button>
       ))}
     </div>

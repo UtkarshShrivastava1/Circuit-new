@@ -191,7 +191,7 @@ const AddMember = () => {
   };
 
   const inputStyle =
-    "w-full px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
+    "w-full px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all";
 
   return (
   // <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
@@ -202,7 +202,7 @@ const AddMember = () => {
       <form
         onSubmit={handleSubmit}
         // className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
-        className="w-full max-w-4xl bg-base-200 p-5 rounded-xl shadow-sm space-y-6 border"
+        className="w-full max-w-4xl bg-base-200/40 p-5 rounded-xl shadow-sm space-y-6 border"
       >
         <h2 className="text-xl text-center text-base-content font-semibold">
           Employee Onboarding
@@ -613,7 +613,7 @@ const AddMember = () => {
           <button
             type="submit"
             disabled={adding}
-            className={`px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
+            className={`px-5 py-2.5 bg-primary text-primary-content rounded-xl hover:bg-primary/80 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
           >
             {adding ? "Submitting..." : "Register Employee"}
           </button>

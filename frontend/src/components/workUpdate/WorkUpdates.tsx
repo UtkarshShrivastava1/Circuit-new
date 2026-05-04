@@ -193,32 +193,34 @@ const WorkUpdate = ({
                     {new Date(item.createdAt).toLocaleString()}
                   </td>
 
-                  <td className="py-3 flex gap-2 items-center">
-                    {/* EDIT → only creator */}
-                    {auth?.user?.userId === item.createdBy._id && (
-                      <button
-                        onClick={() => {
-                          setEditingUpdate(item);
-                          setEditDescription(item.description);
-                          setEditProjectId(item.projectId?._id || "");
-                          setEditFiles([]);
-                        }}
-                        className="text-primary hover:scale-110 transition"
-                      >
-                        <MdEdit size={16} />
-                      </button>
-                    )}
+                  <td className="py-3">
+                    <div className="flex items-center gap-3 min-w-[50px]">
+                      {auth?.user?.userId === item.createdBy._id ? (
+                        <button
+                          onClick={() => {
+                            setEditingUpdate(item);
+                            setEditDescription(item.description);
+                            setEditProjectId(item.projectId?._id || "");
+                            setEditFiles([]);
+                          }}
+                          className="text-primary hover:scale-110 transition"
+                        >
+                          <MdEdit size={16} />
+                        </button>
+                      ) : (
+                        <div className="w-[16px]" /> // 👈 placeholder (important!)
+                      )}
 
-                    {/* DELETE → creator OR admin OR owner */}
-                    {(auth?.user?.userId === item.createdBy._id ||
-                      ["admin", "owner"].includes(auth?.user?.role)) && (
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="text-error hover:scale-110 transition"
-                      >
-                        <MdDelete size={16} />
-                      </button>
-                    )}
+                      {(auth?.user?.userId === item.createdBy._id ||
+                        ["admin", "owner"].includes(auth?.user?.role)) && (
+                        <button
+                          onClick={() => handleDelete(item._id)}
+                          className="text-error hover:scale-110 transition"
+                        >
+                          <MdDelete size={16} />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

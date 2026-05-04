@@ -112,8 +112,8 @@ export default function AssigneeSelect({
       {/* SELECT BUTTON */}
       <button
         className="w-full px-3 py-2.5 border border-base-300 rounded-lg bg-base-100 
-        flex items-center justify-between text-sm hover:border-primary 
-        focus:outline-none focus:ring-1 focus:ring-primary/40 transition"
+        flex items-center justify-between text-sm 
+        focus:outline-none focus:ring-2 focus:ring-primary/40 "
         onClick={() => setOpen(!open)}
         type="button"
       >

@@ -136,8 +136,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
     "lastVisited_workUpdates",
   );
   const lastVisitedTasks = localStorage.getItem("lastVisited_tasks");
-const lastVisitedLeaves = localStorage.getItem("lastVisited_leaves");
-const lastVisitedMembers = localStorage.getItem("lastVisited_members");
+  const lastVisitedLeaves = localStorage.getItem("lastVisited_leaves");
+  const lastVisitedMembers = localStorage.getItem("lastVisited_members");
   const projectCreatedDot = (activities || []).some(
     (a) =>
       a.referenceModel === "Project" &&
@@ -153,26 +153,25 @@ const lastVisitedMembers = localStorage.getItem("lastVisited_members");
         new Date(a.createdAt) > new Date(lastVisitedWorkUpdates)),
   );
   const taskDot = (activities || []).some(
-  (a) =>
-    a.referenceModel === "Task" &&
-    (!lastVisitedTasks ||
-      new Date(a.createdAt) > new Date(lastVisitedTasks))
-);
+    (a) =>
+      a.referenceModel === "Task" &&
+      (!lastVisitedTasks || new Date(a.createdAt) > new Date(lastVisitedTasks)),
+  );
 
-const leaveDot = (activities || []).some(
-  (a) =>
-    a.referenceModel === "Leave" &&
-    (!lastVisitedLeaves ||
-      new Date(a.createdAt) > new Date(lastVisitedLeaves))
-);
+  const leaveDot = (activities || []).some(
+    (a) =>
+      a.referenceModel === "Leave" &&
+      (!lastVisitedLeaves ||
+        new Date(a.createdAt) > new Date(lastVisitedLeaves)),
+  );
 
-const memberDot = (activities || []).some(
-  (a) =>
-    a.referenceModel === "User" && // ya "Member" (backend check karna)
-    a.action?.toLowerCase().includes("add") &&
-    (!lastVisitedMembers ||
-      new Date(a.createdAt) > new Date(lastVisitedMembers))
-);
+  const memberDot = (activities || []).some(
+    (a) =>
+      a.referenceModel === "User" && // ya "Member" (backend check karna)
+      a.action?.toLowerCase().includes("add") &&
+      (!lastVisitedMembers ||
+        new Date(a.createdAt) > new Date(lastVisitedMembers)),
+  );
   const projectDot = projectCreatedDot || workUpdateDot;
   console.log("Activities for Work Updates:", workUpdateDot);
   console.log("Activities:", activities);
@@ -470,12 +469,11 @@ const memberDot = (activities || []).some(
                           : "text-primary-content hover:bg-base-300 hover:text-base-content"
                       }`}
                     >
-                        <MdPeople size={20} />
-                       {memberDot && !teamOpen && (
-    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full" />
-  )}
+                      <MdPeople size={20} />
+                      {memberDot && !teamOpen && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full" />
+                      )}
 
-                    
                       {!collapsed && (
                         <>
                           <span className="flex-1 text-left">Team</span>
@@ -503,19 +501,21 @@ const memberDot = (activities || []).some(
                           <NavLink
                             key={item.id}
                             to={item.path}
-                               onClick={() => {
-      if (item.id === "members") {
-        localStorage.setItem(
-          "lastVisited_members",
-          new Date().toISOString()
-        );
-      }
-    }}
-                            className={(props) => `${linkClass(props)} relative`}
+                            onClick={() => {
+                              if (item.id === "members") {
+                                localStorage.setItem(
+                                  "lastVisited_members",
+                                  new Date().toISOString(),
+                                );
+                              }
+                            }}
+                            className={(props) =>
+                              `${linkClass(props)} relative`
+                            }
                           >
                             {item.icon}
                             <span>{item.label}</span>
-                            {item.id === "members" && memberDot  &&   (
+                            {item.id === "members" && memberDot && (
                               <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
                             )}
                           </NavLink>
@@ -524,45 +524,56 @@ const memberDot = (activities || []).some(
                     </div>
                   </>
                 ) : (
-                  <NavLink to="/members"  className={(props) => `${linkClass(props)} relative`}
-  onClick={() => {
-    localStorage.setItem(
-      "lastVisited_members",
-      new Date().toISOString()
-    );
-  }}>
+                  <NavLink
+                    to="/members"
+                    className={(props) => `${linkClass(props)} relative`}
+                    onClick={() => {
+                      localStorage.setItem(
+                        "lastVisited_members",
+                        new Date().toISOString(),
+                      );
+                    }}
+                  >
                     <MdPeople size={20} />
 
                     {!collapsed && <span>Team</span>}
-                     {memberDot && (
-    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-  )}
+                    {memberDot && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
+                    )}
                   </NavLink>
                 ))}
 
               {managementMenu.map((item) => (
-                <NavLink key={item.id} to={item.path}
+                <NavLink
+                  key={item.id}
+                  to={item.path}
                   className={(props) => `${linkClass(props)} relative`}
-    onClick={() => {
-      if (item.id === "tasks") {
-        localStorage.setItem("lastVisited_tasks", new Date().toISOString());
-      }
-      if (item.id === "leaves") {
-        localStorage.setItem("lastVisited_leaves", new Date().toISOString());
-      }
-    }}
+                  onClick={() => {
+                    if (item.id === "tasks") {
+                      localStorage.setItem(
+                        "lastVisited_tasks",
+                        new Date().toISOString(),
+                      );
+                    }
+                    if (item.id === "leaves") {
+                      localStorage.setItem(
+                        "lastVisited_leaves",
+                        new Date().toISOString(),
+                      );
+                    }
+                  }}
                 >
                   {item.icon}
                   {!collapsed && <span>{item.label}</span>}
 
-    {/* DOTS */}
-    {item.id === "tasks" && taskDot && (
-      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-    )}
+                  {/* DOTS */}
+                  {item.id === "tasks" && taskDot && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
+                  )}
 
-    {item.id === "leaves" && leaveDot && (
-      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-    )}
+                  {item.id === "leaves" && leaveDot && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
+                  )}
                 </NavLink>
               ))}
 
