@@ -24,6 +24,8 @@ import LeavePolicy from "./LeavePolicy";
 import MobileLeaveTabs from "./MobileLeaveTabs";
 // import { getOrganizationSlug } from "@/utils/auth";
 import { useAuth } from "@/auth/AuthContext";
+import { data } from "react-router-dom";
+import LeaveDrawer from "./LeaveDrawer";
 
 
 
@@ -33,11 +35,11 @@ export default function AdminLeaveDashboard() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [holidays, setHolidays] = useState<{ _id?: string; date: string; title: string; description?: string }[]>([]);
   const [policy, setPolicy] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"requests" | "calendar" | "policy">("requests");
+  const [activeTab, setActiveTab] = useState<"requests"| "history" | "calendar" | "policy">("requests");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedHoliday, setSelectedHoliday] = useState<{ _id?: string; date: string; title: string; description?: string } | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
+const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
 
 
     useEffect(() => {
@@ -209,6 +211,13 @@ export default function AdminLeaveDashboard() {
           >
             <MdAssignment /> Leave Requests
           </button>
+           <button
+            onClick={() => setActiveTab("history")}
+            className={`tab gap-1 ${activeTab === "history" ? "tab-active" : ""}`}
+          >
+            <MdAssignment /> Leave History
+          </button>
+
           <button
             onClick={() => setActiveTab("calendar")}
             className={`tab gap-1 ${activeTab === "calendar" ? "tab-active" : ""}`}
@@ -232,9 +241,19 @@ export default function AdminLeaveDashboard() {
           onReject={reject}
           onBulkApprove={bulkApprove}
           onBulkReject={bulkReject}
+          mode="action"
+          onRowClick={(leave) => setSelectedLeave(leave)}
         />
       )}
-      
+
+        {activeTab === "history" && (
+        <LeaveRequestTable
+          requests={requests}
+          mode="history"
+          onRowClick={(leave) => setSelectedLeave(leave)}
+        />
+      )}
+
       {activeTab === "calendar" && (
         <LeaveCalendar
           requests={requests}
@@ -270,6 +289,11 @@ export default function AdminLeaveDashboard() {
           { key: "policy", icon: MdMenuBook },
         ]}
       />
+      <LeaveDrawer
+  leave={selectedLeave}
+  onClose={() => setSelectedLeave(null)}
+  mode="view"
+/>
     </div>
   );
 }

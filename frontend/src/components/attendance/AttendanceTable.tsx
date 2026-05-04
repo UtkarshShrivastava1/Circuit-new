@@ -12,11 +12,12 @@ interface Props {
   records: (AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[];
   role: UserRole;
   onUpdate: () => void;
+  showActions?: boolean; // New prop to control action visibility
 }
 
 
-export default function AttendanceTable({ records, role, onUpdate }: Props) {
-  const isAdmin = role === "admin" || role === "owner";
+export default function AttendanceTable({ records, role, onUpdate, showActions }: Props) {
+  const isAdmin = (role === "admin" || role === "owner") && showActions;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { auth } = useAuth();
 
@@ -114,27 +115,48 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
 
 
       <Table
-        headers={[
-          ...(isAdmin
-            ? [
-                <div className="w-10">
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-sm rounded"
-                    checked={allSelected}
-                    disabled={selectableRecords.length === 0}
-                    onChange={toggleSelectAll}
-                  />
-                </div>,
-              ]
-            : []),
-          "Employee",
-          "Date",
-          "Check In",
-          "Status",
-          "Mode",
-          ...(isAdmin ? ["Action"] : []),
-        ]}
+        // headers={[
+        //   ...(isAdmin
+        //     ? [
+        //         <div className="w-10">
+        //           <input
+        //             type="checkbox"
+        //             className="checkbox checkbox-sm rounded"
+        //             checked={allSelected}
+        //             disabled={selectableRecords.length === 0}
+        //             onChange={toggleSelectAll}
+        //           />
+        //         </div>,
+        //       ]
+        //     : []),
+        //   "Employee",
+        //   "Date",
+        //   "Check In",
+        //   "Status",
+        //   "Mode",
+        //   ...(isAdmin ? ["Action"] : []),
+        // ]}
+       headers={[
+  "Employee",
+  "Date",
+  "Check In",
+  "Status",
+  "Mode",
+  ...(isAdmin ? ["Action"] : []),
+  ...(isAdmin
+    ? [
+        <div className="w-10">
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm border-2 rounded  checked:bg-primary checked:border-primary"
+            checked={allSelected}
+            disabled={selectableRecords.length === 0}
+            onChange={toggleSelectAll}
+          />
+        </div>,
+      ]
+    : []),
+]}
       >
         {paginatedRecords.length === 0 ? (
           <tr>
@@ -147,17 +169,7 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
           <tr key={r.id} className="text-base-content text-xs">
 
             {/* ✅ Checkbox only for admin */}
-            {isAdmin && (
-              <td className="w-10">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-xs rounded"
-                  checked={selectedIds.includes(r.id)}
-                  disabled={r.status !== "pending"}
-                  onChange={() => toggleSelect(r.id)}
-                />
-              </td>
-            )}
+            
 
             <td>{r.employee}</td>
             <td>{r.date}</td>
@@ -169,7 +181,7 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
             <td className="capitalize">
               {r.mode}
             </td>
-
+            
             {/* ✅ Action column only for admin */}
             {isAdmin && (
               <td> 
@@ -203,6 +215,17 @@ export default function AttendanceTable({ records, role, onUpdate }: Props) {
                 )} */}
               </td>
             )}
+            {isAdmin && (
+  <td className="w-10">
+    <input
+      type="checkbox"
+      className="checkbox checkbox-xs rounded border-2 checked:bg-primary checked:border-primary"
+      checked={selectedIds.includes(r.id)}
+      disabled={r.status !== "pending"}
+      onChange={() => toggleSelect(r.id)}
+    />
+  </td>
+)}
           </tr>
           ))
         )}

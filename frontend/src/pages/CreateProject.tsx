@@ -170,7 +170,7 @@ const handleCreateProject = async () => {
       </div> */}
 
         <div className="mb-6 sm:mb-8">
-          <div className="flex bg-base-200 rounded-xl p-1">
+          <div className="flex bg-base-300 rounded-xl p-1">
             {TABS.map((tab) => (
               <button
                 key={tab}
@@ -179,7 +179,7 @@ const handleCreateProject = async () => {
           flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-300
           ${
             activeTab === tab
-              ? "bg-base-100 shadow text-primary"
+              ? "bg-primary shadow text-primary-content"
               : "text-base-content/60 hover:text-base-content"
           }
         `}

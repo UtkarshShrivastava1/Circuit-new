@@ -15,6 +15,16 @@ const WorkUpdates = ({ projectId }: { projectId: string }) => {
     <div className="bg-base-100 border border-base-300 rounded-2xl shadow-sm p-5">
       {/* Tabs Header */}
       <div className="flex gap-6 border-b border-base-300 mb-5">
+         <button
+          onClick={() => setActiveTab("list")}
+          className={`pb-2 text-sm font-medium transition-all duration-200 ${
+            activeTab === "list"
+              ? "text-primary border-b-2 border-primary"
+              : "text-base-content/60 hover:text-base-content"
+          }`}
+        >
+          View Updates
+        </button>
         {/*  Only show when NO projectId */}
         {!projectId && (
           <button
@@ -29,16 +39,7 @@ const WorkUpdates = ({ projectId }: { projectId: string }) => {
           </button>
         )}
 
-        <button
-          onClick={() => setActiveTab("list")}
-          className={`pb-2 text-sm font-medium transition-all duration-200 ${
-            activeTab === "list"
-              ? "text-primary border-b-2 border-primary"
-              : "text-base-content/60 hover:text-base-content"
-          }`}
-        >
-          View Updates
-        </button>
+       
       </div>
 
       {/* Tab Content */}

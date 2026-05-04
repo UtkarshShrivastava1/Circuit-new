@@ -527,7 +527,7 @@ export default function NewTaskModal({
         "
       >
         {/* HEADER */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-base-300 text-base-content">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-base-300 bg-primary/80 rounded-t-2xl text-base-100">
           <span className="text-base sm:text-lg font-semibold">
             Create Task
           </span>
@@ -591,7 +591,7 @@ export default function NewTaskModal({
             placeholder="Add description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="textarea textarea-bordered w-full"
+            className="textarea border border-base-300 focus:outline-none  focus:ring-2 focus:ring-primary/40 rounded-lg w-full"
           />
 
           <AttachmentInput

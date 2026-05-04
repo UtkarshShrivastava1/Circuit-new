@@ -9,6 +9,8 @@ import MemberTask from "./MemberTask";
 import Tabs from "../ui/Tabs";
 import { useAuth } from "@/auth/AuthContext";
 import { getProject } from "@/services/projectServices";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 type Filter = "all" | "active" | "completed" | "on-hold";
 type RightTab = "projects" | "tasks";
@@ -27,7 +29,7 @@ export default function MemberRightSection({ memberId }: { memberId: string }) {
   const [filter, setFilter] = useState<Filter>("all");
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-
+const navigate = useNavigate();
   useEffect(() => {
     const fetchMemberProjects = async () => {
       if (!slug || !memberId) return;
@@ -82,7 +84,7 @@ export default function MemberRightSection({ memberId }: { memberId: string }) {
 
   return (
 <div className="flex-1 w-full px-3 sm:px-4 lg:px-6">
-    
+   
       <Tabs<RightTab>
         value={activeTab}
         onChange={setActiveTab}

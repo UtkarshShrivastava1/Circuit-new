@@ -7,12 +7,13 @@ import Pagination from "@/components/ui/Pagination";
 
 interface Props {
   requests: LeaveRequest[];
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  onApprove?: (id: string) => void;
+  onReject?: (id: string) => void;
   onBulkApprove?: (ids: string[]) => void;
   onBulkReject?: (ids: string[]) => void;
+  mode?: "action" | "history";
+  onRowClick?: (leave: LeaveRequest) => void;
 }
-
 
 export default function LeaveRequestTable({
   requests,
@@ -20,6 +21,8 @@ export default function LeaveRequestTable({
   onReject,
   onBulkApprove,
   onBulkReject,
+  mode = "action",
+  onRowClick,
 }: Props) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,7 +30,10 @@ export default function LeaveRequestTable({
 
   const totalPages = Math.ceil(requests.length / pageSize) || 1;
   const validPage = Math.min(currentPage, totalPages);
-  const currentRequests = requests.slice((validPage - 1) * pageSize, validPage * pageSize);
+  const currentRequests = requests.slice(
+    (validPage - 1) * pageSize,
+    validPage * pageSize,
+  );
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
@@ -37,7 +43,10 @@ export default function LeaveRequestTable({
     }
   };
 
-  const handleSelectOne = (e: React.ChangeEvent<HTMLInputElement>, id: string) => {
+  const handleSelectOne = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    id: string,
+  ) => {
     if (e.target.checked) {
       setSelectedIds((prev) => [...prev, id]);
     } else {
@@ -59,12 +68,13 @@ export default function LeaveRequestTable({
     }
   };
 
-
   return (
     <>
-      {selectedIds.length > 0 && (
+      {mode === "action" && selectedIds.length > 0 && (
         <div className="flex gap-2 mb-4 bg-base-200 p-3 rounded-lg items-center justify-between">
-          <span className="text-sm font-medium">{selectedIds.length} selected</span>
+          <span className="text-sm font-medium">
+            {selectedIds.length} selected
+          </span>
           <div className="flex gap-2">
             <Button size="sm" variant="primary" onClick={handleBulkApprove}>
               Approve Selected
@@ -80,26 +90,35 @@ export default function LeaveRequestTable({
       <div className="hidden md:block bg-base-100 border border-base-300 rounded-lg overflow-hidden">
         <table className="table table-zebra w-full text-base-content ">
           <thead>
-            <tr className="bg-base-300" >
-              <th >
-                <input type="checkbox" 
-                checked={selectedIds.length === requests.length && requests.length > 0}
-                onChange={handleSelectAll}
-                className="checkbox checkbox-sm checkbox-base-content-300"
-                />
-              </th>
+            <tr className="bg-base-300">
               <th>Employee</th>
               <th>Leave Type</th>
               <th>Dates</th>
               <th>Status</th>
-              <th className="text-right">Action</th>
+              {mode === "action" && <th className="text-right">Action</th>}
+              {mode === "action" && (
+                <th>
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedIds.length === requests.length &&
+                      requests.length > 0
+                    }
+                    onChange={handleSelectAll}
+                    className="checkbox checkbox-sm checkbox-base-content-300"
+                  />
+                </th>
+              )}
             </tr>
           </thead>
 
-          <tbody> 
+          <tbody>
             {currentRequests.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-base-content/60 font-medium">
+                <td
+                  colSpan={6}
+                  className="text-center py-10 text-base-content/60 font-medium"
+                >
                   No leave requests found
                 </td>
               </tr>
@@ -107,57 +126,72 @@ export default function LeaveRequestTable({
               currentRequests.map((r) => {
                 const Icon = leaveTypeIcon[r.type];
                 return (
-                <tr key={r.id}>
-                  <td className="font-medium">
+                  <tr
+                    key={r.id}
+                    onClick={() => onRowClick?.(r)}
+                    className="hover:bg-base-200 cursor-pointer"
+                  >
+                    <td className="font-medium">{r.employee}</td>
 
-                    <input type="checkbox"
-                      checked={selectedIds.includes(r.id)}
-                      onChange={(e) => handleSelectOne(e, r.id)}
-                      className="checkbox checkbox-sm"
-                    />
-                  </td>
-                  <td className="font-medium">{r.employee}</td>
+                    <td className="flex items-center gap-2">
+                      <Icon />
+                      <span className="capitalize">{r.type}</span>
+                    </td>
 
-                  <td className="flex items-center gap-2">
-                    <Icon />
-                    <span className="capitalize">{r.type}</span>
-                  </td>
+                    <td>
+                      {r.fromDate}
+                      {r.toDate && ` → ${r.toDate}`}
+                    </td>
 
-                  <td>
-                    {r.fromDate}
-                    {r.toDate && ` → ${r.toDate}`}
-                  </td>
-
-                  <td>
-                    <StatusBadge status={r.status} />
-                  </td>
-
-                  <td className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="xs"
-                        variant="primary"
-                        onClick={() => onApprove(r.id)}
-                        disabled={r.status === "approved"}
-                        className={r.status === "approved" ? " cursor-not-allowed" : ""}
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="error"
-                        onClick={() => onReject(r.id)}
-                        disabled={r.status === "rejected"}
-                        className={r.status === "rejected" ? " cursor-not-allowed" : ""}
-                      >
-                        Reject
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
-          )}
+                    <td>
+                      <StatusBadge status={r.status} />
+                    </td>
+                    {mode === "action" && (
+                      <td className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            size="xs"
+                            variant="primary"
+                            onClick={() => onApprove?.(r.id)}
+                            disabled={r.status === "approved"}
+                            className={
+                              r.status === "approved"
+                                ? " cursor-not-allowed"
+                                : ""
+                            }
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant="error"
+                            onClick={() => onReject?.(r.id)}
+                            disabled={r.status === "rejected"}
+                            className={
+                              r.status === "rejected"
+                                ? " cursor-not-allowed"
+                                : ""
+                            }
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    )}
+                    {mode === "action" && (
+                      <td className="font-medium">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(r.id)}
+                          onChange={(e) => handleSelectOne(e, r.id)}
+                          className="checkbox checkbox-sm"
+                        />
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -172,59 +206,67 @@ export default function LeaveRequestTable({
           currentRequests.map((r) => {
             const Icon = leaveTypeIcon[r.type];
             return (
-            <div
-              key={r.id}
-              className="bg-base-100 border border-base-300 rounded-xl p-4 space-y-3"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex gap-3">
-                  <input type="checkbox"
-                    checked={selectedIds.includes(r.id)}
-                    onChange={(e) => handleSelectOne(e, r.id)}
-                    className="checkbox checkbox-sm mt-1"
-                  />
-                  <div>
-                    <p className="font-semibold">{r.employee}</p>
-                    <div className="flex items-center gap-2 text-sm text-base-content/60">
-                      <Icon />
-                      <span className="capitalize">{r.type}</span>
+              <div
+                onClick={() => onRowClick?.(r)}
+                key={r.id}
+                className="cursor-pointer bg-base-100 border border-base-300 rounded-xl p-4 space-y-3"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(r.id)}
+                      onChange={(e) => handleSelectOne(e, r.id)}
+                      className="checkbox checkbox-sm mt-1"
+                    />
+                    <div>
+                      <p className="font-semibold">{r.employee}</p>
+                      <div className="flex items-center gap-2 text-sm text-base-content/60">
+                        <Icon />
+                        <span className="capitalize">{r.type}</span>
+                      </div>
                     </div>
                   </div>
+
+                  <StatusBadge status={r.status} />
                 </div>
 
-                <StatusBadge status={r.status} />
-              </div>
+                <div className="text-sm">
+                  <span className="text-base-content/60">Dates:</span>{" "}
+                  {r.fromDate}
+                  {r.toDate && ` → ${r.toDate}`}
+                </div>
 
-              <div className="text-sm">
-                <span className="text-base-content/60">Dates:</span>{" "}
-                {r.fromDate}
-                {r.toDate && ` → ${r.toDate}`}
-              </div>
+                {mode === "action" && (
+                  <div className="flex w-full gap-4 pt-2">
+                    <Button
+                      className={`flex-1 ${r.status === "approved" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      size="sm"
+                      variant="primary"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 👈 warna drawer bhi open ho jayega
+                        onApprove?.(r.id);
+                      }}
+                      disabled={r.status === "approved"}
+                    >
+                      Approve
+                    </Button>
 
-
-              <div className="flex w-full gap-4 pt-2">
-                <Button
-                  className={`flex-1 ${r.status === "approved" ? "opacity-50 cursor-not-allowed" : ""}`}
-                  size="sm"
-                  variant="primary"
-                  onClick={() => onApprove(r.id)}
-                  disabled={r.status === "approved"}
-                >
-                  Approve
-                </Button>
-
-                <Button
-                  className={`flex-1 ${r.status === "rejected" ? "opacity-50 cursor-not-allowed" : ""}`}
-                  size="sm"
-                  variant="error"
-                  onClick={() => onReject(r.id)}
-                  disabled={r.status === "rejected"}
-                >
-                  Reject
-                </Button>
-              </div>
-
-              {/* {(r.status === "pending" ) && (
+                    <Button
+                      className={`flex-1 ${r.status === "rejected" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      size="sm"
+                      variant="error"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onReject?.(r.id);
+                      }}
+                      disabled={r.status === "rejected"}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                )}
+                {/* {(r.status === "pending" ) && (
                 <div className="flex gap-2 pt-2">
                   {(r.status === "pending" || r.status === "rejected") && (
                     <div className="gap-4">
@@ -265,10 +307,10 @@ export default function LeaveRequestTable({
                   )}
                 </div>
               )} */}
-            </div>
-          );
-        })
-      )}
+              </div>
+            );
+          })
+        )}
       </div>
 
       {totalPages > 1 && (
