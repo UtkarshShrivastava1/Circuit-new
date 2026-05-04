@@ -26,7 +26,7 @@ export default function AttendanceSummaryCards({ summary }: Props) {
           className={`bg-base-100 border border-base-300 rounded-lg p-4 text-center
           ${item.highlight ? "ring-1 ring-warning" : ""}`}
         >
-          <p className="text-xs text-base-content/60">
+          <p className="text-xs font-semibold text-base-content/80">
             {item.label}
           </p>
           <p className="text-xl font-semibold text-base-content mt-1">

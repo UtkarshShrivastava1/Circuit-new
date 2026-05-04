@@ -25,7 +25,7 @@ export default function StatCard({
   return (
     <div className={`bg-base-100 border ${variantClass} rounded-lg p-4`}>
       <div className="flex items-center justify-between">
-        <p className="text-sm text-base-content/60">{title}</p>
+        <p className="text-sm font-semibold text-base-content/100">{title}</p>
         {icon && <div className="text-primary">{icon}</div>}
       </div>
 

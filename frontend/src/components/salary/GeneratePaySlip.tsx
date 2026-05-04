@@ -124,7 +124,7 @@ export default function GeneratePaySlip() {
             <Button variant="ghost" size="sm" className="border border-base-content" onClick={deselectAll}>Deselect All</Button>
           </div>
         </div>
-        <div className="border border-base-300 rounded-lg max-h-64 overflow-y-auto p-2 space-y-1 bg-base-50">
+        <div className=" bg-white/70 text-base-content border border-base-300 rounded-lg max-h-64 overflow-y-auto p-2 space-y-1 bg-base-50">
           {employees.map(emp => (
             <label key={emp._id} className="flex items-center gap-3 p-3 hover:bg-base-200 rounded cursor-pointer transition-colors border border-transparent hover:border-base-300">
               <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={selectedEmployees.includes(emp._id)} onChange={() => toggleEmployee(emp._id)} />

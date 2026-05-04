@@ -97,7 +97,7 @@ export default function LeaveBalanceDashboard({
                     {card.title}
                   </p>
 
-                  <p className="text-2xl font-semibold">
+                  <p className="text-2xl font-semibold text-base-content"> 
                     {card.remaining}
                     <span className="text-sm text-base-content/50">
                       {" "}
@@ -134,7 +134,7 @@ export default function LeaveBalanceDashboard({
               <p className="text-xs text-base-content/60">
                 Total Used
               </p>
-              <p className="text-xl font-semibold">
+              <p className="text-xl font-semibold text-base-content">
                 {totalUsed} Days
               </p>
             </div>
@@ -149,7 +149,7 @@ export default function LeaveBalanceDashboard({
               <p className="text-xs text-base-content/60">
                 Expiring Soon
               </p>
-              <p className="text-xl font-semibold">
+              <p className="text-xl font-semibold text-base-content">
                 {expiringSoon} Days
               </p>
             </div>
@@ -161,7 +161,7 @@ export default function LeaveBalanceDashboard({
           <p className="text-xs text-base-content/60">
             Leave Year Summary
           </p>
-          <p className="text-xl font-semibold">
+          <p className="text-xl font-semibold text-base-content ">
             {totalUsed} /{" "}
             {POLICY.casual +
               POLICY.sick +

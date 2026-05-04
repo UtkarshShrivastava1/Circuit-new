@@ -12,7 +12,7 @@ const STATUS_CONFIG = {
   approved: {
     label: "Approved",
     icon: "",
-    className: "bg-success/20 text-success border-success/30",
+    className: "bg-success text-white border-success/30",
   },
   absent: {
     label: "Absent",

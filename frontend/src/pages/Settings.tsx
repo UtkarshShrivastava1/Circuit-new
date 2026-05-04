@@ -38,8 +38,8 @@ return (
           onClick={() => setActiveTab(tab)}
           className={`pb-3 capitalize transition ${
             activeTab === tab
-              ? "border-b-2 border-primary text-primary font-medium"
-              : "text-base-content/60 hover:text-base-content"
+              ? "border-b-2 border-primary text-base-content font-medium"
+              : "text-base-content/20 hover:text-base-content"
           }`}
         >
           {tab}

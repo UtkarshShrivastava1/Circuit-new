@@ -40,7 +40,7 @@ export default function AttendanceFilterDrawer({
       <div className="flex justify-center mb-2">
     <div className="w-10 h-1 bg-base-300 rounded-full"></div>
   </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center ">
           <h3 className="font-semibold text-base-content ">
             Filters
           </h3>

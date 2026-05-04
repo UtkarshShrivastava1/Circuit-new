@@ -38,7 +38,7 @@ const WorkUpdate = ({
   const [updates, setUpdates] = useState<WorkUpdate[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔥 edit states
+  // edit states
   const [editProjectId, setEditProjectId] = useState("");
   const [projects, setProjects] = useState([]);
   const [editingUpdate, setEditingUpdate] = useState<WorkUpdate | null>(null);
@@ -141,17 +141,17 @@ const WorkUpdate = ({
       ) : updates.length === 0 ? (
         <p className="text-sm text-base-content/60">No work updates yet </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-base-content">
+        <div className="w-full overflow-x-auto">
+          <table className="min-w-[800px] w-full text-sm text-base-content">
             {/* Header */}
             <thead>
               <tr className="border-b border-base-300 text-xs uppercase tracking-wide text-base-content/50">
-                <th className="py-3 text-left">Project</th>
-                <th className="py-3 text-left">Description</th>
-                <th className="py-3 text-left">User</th>
-                <th className="py-3 text-left">Files</th>
-                <th className="py-3 text-left">Date</th>
-                <th className="py-3 text-left">Action</th>
+                <th className="py-3 text-left min-w-[120px]">Project</th>
+                <th className="py-3 text-left min-w-[200px]">Description</th>
+                <th className="py-3 text-left min-w-[120px]">User</th>
+                <th className="py-3 text-left min-w-[150px]">Files</th>
+                <th className="py-3 text-left min-w-[150px]">Date</th>
+                <th className="py-3 text-left min-w-[100px]">Action</th>
               </tr>
             </thead>
 
@@ -164,7 +164,9 @@ const WorkUpdate = ({
                 >
                   <td className="py-3">{item.projectId?.projectName}</td>
 
-                  <td className="py-3 max-w-xs truncate">{item.description}</td>
+                  <td className="py-3 max-w-[250px] truncate">
+                    {item.description}
+                  </td>
 
                   <td className="py-3">{item.createdBy?.name}</td>
 

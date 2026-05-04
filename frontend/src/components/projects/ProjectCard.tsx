@@ -94,10 +94,10 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="group bg-base-200 border border-base-300 rounded-xl p-6 hover:shadow-lg transition relative w-full h-full flex flex-col justify-between min-w-0">
+    <div className="group bg-base-100 text-primary border border-base-300 rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative  w-full h-full flex flex-col justify-between min-w-0">
       {/* HEADER */}
       <div className="flex items-start justify-between mb-3 ">
-        <h3 className="font-semibold text-base-content text-lg break-words">
+        <h3 className="font-bold  text-lg break-words">
           {project.name}
         </h3>
        
@@ -157,13 +157,13 @@ export default function ProjectCard({
       </div>
 
       {/* MANAGER */}
-      <p className="text-sm text-base-content/60 mb-4">
+      <p className="text-sm text-primary/70 mb-4">
         Manager: <span className="font-medium">{project.manager}</span>
       </p>
 
       {/* PROGRESS */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-base-content/60 mb-1">
+        <div className="flex justify-between text-xs text-primary/60 mb-1">
           <span>Progress</span>
           <span>{project.progress}%</span>
         </div>
@@ -174,9 +174,9 @@ export default function ProjectCard({
         />
       </div>
 
-      {/* META */}
+      
      {/* META */}
-<div className="mt-4 flex items-center justify-between gap-4 text-xs text-base-content/70 flex-wrap sm:flex-nowrap">
+<div className="mt-4 flex items-center justify-between gap-4 text-xs text-primary/70 flex-wrap sm:flex-nowrap">
   
   {/* Left Meta Info */}
   <div className="flex items-center gap-4 whitespace-nowrap">
@@ -190,10 +190,10 @@ export default function ProjectCard({
   </div>
 
   {/* Right Action Buttons */}
-  <div className="flex items-center gap-3">
+  <div className="flex items-center gap-1">
     <div className="tooltip tooltip-top" data-tip="View project">
       <button
-        className="btn btn-sm btn-primary"
+        className="btn btn-xs btn-ghost"
         onClick={() => navigate(`/projects/${project.id}`)}
       >
         <MdFileOpen size={16} />
@@ -203,7 +203,7 @@ export default function ProjectCard({
     <div className="tooltip tooltip-top" data-tip="Open chat">
       <button
         onClick={() => navigate(`/projects/${project.id}?tab=chat`)}
-        className="btn btn-sm btn-outline"
+        className="btn btn-xs btn-ghost"
       >
         <MdChat size={18} />
       </button>

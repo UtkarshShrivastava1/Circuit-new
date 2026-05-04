@@ -99,16 +99,19 @@ const handleCreateProject = async () => {
         ? projectData.customDomain
         : projectData.domain;
 
-    const payload = {
-      ...projectData,
-      domain: finalDomain,
-       participants: participants?.map(p => ({
-    user: p.userId,   
+   const payload = {
+  ...projectData,
+  domain: projectData.domain, // ❗ override mat karo
+  customDomain:
+    projectData.domain === "Other"
+      ? projectData.customDomain
+      : "",
+  participants: participants?.map((p) => ({
+    user: p.userId,
     role: p.role,
-    responsibility: p.responsibility
+    responsibility: p.responsibility,
   })),
-
-    };
+};
 
     // Send POST request to backend
     const res = await createProject(slug, payload)
@@ -138,7 +141,7 @@ const handleCreateProject = async () => {
       <div className="w-full max-w-3xl bg-base-200/40 backdrop-blur-md border border-base-200 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8">
         {/* ================= HEADING ================= */}
         <div className="mb-8 text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-base-content">
+          <h1 className="text-xl sm:text-2xl font-bold text-base-content">
             Create New Project
           </h1>
           <p className="text-sm text-base-content/60 mt-2">

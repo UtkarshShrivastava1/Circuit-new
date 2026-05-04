@@ -263,7 +263,8 @@ export default function EmployeeLeaveDashboard() {
         <button
           onClick={() => setActive("overview")}
           className={`tab  gap-1 ${
-            active === "overview" ? "tab-active" : ""
+            active === "overview" ? "tab-active !text-base-content"
+    : "!text-base-content/40"
           }`}
         >
         <MdDashboard/>  Overview
@@ -273,8 +274,8 @@ export default function EmployeeLeaveDashboard() {
           onClick={() => setActive("my-leaves")}
           className={`tab gap-1 ${
             active === "my-leaves"
-              ? "tab-active"
-              : ""
+              ? "tab-active !text-base-content"
+              : "!text-base-content/40"
           }`}
         >
        <MdAssignment/>   My Leaves
@@ -283,7 +284,7 @@ export default function EmployeeLeaveDashboard() {
         <button
           onClick={() => setActive("balance")}
           className={`tab gap-1 ${
-            active === "balance" ? "tab-active" : ""
+            active === "balance" ? "tab-active !text-base-content" : "!text-base-content/40"
           }`}
         >
         <MdAccountBalanceWallet/>  Leave Balance
@@ -291,7 +292,7 @@ export default function EmployeeLeaveDashboard() {
         <button
           onClick={() => setActive("calendar")}
           className={`tab gap-1 ${
-            active === "calendar" ? "tab-active" : ""
+            active === "calendar" ? "tab-active !text-base-content" : "!text-base-content/40"
           }`}
         >
          <MdCalendarMonth/> Leave Calendar
@@ -299,7 +300,7 @@ export default function EmployeeLeaveDashboard() {
         <button
           onClick={() => setActive("policy")}
           className={`tab gap-1 ${
-            active === "policy" ? "tab-active" : ""
+            active === "policy" ? "tab-active !text-base-content" : "!text-base-content/40"
           }`}
         >
        <MdMenuBook/>   Leave Policy

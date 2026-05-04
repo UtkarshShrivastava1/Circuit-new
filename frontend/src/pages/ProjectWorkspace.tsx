@@ -127,7 +127,7 @@ export default function ProjectWorkspace() {
       {activeTab === "overview" && (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-6">
-            <StatCard label="Total Tasks" value={totalTasks} />
+            <StatCard label="Total Tasks" color="base-content" value={totalTasks} />
             <StatCard
               label="Completed"
               value={completedTasks}
@@ -205,14 +205,14 @@ const StatCard = ({
 
 const DescriptionCard = ({ description }: { description: string }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-    <h3 className="font-semibold mb-2">Description</h3>
+    <h3 className=" text-base-content font-semibold mb-2">Description</h3>
     <p className="text-sm text-base-content/70">{description}</p>
   </div>
 );
 
 const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-    <h3 className="font-semibold mb-3">High Priority Tasks</h3>
+    <h3 className=" text-base-content font-semibold mb-3">High Priority Tasks</h3>
     {tasks.length === 0 ? (
       <p className="text-sm text-base-content/60">No high priority tasks </p>
     ) : (
@@ -230,7 +230,7 @@ const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
 
 const LatestTasksCard = ({ tasks }: { tasks: any[] }) => (
   <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-    <h3 className="font-semibold mb-3">Latest Tasks</h3>
+    <h3 className=" text-base-content font-semibold mb-3">Latest Tasks</h3>
     {tasks.length === 0 ? (
       <p className="text-sm text-base-content/60">No latest tasks </p>
     ) : (

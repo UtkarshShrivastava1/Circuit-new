@@ -61,6 +61,7 @@ const attendanceTrendData = [
   { name: 'Wed', present: 4, absent: 2 },
   { name: 'Thu', present: 5, absent: 1 },
   { name: 'Fri', present: 6, absent: 0 },
+    { name: 'Sat', present: 3, absent: 2 },
 ];
 
 export default function Dashboard() {
@@ -422,8 +423,8 @@ export default function Dashboard() {
                 />
                 <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Bar dataKey="present" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Present" />
-                <Bar dataKey="absent" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Absent" />
+                <Bar barSize={40} dataKey="present" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Present" />
+                <Bar barSize={40} dataKey="absent" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Absent" />
               </BarChart>
             </ResponsiveContainer>
           </div>

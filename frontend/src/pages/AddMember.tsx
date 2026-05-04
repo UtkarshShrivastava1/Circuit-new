@@ -191,18 +191,20 @@ const AddMember = () => {
   };
 
   const inputStyle =
-    "w-full px-4 py-3 rounded-xl border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
+    "w-full px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all";
 
   return (
-  <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
+  // <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
+  <div className="min-h-screen flex flex-col items-center p-4 space-y-4">
       <div className="w-full max-w-5xl">
         <Breadcrumbs />
       </div>
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
+        // className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
+        className="w-full max-w-4xl bg-base-200 p-5 rounded-xl shadow-sm space-y-6 border"
       >
-        <h2 className="text-2xl text-center text-base-content font-semibold">
+        <h2 className="text-xl text-center text-base-content font-semibold">
           Employee Onboarding
         </h2>
 
@@ -253,8 +255,8 @@ const AddMember = () => {
 
         {/* RIGHT SIDE - PERSONAL INFO */}
         <div className="flex-1">
-          <fieldset className="grid md:grid-cols-2 gap-6 border-2 rounded-xl border-base-content/20 p-6">
-            <legend className="text-lg font-bold text-gray-700 px-2">
+          <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
+            <legend className="text-sm font-semibold text-base-content px-2">
               Personal Information
             </legend>
             <div className="flex gap-4 items-start md:col-span-2">
@@ -385,14 +387,14 @@ const AddMember = () => {
         </div>
 
         {/* ================= EMERGENCY ================= */}
-        <section className="space-y-6">
+        <section className="space-y-4">
           {/* <h3 className="text-lg font-semibold border-b pb-2 border-base-content/20 text-base-content">
             Emergency Contact
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
+              <legend className="text-sm  text-base-content mb-2 font-semibold p-2">
                 Emergency Contact
               </legend>
 
@@ -440,14 +442,14 @@ const AddMember = () => {
         </section>
 
         {/* ================= IDENTITY ================= */}
-        <section className="space-y-6">
+        <section className="space-y-4">
           {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Identity & Legal Details
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
+              <legend className="text-sm  text-base-content mb-2 font-semibold p-2">
                 Identity & Legal Details
               </legend>
 
@@ -503,13 +505,13 @@ const AddMember = () => {
         </section>
 
         {/* ================= EMPLOYMENT ================= */}
-        <section className="space-y-6">
+        <section className="space-y-4">
           {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Employment Details
           </h3> */}
           <div className=" gap-6">
-            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
+              <legend className="text-sm  text-base-content mb-2 font-semibold   p-2">
                 Employment Details
               </legend>
 
@@ -570,14 +572,14 @@ const AddMember = () => {
         </section>
 
         {/* ================= FINANCIAL ================= */}
-        <section className="space-y-6">
+        <section className="space-y-4">
           {/* <h3 className="text-lg font-semibold border-b border-base-content/20 pb-2 text-base-content">
             Financial Details
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="gap-5 grid md:grid-cols-3 border-2 rounded-xl border-base-content/20 p-6 mb-6">
-              <legend className="text-lg  text-gray-700 mb-2 font-bold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
+              <legend className="text-sm  text-base-content mb-2 font-semibold   p-2">
                 Bank Account Details
               </legend>
 
@@ -611,7 +613,7 @@ const AddMember = () => {
           <button
             type="submit"
             disabled={adding}
-            className={`px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
+            className={`px-5 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
           >
             {adding ? "Submitting..." : "Register Employee"}
           </button>

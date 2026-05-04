@@ -236,7 +236,9 @@ export default function Header({ onMenuClick }: HeaderProps)  {
   }
   return (
     <>
-    <header className="navbar bg-primary/95 backdrop-blur-md border-b border-base-300 px-4 sm:px-6 lg:pr-8 py-2 sm:py-3 sticky top-0 z-40 transition-colors">
+    {/* <header className="navbar bg-primary/95 backdrop-blur-md border-b border-base-300 px-4 sm:px-6 lg:pr-8 py-2 sm:py-3 sticky top-0 z-40 transition-colors"> */}
+    <header className="navbar bg-primary/95 backdrop-blur-md border-b border-base-300 
+px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
 
       {/* ================= LEFT ================= */}
       <div className="flex items-center gap-3 min-w-0 shrink-0 lg:hidden">
@@ -260,7 +262,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
       </div>
 
       {/* ================= MIDDLE (SEARCH) ================= */}
-      <div className="flex-1 flex items-center justify-center sm:justify-start px-3 sm:px-8">
+      {/* <div className="flex-1 flex items-center justify-center sm:justify-start px-3 sm:px-8">
         <div 
           className="w-full max-w-lg relative cursor-text group"
           onClick={() => setSearchOpen(true)}
@@ -271,7 +273,40 @@ export default function Header({ onMenuClick }: HeaderProps)  {
             <span className="hidden sm:inline-flex items-center justify-center text-[10px] bg-black/20 dark:bg-white/20 px-2 py-0.5 rounded-md font-mono border border-transparent text-primary-content/90 font-medium">⌘ K</span>
           </div>
         </div>
-      </div>
+      </div> */}
+
+      <div className="flex-1 flex items-center px-2 sm:px-6 min-w-0">
+  <div 
+    className="w-full max-w-lg relative cursor-text group min-w-0"
+    onClick={() => setSearchOpen(true)}
+  >
+    <MdSearch 
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-primary-content/60" 
+      size={18} 
+    />
+
+    <div className="
+      w-full 
+      bg-black/10 dark:bg-white/10 
+      border border-transparent 
+      text-primary-content 
+      rounded-xl 
+      pl-9 pr-2 py-1.5 sm:py-2
+      text-xs sm:text-sm
+      truncate
+      flex items-center justify-between
+    ">
+      <span className="truncate opacity-80">
+        Search...
+      </span>
+
+      {/* Hide shortcut on small screens */}
+      <span className="hidden sm:inline-flex text-[10px] bg-black/20 px-2 py-0.5 rounded-md">
+        ⌘ K
+      </span>
+    </div>
+  </div>
+</div>
 
       {/* ================= RIGHT ================= */}
       <div className="flex items-center gap-1 sm:gap-3">
@@ -420,9 +455,9 @@ export default function Header({ onMenuClick }: HeaderProps)  {
             <li onClick={()=>navigate(`/profile/${user?.userId}`)}>
               <a>Profile</a>
             </li>
-            <li onClick={() => fileInputRef.current?.click()}>
+            {/* <li onClick={() => fileInputRef.current?.click()}>
               <a>{isUploading ? "Uploading..." : "Change Avatar"}</a>
-            </li>
+            </li> */}
             <li onClick={()=>navigate("/settings")}>
               <a>Settings</a>
             </li>

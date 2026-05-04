@@ -4,7 +4,7 @@ import ProfileSidebar from "@/components/members/ProfileSidebar";
 import MemberRightSection from "@/components/members/MemberRightSection";
 import type { Member } from "@/type/member";
 import { getMemberById } from "@/services/memberService";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
+
 import { useAuth } from "@/auth/AuthContext";
 
 const MemberDetails = () => {
@@ -38,14 +38,11 @@ const MemberDetails = () => {
   if (!member) return <p>Member not found</p>;
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <Breadcrumbs />
-      <div className="flex flex-col md:flex-row gap-6">
-        <ProfileSidebar member={member} />
-  
-        <div className="flex-1">
-          <MemberRightSection memberId={member._id} />
-        </div>
+    <div className="flex flex-col lg:flex-column xl:flex-row gap-4 sm:gap-6 px-3 sm:px-4 lg:px-6 xl:px-7 py-4">
+      <ProfileSidebar member={member} />
+
+      <div className="flex-1">
+        <MemberRightSection memberId={member._id} />
       </div>
     </div>
   );
