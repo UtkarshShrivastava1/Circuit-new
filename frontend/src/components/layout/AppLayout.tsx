@@ -1,28 +1,32 @@
-import type { ReactNode } from "react";
+
+import { useState, type ReactNode } from "react";
 import Header from "./Header";
-import Sidebar from "./Sidebar";
+import ERPSidebar from "./Sidebar";
+
 
 interface Props {
   children: ReactNode;
 }
 
 export default function AppLayout({ children }: Props) {
-  // 🔹 Mock permissions for Week-1
-  const permissions = ["view_dashboard", "attendance", "projects"];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="drawer lg:drawer-open bg-base-100">
+    <div className="flex h-screen bg-base-100 overflow-hidden">
       
-      <input id="drawer" type="checkbox" className="drawer-toggle" />
+      {/* Sidebar */}
+      <ERPSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="drawer-content flex flex-col">
-        <Header />
-        {children}
-      </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header onMenuClick={() => setSidebarOpen(true)} />
 
-      <div className="drawer-side">
-        <label htmlFor="drawer" className="drawer-overlay"></label>
-        <Sidebar permissions={permissions} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -46,7 +46,8 @@ export default function TagsInput({
   return (
     <div
       className={`flex flex-wrap items-center gap-2 px-2 py-1.5 
-      rounded-lg border border-base-300 bg-base-100
+      rounded-lg border border-base-300 focus:outline-none
+         focus-within:ring-2 focus-within:ring-primary/40 bg-base-100 text-base-content 
       ${disabled ? "opacity-50" : ""}`}
     >
       {/* Existing tags */}
@@ -63,6 +64,9 @@ export default function TagsInput({
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onBlur={() => {
+  if (input.trim()) addTag();
+}}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -71,7 +75,9 @@ export default function TagsInput({
           }}
           placeholder="Add tag"
           className="flex-1 min-w-20 bg-transparent outline-none 
-          text-sm text-base-content placeholder:text-base-content/50"
+          text-sm text-base-content 
+            
+          placeholder:text-base-content/50"
         />
       )}
     </div>

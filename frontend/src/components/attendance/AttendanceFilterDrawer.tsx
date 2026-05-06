@@ -1,6 +1,6 @@
 import Button from "../ui/Button";
 import AttendanceFilters from "./AttendanceFilter";
-import { StatusPills } from "./FilertByStatus";
+import  StatusPills  from "./FilertByStatus";
 
 interface Props {
   open: boolean;
@@ -10,7 +10,7 @@ interface Props {
     fromDate?: string;
     toDate?: string;
   };
-  status: "all" | "approved" | "pending" | "rejected";
+  status: "all" | "approved" | "pending" | "absent";
   onFilterChange: (v: any) => void;
   onStatusChange: (v: any) => void;
   isAdmin: boolean;
@@ -36,12 +36,15 @@ export default function AttendanceFilterDrawer({
       />
 
       {/* Drawer */}
-      <div className="absolute bottom-0 left-0 right-0 bg-base-100 rounded-t-xl p-5 space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="font-semibold text-base-content">
+     <div className="absolute bottom-0 left-0 right-0 bg-base-100 rounded-t-xl p-5 space-y-4 max-h-[85vh] overflow-y-auto pb-8">
+      <div className="flex justify-center mb-2">
+    <div className="w-10 h-1 bg-base-300 rounded-full"></div>
+  </div>
+        <div className="flex justify-between items-center ">
+          <h3 className="font-semibold text-base-content ">
             Filters
           </h3>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} className="text-base-content/70">
             ✕
           </Button>
         </div>
@@ -60,7 +63,7 @@ export default function AttendanceFilterDrawer({
         />
 
         <Button
-          className="w-full"
+          className="w-full border-base-content"
           variant="primary"
           onClick={onClose}
         >

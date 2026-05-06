@@ -52,7 +52,7 @@ export default function AttendanceMobileTopBar({
       <Button
         variant="outline"
         size="sm"
-        className="whitespace-nowrap  "
+        className="whitespace-nowrap border-base-content text-base-content "
         onClick={onOpenFilters}
       >
         <ListFilter className="w-4 h-4 mr-1" />

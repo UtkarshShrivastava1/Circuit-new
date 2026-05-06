@@ -29,7 +29,11 @@ export default function Input({
       <input
         {...props}
         className={clsx(
-          "input input-bordered w-full",
+          `  w-full px-4 py-2 rounded-lg text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40`,
           fieldSizeClasses[size],
           iconLeft && "pl-10",
           iconRight && "pr-10",
