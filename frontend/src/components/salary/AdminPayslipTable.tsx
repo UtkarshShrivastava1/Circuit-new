@@ -21,6 +21,19 @@ const AdminPayslipTable = () => {
     const [monthFilter, setMonthFilter] = useState("");
     const [search, setSearch] = useState("");
   
+    // Dynamically generate the last 12 months for the dropdown
+    const generateMonthOptions = () => {
+      const options = [];
+      const date = new Date();
+      for (let i = 0; i < 12; i++) {
+        const month = new Date(date.getFullYear(), date.getMonth() - i, 1);
+        const value = `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+        const label = month.toLocaleString('default', { month: 'short', year: 'numeric' });
+        options.push({ value, label });
+      }
+      return options;
+    };
+
     useEffect(() => {
       if (auth.slug) {
         setLoading(true);
@@ -91,8 +104,9 @@ const AdminPayslipTable = () => {
                onChange={(e) => setMonthFilter(e.target.value)}
              >
                <option value="">All Months</option>
-               <option value="2026-01">Jan 2026</option>
-               <option value="2026-02">Feb 2026</option>
+               {generateMonthOptions().map((opt) => (
+                 <option key={opt.value} value={opt.value}>{opt.label}</option>
+               ))}
              </Select>
    
            <Button variant="outline">
@@ -123,7 +137,7 @@ const AdminPayslipTable = () => {
                    <td colSpan={7} className="text-center py-8">Loading payrolls...</td>
                  </tr>
                ) : (
-               {filtered.map((record) => (
+                 filtered.map((record) => (
                  <tr key={record._id} className="hover:bg-base-200">
    
                    <td>
@@ -168,7 +182,8 @@ const AdminPayslipTable = () => {
                    </td>
    
                  </tr>
-               )))}
+               ))
+               )}
              </tbody>
            </table>
    
