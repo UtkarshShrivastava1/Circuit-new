@@ -354,6 +354,7 @@ export default function Dashboard() {
               <Link to="/createProject" className={secondaryBtnClass}><MdWorkspaces size={16} /> Create Project</Link>
               <Link to="/addMember" className={secondaryBtnClass}><MdPersonAdd size={16} /> Add Member</Link>
               <Link to="/members" className={secondaryBtnClass}><MdPeople size={16} /> Team Directory</Link>
+              <Link to="/leaves" className={secondaryBtnClass}><MdPeople size={16} /> Leave</Link>
             </>
           ) : (
             <>

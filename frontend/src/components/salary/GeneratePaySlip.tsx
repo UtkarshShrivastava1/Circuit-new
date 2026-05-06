@@ -7,7 +7,13 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
 import PageHeader from "../ui/PageHeader";
-import { MdReceipt } from "react-icons/md";
+import { 
+  MdReceipt, 
+  MdDateRange, 
+  MdAttachMoney, 
+  MdPeople, 
+  MdSearch 
+} from "react-icons/md";
 
 export default function GeneratePaySlip() {
   const { auth } = useAuth();
@@ -18,6 +24,7 @@ export default function GeneratePaySlip() {
   const [year, setYear] = useState(new Date().getFullYear());
   const [manualAmount, setManualAmount] = useState("");
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, name: new Date(0, i).toLocaleString('default', { month: 'long' }) }));
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
@@ -80,63 +87,165 @@ export default function GeneratePaySlip() {
     setSelectedEmployees(prev => prev.includes(id) ? prev.filter(e => e !== id) : [...prev, id]);
   };
 
-  const selectAll = () => setSelectedEmployees(employees.map(e => e._id));
-  const deselectAll = () => setSelectedEmployees([]);
+  const filteredEmployees = employees.filter(emp => 
+    (emp.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (emp.department || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const selectAll = () => {
+    const filteredIds = filteredEmployees.map(e => e._id);
+    setSelectedEmployees(Array.from(new Set([...selectedEmployees, ...filteredIds])));
+  };
+
+  const deselectAll = () => {
+    const filteredIds = new Set(filteredEmployees.map(e => e._id));
+    setSelectedEmployees(selectedEmployees.filter(id => !filteredIds.has(id)));
+  };
 
   return (
-    <div className="bg-base-100 p-6 md:p-8 rounded-xl shadow-sm border border-base-content max-w-3xl mx-auto space-y-6 text-base-content">
-       <PageHeader title={"Generate Payslips"} subtitle={"Create monthly payroll"} icon={<MdReceipt />} />
-       <hr className="border-base-content" />
-      {/* <h2 className="text-2xl font-bold border-b border-secondary-content pb-4"></h2> */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium mb-1">Select Month</label>
-          <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full">
-            {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
-          </Select>
+    <div className="p-4 sm:p-6 bg-base-50 min-h-screen space-y-6">
+      
+      <div className="flex items-center gap-3 mb-2">
+        <div className="p-3 bg-primary/10 text-primary rounded-xl">
+          <MdReceipt size={24} />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Select Year</label>
-          <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full">
-            {years.map(y => <option key={y} value={y}>{y}</option>)}
-          </Select>
+          <h1 className="text-2xl font-bold text-base-content">Generate Payslips</h1>
+          <p className="text-sm text-base-content/60">Process monthly payroll for your organization</p>
         </div>
       </div>
 
-      <div className="bg-base-50 p-4 rounded-xl border border-base-200">
-        <label className="block text-sm font-bold mb-1">Manual Base Salary Override (Optional)</label>
-        <p className="text-xs text-base-content/60 mb-3">Leave blank to use the employee's pre-configured default salary template.</p>
-        <Input
-          type="number"
-          placeholder="₹ Enter gross amount"
-          value={manualAmount}
-          onChange={(e) => setManualAmount(e.target.value)}
-          className="w-full max-w-sm"
-        />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* LEFT COLUMN: Configuration */}
+        <div className="lg:col-span-4 space-y-6 h-fit sticky top-6">
+          
+          {/* Box 1: Period Selection */}
+          <div className="bg-base-100 p-6 rounded-2xl border border-base-300 shadow-sm">
+            <h3 className="text-sm font-bold text-base-content/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <MdDateRange size={18} /> Payroll Period
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-base-content/60 mb-1">Month</label>
+                <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full bg-base-200 border-none">
+                  {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
+                </Select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-base-content/60 mb-1">Year</label>
+                <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full bg-base-200 border-none">
+                  {years.map(y => <option key={y} value={y}>{y}</option>)}
+                </Select>
+              </div>
+            </div>
+          </div>
 
-      <div>
-        <div className="flex justify-between items-center mb-3">
-          <label className="text-md font-bold">Select Eligible Employees</label>
-          <div className="space-x-2">
-            <Button variant="secondary" size="sm" onClick={selectAll}>Select All</Button>
-            <Button variant="ghost" size="sm" className="border border-base-content" onClick={deselectAll}>Deselect All</Button>
+          {/* Box 2: Manual Override */}
+          <div className="bg-base-100 p-6 rounded-2xl border border-base-300 shadow-sm">
+            <h3 className="text-sm font-bold text-base-content/80 uppercase tracking-wider mb-2 flex items-center gap-2">
+              <MdAttachMoney size={18} /> Salary Override
+            </h3>
+            <p className="text-xs text-base-content/50 mb-4 leading-relaxed">
+              Leave blank to automatically use each employee's configured salary structure.
+            </p>
+            <Input
+              type="number"
+              placeholder="₹ Enter manual gross amount"
+              value={manualAmount}
+              onChange={(e) => setManualAmount(e.target.value)}
+              className="w-full bg-base-200 border-none focus:ring-2 focus:ring-primary/50"
+            />
+          </div>
+
+          {/* Box 3: Action Summary */}
+          <div className="bg-primary/5 p-6 rounded-2xl border border-primary/20 shadow-sm flex flex-col items-center text-center">
+            <h3 className="text-sm font-semibold text-primary/80 uppercase tracking-wider mb-2">Ready to Process</h3>
+            <div className="text-4xl font-black text-primary mb-1">{selectedEmployees.length}</div>
+            <p className="text-sm text-base-content/60 mb-6">Employees Selected</p>
+            
+            <Button variant="primary" className="w-full py-3 h-auto text-sm font-bold shadow-md hover:shadow-lg transition-all" onClick={handleGenerate} disabled={loading || selectedEmployees.length === 0}>
+              {loading ? "Generating..." : "Run Payroll Batch"}
+            </Button>
           </div>
         </div>
-        <div className=" bg-white/70 text-base-content border border-base-300 rounded-lg max-h-64 overflow-y-auto p-2 space-y-1 bg-base-50">
-          {employees.map(emp => (
-            <label key={emp._id} className="flex items-center gap-3 p-3 hover:bg-base-200 rounded cursor-pointer transition-colors border border-transparent hover:border-base-300">
-              <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={selectedEmployees.includes(emp._id)} onChange={() => toggleEmployee(emp._id)} />
-              <span className="font-medium">{emp.name} <span className="text-xs font-normal text-base-content/60 ml-2 bg-base-300 px-2 py-1 rounded">{emp.department || "No Dept"}</span></span>
-            </label>
-          ))}
+
+        {/* RIGHT COLUMN: Employee Selection */}
+        <div className="lg:col-span-8 bg-base-100 rounded-2xl border border-base-300 shadow-sm flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
+          
+          {/* Header & Search */}
+          <div className="p-5 border-b border-base-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-base-100 rounded-t-2xl z-10">
+            <h3 className="text-base font-bold text-base-content flex items-center gap-2">
+              <MdPeople size={20} className="text-primary" /> Select Employees
+            </h3>
+            
+            <div className="flex w-full sm:w-auto items-center gap-3">
+              <div className="relative flex-1 sm:w-64">
+                <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" size={18} />
+                <input
+                  type="text"
+                  placeholder="Search by name or dept..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-base-200 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                />
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <button className="btn btn-sm btn-ghost text-primary hover:bg-primary/10" onClick={selectAll}>Select All</button>
+                <button className="btn btn-sm btn-ghost text-base-content/60" onClick={deselectAll}>Clear</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Grid Area */}
+          <div className="flex-1 overflow-y-auto p-5 bg-base-50/30">
+            {filteredEmployees.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-base-content/40 space-y-3">
+                <MdPeople size={48} className="opacity-20" />
+                <p>No employees match your search.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {filteredEmployees.map(emp => {
+            const isSelected = selectedEmployees.includes(emp._id);
+            return (
+              <label
+                key={emp._id}
+                      className={`relative flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all border-2 select-none group ${
+                  isSelected
+                          ? "bg-primary/5 border-primary shadow-sm scale-[0.98]"
+                          : "bg-base-100 border-base-200 hover:border-primary/30 hover:shadow-sm hover:bg-base-50"
+                }`}
+              >
+                      <input type="checkbox" className="hidden" checked={isSelected} onChange={() => toggleEmployee(emp._id)} />
+                
+                {/* Custom Checkmark Indicator */}
+                      <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                        isSelected ? "bg-primary border-primary" : "border-base-300 group-hover:border-primary/40"
+                }`}>
+                  {isSelected && <svg className="w-3 h-3 text-primary-content" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                </div>
+
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
+                  isSelected ? "bg-primary text-primary-content shadow-md" : "bg-base-200 text-base-content/60"
+                }`}>
+                  {emp.name?.charAt(0).toUpperCase() || "?"}
+                </div>
+                
+                <div className="flex flex-col pr-6">
+                  <span className="font-bold text-base-content line-clamp-1">{emp.name}</span>
+                        <span className="text-[10px] font-bold text-base-content/50 uppercase tracking-wider mt-0.5 line-clamp-1">
+                    {emp.department || "Staff"}
+                  </span>
+                </div>
+              </label>
+            );
+          })}
+        </div>
+            )}
+          </div>
         </div>
       </div>
-
-      <Button variant="primary" className="w-full py-3 mt-4" onClick={handleGenerate} disabled={loading || selectedEmployees.length === 0}>
-        {loading ? "Generating Payload..." : `Process Payroll for ${selectedEmployees.length} Employee(s)`}
-      </Button>
     </div>
   );
 }

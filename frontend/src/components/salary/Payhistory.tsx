@@ -37,18 +37,18 @@ export default function Payhistory() {
     if (auth.slug) fetchHistory();
   }, [auth.slug, month, year]);
 
-  const handleMarkPaid = async (slipId: string) => {
-    const transactionId = window.prompt("Enter Transaction/UTR Number:");
-    if (!transactionId) return;
+  // const handleMarkPaid = async (slipId: string) => {
+  //   const transactionId = window.prompt("Enter Transaction/UTR Number:");
+  //   if (!transactionId) return;
 
-    try {
-      await markSlipPaid(auth.slug, slipId, { transactionId, paymentMode: "NEFT" });
-      toast.success("Marked as PAID");
-      fetchHistory();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update status.");
-    }
-  };
+  //   try {
+  //     await markSlipPaid(auth.slug, slipId, { transactionId, paymentMode: "NEFT" });
+  //     toast.success("Marked as PAID");
+  //     fetchHistory();
+  //   } catch (error: any) {
+  //     toast.error(error.response?.data?.message || "Failed to update status.");
+  //   }
+  // };
 
   const handleDownload = async (slipId: string, empName: string) => {
     try {
@@ -99,7 +99,7 @@ export default function Payhistory() {
               <th className="p-4">Employee</th>
               <th className="p-4">Net Salary</th>
               <th className="p-4">Status</th>
-              <th className="p-4">Actions</th>
+              {/* <th className="p-4">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -110,11 +110,11 @@ export default function Payhistory() {
                 <td className="p-4">
                   <span className={`px-2 py-1 rounded text-xs font-bold ${slip.paymentStatus === 'PAID' ? 'bg-success/20 text-success' : 'bg-warning/20 text-warning'}`}>{slip.paymentStatus}</span>
                 </td>
-                <td className="p-4 flex gap-2">
+                {/* <td className="p-4 flex gap-2">
                   {slip.paymentStatus === "PENDING" && <Button variant="primary" size="sm" onClick={() => handleMarkPaid(slip._id)}>Mark Paid</Button>}
                    {slip.paymentStatus === "PAID" && <Button variant="primary" size="sm" className="btn-disabled" onClick={() => handleMarkPaid(slip._id)}>Mark Paid</Button>}  
                   <Button variant="outline" size="sm" className="border border-base-content" onClick={() => handleDownload(slip._id, slip.employeeName || 'Employee')}>Download</Button>
-                </td>
+                </td> */}
               </tr>
             ))}
             {slips.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-base-content/60">No records found for this month.</td></tr>}
