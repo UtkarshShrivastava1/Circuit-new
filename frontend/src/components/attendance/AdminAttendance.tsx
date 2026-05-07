@@ -22,7 +22,7 @@ import MobileTabs from "../attendance/MobileTabs";
 import AttendanceMobileTopBar from "./AttendanceMobileTopBar";
 import { useAuth } from "@/auth/AuthContext";
 import { getAttendance } from "@/services/attendanceService";
-import Button from "../ui/Button";
+
 import AttendanceGrid from "./AttendanceGrid";
 
 type AttendanceTab = "records" | "summary" | "mark";
@@ -314,6 +314,7 @@ const todayDate = new Date();
       wfh: 0,
       halfDay: 0,
       attendancePercentage: total ? Math.round((present / total) * 100) : 0,
+      rejected: 0,
     };
   }, [attendanceData]);
 
@@ -353,51 +354,53 @@ const todayDate = new Date();
     )} */}
       <>
         {/* TABS */}
-        <div className="mb-5 mt-4">
-          <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden gap-2 p-1 rounded-lg">
-            <Button
-              className={`
-    tab gap-2 px-3 py-1.5 rounded-lg font-medium 
-    ${
-      activeTab === "mark"
-        ? "text-primary-content bg-primary shadow-sm"
-        : "text-base-content/60 bg-base-200 border-base-300"
-    }
-  `}
-              onClick={() => setActiveTab("mark")}
-            >
-              <Clock size={18} /> Mark Attendance
-            </Button>
-            <Button
-              className={`
-      tab gap-2 px-3 py-1.5 rounded-md font-medium 
-      ${
-        activeTab === "records"
-          ? "text-primary-content bg-primary  shadow-sm"
-          : "text-base-content/60 bg-base-200 border-base-300"
-      }
-    `}
-              onClick={() => setActiveTab("records")}
-            >
-              <NotepadText size={18} /> Records
-            </Button>
+      <div className="mb-5 mt-4">
+  <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1">
 
-            <Button
-              className={`
-      tab gap-2 px-3 py-1.5 rounded-lg font-medium 
-      ${
-        activeTab === "summary"
-          ? " text-primary-content bg-primary  shadow-sm"
-          : "text-base-content/60 bg-base-200 border-base-300"
-      }
-    `}
-              onClick={() => setActiveTab("summary")}
-            >
-              <Clock size={18} /> Attendance Summary
-            </Button>
-          </div>
-        </div>
+    {/* MARK */}
+    <button
+      onClick={() => setActiveTab("mark")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "mark"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <Clock size={16} />
+      Mark Attendance
+    </button>
 
+    {/* RECORDS */}
+    <button
+      onClick={() => setActiveTab("records")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "records"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <NotepadText size={16} />
+      Records
+    </button>
+
+    {/* SUMMARY */}
+    <button
+      onClick={() => setActiveTab("summary")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "summary"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <Clock size={16} />
+      Attendance Summary
+    </button>
+
+  </div>
+</div>
         {activeTab === "records" && (
           <>
             <AttendanceFilterDrawer

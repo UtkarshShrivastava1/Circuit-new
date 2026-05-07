@@ -47,7 +47,7 @@ const CreateProjectForm: React.FC<Props> = ({
           value={projectData.projectName}
           onChange={handleChange}
           //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
+          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary/20  transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         />
       </div>
 
@@ -62,7 +62,13 @@ const CreateProjectForm: React.FC<Props> = ({
           value={projectData.projectState}
           onChange={handleChange}
           //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content "
+          className=" select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none  px-3 py-2 rounded-xl   transition-all duration-200 placeholder:text-base-content/60 text-base-content "
         >
           <option value="Active">Active</option>
           <option value="Completed">Completed</option>
@@ -83,7 +89,7 @@ const CreateProjectForm: React.FC<Props> = ({
             value={projectData.startDate}
             onChange={handleChange}
             //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
+            className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary/20  transition-all duration-200 placeholder:text-base-content/60 text-base-content"
           />
         </div>
 
@@ -98,7 +104,7 @@ const CreateProjectForm: React.FC<Props> = ({
             value={projectData.endDate}
             onChange={handleChange}
             //  className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
+            className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary/20  transition-all duration-200 placeholder:text-base-content/60 text-base-content"
           />
         </div>
       </div>
@@ -117,22 +123,22 @@ const CreateProjectForm: React.FC<Props> = ({
             setProjectData((prev) => ({
               ...prev,
               domain: value,
-              customDomain: value === "other" ? "" : prev.customDomain,
+              customDomain: value === "Other" ? "" : prev.customDomain,
             }));
           }}
-          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
+          className="w-full px-4 py-3 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary/20  transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         >
           <option value="">Select Domain</option>
-          <option value="web">Web Development</option>
-          <option value="app">App Development</option>
-          <option value="ai">AI / ML</option>
-          <option value="socialMedia">Social Media</option>
-          <option value="blockChain">Block Chain</option>
-          <option value="contentWriting">Content Writing</option>
-          <option value="contentCreation">Content Creation</option>
-          <option value="testing">Testing</option>
-          <option value="softwareDeveloper">Software Developer</option>
-          <option value="other">Other</option>
+          <option value="Web Development">Web Development</option>
+          <option value="App Development">App Development</option>
+          <option value="AI/ML">AI / ML</option>
+          <option value="Social Media">Social Media</option>
+          <option value="Block Chain">Block Chain</option>
+          <option value="Content Writing">Content Writing</option>
+          <option value="Content Creation">Content Creation</option>
+          <option value="Testing">Testing</option>
+          <option value="Software Development">Software Development</option>
+          <option value="Other  ">Other</option>
         </select> */}
         <select
           required
@@ -146,7 +152,13 @@ const CreateProjectForm: React.FC<Props> = ({
               customDomain: value === "Other" ? "" : prev.customDomain,
             }));
           }}
-          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 text-base-content "
+          className=" select w-full text-sm
+   
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none  px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 text-base-content "
         >
           <option value="">Select Domain</option>
           <option value="Web Development">Web Development</option>
@@ -188,7 +200,7 @@ const CreateProjectForm: React.FC<Props> = ({
           onChange={handleChange}
           rows={3}
           // className="w-full p-3 rounded-xl border border-gray-300 bg-white outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 placeholder:text-base-content/60 text-base-content"
+          className="w-full px-3 py-2 rounded-xl bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary/20  transition-all duration-200 placeholder:text-base-content/60 text-base-content"
         />
       </div>
 

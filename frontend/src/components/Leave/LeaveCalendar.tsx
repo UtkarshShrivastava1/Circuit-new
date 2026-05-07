@@ -90,14 +90,14 @@ export default function LeaveCalendar({
   };
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-xl p-6 text-base-content">
+    <div className="bg-base-100 border border-primary/60  rounded-xl p-6 text-base-content">
 
       <h3 className="text-lg font-semibold mb-4">
         Leave Calendar
       </h3>
 
       {/* Week Days */}
-      <div className="grid grid-cols-7 gap-2 mb-2 text-sm font-medium text-base-content/60">
+      <div className="grid grid-cols-7 gap-2 mb-2 text-sm font-medium text-base-content">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
           (day) => (
             <div key={day} className="text-center">
@@ -188,25 +188,25 @@ export default function LeaveCalendar({
       </div>
 
       {/* Legend */}
-      <div className="flex gap-4 mt-6 text-xs flex-wrap">
+      <div className="flex gap-4 mt-6 text-xs font-bold flex-wrap">
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-primary/40 rounded" />
+          <span className="w-3 h-3 bg-primary/50 rounded" />
           {isAdmin ? "Employee Leave" : "Your Leave"}
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-warning/40 rounded" />
+          <span className="w-3 h-3 bg-warning/50 rounded" />
           Team Leave
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-error/40 rounded" />
+          <span className="w-3 h-3 bg-error/50 rounded" />
           Conflict
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-info/40 rounded" />
+          <span className="w-3 h-3 bg-info/50 rounded" />
           Office Holiday
         </div>
         <div className="flex items-center gap-2">
-          <span className="w-3 h-3 bg-success/40 rounded" />
+          <span className="w-3 h-3 bg-success/50 rounded" />
           WFH
         </div>
       </div>

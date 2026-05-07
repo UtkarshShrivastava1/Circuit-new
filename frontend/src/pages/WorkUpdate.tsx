@@ -12,7 +12,7 @@ const WorkUpdates = ({ projectId }: { projectId: string }) => {
     }
   }, [projectId]);
   return (
-    <div className="bg-base-100 border border-base-300 rounded-2xl shadow-sm p-5">
+    <div className="p-5">
       {/* Tabs Header */}
       <div className="flex gap-6 border-b border-base-300 mb-5">
          <button

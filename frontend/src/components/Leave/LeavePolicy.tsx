@@ -35,7 +35,7 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
   };
 
   return (
-    <div className="bg-base-100 border  rounded-xl p-6 space-y-6 border-base-content">
+    <div className="bg-base-100 border  rounded-xl p-6 space-y-6 border-primary/60">
       <div className="flex justify-between items-center border-base-300 pb-3 text-base-content border-b-1 border-b-base-content">
         <h3 className="text-lg font-semibold">
           Company Leave Policy
@@ -54,7 +54,7 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
             <p className="text-xs text-base-content/60">Cannot carry forward to the next year.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-right" value={formData.casual} onChange={(e) => handleChange("casual", e.target.value)} />
+            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.casual} onChange={(e) => handleChange("casual", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.casual} Days</span>
           )}
@@ -66,7 +66,7 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
             <p className="text-xs text-base-content/60">Medical certificate required if more than 2 days.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-right" value={formData.sick} onChange={(e) => handleChange("sick", e.target.value)} />
+            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.sick} onChange={(e) => handleChange("sick", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.sick} Days</span>
           )}
@@ -78,7 +78,7 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
             <p className="text-xs text-base-content/60">Up to 5 days can be carried forward.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-right" value={formData.paid} onChange={(e) => handleChange("paid", e.target.value)} />
+            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.paid} onChange={(e) => handleChange("paid", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.paid} Days</span>
           )}

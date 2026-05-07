@@ -33,7 +33,7 @@ export default function Input({
         bg-base-100 border border-base-300
          focus:outline-none
          focus:ring-2 focus:ring-primary/40
-        placeholder:text-base-content/40`,
+        placeholder:text-base-content/70`,
           fieldSizeClasses[size],
           iconLeft && "pl-10",
           iconRight && "pr-10",

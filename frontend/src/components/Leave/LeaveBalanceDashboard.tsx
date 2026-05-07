@@ -89,11 +89,11 @@ export default function LeaveBalanceDashboard({
           return (
             <div
               key={index}
-              className="bg-base-100 border border-base-300 rounded-xl p-5 shadow-sm hover:shadow-md transition"
+              className="bg-white/50 border border-primary/40 rounded-xl p-5 shadow-sm hover:shadow-md transition"
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-base-content/60">
+                  <p className="text-sm text-base-content">
                     {card.title}
                   </p>
 
@@ -114,7 +114,7 @@ export default function LeaveBalanceDashboard({
 
               {/* Progress Bar */}
               <progress
-                className="progress progress-primary w-full mt-4"
+                className="progress progress-primary/40 w-full mt-4"
                 value={card.remaining}
                 max={card.total}
               />
@@ -127,7 +127,7 @@ export default function LeaveBalanceDashboard({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
         {/* Total Used */}
-        <div className="bg-base-100 border border-base-300 rounded-xl p-4 shadow-sm">
+        <div className="bg-white/50 border border-primary/40   rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <MdEventAvailable size={24} className="text-info" />
             <div>
@@ -142,7 +142,7 @@ export default function LeaveBalanceDashboard({
         </div>
 
         {/* Expiring Leaves */}
-        <div className="bg-base-100 border border-base-300 rounded-xl p-4 shadow-sm">
+        <div className="bg-white/50 border border-primary/40   rounded-xl p-4 shadow-sm">
           <div className="flex items-center gap-3">
             <MdWarning size={24} className="text-error" />
             <div>
@@ -157,7 +157,7 @@ export default function LeaveBalanceDashboard({
         </div>
 
         {/* Year Summary */}
-        <div className="bg-base-100 border border-base-300 rounded-xl p-4 shadow-sm">
+        <div className="bg-white/50 border border-primary/40   rounded-xl p-4 shadow-sm">
           <p className="text-xs text-base-content/60">
             Leave Year Summary
           </p>

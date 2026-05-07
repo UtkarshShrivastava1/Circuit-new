@@ -1,4 +1,3 @@
-
 // import { useState, useEffect } from "react";
 // import type { Project, Participant } from "../../type/project";
 // import { useAuth } from "@/auth/AuthContext";
@@ -224,7 +223,7 @@
 //     //         return (
 //     //           <div key={p.user} className="flex items-center gap-2 mb-2 overflow-hidden">
 //     //             <span className="flex-1">
-//     //               {user?.name || "Unknown"} ({p.role}) 
+//     //               {user?.name || "Unknown"} ({p.role})
 //     //             </span>
 //     //             <hr className="text-gray-800 w-0.5 h-full"/>
 //     //             <span className="flex-1">{p.responsibility}</span>
@@ -324,7 +323,6 @@
 //     //     </div>
 //     //   </div>
 //     // </div>
-
 
 //     <div className="fixed inset-0 z-50 flex items-center justify-center">
 //   {/* BACKDROP */}
@@ -526,9 +524,6 @@
 //   );
 // }
 
-
-
-
 import { useState, useEffect } from "react";
 import type { Project, Participant } from "../../type/project";
 import { useAuth } from "@/auth/AuthContext";
@@ -615,7 +610,7 @@ export default function EditProjectModal({
       (project.participants || []).map((p) => ({
         ...p,
         user: typeof p.user === "object" ? p.user._id : p.user,
-      }))
+      })),
     );
   }, [project]);
 
@@ -647,7 +642,7 @@ export default function EditProjectModal({
       return;
 
     const alreadyExists = participants.some(
-      (p) => p.user === newParticipant.user
+      (p) => p.user === newParticipant.user,
     );
 
     if (alreadyExists) return;
@@ -674,15 +669,12 @@ export default function EditProjectModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-4">
       {/* BACKDROP */}
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 
       {/* MODAL */}
       <div
         className="
-          relative bg-base-100 text-base-content
+          relative bg-base-200 text-base-content
           rounded-2xl shadow-xl
           w-[95%] sm:w-full max-w-2xl
           max-h-[90vh]
@@ -692,8 +684,8 @@ export default function EditProjectModal({
         "
       >
         {/* HEADER */}
-        <div className="flex justify-between items-center border-b border-base-300/60 pb-3">
-          <h3 className="text-lg sm:text-xl font-semibold">
+        <div className="flex justify-between items-center border-b border-primary/20 pb-3">
+          <h3 className="text-lg sm:text-xl font-semibold text-primary">
             Edit Project
           </h3>
           <button onClick={onClose} className="btn btn-sm btn-ghost">
@@ -706,16 +698,27 @@ export default function EditProjectModal({
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="input input-bordered w-full"
+            className="px-4 py-2 rounded-sm text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40border-primary-content w-full"
             placeholder="Project Name"
           />
 
           <select
             value={status}
-            onChange={(e) =>
-              setStatus(e.target.value as Project["status"])
-            }
-            className="select select-bordered w-full"
+            onChange={(e) => setStatus(e.target.value as Project["status"])}
+            className="
+    select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none
+  
+  "
           >
             <option value="Active">Active</option>
             <option value="On Hold">On Hold</option>
@@ -726,14 +729,22 @@ export default function EditProjectModal({
             type="date"
             value={formatDate(startDate)}
             onChange={(e) => setStartDate(e.target.value)}
-            className="input input-bordered w-full"
+            className="px-4 py-2 rounded-sm text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40 w-full  focus-visible:outline-none"
           />
 
           <input
             type="date"
             value={formatDate(endDate)}
             onChange={(e) => setEndDate(e.target.value)}
-            className="input input-bordered w-full"
+            className="px-4 py-2 rounded-sm text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40 w-full"
           />
         </div>
 
@@ -742,7 +753,13 @@ export default function EditProjectModal({
           <select
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
-            className="select select-bordered w-full"
+            className=" select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none  "
           >
             <option value="">Select Domain</option>
             {domains.map((d) => (
@@ -754,7 +771,11 @@ export default function EditProjectModal({
             <input
               value={customDomain}
               onChange={(e) => setCustomDomain(e.target.value)}
-              className="input input-bordered w-full"
+              className="px-4 py-2 rounded-sm text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40 w-full"
               placeholder="Enter Custom Domain"
             />
           )}
@@ -764,7 +785,11 @@ export default function EditProjectModal({
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="textarea textarea-bordered w-full"
+          className="px-4 py-2 rounded-lg text-sm
+        bg-base-100 border border-base-300
+         focus:outline-none
+         focus:ring-2 focus:ring-primary/40
+        placeholder:text-base-content/40 w-full"
           placeholder="Project Description"
         />
 
@@ -780,19 +805,17 @@ export default function EditProjectModal({
               return (
                 <div
                   key={p.user}
-                  className="flex items-center justify-between bg-base-200 rounded-lg px-3 py-2"
+                  className="flex items-center justify-between bg-base-300 rounded-lg px-3 py-2"
                 >
                   <div className="text-sm">
-                    <p className="font-medium">
-                      {user?.name || "Unknown"}
-                    </p>
+                    <p className="font-medium">{user?.name || "Unknown"}</p>
                     <p className="text-xs text-base-content/60">
                       {p.role} • {p.responsibility}
                     </p>
                   </div>
 
                   <button
-                    className="btn btn-xs btn-error"
+                    className="btn btn-xs btn-error text-secondary-content"
                     onClick={() => removeParticipant(p.user)}
                   >
                     Remove
@@ -812,7 +835,12 @@ export default function EditProjectModal({
                   user: e.target.value,
                 })
               }
-              className="select select-bordered w-full"
+              className="  select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    focus:shadow-none
+    outline-none"
             >
               <option value="">User</option>
               {orgUsers.map((u) => (
@@ -830,7 +858,13 @@ export default function EditProjectModal({
                   role: e.target.value,
                 })
               }
-              className="select select-bordered w-full"
+              className=" select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none"
             >
               <option value="">Role</option>
               {roles.map((r) => (
@@ -846,7 +880,13 @@ export default function EditProjectModal({
                   responsibility: e.target.value,
                 })
               }
-              className="select select-bordered w-full"
+              className=" select w-full text-sm
+    bg-base-100 border border-base-300
+    focus:outline-none focus:ring-2 focus:ring-primary/40
+
+    
+    focus:shadow-none
+    outline-none"
             >
               <option value="">Responsibility</option>
               {responsibilities.map((r) => (

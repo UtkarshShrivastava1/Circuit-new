@@ -139,7 +139,7 @@ toast.success("Member deleted successfully");
     placeholder="Search members..."
     value={search}
     onChange={(e) => setSearch(e.target.value)}
-    className="w-full max-w-sm px-4 py-2 border border-base-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+    className="w-full max-w-sm px-4 py-2 border border-primary/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 mt-3"
   />
 </div>
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">

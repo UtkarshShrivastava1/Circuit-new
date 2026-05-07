@@ -203,35 +203,67 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
       {/* <LeaveFilters /> */}
 
       {/* TABS */}
-      <div className="hidden md:block">
-        <div className="tabs tabs-boxed w-fit text-base-content">
-          <button
-            onClick={() => setActiveTab("requests")}
-            className={`tab gap-1 ${activeTab === "requests" ? "tab-active" : ""}`}
-          >
-            <MdAssignment /> Leave Requests
-          </button>
-           <button
-            onClick={() => setActiveTab("history")}
-            className={`tab gap-1 ${activeTab === "history" ? "tab-active" : ""}`}
-          >
-            <MdAssignment /> Leave History
-          </button>
+      <div className="hidden md:block mb-5 mt-4">
+  <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1">
 
-          <button
-            onClick={() => setActiveTab("calendar")}
-            className={`tab gap-1 ${activeTab === "calendar" ? "tab-active" : ""}`}
-          >
-            <MdCalendarMonth /> Calendar
-          </button>
-          <button
-            onClick={() => setActiveTab("policy")}
-            className={`tab gap-1 ${activeTab === "policy" ? "tab-active" : ""}`}
-          >
-            <MdMenuBook /> Policy Configuration
-          </button>
-        </div>
-      </div>
+    {/* REQUESTS */}
+    <button
+      onClick={() => setActiveTab("requests")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "requests"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <MdAssignment size={16} />
+      Leave Requests
+    </button>
+
+    {/* HISTORY */}
+    <button
+      onClick={() => setActiveTab("history")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "history"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <MdAssignment size={16} />
+      Leave History
+    </button>
+
+    {/* CALENDAR */}
+    <button
+      onClick={() => setActiveTab("calendar")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "calendar"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <MdCalendarMonth size={16} />
+      Calendar
+    </button>
+
+    {/* POLICY */}
+    <button
+      onClick={() => setActiveTab("policy")}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "policy"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+    >
+      <MdMenuBook size={16} />
+      Policy Configuration
+    </button>
+
+  </div>
+</div>
 
       {/* TAB CONTENT */}
       {activeTab === "requests" && (

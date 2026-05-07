@@ -35,6 +35,15 @@ export default function LeaveRequestTable({
     validPage * pageSize,
   );
 
+  const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setSelectedIds(requests.map((r) => r.id));
@@ -87,10 +96,10 @@ export default function LeaveRequestTable({
       )}
 
       {/* ================= DESKTOP TABLE ================= */}
-      <div className="hidden md:block bg-base-100 border border-base-300 rounded-lg overflow-hidden">
+      <div className="hidden md:block bg-base-100 border border-primary/35 rounded-lg overflow-hidden">
         <table className="table table-zebra w-full text-base-content ">
           <thead>
-            <tr className="bg-base-300">
+            <tr className="bg-primary/60 text-primary-content">
               <th>Employee</th>
               <th>Leave Type</th>
               <th>Dates</th>
@@ -105,7 +114,7 @@ export default function LeaveRequestTable({
                       requests.length > 0
                     }
                     onChange={handleSelectAll}
-                    className="checkbox checkbox-sm checkbox-base-content-300"
+                    className="checkbox bg-white checkbox-sm checkbox-base-content-300 border"
                   />
                 </th>
               )}
@@ -138,10 +147,16 @@ export default function LeaveRequestTable({
                       <span className="capitalize">{r.type}</span>
                     </td>
 
-                    <td>
-                      {r.fromDate}
-                      {r.toDate && ` → ${r.toDate}`}
-                    </td>
+                <td className="whitespace-nowrap">
+  <span className="font-medium">
+    {formatDate(r.fromDate)}
+  </span>
+  {r.toDate && (
+    <span className="font-medium">
+      {" "} - {formatDate(r.toDate)}
+    </span>
+  )}
+</td>
 
                     <td>
                       <StatusBadge status={r.status} />
@@ -184,7 +199,8 @@ export default function LeaveRequestTable({
                           type="checkbox"
                           checked={selectedIds.includes(r.id)}
                           onChange={(e) => handleSelectOne(e, r.id)}
-                          className="checkbox checkbox-sm"
+                          onClick={(e) => e.stopPropagation()}
+                          className="checkbox checkbox-sm bg-white border checkbox-base-content-300 "
                         />
                       </td>
                     )}
@@ -232,9 +248,14 @@ export default function LeaveRequestTable({
                 </div>
 
                 <div className="text-sm">
-                  <span className="text-base-content/60">Dates:</span>{" "}
-                  {r.fromDate}
-                  {r.toDate && ` → ${r.toDate}`}
+                 <span className="font-medium">
+  {formatDate(r.fromDate)}
+</span>
+{r.toDate && (
+  <span className="text-base-content/60">
+    {" "}→ {formatDate(r.toDate)}
+  </span>
+)}
                 </div>
 
                 {mode === "action" && (
