@@ -145,7 +145,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
       (!lastVisitedProjects ||
         new Date(a.createdAt) > new Date(lastVisitedProjects)),
   );
-  console.log("Activities for Projects:", projectCreatedDot);
+  // console.log("Activities for Projects:", projectCreatedDot);
   const workUpdateDot = (activities || []).some(
     (a) =>
       a.referenceModel === "WorkUpdateModel" &&
@@ -173,8 +173,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         new Date(a.createdAt) > new Date(lastVisitedMembers)),
   );
   const projectDot = projectCreatedDot || workUpdateDot;
-  console.log("Activities for Work Updates:", workUpdateDot);
-  console.log("Activities:", activities);
+  // console.log("Activities for Work Updates:", workUpdateDot);
+  // console.log("Activities:", activities);
   const user = auth?.user;
   const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
   const location = useLocation();

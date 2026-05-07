@@ -65,7 +65,7 @@ const todayDate = new Date();
     fromDate: todayISO,
     toDate: todayISO,
   });
-  console.log("Current filters state:", filters);
+  // console.log("Current filters state:", filters);
 
   const [records, setRecords] = useState<
     (AttendanceRecord & {
@@ -74,7 +74,7 @@ const todayDate = new Date();
       mode?: string;
     })[]
   >([]);
-  console.log("Fetched attendance records:", records);
+  // console.log("Fetched attendance records:", records);
   const [loading, setLoading] = useState(true);
   const [refetchIndex, setRefetchIndex] = useState(0);
 
