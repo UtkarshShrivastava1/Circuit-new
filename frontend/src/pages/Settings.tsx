@@ -31,21 +31,50 @@ return (
     <h1 className="text-2xl font-semibold mb-6">Settings</h1>
 
     {/* Tabs */}
-    <div className="flex gap-6 border-b border-base-300 mb-6">
-      {["security", "company", "appearance"].map((tab) => (
-        <Button
-          key={tab}
-          onClick={() => setActiveTab(tab)}
-          className={`pb-3 capitalize transition ${
-            activeTab === tab
-              ? "border-b-2 border-primary text-base-content font-medium"
-              : "text-base-content/20 hover:text-base-content"
-          }`}
-        >
-          {tab}
-        </Button>
-      ))}
-    </div>
+    <div className="hidden md:block mb-6">
+  <div className="bg-base-200 p-1 rounded-xl inline-flex gap-1">
+    
+    {/* SECURITY */}
+    <button
+      onClick={() => setActiveTab("security")}
+      className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200
+        ${
+          activeTab === "security"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/70 hover:bg-base-100"
+        }`}
+    >
+      Security
+    </button>
+
+    {/* COMPANY */}
+    <button
+      onClick={() => setActiveTab("company")}
+      className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200
+        ${
+          activeTab === "company"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/70 hover:bg-base-100"
+        }`}
+    >
+      Company
+    </button>
+
+    {/* APPEARANCE */}
+    <button
+      onClick={() => setActiveTab("appearance")}
+      className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-all duration-200
+        ${
+          activeTab === "appearance"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/70 hover:bg-base-100"
+        }`}
+    >
+      Appearance
+    </button>
+    
+  </div>
+</div>
 
     {/* Tab Content */}
     <div className="bg-base-100 p-6 rounded-xl border border-base-300 shadow-sm">

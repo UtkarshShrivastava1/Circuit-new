@@ -92,9 +92,9 @@ export default function Payhistory() {
         </Button>
       </div>
 
-      <div className="bg-base-100 rounded-xl shadow-sm border border-accent-content overflow-hidden">
-        <table className="w-full text-left border-base-content">
-          <thead className="bg-base-200">
+      <div className="bg-base-100 rounded-xl shadow-sm border border-primary/30 overflow-hidden">
+        <table className="w-full text-left ">
+          <thead className="bg-primary text-primary-content ">
             <tr >
               <th className="p-4">Employee</th>
               <th className="p-4">Net Salary</th>

@@ -138,7 +138,7 @@ export default function ProjectChat({ projectId, currentUser }: Props) {
   };
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg flex flex-col h-[500px]">
+    <div className="bg-white/70 border border-base-300 rounded-lg flex flex-col h-[500px]">
       
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">

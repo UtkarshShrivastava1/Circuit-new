@@ -667,7 +667,7 @@ export default function EditProjectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-4">
+    <div onClick={(e) => e.stopPropagation()} className="fixed inset-0 z-50 flex items-center justify-center px-3 sm:px-4 ">
       {/* BACKDROP */}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 

@@ -121,19 +121,19 @@ export default function GeneratePaySlip() {
         <div className="lg:col-span-4 space-y-6 h-fit sticky top-6">
           
           {/* Box 1: Period Selection */}
-          <div className="bg-base-100 p-6 rounded-2xl border border-base-300 shadow-sm">
-            <h3 className="text-sm font-bold text-base-content/80 uppercase tracking-wider mb-4 flex items-center gap-2">
+          <div className="bg-primary mt-2 text-primary-content p-6 rounded-2xl border border-primary/20 shadow-sm">
+            <h3 className="text-sm font-bold  uppercase tracking-wider mb-4 flex items-center gap-2">
               <MdDateRange size={18} /> Payroll Period
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-base-content/60 mb-1">Month</label>
+                <label className="block text-xs font-semibold  mb-1">Month</label>
                 <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-full bg-base-200 border-none">
                   {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
                 </Select>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-base-content/60 mb-1">Year</label>
+                <label className="block text-xs font-semibold  mb-1">Year</label>
                 <Select value={year} onChange={(e) => setYear(Number(e.target.value))} className="w-full bg-base-200 border-none">
                   {years.map(y => <option key={y} value={y}>{y}</option>)}
                 </Select>
@@ -142,7 +142,7 @@ export default function GeneratePaySlip() {
           </div>
 
           {/* Box 2: Manual Override */}
-          <div className="bg-base-100 p-6 rounded-2xl border border-base-300 shadow-sm">
+          <div className="bg-base-100 p-6 rounded-2xl border border-primary shadow-sm">
             <h3 className="text-sm font-bold text-base-content/80 uppercase tracking-wider mb-2 flex items-center gap-2">
               <MdAttachMoney size={18} /> Salary Override
             </h3>
@@ -159,7 +159,7 @@ export default function GeneratePaySlip() {
           </div>
 
           {/* Box 3: Action Summary */}
-          <div className="bg-primary/5 p-6 rounded-2xl border border-primary/20 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-primary/10 p-6 rounded-2xl border border-primary shadow-sm flex flex-col items-center text-center">
             <h3 className="text-sm font-semibold text-primary/80 uppercase tracking-wider mb-2">Ready to Process</h3>
             <div className="text-4xl font-black text-primary mb-1">{selectedEmployees.length}</div>
             <p className="text-sm text-base-content/60 mb-6">Employees Selected</p>
@@ -171,28 +171,28 @@ export default function GeneratePaySlip() {
         </div>
 
         {/* RIGHT COLUMN: Employee Selection */}
-        <div className="lg:col-span-8 bg-base-100 rounded-2xl border border-base-300 shadow-sm flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
+        <div className="lg:col-span-8 mt-2 bg-base-100 rounded-2xl border border-primary shadow-sm flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
           
           {/* Header & Search */}
-          <div className="p-5 border-b border-base-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-base-100 rounded-t-2xl z-10">
+          <div className="p-5 border-b   border-base-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-base-100 rounded-t-2xl z-10">
             <h3 className="text-base font-bold text-base-content flex items-center gap-2">
               <MdPeople size={20} className="text-primary" /> Select Employees
             </h3>
             
-            <div className="flex w-full sm:w-auto items-center gap-3">
-              <div className="relative flex-1 sm:w-64">
+            <div className="flex w-full sm:w-auto items-center gap-3 ">
+              <div className="relative flex-1 sm:w-64 ">
                 <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/40" size={18} />
                 <input
                   type="text"
                   placeholder="Search by name or dept..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-base-200 border-none rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full pl-9 pr-4 py-2 bg-base-200 border border-primary/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
               </div>
               <div className="flex gap-2 shrink-0">
-                <button className="btn btn-sm btn-ghost text-primary hover:bg-primary/10" onClick={selectAll}>Select All</button>
-                <button className="btn btn-sm btn-ghost text-base-content/60" onClick={deselectAll}>Clear</button>
+                <button className="btn btn-sm  text-primary border hover:bg-primary/10" onClick={selectAll}>Select All</button>
+                <button className="btn btn-sm border text-base-content/60" onClick={deselectAll}>Clear</button>
               </div>
             </div>
           </div>
@@ -214,7 +214,7 @@ export default function GeneratePaySlip() {
                       className={`relative flex items-center gap-3 p-4 rounded-2xl cursor-pointer transition-all border-2 select-none group ${
                   isSelected
                           ? "bg-primary/5 border-primary shadow-sm scale-[0.98]"
-                          : "bg-base-100 border-base-200 hover:border-primary/30 hover:shadow-sm hover:bg-base-50"
+                          : "bg-base-100 border-primary/20 hover:border-primary/40 hover:shadow-sm hover:bg-base-50"
                 }`}
               >
                       <input type="checkbox" className="hidden" checked={isSelected} onChange={() => toggleEmployee(emp._id)} />

@@ -67,21 +67,21 @@ export default function NotificationPage({
               className={`text-left p-4 rounded-xl border transition-all ${
                 isSelected
                   ? "border-primary bg-primary/20 ring-1 ring-primary/20 shadow-md"
-                  : "border-primary/20 bg-primary/5 hover:bg-base-200/50  shadow-md hover:border-base-content/20"
+                  : "border-primary/30 bg-base-100 hover:bg-base-200/50  shadow-md hover:border-base-content/20"
               } ${
                 n.priority === "urgent" && !isSelected ? "border-l-4 border-l-error" : ""
               }`}
             >
               <div className="flex justify-between items-start mb-1 gap-2">
-                <h4 className={`font-bold text-sm truncate ${isUnread ? "text-base-content" : "text-base-content/80"}`}>
+                <h4 className={`font-bold text-lg truncate ${isUnread ? "text-base-content" : "text-base-content/80"}`}>
                   {n.title}
                 </h4>
                 {isUnread && <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />}
               </div>
-              <p className="text-xs text-base-content/70 line-clamp-2 leading-relaxed">
+              <p className="text-md text-base-content/70 line-clamp-2 leading-relaxed">
                 {n.message}
               </p>
-              <p className="text-[10px] text-base-content/70 mt-3 font-medium uppercase tracking-wider">
+              <p className="text-[13px] text-base-content/70 mt-3 font-medium uppercase tracking-wider">
                 {new Date(n.createdAt).toLocaleDateString("en-IN", {
                   day: "numeric", month: "short", year: "numeric"
                 })}
@@ -92,7 +92,7 @@ export default function NotificationPage({
       </div>
 
       {/* RIGHT COLUMN: PREVIEW PANE */}
-      <div className="lg:col-span-7 xl:col-span-8    bg-primary/30 border border-primary/20 rounded-2xl p-6 shadow-md min-h-[50vh] flex flex-col lg:sticky lg:top-6">
+      <div className="lg:col-span-7 xl:col-span-8    bg-primary border border-primary/20 rounded-2xl p-6 shadow-md min-h-[50vh] flex flex-col lg:sticky lg:top-6">
         {selectedNotif ? (
           <>
             <div className="flex justify-between items-start border-b border-base-300 pb-4 mb-4 gap-4">
@@ -105,7 +105,7 @@ export default function NotificationPage({
                     </span>
                   )}
                   </div>
-                <p className="text-xs text-primary-content/70 font-medium">
+                <p className="text-sm text-primary-content/70 font-medium">
                   {new Date(selectedNotif.createdAt).toLocaleString("en-IN", {
                     weekday: "long", day: "numeric", month: "short", year: "numeric",
                     hour: "2-digit", minute: "2-digit"
@@ -127,7 +127,7 @@ export default function NotificationPage({
                       onDelete(selectedNotif.id);
                       if (selectedId === selectedNotif.id) setSelectedId(null);
                     }}
-                    className="p-2 rounded-lg bg-error/30 hover:bg-error/20 text-error transition"
+                    className="p-2 rounded-lg bg-error/70 hover:bg-error/80 text-white transition"
                     title="Delete"
                   >
                     <Trash2 size={18} />
@@ -137,7 +137,7 @@ export default function NotificationPage({
             </div>
 
             <div className="flex-1">
-              <p className="text-sm text-primary-content/70 leading-relaxed whitespace-pre-wrap">
+              <p className="text-[15px] text-primary-content/70 leading-relaxed whitespace-pre-wrap">
                 {selectedNotif.message}
               </p>
             </div>

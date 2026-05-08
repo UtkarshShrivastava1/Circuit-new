@@ -592,12 +592,12 @@ export default function TaskDrawer({
       <div className="fixed inset-0 bg-black/30 z-40 text-base-content" onClick={onClose} />
 
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-base-100 z-50 border-l border-base-300 shadow-xl flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-base-300">
-          <h3 className="text-lg font-semibold text-base-content">
+        <div className="flex items-center justify-between p-6 border-b border-base-300 bg-primary/20">
+          <h3 className="text-lg font-semibold text-base-content/55">
             {isEdit ? "Edit Task" : "Task Details"}
           </h3>
 
-          <button onClick={onClose} className="btn btn-sm btn-ghost text-base-content">
+          <button onClick={onClose} className="btn btn-sm btn-ghost text-base-content/55">
             <MdClose size={18} />
           </button>
         </div>
@@ -688,7 +688,7 @@ export default function TaskDrawer({
           <Section icon={<MdDescription />} label="Description">
             {isEdit ? (
               <textarea
-                className="textarea textarea-bordered w-full"
+                className="textarea textarea-bordered border rounded-lg w-full"
                 rows={4}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

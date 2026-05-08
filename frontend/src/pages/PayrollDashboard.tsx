@@ -163,7 +163,7 @@ export default function PayrollDashboard() {
       </div>
 
       {/* Top Controls: Month/Year & Bulk Actions */}
-      <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center bg-base-100 p-4 rounded-2xl shadow-sm border border-base-300">
+      <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center bg-primary p-4 rounded-2xl shadow-sm border border-base-300">
         <div className="flex items-center gap-3">
           <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-40 select-sm md:select-md">
             {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -189,7 +189,7 @@ export default function PayrollDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* 1. Stats Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-base-300 bg-base-100 w-full rounded-2xl h-full">
+        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full">
           <div className="stat py-6 flex flex-col justify-center">
             <div className="stat-figure text-info">
               <MdGroup size={36} />
@@ -231,7 +231,7 @@ export default function PayrollDashboard() {
         </div>
 
         {/* 2. Chart Box (Spans 1 col, 2 rows) */}
-        <div className="lg:col-span-1 lg:row-span-2 bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6 w-full flex flex-col h-full min-h-[320px]">
+        <div className="lg:col-span-1 lg:row-span-2 bg-base-100 rounded-2xl border border-primary shadow-sm p-6 w-full flex flex-col h-full min-h-[320px]">
           <h3 className="text-sm font-bold text-base-content/80 mb-4 uppercase tracking-wider">
             Payout Distribution
           </h3>
@@ -255,7 +255,7 @@ export default function PayrollDashboard() {
         </div>
 
         {/* 3. Filters Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 flex flex-col md:flex-row gap-4 justify-between items-center bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm w-full h-full">
+        <div className="lg:col-span-2 flex flex-col md:flex-row gap-4 justify-between items-center bg-primary/50 p-4 rounded-2xl border border-base-300 shadow-sm w-full h-full">
           <div className="flex flex-1 w-full gap-4">
             <div className="relative w-full max-w-xs">
               <Input placeholder="Search employee..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-base-200 border-none focus:ring-2 focus:ring-primary/50" />
@@ -267,17 +267,17 @@ export default function PayrollDashboard() {
               <option value="FAILED">Failed</option>
             </Select>
           </div>
-          <button className="btn btn-outline btn-sm md:btn-md border-base-300 text-base-content/70 hover:bg-base-200 hover:text-base-content">
+          {/* <button className="btn btn-outline btn-sm md:btn-md border-base-300 text-base-content/70 hover:bg-base-200 hover:text-base-content">
             <MdFilterList size={18} className="mr-2" /> Advanced Filters
-          </button>
+          </button> */}
         </div>
 
       </div>
 
       {/* Monthly Slips Table */}
-      <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 overflow-x-auto">
-        <table className="table table-zebra table-sm md:table-md w-full">
-          <thead className="bg-base-200 text-base-content/80 text-sm">
+      <div className="bg-base-100 rounded-2xl shadow-sm border border-primary/40 overflow-x-auto">
+        <table className="table table-zebra table-sm md:table-md w-full  border-primary/40">
+          <thead className="bg-primary text-primary-content text-sm ">
             <tr>
               <th className="p-4 w-12">
                 <label>

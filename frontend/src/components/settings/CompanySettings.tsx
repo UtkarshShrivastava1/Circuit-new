@@ -57,7 +57,7 @@ const CompanySettings = () => {
       placeholder="Company Name"
       value={form.name}
       onChange={handleChange}
-      className="input input-bordered w-full"
+      className="input input-bordered border w-full"
     />
 
     <input
@@ -66,7 +66,7 @@ const CompanySettings = () => {
       placeholder="Office Address"
       value={form.address}
       onChange={handleChange}
-      className="input input-bordered w-full"
+      className="input input-bordered border w-full"
     />
 
     <div className="flex gap-4">
@@ -75,7 +75,7 @@ const CompanySettings = () => {
         name="startTime"
         value={form.startTime}
         onChange={handleChange}
-        className="input input-bordered w-full"
+        className="input input-bordered border w-full"
       />
 
       <input
@@ -83,7 +83,7 @@ const CompanySettings = () => {
         name="endTime"
         value={form.endTime}
         onChange={handleChange}
-        className="input input-bordered w-full"
+        className="input input-bordered border w-full"
       />
     </div>
 

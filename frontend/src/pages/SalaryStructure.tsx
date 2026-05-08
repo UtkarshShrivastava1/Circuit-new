@@ -197,12 +197,16 @@ const handleGlobalSave = () => {
         {/* LEFT SIDE - CONFIGURATION */}
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
           {/* <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit"> */}
-          <div className="bg-base-200 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+          <div className="bg-base-100 border border-primary rounded-2xl p-6 shadow-sm space-y-4 h-fit">
             <h3 className="text-lg font-semibold text-base-content">
               Configure Salary
             </h3>
             
-            <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="w-full text-base-content" disabled={loading}>
+            <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)}  className={`w-full transition-all duration-200 text-base-content ${
+    selectedEmployeeId
+      ? "bg-primary/10 border-primary"
+      : "border-primary/30"
+  }`} disabled={loading}>
               <option value="">{loading ? "Loading..." : "Choose employee"}</option>
               {employees.map((emp) => (
                 <option key={emp._id} value={emp._id}>
@@ -218,7 +222,7 @@ const handleGlobalSave = () => {
                 placeholder="Enter Monthly Gross"
                 value={monthlyGross || ""}
                 onChange={(e) => setMonthlyGross(Number(e.target.value))}
-                className="w-full placeholder:text-base-content/60 text-base-content pl-8"
+                className="w-full placeholder:text-base-content/60 text-base-content border-primary/30 focus:ring-primary/50 "
               />
             </div>
           </div>

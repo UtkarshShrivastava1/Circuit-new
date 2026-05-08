@@ -458,9 +458,9 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
             {/* <li onClick={() => fileInputRef.current?.click()}>
               <a>{isUploading ? "Uploading..." : "Change Avatar"}</a>
             </li> */}
-            <li onClick={()=>navigate("/settings")}>
+            {/* <li onClick={()=>navigate("/settings")}>
               <a>Settings</a>
-            </li>
+            </li> */}
             <li onClick={()=>{
               handleLogout()
             }}>
