@@ -8,7 +8,7 @@ const logger = require("../common/libs/logger.js");
 // ============================================================================
 // 1. Generate Payroll (Single or Bulk)
 // ============================================================================
-const generatePayroll = asyncHandler(async (req, res) => {
+const generatePayroll = asyncHandler(async (req, res) => { 
   const { employeeId, month, year, basicSalary, allowances, deductions, bonus } = req.body;
   const orgId = req.organization._id || req.organization;
   const generatedBy = req.user.id || req.user._id;

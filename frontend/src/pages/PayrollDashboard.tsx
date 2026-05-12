@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { getSummary, getMonthlyList, markSlipPaid } from "@/services/payrollService";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
-import Button from "@/components/ui/Button";
-import PageHeader from "@/components/ui/PageHeader";
+// import Button from "@/components/ui/Button";
+// import PageHeader from "@/components/ui/PageHeader";
 import Pagination from "@/components/ui/Pagination";
 import {
   MdPendingActions,
