@@ -77,7 +77,7 @@ export default function TagsInput({
           className="flex-1 min-w-20 bg-transparent outline-none 
           text-sm text-base-content 
             
-          placeholder:text-base-content/50"
+          placeholder:text-base-content/70"
         />
       )}
     </div>

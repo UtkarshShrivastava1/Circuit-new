@@ -74,7 +74,9 @@ function useAttendanceFilters(
     }
 
     // ✅ अब clean hai, no 'any'
-    const recordDateStr = new Date(r.rawDate).toLocaleDateString("en-CA");
+   const recordDateStr = new Date(r.rawDate)
+  .toISOString()
+  .split("T")[0];
 
     if (filters.fromDate && recordDateStr < filters.fromDate) {
       return false;

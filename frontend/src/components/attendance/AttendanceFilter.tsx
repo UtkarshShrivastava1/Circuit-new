@@ -124,7 +124,7 @@ export default function AttendanceFilters({
 
   {/* From date */}
   <div className="flex flex-col gap-1 w-full md:w-1/4">
-    <label className="text-xs font-medium text-base-content/60">
+    <label className="text-xs font-medium text-base-content/70">
       From
     </label>
     <input
@@ -143,7 +143,7 @@ export default function AttendanceFilters({
 
   {/* To date */}
   <div className="flex flex-col gap-1 w-full md:w-1/4">
-    <label className="text-xs font-medium  text-base-content/60">
+    <label className="text-xs font-medium  text-base-content/70">
       To
     </label>
     <input
@@ -164,7 +164,7 @@ export default function AttendanceFilters({
   <div className="w-full md:w-auto flex justify-end">
     <Button
       variant="outline"
-      className="w-full md:w-auto h-9 px-3 text-sm rounded-lg"
+      className="w-full md:w-auto h-9 px-3 text-sm rounded-lg bg-base-100"
       onClick={() => onChange({})}
     >
       Reset

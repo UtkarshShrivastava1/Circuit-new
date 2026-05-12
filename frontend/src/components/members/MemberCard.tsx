@@ -1,10 +1,9 @@
-
-
-
 import type { Member } from "@/type/member";
 import { useNavigate } from "react-router";
-import { MdOutlineAdminPanelSettings, MdOutlinePersonOutline } from "react-icons/md";
-
+import {
+  MdOutlineAdminPanelSettings,
+  MdOutlinePersonOutline,
+} from "react-icons/md";
 
 type MemberCardProps = {
   member: Member;
@@ -14,7 +13,6 @@ type MemberCardProps = {
 
 // const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
 //   const navigate = useNavigate();
-
 
 //   return (
 //     <div className="group relative bg-base-100 rounded-2xl shadow-sm hover:shadow-md border border-base-200 w-full overflow-hidden transition-all duration-200 flex flex-col">
@@ -98,7 +96,7 @@ type MemberCardProps = {
 //             <button
 //               onClick={() => navigate(`/members/${member._id}`)}
 //                            className="flex-1 py-2 text-sm font-semibold bg-primary text-primary-content rounded-xl hover:bg-primary/90 transition-colors"
-            
+
 //             >
 //               Manage
 //             </button>
@@ -106,7 +104,7 @@ type MemberCardProps = {
 //             <button
 //               onClick={() => onDelete?.(member._id)}
 //               className="flex-1 py-2 text-sm font-semibold bg-error/10 text-error rounded-xl hover:bg-error hover:text-error-content transition-colors"
-           
+
 //             >
 //               Delete
 //             </button>
@@ -122,15 +120,17 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
   const navigate = useNavigate();
 
   return (
-    <div onClick={() => navigate(`/members/${member._id}`)} className="max-w-[400px] group relative bg-base-100 rounded-xl shadow-sm hover:shadow-md border border-base-200 w-full overflow-hidden transition-all duration-200 flex flex-col cursor-pointer">
-
+    <div
+      onClick={() => navigate(`/members/${member._id}`)}
+      className="max-w-[400px] group relative bg-base-100 rounded-xl shadow-md hover:shadow-lg border-2 border-primary/40 w-full overflow-hidden transition-all duration-200 flex flex-col cursor-pointer"
+    >
       {/* Header */}
-      <div className="h-16 bg-gradient-to-r from-primary/20 to-secondary/20 relative">
+      <div className="h-16 bg-primary/60  relative">
         <span
           className={`absolute top-2 right-2 text-[9px] uppercase px-2 py-0.5 rounded-full font-semibold
             ${
               member.status === "active"
-                ? "bg-success/20 text-success"
+                ? "bg-success text-white"
                 : "bg-base-300 text-base-content/60"
             }`}
         >
@@ -140,20 +140,21 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
 
       {/* Body */}
       <div className="px-4 pb-4 flex flex-col items-center flex-1">
-
         {/* Avatar */}
         <div className="relative -mt-8 mb-2">
           <img
-            src={(member.imageUrl || member.imgUrl)?.trim() ? (member.imageUrl || member.imgUrl) : "/user1.png"}
+            src={
+              (member.imageUrl || member.imgUrl)?.trim()
+                ? member.imageUrl || member.imgUrl
+                : "/user1.png"
+            }
             alt={member.name}
             className="w-16 h-16 rounded-full border-2 border-base-100 object-cover bg-base-200 shadow-sm"
           />
           <span
             className={`absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border border-base-100
               ${
-                member.status === "active"
-                  ? "bg-success"
-                  : "bg-base-content/40"
+                member.status === "active" ? "bg-success" : "bg-base-content/40"
               }`}
           />
         </div>
@@ -163,18 +164,20 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
           {member.name}
         </h2>
 
-        <p className="text-sm text-base-content/60 truncate w-full text-center mb-2">
+        <p className="text-sm text-base-content/60 truncate w-full text-center mb-2.5">
           {member.email}
         </p>
 
         {/* Role */}
         <div className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-base-200 text-base-content/70 capitalize">
-          {member.role === 'admin' ? (
+          {member.role === "admin" ? (
             <MdOutlineAdminPanelSettings className="text-error" size={14} />
           ) : (
             <MdOutlinePersonOutline className="text-primary" size={14} />
           )}
-          <span className={member.role === 'admin' ? 'text-error' : 'text-primary'}>
+          <span
+            className={member.role === "admin" ? "text-error" : "text-primary"}
+          >
             {member.role}
           </span>
         </div>
@@ -191,10 +194,10 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
 
             <button
               onClick={(e) => {
-    e.stopPropagation(); 
-    onDelete?.(member._id);
-  }}
-              className="flex-1 py-1.5 text-xs font-medium bg-error/10 text-error rounded-lg hover:bg-error hover:text-error-content cursor-pointer"
+                e.stopPropagation();
+                onDelete?.(member._id);
+              }}
+              className="flex-1 py-1.5 text-xs  font-bold bg-error/20 text-error rounded-lg hover:bg-error hover:text-error-content cursor-pointer mt-3.5"
             >
               Delete
             </button>

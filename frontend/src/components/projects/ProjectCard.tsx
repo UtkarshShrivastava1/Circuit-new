@@ -94,14 +94,14 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="group bg-base-100 text-primary border border-base-300 rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative  w-full h-full flex flex-col justify-between min-w-0">
+    <div className="group bg-base-200 text-primary border border-primary/20 shadow-sm rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative  w-full h-full flex flex-col justify-between min-w-0">
       {/* HEADER */}
-      <div className="flex items-start justify-between mb-3 ">
-        <h3 className="font-bold  text-lg break-words">
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
+        <h3 className="font-bold  text-lg leading-snug line-clamp-2 break-words flex-1 min-w-0 ">
           {project.name}
         </h3>
        
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <StatusBadge
             status={
               project.status === "Active" || project.status === "Completed"
@@ -191,24 +191,40 @@ export default function ProjectCard({
 
   {/* Right Action Buttons */}
   <div className="flex items-center gap-1">
-    <div className="tooltip tooltip-top" data-tip="View project">
-      <button
-        className="btn btn-xs btn-ghost"
-        onClick={() => navigate(`/projects/${project.id}`)}
-      >
-        <MdFileOpen size={16} />
-      </button>
-    </div>
 
-    <div className="tooltip tooltip-top" data-tip="Open chat">
-      <button
-        onClick={() => navigate(`/projects/${project.id}?tab=chat`)}
-        className="btn btn-xs btn-ghost"
-      >
-        <MdChat size={18} />
-      </button>
-    </div>
+  {/* VIEW */}
+  <div className="tooltip tooltip-top" data-tip="View project">
+    <button
+      onClick={() => navigate(`/projects/${project.id}`)}
+      className="
+        p-2 rounded-lg
+        text-base-content/60
+        hover:text-primary
+        hover:bg-primary/10
+        transition-all duration-200
+      "
+    >
+      <MdFileOpen size={20} />
+    </button>
   </div>
+
+  {/* CHAT */}
+  <div className="tooltip tooltip-top" data-tip="Open chat">
+    <button
+      onClick={() => navigate(`/projects/${project.id}?tab=chat`)}
+      className="
+        p-2 rounded-lg
+        text-base-content/60
+        hover:text-primary
+        hover:bg-primary/10
+        transition-all duration-200
+      "
+    >
+      <MdChat size={20} />
+    </button>
+  </div>
+
+</div>
 </div>
       <EditProjectModal
         open={!!editProject}

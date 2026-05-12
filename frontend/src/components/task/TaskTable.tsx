@@ -27,7 +27,7 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
   return (
     <div className="bg-base-100 border border-base-300 rounded-lg overflow-x-scroll">
       <table className="table table-zebra w-full min-w-150 ">
-        <thead>
+        <thead className="bg-primary/60 text-primary-content border-primary/60">
           <tr>
             <th className="whitespace-nowrap">Task</th>
             <th className="whitespace-nowrap">Assignee</th>

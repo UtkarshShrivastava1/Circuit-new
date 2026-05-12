@@ -112,8 +112,8 @@ export default function Notifications() {
     }
   };
   return (
-    <div className="p-4 sm:p-6 text-base-content">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 text-base-content ">
+      <div className="max-w-6xl mx-auto space-y-6  ">
         <Breadcrumbs />
 
         {/* Header */}

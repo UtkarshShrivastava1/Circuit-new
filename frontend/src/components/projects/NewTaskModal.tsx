@@ -591,7 +591,7 @@ export default function NewTaskModal({
             placeholder="Add description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="textarea border border-base-300 focus:outline-none  focus:ring-2 focus:ring-primary/40 rounded-lg w-full"
+            className="textarea border border-base-300 focus:outline-none  focus:ring-2 focus:ring-primary/40 rounded-lg w-full text-base-content placeholder:text-base-content/70"
           />
 
           <AttachmentInput

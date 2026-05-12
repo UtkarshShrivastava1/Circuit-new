@@ -9,14 +9,22 @@ import { toast } from "react-toastify";
 // import { useNotificationSocket } from '@/hooks/notifiaction';
 import Pagination from "../ui/Pagination";
 interface Props {
-  records: (AttendanceRecord & { attendanceDocId: string; employeeId: string; mode?: string })[];
+  records: (AttendanceRecord & {
+    attendanceDocId: string;
+    employeeId: string;
+    mode?: string;
+  })[];
   role: UserRole;
   onUpdate: () => void;
   showActions?: boolean; // New prop to control action visibility
 }
 
-
-export default function AttendanceTable({ records, role, onUpdate, showActions }: Props) {
+export default function AttendanceTable({
+  records,
+  role,
+  onUpdate,
+  showActions,
+}: Props) {
   const isAdmin = (role === "admin" || role === "owner") && showActions;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { auth } = useAuth();
@@ -30,7 +38,7 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
 
   const paginatedRecords = records.slice(
     (validPage - 1) * ITEMS_PER_PAGE,
-    validPage * ITEMS_PER_PAGE
+    validPage * ITEMS_PER_PAGE,
   );
 
   // Reset page when filtering changes the total record count
@@ -38,11 +46,10 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
     setPage(1);
   }, [records.length]);
 
-
   const handleApproval = async (
     attendanceDocId: string,
     employeeId: string,
-    status: "PRESENT" | "ABSENT"
+    status: "PRESENT" | "ABSENT",
   ) => {
     if (!auth?.slug) return;
     await toast.promise(
@@ -51,14 +58,14 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
         pending: "Updating status...",
         success: "Status updated!",
         error: "Update failed.",
-      }
+      },
     );
-   
+
     onUpdate();
   };
 
   const selectableRecords = paginatedRecords.filter(
-    (r) => r.status === "pending"
+    (r) => r.status === "pending",
   );
 
   const allSelected =
@@ -67,24 +74,25 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
   const toggleSelectAll = () => {
-    setSelectedIds(
-      allSelected ? [] : selectableRecords.map((r) => r.id)
-    );
+    setSelectedIds(allSelected ? [] : selectableRecords.map((r) => r.id));
   };
 
   const handleBulkAction = async (status: "PRESENT" | "ABSENT") => {
     if (!auth?.slug) return;
-    const selectedRecords = paginatedRecords.filter((r) => selectedIds.includes(r.id));
+    const selectedRecords = paginatedRecords.filter((r) =>
+      selectedIds.includes(r.id),
+    );
 
     const promises = selectedRecords.map((rec) =>
-      approveAttendance(auth.slug!, rec.attendanceDocId, { employeeId: rec.employeeId, status })
+      approveAttendance(auth.slug!, rec.attendanceDocId, {
+        employeeId: rec.employeeId,
+        status,
+      }),
     );
 
     await toast.promise(Promise.all(promises), {
@@ -96,110 +104,133 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
     setSelectedIds([]);
   };
 
-   
-
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg overflow-hidden text-sm scale-[0.98]">
-     <div className="overflow-x-auto">
-      {/* ✅ Bulk Action Bar (ADMIN ONLY) */}
-      {isAdmin && selectedIds.length > 0 && (
-        <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-3 py-2 text-sm flex justify-between items-center">
-          <span className="text-sm">{selectedIds.length} selected</span>
-          <div className="flex gap-2">
-            <Button variant="primary" onClick={() => handleBulkAction("PRESENT")}>PRESENT</Button>
-            <Button variant="error" onClick={() => handleBulkAction("ABSENT")}>ABSENT</Button>
+    <div className="bg-base-100  rounded-lg overflow-hidden text-sm scale-[0.98]">
+      <div className="overflow-x-auto">
+        {/* ✅ Bulk Action Bar (ADMIN ONLY) */}
+        {isAdmin && selectedIds.length > 0 && (
+          <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-3 py-2 text-sm flex justify-between items-center">
+            <span className="text-sm">{selectedIds.length} selected</span>
+            <div className="flex gap-2">
+              <Button
+                variant="primary"
+                onClick={() => handleBulkAction("PRESENT")}
+              >
+                PRESENT
+              </Button>
+              <Button
+                variant="error"
+                onClick={() => handleBulkAction("ABSENT")}
+              >
+                ABSENT
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
-     
+        )}
 
+        <Table
+          // headers={[
+          //   ...(isAdmin
+          //     ? [
+          //         <div className="w-10">
+          //           <input
+          //             type="checkbox"
+          //             className="checkbox checkbox-sm rounded"
+          //             checked={allSelected}
+          //             disabled={selectableRecords.length === 0}
+          //             onChange={toggleSelectAll}
+          //           />
+          //         </div>,
+          //       ]
+          //     : []),
+          //   "Employee",
+          //   "Date",
+          //   "Check In",
+          //   "Status",
+          //   "Mode",
+          //   ...(isAdmin ? ["Action"] : []),
+          // ]}
+          headers={[
+            "Employee",
+            "Date",
+            "Check In",
+            "Status",
+            "Mode",
+            ...(isAdmin ? ["Action"] : []),
+            ...(isAdmin
+              ? [
+                  <div className="w-10">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-sm border-white border-2 rounded
+                      bg-white   checked:bg-primary checked:border-primary"
+                      checked={allSelected}
+                      disabled={selectableRecords.length === 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </div>,
+                ]
+              : []),
+          ]}
+        >
+          {paginatedRecords.length === 0 ? (
+            <tr>
+              <td
+                colSpan={isAdmin ? 7 : 5}
+                className="text-center py-10 text-base-content/60 font-medium"
+              >
+                No attendance records found
+              </td>
+            </tr>
+          ) : (
+            paginatedRecords.map((r) => (
+              <tr key={r.id} className="text-base-content text-xs">
+                {/* ✅ Checkbox only for admin */}
 
-      <Table
-        // headers={[
-        //   ...(isAdmin
-        //     ? [
-        //         <div className="w-10">
-        //           <input
-        //             type="checkbox"
-        //             className="checkbox checkbox-sm rounded"
-        //             checked={allSelected}
-        //             disabled={selectableRecords.length === 0}
-        //             onChange={toggleSelectAll}
-        //           />
-        //         </div>,
-        //       ]
-        //     : []),
-        //   "Employee",
-        //   "Date",
-        //   "Check In",
-        //   "Status",
-        //   "Mode",
-        //   ...(isAdmin ? ["Action"] : []),
-        // ]}
-       headers={[
-  "Employee",
-  "Date",
-  "Check In",
-  "Status",
-  "Mode",
-  ...(isAdmin ? ["Action"] : []),
-  ...(isAdmin
-    ? [
-        <div className="w-10">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-sm border-2 rounded  checked:bg-primary checked:border-primary"
-            checked={allSelected}
-            disabled={selectableRecords.length === 0}
-            onChange={toggleSelectAll}
-          />
-        </div>,
-      ]
-    : []),
-]}
-      >
-        {paginatedRecords.length === 0 ? (
-          <tr>
-            <td colSpan={isAdmin ? 7 : 5} className="text-center py-10 text-base-content/60 font-medium">
-              No attendance records found
-            </td>
-          </tr>
-        ) : (
-          paginatedRecords.map((r) => (
-          <tr key={r.id} className="text-base-content text-xs">
+                <td>{r.employee}</td>
+                <td>{r.date}</td>
+                <td>{r.checkIn}</td>
 
-            {/* ✅ Checkbox only for admin */}
-            
+                <td>
+                  <StatusBadge status={r.status} />
+                </td>
+                <td className="capitalize">{r.mode}</td>
 
-            <td>{r.employee}</td>
-            <td>{r.date}</td>
-            <td>{r.checkIn}</td>
-
-            <td>
-              <StatusBadge status={r.status} />
-            </td>
-            <td className="capitalize">
-              {r.mode}
-            </td>
-            
-            {/* ✅ Action column only for admin */}
-            {isAdmin && (
-              <td> 
-               
-                  <div className="flex justify-start gap-2">
-                    <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}
-                      className={`${r.status === "approved" ? "btn-disabled" : ""} `}
+                {/* ✅ Action column only for admin */}
+                {isAdmin && (
+                  <td>
+                    <div className="flex justify-start gap-2">
+                      <Button
+                        size="xs"
+                        variant="primary"
+                        onClick={() =>
+                          handleApproval(
+                            r.attendanceDocId,
+                            r.employeeId,
+                            "PRESENT",
+                          )
+                        }
+                        className={`${r.status === "approved" ? "btn-disabled" : ""} `}
                       >
-                      Present
-                    </Button>
-                    <Button size="xs" variant="error" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "ABSENT")}
-                      className={`${r.status === "absent" ? "btn-disabled" : ""}`}
+                        Present
+                      </Button>
+                      <Button
+                        size="xs"
+                        variant="error"
+                        onClick={() =>
+                          handleApproval(
+                            r.attendanceDocId,
+                            r.employeeId,
+                            "ABSENT",
+                          )
+                        }
+                        className={`${r.status === "absent" ? "btn-disabled" : ""}`}
                       >
-                      Absent
-                    </Button>
-                  </div>
-               
-                {/* {r.status === "absent" && (
+                        Absent
+                      </Button>
+                    </div>
+
+                    {/* {r.status === "absent" && (
                   <div className="flex justify-start gap-2">
                     <Button size="xs" variant="primary" onClick={() => handleApproval(r.attendanceDocId, r.employeeId, "PRESENT")}>
                       Present
@@ -213,25 +244,26 @@ export default function AttendanceTable({ records, role, onUpdate, showActions }
                     </Button>
                   </div>
                 )} */}
-              </td>
-            )}
-            {isAdmin && (
-  <td className="w-10">
-    <input
-      type="checkbox"
-      className="checkbox checkbox-xs rounded border-2 checked:bg-primary checked:border-primary"
-      checked={selectedIds.includes(r.id)}
-      disabled={r.status !== "pending"}
-      onChange={() => toggleSelect(r.id)}
-    />
-  </td>
-)}
-          </tr>
-          ))
-        )}
-      </Table>
+                  </td>
+                )}
+                {isAdmin && (
+                  <td className="w-10">
+                    <input
+                      type="checkbox"
+                      className="checkbox 
+                      bg-white checkbox-xs rounded border-2 checked:bg-primary checked:border-primary"
+                      checked={selectedIds.includes(r.id)}
+                      disabled={r.status !== "pending"}
+                      onChange={() => toggleSelect(r.id)}
+                    />
+                  </td>
+                )}
+              </tr>
+            ))
+          )}
+        </Table>
       </div>
-      
+
       <div className="flex justify-center sm:justify-end p-4 border-t border-base-300">
         <Pagination
           currentPage={validPage}

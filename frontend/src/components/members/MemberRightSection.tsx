@@ -10,7 +10,7 @@ import Tabs from "../ui/Tabs";
 import { useAuth } from "@/auth/AuthContext";
 import { getProject } from "@/services/projectServices";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+
 
 type Filter = "all" | "active" | "completed" | "on-hold";
 type RightTab = "projects" | "tasks";

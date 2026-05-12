@@ -327,6 +327,7 @@
 import type { Task } from "@/type/task";
 import { useEffect, useMemo, useState } from "react";
 import TaskStatusSelect from "../projects/TaskStatusSelect";
+import { MdDelete, MdEdit } from "react-icons/md";
 
 interface MemberTaskProps {
   memberId: string;
@@ -538,7 +539,7 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
         <div className="bg-base-100 p-4 mb-4 rounded-lg border space-y-3">
 
           <input
-            className="input input-sm input-bordered w-full"
+            className="input input-sm input-bordered border-2 w-full placeholder:text-base-content/70"
             placeholder="Task title"
             value={newTask.title}
             onChange={(e) =>
@@ -547,7 +548,7 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
           />
 
           <textarea
-            className="textarea textarea-sm textarea-bordered w-full"
+            className="textarea textarea-sm textarea-bordered border-2 w-full placeholder:text-base-content/70"
             placeholder="Description"
             value={newTask.description}
             onChange={(e) =>
@@ -557,7 +558,7 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
 
           <input
             type="date"
-            className="input input-sm input-bordered w-full sm:w-60"
+            className="input input-sm input-bordered border-2 w-full sm:w-60"
             value={newTask.dueDate}
             onChange={(e) =>
               setNewTask({ ...newTask, dueDate: e.target.value })
@@ -584,19 +585,19 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
 
       {/* DESKTOP TABLE */}
 
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block overflow-x-auto rounded-lg">
 
         {loading ? (
-         <div className="flex flex-col justify-center items-center h-screen bg-base-100">
+         <div className="flex flex-col justify-center items-center h-screen bg-base-100 rounded-lg ">
         <span className="loading loading-spinner loading-lg text-primary"></span>
         <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
       </div>
         ) : filteredTasks.length === 0 ? (
           <p>No {activeStatus} tasks</p>
         ) : (
-          <table className="table w-full">
+          <table className="table w-full border border-primary/60 rounded-lg">
 
-            <thead>
+            <thead className="bg-primary/60 text-primary-content border-primary/60 rounded-lg">
               <tr>
                 <th>Title</th>
                 <th>Description</th>
@@ -606,9 +607,9 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody >
               {filteredTasks.map((task) => (
-                <tr key={task.id}>
+                <tr key={task.id} className="border border-primary/60 text-base-content/80">
 
                   <td>{task.title}</td>
 
@@ -630,17 +631,17 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
                   <td>
                     <div className="flex gap-2">
                       <button
-                        className="btn btn-xs btn-neutral"
+                        className="btn btn-xs btn-success text-base-100"
                         onClick={() => editTask(task.id)}
                       >
-                        Edit
+                      <MdEdit size={16} />
                       </button>
 
                       <button
-                        className="btn btn-xs btn-error"
+                        className="btn btn-xs btn-error text-base-100"
                         onClick={() => deleteTask(task.id)}
                       >
-                        Delete
+                       <MdDelete size={16} />
                       </button>
                     </div>
                   </td>
@@ -683,17 +684,17 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
 
             <div className="flex gap-2">
               <button
-                className="btn btn-xs btn-neutral"
+                className="btn btn-xs btn-success text-base-100"
                 onClick={() => editTask(task.id)}
               >
-                Edit
+                <MdEdit size={16} />
               </button>
 
               <button
-                className="btn btn-xs btn-error"
+                className="btn btn-xs btn-error text-base-100"
                 onClick={() => deleteTask(task.id)}
               >
-                Delete
+                <MdDelete size={16} />
               </button>
             </div>
           </div>

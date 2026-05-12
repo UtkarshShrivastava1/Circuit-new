@@ -139,93 +139,99 @@ const submitAttendance = () => {
       toast.error("Failed to submit attendance");
     });
 };
+return (
+  <div className="w-full max-w-3xl bg-white/60 border border-base-300 rounded-2xl p-6 shadow-sm">
 
-  return (
-    <div className="max-w-md w-full rounded-2xl p-6 bg-base-100 neu">
-      {/* HEADER */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="text-lg font-semibold text-base-content">
-            Mark Attendance
-          </h3>
-          <p className="text-sm text-base-content/60">{today}</p>
-        </div>
-
-        {status !== "not-marked" && <StatusBadge status={status} />}
+    {/* HEADER */}
+    <div className="flex justify-between items-center mb-5">
+      <div>
+        <h3 className="text-xl font-semibold">Mark Attendance</h3>
+        <p className="text-sm text-base-content/90">{today}</p>
       </div>
 
-      {/* TIME */}
-      <div className="mt-6 text-center">
-        <p className="text-xs text-base-content/60">Check-in time</p>
-        <p className="text-3xl font-semibold mt-1 text-base-content">
-          {timeNow}
-        </p>
-      </div>
+      {status !== "not-marked" && <StatusBadge status={status} />}
+    </div>
 
-      {/* MODE SWITCH */}
-      <div className="mt-6">
-        <p className="text-sm font-medium mb-2 text-base-content">
-          Attendance Type
-        </p>
+    {/* TIME */}
+    <div className="text-center mb-6">
+      <p className="text-sm font-medium text-base-content/90">Check-in time</p>
+      <p className="text-4xl font-bold tracking-wide mt-1">
+        {timeNow}
+      </p>
+    </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          {[
-            { id: "office", label: "Office", icon: <MdBusiness/>},
-            { id: "wfh", label: "WFH", icon: <MdHomeWork/> },
-            { id: "half-day", label: "Half Day", icon: <MdAccessTime/> },
-          ].map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setMode(item.id as AttendanceMode)}
-              className={`
-                rounded-xl py-3 text-sm text-base-content font-medium
-                transition-all
-                ${mode === item.id ? "neu-inset text-primary" : "neu"}
-              `}
-            >
-              <div className="flex flex-col items-center gap-1">
-                <span className="text-lg">{item.icon}</span>
-                <span>{item.label}</span>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
+    {/* MODE */}
+    <div className="mb-6">
+      <p className="text-sm font-medium mb-2">Attendance Type</p>
 
-      {/* LOCATION */}
-      {mode === "office" && (
-        <div className="mt-5 rounded-xl p-4 neu-inset">
-          <p className="text-xs text-base-content/60 mb-1">Location</p>
-          <p className="text-sm text-base-content">
-            {loadingLocation ? "Fetching location…" : location ?? "Not available"}
-          </p>
-        </div>
-      )}
-
-      {/* INFO */}
-      {(mode === "wfh" || mode === "half-day") && (
-        <p className="mt-4 text-xs text-base-content/60">
-          {mode === "half-day"
-            ? "Half-day attendance requires admin approval."
-            : "Work from home attendance does not require location."}
-        </p>
-      )}
-
-      {/* ACTION */}
-      <div className="mt-6">
-        {status === "not-marked" ? (
-          <Button className="w-full" onClick={submitAttendance} disabled={loadingStatus}>
-            {loadingStatus ? "Checking Status..." : "Submit Attendance"}
-          </Button>
-        ) : (
-          <div className="rounded-xl p-4 text-center neu-inset">
-            <p className="text-sm font-medium capitalize">Attendance for today is {status}</p>
-            <p className="text-xs text-base-content/60 mt-1">
-              You can view details in the 'Records' tab.
-            </p>
-          </div>
-        )}
+      <div className="flex gap-3">
+        {[
+          { id: "office", label: "Office", icon: <MdBusiness /> },
+          { id: "wfh", label: "WFH", icon: <MdHomeWork /> },
+          { id: "half-day", label: "Half Day", icon: <MdAccessTime /> },
+        ].map((item) => (
+          <button
+            key={item.id}
+            onClick={() => setMode(item.id as AttendanceMode)}
+            className={`
+              flex-1 py-3 rounded-xl text-sm font-medium
+              transition-all duration-200
+              border
+              ${
+                mode === item.id
+                  ? "bg-primary text-primary-content border-primary shadow-sm"
+                  : "bg-base-100 text-base-content border-base-300 hover:bg-base-200"
+              }
+            `}
+          >
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-lg">{item.icon}</span>
+              {item.label}
+            </div>
+          </button>
+        ))}
       </div>
     </div>
-  );
+
+    {/* LOCATION */}
+    {mode === "office" && (
+      <div className="mb-5 p-4 rounded-xl bg-base-200 border border-base-300">
+        <p className="text-xs text-base-content mb-1">Location</p>
+        <p className="text-sm font-medium text-base-content">
+          {loadingLocation ? "Fetching location..." : location ?? "Not available"}
+        </p>
+      </div>
+    )}
+
+    {/* INFO */}
+    {(mode === "wfh" || mode === "half-day") && (
+      <div className="mb-5 text-xs text-base-content bg-base-200 p-3 rounded-lg">
+        {mode === "half-day"
+          ? "Half-day attendance requires admin approval."
+          : "Work from home does not require location."}
+      </div>
+    )}
+
+    {/* ACTION */}
+    {status === "not-marked" ? (
+      <Button
+        className="w-full py-3 text-base font-medium"
+        onClick={submitAttendance}
+        disabled={loadingStatus}
+      >
+        {loadingStatus ? "Checking Status..." : "Submit Attendance"}
+      </Button>
+    ) : (
+      <div className="p-4 rounded-xl bg-base-200 text-center border border-base-300">
+        <p className="font-medium capitalize">
+          Attendance is {status}
+        </p>
+        <p className="text-xs text-base-content/60 mt-1">
+          View details in Records tab
+        </p>
+      </div>
+    )}
+
+  </div>
+);
 }

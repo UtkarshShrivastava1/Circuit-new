@@ -7,7 +7,7 @@ const STATUS_CONFIG = {
   pending: {
     label: "Pending",
     icon: "",
-    className: "bg-warning/20 text-warning border-warning/30",
+    className: "bg-warning text-white border-warning/30",
   },
   approved: {
     label: "Approved",

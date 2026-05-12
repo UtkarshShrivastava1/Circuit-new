@@ -193,7 +193,7 @@ export default function Dashboard() {
       icon: <MdPeople size={20} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
-          <span className="text-xs font-medium">Active workforce</span>
+          <span className="text-xs font-medium text-primary/80">Active workforce</span>
         </span>
       ),
     },
@@ -203,7 +203,7 @@ export default function Dashboard() {
       icon: <MdEventAvailable size={20} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
-          <span className="text-xs font-medium">
+          <span className="text-xs font-medium text-primary/80">
             {statsData.totalEmployees > 0 
               ? `${Math.round((statsData.presentToday / statsData.totalEmployees) * 100)}% attendance rate` 
               : "No data"}
@@ -217,7 +217,7 @@ export default function Dashboard() {
       icon: <MdWorkspaces size={20} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
-          <span className="text-xs font-medium">Stable</span>
+          <span className="text-xs font-medium text-primary/80">Stable</span>
         </span>
       ),
     },
@@ -227,7 +227,7 @@ export default function Dashboard() {
       icon: <MdPendingActions size={20} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
-          <span className="text-xs font-medium">Awaiting review</span>
+          <span className="text-xs font-medium text-primary/80">Awaiting review</span>
         </span>
       ),
     },
@@ -433,7 +433,7 @@ export default function Dashboard() {
       )}
     
       {/* RECENT ACTIVITY (EMPTY STATE FOR NOW) */}
-      <div>
+      {/* <div>
         <h2 className="text-lg font-semibold text-base-content mb-3">
           Recent Activity
         </h2>
@@ -501,7 +501,82 @@ export default function Dashboard() {
             description="Recent attendance, tasks, and project updates will appear here."
           />
         )}
-      </div>
+      </div> */}
+
+
+      <div className="bg-primary/10 rounded-2xl shadow-sm border border-base-300 p-6">
+  <ul className="space-y-3">
+    {paginatedActivities.map((activity) => {
+      const link = getActivityLink(activity);
+      const isClickable = link !== "#";
+
+      return (
+        <li
+          key={activity._id || activity.id}
+          onClick={() => isClickable && navigate(link)}
+          className={`flex justify-between items-start sm:items-center text-sm 
+          p-3 rounded-xl border border-base-200 bg-base-100
+          transition-all duration-200
+          ${isClickable ? "cursor-pointer hover:bg-base-200 hover:shadow-sm" : ""}
+          `}
+        >
+          {/* LEFT */}
+          <div className="flex items-center gap-3">
+            {activity.user && (
+              <div className="w-9 h-9 rounded-full bg-base-200 border border-base-300 flex items-center justify-center overflow-hidden shrink-0">
+                {activity.user.imageUrl ? (
+                  <img
+                    src={activity.user.imageUrl}
+                    alt={activity.user.name || "User"}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-sm font-medium text-base-content/60">
+                    {(activity.user?.name || "?")
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div className="flex flex-col">
+              <span className="text-base-content font-medium">
+                {activity.action || "Activity"}
+                {activity.count > 1 && (
+                  <span className="text-primary ml-1 text-xs">
+                    ({activity.count})
+                  </span>
+                )}
+              </span>
+
+              <span className="text-base-content/60 text-xs">
+                {activity.message || activity.title}
+              </span>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <span className="text-base-content/50 text-xs whitespace-nowrap shrink-0 mt-1 sm:mt-0">
+            {activity.time ||
+              (activity.createdAt ? timeAgo(activity.createdAt) : "")}
+          </span>
+        </li>
+      );
+    })}
+  </ul>
+
+  <div className="mt-6">
+    <Pagination
+      currentPage={activityPage}
+      totalPages={totalActivityPages}
+      onPageChange={setActivityPage}
+    />
+  </div>
+</div>
 
     </div>
   );

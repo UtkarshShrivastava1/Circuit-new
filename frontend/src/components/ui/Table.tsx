@@ -8,9 +8,9 @@ interface TableProps {
 export default function Table({ headers, children }: TableProps) {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra w-full border-2 border-base-400 rounded-lg">
-        <thead>
-          <tr className="bg-base-300 text-base-content uppercase">
+      <table className="table table-zebra w-full border-2 border-primary/40 rounded-lg">
+        <thead className="rounded-lg">
+          <tr className="bg-primary/70 text-primary-content uppercase">
             {headers.map((h,i) => (
                 <th key={i}>{h}</th> 
             ))}
