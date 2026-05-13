@@ -24,6 +24,7 @@ const payrollSchema = new mongoose.Schema({
     }]
   },
   
+  
   customEarnings: [{
     id: { type: String },
     label: { type: String },

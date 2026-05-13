@@ -94,7 +94,7 @@ export default function ProjectCard({
   };
 
   return (
-    <div   onClick={() => navigate(`/projects/${project.id}`)} className="group bg-base-200 text-primary border border-primary shadow-sm rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative w-full  h-full flex flex-col justify-between min-w-0 cursor-pointer">
+    <div   onClick={() => navigate(`/projects/${project.id}`)} className="group bg-base-200 text-primary border border-primary shadow-sm rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative w-full  h-full flex flex-col justify-between  min-w-0 max-w-full cursor-pointer">
       {/* HEADER */}
       <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
         <h3 className="font-bold  text-lg leading-snug line-clamp-2 break-words flex-1 min-w-0 ">
@@ -176,7 +176,7 @@ export default function ProjectCard({
 
       
      {/* META */}
-<div className="mt-4 flex items-center justify-between gap-4 text-xs text-primary/70 flex-wrap sm:flex-nowrap">
+<div className="mt-4 flex  justify-between items-center gap-4 text-xs text-primary/70 flex-wrap">
   
   {/* Left Meta Info */}
   <div className="flex items-center gap-4 whitespace-nowrap flex-wrap">
@@ -215,27 +215,21 @@ export default function ProjectCard({
       e.stopPropagation();
       navigate(`/projects/${project.id}?tab=chat`);
     }}
-    className="
-    shrink-0
-      inline-flex items-center gap-2
-      px-7 py-2
-      rounded-xl
-      bg-primary/80
-      text-primary-content
-      border border-primary/20
-      
-      hover:bg-primary
-      hover:text-primary-content
-      hover:shadow-md
-      hover:scale-[1.02]
-
-      active:scale-95
-      transition-all duration-200
-      font-medium
-    "
+   className="
+  shrink-0
+  inline-flex items-center gap-2
+  px-3 py-2
+  rounded-lg
+  bg-primary/80
+  text-primary-content
+  border border-primary/20
+  hover:bg-primary
+  transition-all duration-200
+  font-medium
+"
   >
     <MdChat size={18} />
-    <span className="hidden sm:inline">Chat</span>
+    <span >Chat</span>
   </button>
 </div>
 </div>

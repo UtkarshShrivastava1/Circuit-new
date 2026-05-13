@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/auth/AuthContext";
 import { socket } from "@/socket";
 import Pagination from "@/components/ui/Pagination"
+import Swal from "sweetalert2";
 
 
 export default function EmployeeLeaveDashboard() {
@@ -189,8 +190,18 @@ export default function EmployeeLeaveDashboard() {
   };
 
   const handleDeleteLeave = async (id: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this leave request?");
-    if (!confirmDelete) return;
+   const confirmDelete = await Swal.fire({
+  title: "Are you sure?",
+  text: "You want to delete this leave request?",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#d33",
+  cancelButtonColor: "#6b7280",
+  confirmButtonText: "Yes, delete it",
+  cancelButtonText: "Cancel",
+});
+
+if (!confirmDelete.isConfirmed) return;
 
     try {
       if (!user) return;

@@ -297,7 +297,7 @@ const OverdueTasksCard = ({ tasks }: { tasks: any[] }) => (
 );
 
 const TeamCard = ({ team }: { team: any[] }) => (
-  <div className="bg-primary/60 border border-primary rounded-lg p-6">
+  <div className="bg-primary rounded-lg p-6">
     <h3 className="font-semibold text-primary-content mb-3">Team Members</h3>
     <ul className="space-y-2 text-sm">
       {team.map((member: any) => (

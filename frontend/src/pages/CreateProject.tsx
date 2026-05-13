@@ -144,7 +144,7 @@ const handleCreateProject = async () => {
           <h1 className="text-xl sm:text-2xl font-bold text-primary-content">
             Create New Project
           </h1>
-          <p className="text-sm font-medium text-base-content/80 mt-2">
+          <p className="text-md font-medium text-base-content/80 mt-2">
             Fill in project details and assign team members
           </p>
         </div>

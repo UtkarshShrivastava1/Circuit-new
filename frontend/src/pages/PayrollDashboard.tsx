@@ -189,16 +189,16 @@ export default function PayrollDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* 1. Stats Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full">
+        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full ">
           <div className="stat py-6 flex flex-col justify-center">
             <div className="stat-figure text-info">
               <MdGroup size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Total Staff</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Total Staff</div>
             <div className="stat-value text-info text-3xl mt-1">
               {summary?.totalStaff || 0}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1 text-base-content ">
               Eligible for payroll
             </div>
           </div>
@@ -207,11 +207,11 @@ export default function PayrollDashboard() {
             <div className="stat-figure text-warning">
               <MdPendingActions size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Pending Payout</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Pending Payout</div>
             <div className="stat-value text-warning text-3xl mt-1">
               ₹{(summary?.pending || 0).toLocaleString()}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1  text-base-content ">
               Needs disbursement
             </div>
           </div>
@@ -220,11 +220,11 @@ export default function PayrollDashboard() {
             <div className="stat-figure text-success">
               <MdAccountBalanceWallet size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Total Paid</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Total Paid</div>
             <div className="stat-value text-success text-3xl mt-1">
               ₹{(summary?.paid || 0).toLocaleString()}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1 text-base-content">
               Successfully processed
             </div>
           </div>
@@ -310,7 +310,7 @@ export default function PayrollDashboard() {
                   </label>
                 </td>
                 <td className="p-4 font-medium">{slip.employeeName || slip.employeeId}</td>
-                <td className="p-4 text-base-content/70">₹{slip.grossSalary.toLocaleString()}</td>
+                <td className="p-4 text-base-content">₹{slip.grossSalary.toLocaleString()}</td>
                 <td className="p-4 font-bold text-primary">₹{slip.netSalary.toLocaleString()}</td>
                 <td className="p-4">
                   <StatusBadge status={slip.paymentStatus.toLowerCase()} />

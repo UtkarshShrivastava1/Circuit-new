@@ -27,7 +27,7 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
   return (
     <div className="bg-base-100 border border-base-300 rounded-lg overflow-x-scroll">
       <table className="table table-zebra w-full min-w-150 ">
-        <thead className="bg-primary text-primary-content border-primary/60">
+        <thead className="bg-primary text-md text-primary-content border-primary/60">
           <tr>
             <th className="whitespace-nowrap">Task</th>
             <th className="whitespace-nowrap">Assignee</th>
@@ -43,7 +43,7 @@ function TaskTable({ tasks, onOpenTask, onEditTask, onDeleteTask }: Props) {
           {tasks.map((task) => (
             <tr
               key={task._id}
-              className="cursor-pointer hover:bg-base-200 text-base-content"
+              className="cursor-pointer hover:bg-base-200 text-base-content text-sm"
               onClick={() => onOpenTask(task)}
             >
               <td className="font-medium ">{task.title}</td>

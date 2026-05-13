@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   MdDashboard,
@@ -147,6 +147,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         new Date(a.createdAt) > new Date(lastVisitedProjects)),
   );
   console.log("Activities for Projects:", projectCreatedDot);
+
   const workUpdateDot = (activities || []).some(
     (a) =>
       a.referenceModel === "WorkUpdateModel" &&
@@ -194,7 +195,16 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const isProjectsActive =
     location.pathname.startsWith("/projects") ||
     location.pathname.startsWith("/createProject");
+  
 
+  /* ================= FIX 2: RESET WHEN SIDEBAR CLOSES ================= */
+  useEffect(() => {
+    if (!isOpen) {
+      setPayrollOpen(false);
+      setTeamOpen(false);
+      setProjectsOpen(false);
+    }
+  }, [isOpen]);
   return (
     <>
       <div
@@ -357,17 +367,12 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       </>
                     )}
                   </button>
-
-                  <div
-                    className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      ${
-                        projectsOpen 
-                          ? "max-h-40 opacity-100 mt-1"
-                          : "max-h-0 opacity-0"
-                      }
-                    `}
-                  >
+<div
+  className={`
+    transition-all duration-300 ease-in-out
+    ${projectsOpen ? "block mt-1" : "hidden"}
+  `}
+>
                     {/* <div className="ml-8 space-y-1 pb-1"> */}
                     <div
                       className={`space-y-1 pb-1 ${
@@ -496,7 +501,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       className={`
                       overflow-hidden transition-all duration-300 ease-in-out
                       ${
-                        teamOpen 
+                        teamOpen
                           ? "max-h-40 opacity-100 mt-1"
                           : "max-h-0 opacity-0"
                       }
@@ -618,7 +623,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     className={`
                       overflow-hidden transition-all duration-300 ease-in-out
                       ${
-                        payrollOpen 
+                        payrollOpen
                           ? "max-h-40 opacity-100 mt-1"
                           : "max-h-0 opacity-0"
                       }

@@ -416,9 +416,9 @@ function Section({
 }) {
   return (
     <div className="grid grid-cols-[22px_1fr] gap-x-3 gap-y-1">
-      <div className="text-base-content/60 mt-[2px]">{icon}</div>
+      <div className="text-base-content mt-[2px]">{icon}</div>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+      <p className="text-xs font-semibold uppercase tracking-wide text-base-content">
         {label}
       </p>
 
@@ -593,11 +593,11 @@ export default function TaskDrawer({
 
       <div className="fixed right-0 top-0 h-full w-full max-w-md bg-base-100 z-50 border-l border-base-300 shadow-xl flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-base-300 bg-primary/20">
-          <h3 className="text-lg font-semibold text-base-content/55">
+          <h3 className="text-lg font-semibold text-base-content">
             {isEdit ? "Edit Task" : "Task Details"}
           </h3>
 
-          <button onClick={onClose} className="btn btn-sm btn-ghost text-base-content/55">
+          <button onClick={onClose} className="btn btn-sm btn-ghost text-base-content">
             <MdClose size={18} />
           </button>
         </div>
@@ -654,7 +654,7 @@ export default function TaskDrawer({
               </Select>
             ) : (
               <div
-                className={` p-1.5 badge ${
+                className={`text-white p-2 badge ${
                   priority === "high"
                     ? "badge-error"
                     : priority === "medium"
@@ -679,7 +679,7 @@ export default function TaskDrawer({
                     </span>
                   ))
                 ) : (
-                  <span className="text-sm opacity-60">No tags</span>
+                  <span className="text-sm ">No tags</span>
                 )}
               </div>
             )}
@@ -720,7 +720,7 @@ export default function TaskDrawer({
                     </a>
                   ))
                 ) : (
-                  <span className="text-sm opacity-60">
+                  <span className="text-sm ">
                     No attachments
                   </span>
                 )}
@@ -734,7 +734,7 @@ export default function TaskDrawer({
             ) : (
               <div className="space-y-3 w-full">
                 {checklist.length === 0 && (
-                  <p className="text-sm opacity-60">
+                  <p className="text-sm ">
                     No checklist items
                   </p>
                 )}

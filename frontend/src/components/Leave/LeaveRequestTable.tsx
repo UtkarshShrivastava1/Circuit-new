@@ -99,7 +99,7 @@ export default function LeaveRequestTable({
       <div className="hidden md:block bg-base-100 border border-primary/35 rounded-lg overflow-hidden">
         <table className="table table-zebra w-full text-base-content ">
           <thead>
-            <tr className="bg-primary text-primary-content">
+            <tr className="bg-primary text-primary-content text-md">
               <th>Employee</th>
               <th>Leave Type</th>
               <th>Dates</th>
@@ -138,7 +138,7 @@ export default function LeaveRequestTable({
                   <tr
                     key={r.id}
                     onClick={() => onRowClick?.(r)}
-                    className="hover:bg-base-200 cursor-pointer"
+                    className="hover:bg-base-200 cursor-pointer text-sm"
                   >
                     <td className="font-medium">{r.employee}</td>
 

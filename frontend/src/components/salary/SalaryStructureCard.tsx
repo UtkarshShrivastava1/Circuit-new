@@ -5,16 +5,20 @@ import {
   MdAccountBalanceWallet,
 } from "react-icons/md";
 import Button from "@/components/ui/Button";
+import type { CustomRow } from "./SalarySlipPreview";
 
 export interface SalaryStructure {
   id: string;
   name: string;
   role: string;
   basic: number;
-  hra: number;
-  allowances: number;
-  bonus: number;
+  // hra: number;
+  // allowances: number;
+  // bonus: number;
+  
   deductions: number;
+  customEarnings?:CustomRow[];
+  customDeductions?:CustomRow[];
 }
 
 interface Props {
@@ -28,8 +32,25 @@ export default function SalaryStructureCard({
   onEdit,
   onDelete,
 }: Props) {
-  const netSalary = structure.basic + structure.hra + structure.allowances + 
-                   structure.bonus - structure.deductions;
+  const earningTotal =
+  (structure.customEarnings || []).reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+
+const deductionTotal =
+  structure.deductions +
+  (structure.customDeductions || []).reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+
+const netSalary =
+  structure.basic +
+  earningTotal -
+  deductionTotal;
+  // const netSalary = structure.basic + structure.hra + structure.allowances + 
+  //                  structure.bonus - structure.deductions;
 
   return (
     <div className="group bg-base-100 border border-base-300 hover:border-primary/50 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ">
@@ -64,7 +85,7 @@ export default function SalaryStructureCard({
               <span className="font-mono">₹{structure.hra.toLocaleString()}</span>
             </div>
           </div>
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <div className="flex justify-between text-base-content/70">
               <span>Allowances</span>
               <span className="font-mono">₹{structure.allowances.toLocaleString()}</span>
@@ -73,7 +94,31 @@ export default function SalaryStructureCard({
               <span>Bonus</span>
               <span className="font-mono">₹{structure.bonus.toLocaleString()}</span>
             </div>
-          </div>
+          </div> */}
+
+          <div className="space-y-2 text-sm">
+
+  {/* Basic Salary */}
+  <div className="flex justify-between text-base-content/70">
+    <span>Basic Salary</span>
+    <span className="font-mono">
+      ₹{structure.basic.toLocaleString()}
+    </span>
+  </div>
+
+  {/* Dynamic Earnings */}
+  {structure.customEarnings?.map((item) => (
+    <div
+      key={item.id}
+      className="flex justify-between text-base-content/70"
+    >
+      <span>{item.label}</span>
+      <span className="font-mono">
+        ₹{item.amount.toLocaleString()}
+      </span>
+    </div>
+  ))}
+</div>
         </div>
         <div className="pt-3 border-t border-base-300">
           <div className="flex justify-between items-center text-sm text-error font-medium">

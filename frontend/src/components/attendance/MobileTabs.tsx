@@ -1,4 +1,4 @@
-import {Clock ,NotepadText } from "lucide-react"
+import {BarChart, BarChart3, CalendarCheck, ClipboardCopy, ClipboardList, Clock ,MarsStroke,NotepadText } from "lucide-react"
 
 
 
@@ -14,8 +14,10 @@ export default function MobileTabs({
   onChange,
 }: Props) {
   const tabs = [
-    { key: "records", icon: Clock },
-    { key: "mark", icon: NotepadText  },
+    { key: "mark", icon: CalendarCheck  },
+    { key: "records", icon: ClipboardList },
+    
+    { key: "summary", icon:BarChart3   },
   
   ] as const;
 

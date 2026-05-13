@@ -51,10 +51,10 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
         <div className="flex justify-between items-start md:items-center p-3 bg-base-200 rounded-lg">
           <div>
             <h4 className="font-medium text-base-content">Casual Leave</h4>
-            <p className="text-xs text-base-content/60">Cannot carry forward to the next year.</p>
+            <p className="text-xs text-base-content">Cannot carry forward to the next year.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.casual} onChange={(e) => handleChange("casual", e.target.value)} />
+            <input type="number" className="text-base-content input input-sm input-bordered w-24 text-center" value={formData.casual} onChange={(e) => handleChange("casual", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.casual} Days</span>
           )}
@@ -63,10 +63,10 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
         <div className="flex justify-between items-start md:items-center p-3 bg-base-200 rounded-lg">
           <div>
             <h4 className="font-medium text-base-content">Sick Leave</h4>
-            <p className="text-xs text-base-content/60">Medical certificate required if more than 2 days.</p>
+            <p className="text-xs text-base-content">Medical certificate required if more than 2 days.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.sick} onChange={(e) => handleChange("sick", e.target.value)} />
+            <input type="number"  className="text-base-content input input-sm input-bordered w-24 text-center" value={formData.sick} onChange={(e) => handleChange("sick", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.sick} Days</span>
           )}
@@ -75,10 +75,10 @@ export default function LeavePolicy({ policy, isAdmin = false, onSave }: Props) 
         <div className="flex justify-between items-start md:items-center p-3 bg-base-200 rounded-lg">
           <div>
             <h4 className="font-medium text-base-content">Paid Leave</h4>
-            <p className="text-xs text-base-content/60">Up to 5 days can be carried forward.</p>
+            <p className="text-xs text-base-content">Up to 5 days can be carried forward.</p>
           </div>
           {isAdmin ? (
-            <input type="number" className="input input-sm input-bordered w-24 text-center" value={formData.paid} onChange={(e) => handleChange("paid", e.target.value)} />
+            <input type="number" className="text-base-content input input-sm input-bordered w-24 text-center" value={formData.paid} onChange={(e) => handleChange("paid", e.target.value)} />
           ) : (
             <span className="font-semibold text-base-content bg-base-100 px-3 py-1 rounded-md">{formData.paid} Days</span>
           )}

@@ -321,8 +321,8 @@ export default function Dashboard() {
     activityPage * ACTIVITIES_PER_PAGE
   );
 
-  const primaryBtnClass = "btn btn-primary btn-sm shadow-sm transition-all hover:shadow-md font-medium";
-  const secondaryBtnClass = "btn btn-sm bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 hover:border-base-300 shadow-sm transition-all font-medium";
+  const primaryBtnClass = "btn btn-primary btn-sm shadow-sm transition-all hover:shadow-md  text-sm";
+  const secondaryBtnClass = "btn btn-sm bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 hover:border-base-300 shadow-sm transition-all  text-sm";
 
   return (
     <div className="p-6 space-y-6">
@@ -553,14 +553,14 @@ export default function Dashboard() {
                 )}
               </span>
 
-              <span className="text-base-content/60 text-xs">
+              <span className="text-base-content text-xs">
                 {activity.message || activity.title}
               </span>
             </div>
           </div>
 
           {/* RIGHT */}
-          <span className="text-base-content/50 text-xs whitespace-nowrap shrink-0 mt-1 sm:mt-0">
+          <span className="text-base-content text-xs whitespace-nowrap shrink-0 mt-1 sm:mt-0">
             {activity.time ||
               (activity.createdAt ? timeAgo(activity.createdAt) : "")}
           </span>

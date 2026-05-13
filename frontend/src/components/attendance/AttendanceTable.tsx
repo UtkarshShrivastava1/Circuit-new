@@ -184,7 +184,7 @@ export default function AttendanceTable({
             </tr>
           ) : (
             paginatedRecords.map((r) => (
-              <tr key={r.id} className="text-base-content text-xs">
+              <tr key={r.id} className="text-base-content text-sm">
                 {/* ✅ Checkbox only for admin */}
 
                 <td>{r.employee}</td>

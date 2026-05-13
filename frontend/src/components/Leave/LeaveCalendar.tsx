@@ -1,6 +1,6 @@
-import { useMemo } from "react";
-import type { LeaveRequest } from "@/type/leave";
 
+import type { LeaveRequest } from "@/type/leave";
+import { useMemo, useState } from "react";
 interface Props {
   requests: LeaveRequest[];
   teamLeaves?: LeaveRequest[];
@@ -19,20 +19,39 @@ export default function LeaveCalendar({
   onDateClick,
 }: Props) {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
 
+const [selectedYear, setSelectedYear] = useState(
+  today.getFullYear()
+);
+
+const [selectedMonth, setSelectedMonth] = useState(
+  today.getMonth()
+);
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
   /* ================= GENERATE DAYS ================= */
 
   const daysInMonth = new Date(
-    year,
-    month + 1,
+    selectedYear,
+    selectedMonth + 1,
     0
   ).getDate();
 
   const firstDay = new Date(
-    year,
-    month,
+    selectedYear,
+    selectedMonth,
     1
   ).getDay();
 
@@ -50,12 +69,12 @@ export default function LeaveCalendar({
     }
 
     return days;
-  }, [month]);
+  }, [selectedMonth, selectedYear]);
 
   /* ================= HELPER ================= */
 
   const getDateStr = (day: number) => {
-    const d = new Date(year, month, day);
+    const d = new Date(selectedYear, selectedMonth, day);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
@@ -95,7 +114,43 @@ export default function LeaveCalendar({
       <h3 className="text-lg font-semibold mb-4">
         Leave Calendar
       </h3>
+<div className="flex justify-between gap-1  mb-6 bg-primary p-1.5 rounded-lg  w-[600px] ">
 
+  {/* Month Dropdown */}
+  <select
+    value={selectedMonth}
+    onChange={(e) =>
+      setSelectedMonth(Number(e.target.value))
+    }
+    className="select select-bordered border border-primary"
+  >
+    {months.map((month, index) => (
+      <option key={month} value={index}>
+        {month}
+      </option>
+    ))}
+  </select>
+
+  {/* Year Dropdown */}
+  <select
+    value={selectedYear}
+    onChange={(e) =>
+      setSelectedYear(Number(e.target.value))
+    }
+    className="select select-bordered border border-primary"
+  >
+    {Array.from({ length: 10 }, (_, i) => {
+      const year =
+        today.getFullYear() - 5 + i;
+
+      return (
+        <option key={year} value={year}>
+          {year}
+        </option>
+      );
+    })}
+  </select>
+</div>
       {/* Week Days */}
       <div className="grid grid-cols-7 gap-2 mb-2 text-sm font-medium text-base-content">
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(

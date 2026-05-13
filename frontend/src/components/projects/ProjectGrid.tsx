@@ -37,6 +37,7 @@ interface Props {
   canDelete?: boolean;
   canEdit?: boolean;
     onUpdate: (updated: Project) => void;
+    gridClassName?: string;
 }
 
 export default function ProjectGrid({
@@ -46,10 +47,15 @@ export default function ProjectGrid({
   onUpdate,
   canEdit,
   canDelete,
+  gridClassName,
 }: Props) {
 
   return (
-   <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 justify-items-center">
+  //  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 justify-items-center">
+  <div  className={
+    gridClassName ||
+    "grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+  }>
       {projects.map((project) => (
         <ProjectCard
           key={project.id}

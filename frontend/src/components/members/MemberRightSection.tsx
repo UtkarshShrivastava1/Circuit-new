@@ -83,7 +83,7 @@ const navigate = useNavigate();
         );
 
   return (
-<div className="flex-1 w-full px-3 sm:px-4 lg:px-6">
+<div className="flex-1 w-full px-3 sm:px-4 lg:px-1 ">
    
       <Tabs<RightTab>
         value={activeTab}
@@ -113,6 +113,12 @@ const navigate = useNavigate();
               onOpen={(project) => setSelectedProject(project)}
               projects={filteredProjects}
               canDelete
+              gridClassName="
+    grid
+    grid-cols-1
+    xl:grid-cols-2
+    gap-5
+  "
             />
           )}
         </>

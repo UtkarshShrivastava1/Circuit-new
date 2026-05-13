@@ -93,7 +93,7 @@ export default function LeaveBalanceDashboard({
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-base-content">
+                  <p className="text-sm text-base-content font-semibold">
                     {card.title}
                   </p>
 
@@ -131,7 +131,7 @@ export default function LeaveBalanceDashboard({
           <div className="flex items-center gap-3">
             <MdEventAvailable size={24} className="text-info" />
             <div>
-              <p className="text-xs text-base-content/60">
+              <p className="text-sm text-base-content/60 font-semibold">
                 Total Used
               </p>
               <p className="text-xl font-semibold text-base-content">
@@ -146,7 +146,7 @@ export default function LeaveBalanceDashboard({
           <div className="flex items-center gap-3">
             <MdWarning size={24} className="text-error" />
             <div>
-              <p className="text-xs text-base-content/60">
+              <p className="text-sm text-base-content/60 font-semibold">
                 Expiring Soon
               </p>
               <p className="text-xl font-semibold text-base-content">
@@ -158,7 +158,7 @@ export default function LeaveBalanceDashboard({
 
         {/* Year Summary */}
         <div className="bg-white/50 border border-primary/40   rounded-xl p-4 shadow-sm">
-          <p className="text-xs text-base-content/60">
+          <p className="text-sm text-base-content/60 font-semibold">
             Leave Year Summary
           </p>
           <p className="text-xl font-semibold text-base-content ">

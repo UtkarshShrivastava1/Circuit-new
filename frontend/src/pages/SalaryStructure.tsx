@@ -41,9 +41,9 @@ export default function SalaryStructureDashboard() {
   
   const [salaryData, setSalaryData] = useState({
     basic: 0,
-    da: 0,
-    hra: 0,
-    special: 0,
+    // da: 0,
+    // hra: 0,
+    // special: 0,
     epf: 0,
     professionalTax: 0,
     customEarnings: [] as CustomRow[],
@@ -78,40 +78,65 @@ const handleGlobalSave = () => {
     }
   }, [auth.slug]);
 
+  // useEffect(() => {
+  //   const gross = monthlyGross > 0 ? monthlyGross : 0;
+
+  //   // Basic is 50% of Gross
+  //   const basic = gross * 0.5;
+
+  //   // HRA is 40% of Basic
+  //   const hra = basic * 0.4;
+
+  //   // Special Allowance is the remainder
+  //   const special = gross - basic - hra;
+
+  //   // EPF is 12% of Basic, capped at 15000 if limitPF is true
+  //   let epfContribution = 0;
+  //   if (limitPF && basic > 15000) {
+  //     epfContribution = 15000 * 0.12;
+  //   } else {
+  //     epfContribution = basic * 0.12;
+  //   }
+
+  //   // Professional Tax (simple slab for example)
+  //   const professionalTax = gross > 10000 ? 200 : 0;
+
+  //   setSalaryData(prev => ({
+  //     basic: Math.round(basic),
+  //     da: 0, // For future use
+  //     hra: Math.round(hra),
+  //     special: Math.round(special),
+  //     epf: Math.round(epfContribution),
+  //     professionalTax: Math.round(professionalTax),
+  //     customEarnings: prev.customEarnings || [],
+  //     customDeductions: prev.customDeductions || [],
+  //   }));
+  // }, [monthlyGross, limitPF]);
+
   useEffect(() => {
-    const gross = monthlyGross > 0 ? monthlyGross : 0;
+  const gross = monthlyGross > 0 ? monthlyGross : 0;
 
-    // Basic is 50% of Gross
-    const basic = gross * 0.5;
+  // Basic = full gross initially
+  const basic = gross;
 
-    // HRA is 40% of Basic
-    const hra = basic * 0.4;
+  let epfContribution = 0;
 
-    // Special Allowance is the remainder
-    const special = gross - basic - hra;
+  if (limitPF && basic > 15000) {
+    epfContribution = 15000 * 0.12;
+  } else {
+    epfContribution = basic * 0.12;
+  }
 
-    // EPF is 12% of Basic, capped at 15000 if limitPF is true
-    let epfContribution = 0;
-    if (limitPF && basic > 15000) {
-      epfContribution = 15000 * 0.12;
-    } else {
-      epfContribution = basic * 0.12;
-    }
+  const professionalTax = gross > 10000 ? 200 : 0;
 
-    // Professional Tax (simple slab for example)
-    const professionalTax = gross > 10000 ? 200 : 0;
-
-    setSalaryData(prev => ({
-      basic: Math.round(basic),
-      da: 0, // For future use
-      hra: Math.round(hra),
-      special: Math.round(special),
-      epf: Math.round(epfContribution),
-      professionalTax: Math.round(professionalTax),
-      customEarnings: prev.customEarnings || [],
-      customDeductions: prev.customDeductions || [],
-    }));
-  }, [monthlyGross, limitPF]);
+  setSalaryData((prev) => ({
+    basic: Math.round(basic),
+    epf: Math.round(epfContribution),
+    professionalTax: Math.round(professionalTax),
+    customEarnings: prev.customEarnings || [],
+    customDeductions: prev.customDeductions || [],
+  }));
+}, [monthlyGross, limitPF]);
 
   const handleSaveStructure = async () => {
     if (!selectedEmployeeId || monthlyGross <= 0) {
@@ -120,21 +145,38 @@ const handleGlobalSave = () => {
     }
 
     setGenerating(true);
-    const calculatedGross = 
-      salaryData.basic + 
-      salaryData.da + 
-      salaryData.hra + 
-      salaryData.special + 
-      salaryData.customEarnings.reduce((sum, item) => sum + item.amount, 0);
+    // const calculatedGross = 
+    //   salaryData.basic + 
+    //   salaryData.da + 
+    //   salaryData.hra + 
+    //   salaryData.special + 
+    //   salaryData.customEarnings.reduce((sum, item) => sum + item.amount, 0);
 
-    const payload = {
-      employeeId: selectedEmployeeId,
-      monthlyGross: calculatedGross > 0 ? calculatedGross : monthlyGross,
-      taxRegime: "new",
-      limitPF,
-      ...salaryData
-    };
+    const calculatedGross =
+  salaryData.basic +
+  salaryData.customEarnings.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+    // const payload = {
+    //   employeeId: selectedEmployeeId,
+    //   monthlyGross: calculatedGross > 0 ? calculatedGross : monthlyGross,
+    //   taxRegime: "new",
+    //   limitPF,
+    //   ...salaryData
+    // };
+const payload = {
+  employeeId: selectedEmployeeId,
+  monthlyGross: calculatedGross,
+  limitPF,
+  
+  basic: salaryData.basic,
+  epf: salaryData.epf,
+  professionalTax: salaryData.professionalTax,
 
+  customEarnings: salaryData.customEarnings,
+  customDeductions: salaryData.customDeductions,
+};
     try {
       // Important: Ensure this endpoint matches your admin.payroll.routes.js exactly
       await setStructure(auth.slug, payload);

@@ -125,9 +125,9 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
       className="max-w-[400px] group relative bg-base-100 rounded-xl shadow-md hover:shadow-lg border-2 border-primary/40 w-full overflow-hidden transition-all duration-200 flex flex-col cursor-pointer"
     >
       {/* Header */}
-      <div className="h-16 bg-primary/60  relative">
+      <div className="h-16 bg-primary  relative">
         <span
-          className={`absolute top-2 right-2 text-[9px] uppercase px-2 py-0.5 rounded-full font-semibold
+          className={`absolute top-2 right-2 text-[10px] uppercase px-3 py-1 rounded-full font-semibold
             ${
               member.status === "active"
                 ? "bg-success text-white"
@@ -164,7 +164,7 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
           {member.name}
         </h2>
 
-        <p className="text-sm text-base-content/60 truncate w-full text-center mb-2.5">
+        <p className="text-sm text-base-content truncate w-full text-center mb-2.5">
           {member.email}
         </p>
 
@@ -197,7 +197,7 @@ const MemberCard = ({ member, isAdmin, onDelete }: MemberCardProps) => {
                 e.stopPropagation();
                 onDelete?.(member._id);
               }}
-              className="flex-1 py-1.5 text-xs  font-bold bg-error/20 text-error rounded-lg hover:bg-error hover:text-error-content cursor-pointer mt-3.5"
+              className="flex-1 py-1.5 text-xs  font-bold bg-error text-white rounded-lg   cursor-pointer mt-3.5"
             >
               Delete
             </button>
