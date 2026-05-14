@@ -5,6 +5,7 @@ const { asyncHandler } = require('../middlewares/error.middleware.js');
 const { ValidationError, NotFoundError, ForbiddenError } = require('../utils/errors.js');
 const logger = require("../common/libs/logger.js");
 
+const PayrollConfig = require("../models/payrollConfigModel");
 // ============================================================================
 // 1. Generate Payroll (Single or Bulk)
 // ============================================================================
@@ -383,7 +384,86 @@ const downloadSalarySlipPDF = asyncHandler(async (req, res) => {
   doc.end();
 });
 
+
+
+
+
+// Get Payroll Config
+const getPayrollConfig = async (req, res) => {
+  try {
+    const organization = req.organization._id;
+
+    let config = await PayrollConfig.findOne({
+      organization,
+    });
+
+    // agar config exist nahi karta
+    if (!config) {
+      config = await PayrollConfig.create({
+        organization,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      config,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+// Create / Update Payroll Config
+const updatePayrollConfig = async (req, res) => {
+  try {
+    const organization = req.organization._id;
+
+    const {
+      basicPercent,
+    
+    } = req.body;
+
+    let config = await PayrollConfig.findOne({
+      organization,
+    });
+
+    if (!config) {
+      config = await PayrollConfig.create({
+        organization,
+        basicPercent,
+       
+      });
+    } else {
+      config.basicPercent = basicPercent;
+     
+
+      await config.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Payroll config updated",
+      config,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
+
 module.exports = {
+  getPayrollConfig,
+  updatePayrollConfig,
   generatePayroll,
   updatePayroll,
   approvePayroll,
@@ -391,5 +471,7 @@ module.exports = {
   getMyPayroll,
   getAllPayroll,
   getSalarySlipById,
-  downloadSalarySlipPDF
+  downloadSalarySlipPDF,
+  getPayrollConfig,
+  updatePayrollConfig
 };

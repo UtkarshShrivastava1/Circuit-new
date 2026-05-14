@@ -62,6 +62,7 @@
 // };
 
 import API from "../api/axios";
+import api from "./api";
 
 const BASE_PATH = "payroll";
 
@@ -160,4 +161,22 @@ export const downloadSlipPdf = async (
 
 export const getMyHistory = (slug: string) => {
   return API.get(`/${BASE_PATH}/${slug}/my-history`);
+};
+
+
+
+
+
+export const getPayrollConfig = async (slug: string) => {
+  return API.get(`/${BASE_PATH}/${slug}/config`);
+};
+
+export const updatePayrollConfig = async (
+  slug: string,
+  data: any
+) => {
+  return API.patch(
+    `/${BASE_PATH}/${slug}/config`,
+    data
+  );
 };
