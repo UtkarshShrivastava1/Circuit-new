@@ -405,6 +405,28 @@ type User = {
   id: string;
   name: string;
 };
+// function Section({
+//   icon,
+//   label,
+//   children,
+// }: {
+//   icon: React.ReactNode;
+//   label: string;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <div className="grid grid-cols-[22px_1fr] gap-x-3 gap-y-1">
+//       <div className="text-base-content mt-[2px]">{icon}</div>
+
+//       <p className="text-xs font-semibold uppercase tracking-wide text-base-content">
+//         {label}
+//       </p>
+
+//       <div />
+//       <div className="text-sm">{children}</div>
+//     </div>
+//   );
+// }
 function Section({
   icon,
   label,
@@ -415,19 +437,24 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[22px_1fr] gap-x-3 gap-y-1">
-      <div className="text-base-content mt-[2px]">{icon}</div>
+    <div className="grid grid-cols-[18px_1fr] sm:grid-cols-[22px_1fr] gap-x-2 sm:gap-x-3 gap-y-1">
+      
+      <div className="text-base-content mt-[2px] shrink-0">
+        {icon}
+      </div>
 
-      <p className="text-xs font-semibold uppercase tracking-wide text-base-content">
+      <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-wide text-base-content break-words">
         {label}
       </p>
 
       <div />
-      <div className="text-sm">{children}</div>
+
+      <div className="text-sm min-w-0">
+        {children}
+      </div>
     </div>
   );
 }
-
 export default function TaskDrawer({
   task,
   mode = "view",
@@ -778,5 +805,7 @@ export default function TaskDrawer({
         )}
       </div>
     </>
+ 
+ 
   );
 }

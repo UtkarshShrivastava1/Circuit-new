@@ -11,6 +11,7 @@ import {
   MdCalendarMonth,
   MdAssignment,
   MdMenuBook,
+  MdHistory,
 } from "react-icons/md";
 import { toast } from "react-toastify";
 
@@ -317,6 +318,7 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
         onChange={(tab) => setActiveTab(tab)}
         tabs={[
           { key: "requests", icon: MdAssignment },
+          { key: "history", icon: MdHistory },
           { key: "calendar", icon: MdCalendarMonth },
           { key: "policy", icon: MdMenuBook },
         ]}

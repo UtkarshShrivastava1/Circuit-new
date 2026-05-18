@@ -52,7 +52,7 @@ const STATUS_CONFIG = {
   rejected: {
     label :"rejected",
     icon : "",
-    className: "bg-error text-error border-error/30"
+    className: "bg-error text-white border-error/30"
   },
   
 

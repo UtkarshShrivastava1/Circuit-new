@@ -36,14 +36,14 @@ export default function LeaveRequestTable({
   );
 
   const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+    const date = new Date(dateString);
 
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
       setSelectedIds(requests.map((r) => r.id));
@@ -147,16 +147,17 @@ export default function LeaveRequestTable({
                       <span className="capitalize">{r.type}</span>
                     </td>
 
-                <td className="whitespace-nowrap">
-  <span className="font-medium">
-    {formatDate(r.fromDate)}
-  </span>
-  {r.toDate && (
-    <span className="font-medium">
-      {" "} - {formatDate(r.toDate)}
-    </span>
-  )}
-</td>
+                    <td className="whitespace-nowrap">
+                      <span className="font-medium">
+                        {formatDate(r.fromDate)}
+                      </span>
+                      {r.toDate && (
+                        <span className="font-medium">
+                          {" "}
+                          - {formatDate(r.toDate)}
+                        </span>
+                      )}
+                    </td>
 
                     <td>
                       <StatusBadge status={r.status} />
@@ -185,7 +186,7 @@ export default function LeaveRequestTable({
                             className={
                               r.status === "rejected"
                                 ? " cursor-not-allowed"
-                                : ""
+                                : "text-white"
                             }
                           >
                             Reject
@@ -225,15 +226,18 @@ export default function LeaveRequestTable({
               <div
                 onClick={() => onRowClick?.(r)}
                 key={r.id}
-                className="cursor-pointer bg-base-100 border border-base-300 rounded-xl p-4 space-y-3"
+                className="cursor-pointer bg-base-100 border border-primary/30 rounded-xl p-4 space-y-3 "
               >
                 <div className="flex justify-between items-start">
                   <div className="flex gap-3">
                     <input
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
                       type="checkbox"
                       checked={selectedIds.includes(r.id)}
                       onChange={(e) => handleSelectOne(e, r.id)}
-                      className="checkbox checkbox-sm mt-1"
+                      className="checkbox checkbox-sm mt-1 bg-primary/40 border-primary checkbox-primary  "
                     />
                     <div>
                       <p className="font-semibold">{r.employee}</p>
@@ -248,20 +252,22 @@ export default function LeaveRequestTable({
                 </div>
 
                 <div className="text-sm">
-                 <span className="font-medium">
-  {formatDate(r.fromDate)}
-</span>
-{r.toDate && (
-  <span className="text-base-content/60">
-    {" "}→ {formatDate(r.toDate)}
-  </span>
-)}
+                  <span className="font-medium">{formatDate(r.fromDate)}</span>
+                  {r.toDate && (
+                    <span className="font-medium">
+                      {" "}
+                      → {formatDate(r.toDate)}
+                    </span>
+                  )}
                 </div>
 
                 {mode === "action" && (
-                  <div className="flex w-full gap-4 pt-2">
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex w-full gap-4 pt-2"
+                  >
                     <Button
-                      className={`flex-1 ${r.status === "approved" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`flex-1 ${r.status === "approved" ? "opacity-80 text-base-content/50 cursor-not-allowed" : "text-white"}`}
                       size="sm"
                       variant="primary"
                       onClick={(e) => {
@@ -274,7 +280,7 @@ export default function LeaveRequestTable({
                     </Button>
 
                     <Button
-                      className={`flex-1 ${r.status === "rejected" ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`flex-1 ${r.status === "rejected" ? "opacity-80 text-base-content/50 cursor-not-allowed" : "text-white"}`}
                       size="sm"
                       variant="error"
                       onClick={(e) => {

@@ -26,7 +26,12 @@ router.delete(
   tenant,
   taskController.deleteTask,
 );
-
+router.get(
+  "/:slug/getTasks",
+  auth,
+  tenant,
+  taskController.getTasks
+);
 router.get("/:slug/getTasks/:projectId", auth, tenant, taskController.getTasks);
 // All tasks (dashboard)
 router.get("/:slug/getTasks", auth, tenant, taskController.getTasks);

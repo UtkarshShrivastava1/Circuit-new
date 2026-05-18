@@ -2,7 +2,6 @@
 // import { useEffect, useMemo, useState } from "react";
 // import TaskStatusSelect from "../projects/TaskStatusSelect";
 
-
 // interface MemberTaskProps {
 //   memberId: string;
 // }
@@ -86,7 +85,7 @@
 //   };
 
 //   const editTask = (taskId: string) => {
-   
+
 //     const task = tasks.find((t) => t.id === taskId);
 //     if (!task) return;
 //     setNewTask({
@@ -97,7 +96,6 @@
 //     setEditingTaskId(taskId);
 //     setShowForm(true);
 //   };
-
 
 //   const deleteTask = (taskId: string) => {
 //     setTasks((prev) =>
@@ -114,7 +112,7 @@
 //           t.id === editingTaskId
 //             ? {
 //                 ...t,
-//                 title: newTask.title, 
+//                 title: newTask.title,
 //                 description: newTask.description,
 //                 dueDate: newTask.dueDate,
 //               }
@@ -133,13 +131,12 @@
 //       status: "pending",
 //       assignee: "John Doe",
 //     };
-  
+
 //     setTasks((prev) => [task, ...prev]);
 //   }
 //     setShowForm(false);
 //     setNewTask({ title: "", description: "", dueDate: "" });
 //   };
-  
 
 //   /* ================= SUMMARY ================= */
 //   const summary = useMemo(
@@ -321,13 +318,16 @@
 
 // export default MemberTask;
 
-
-
-
 import type { Task } from "@/type/task";
 import { useEffect, useMemo, useState } from "react";
 import TaskStatusSelect from "../projects/TaskStatusSelect";
 import { MdDelete, MdEdit } from "react-icons/md";
+import API from "@/api/axios";
+import { useAuth } from "@/auth/AuthContext";
+import NewTaskModal from "../projects/NewTaskModal";
+import TaskDrawer from "../task/TaskDrawer";
+import { toast } from "react-toastify";
+
 
 interface MemberTaskProps {
   memberId: string;
@@ -357,54 +357,82 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
 
   /* ================= FETCH TASKS ================= */
 
+  // useEffect(() => {
+  //   const fetchTasks = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const data: Task[] = [
+  //         {
+  //           id: "1",
+  //           projectId: "p1",
+  //           title: "Design Dashboard",
+  //           status: "pending",
+  //           assignee: "John Doe",
+  //           description: "Create wireframes and mockups.",
+  //           dueDate: new Date().toISOString(),
+  //         },
+  //         {
+  //           id: "2",
+  //           projectId: "p1",
+  //           title: "Fix API Bug",
+  //           status: "in-progress",
+  //           assignee: "John Doe",
+  //           description: "Fix timeout issue.",
+  //           dueDate: new Date().toISOString(),
+  //         },
+  //         {
+  //           id: "3",
+  //           projectId: "p2",
+  //           title: "Deploy App",
+  //           status: "completed",
+  //           assignee: "John Doe",
+  //           description: "Deploy to production.",
+  //           dueDate: new Date().toISOString(),
+  //         },
+  //       ];
+
+  //       setTasks(data);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchTasks();
+  // }, [memberId]);
+
+  const { auth } = useAuth();
+  const slug = auth?.slug;
+  const userId = auth?.user?.userId;
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+  const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
   useEffect(() => {
     const fetchTasks = async () => {
       setLoading(true);
-      try {
-        const data: Task[] = [
-          {
-            id: "1",
-            projectId: "p1",
-            title: "Design Dashboard",
-            status: "pending",
-            assignee: "John Doe",
-            description: "Create wireframes and mockups.",
-            dueDate: new Date().toISOString(),
-          },
-          {
-            id: "2",
-            projectId: "p1",
-            title: "Fix API Bug",
-            status: "in-progress",
-            assignee: "John Doe",
-            description: "Fix timeout issue.",
-            dueDate: new Date().toISOString(),
-          },
-          {
-            id: "3",
-            projectId: "p2",
-            title: "Deploy App",
-            status: "completed",
-            assignee: "John Doe",
-            description: "Deploy to production.",
-            dueDate: new Date().toISOString(),
-          },
-        ];
 
-        setTasks(data);
+      try {
+        const { data } = await API.get(`/tasks/${slug}/getTasks`);
+
+        if (data.success) {
+          setTasks(data.data);
+        }
+      } catch (err) {
+        console.error("Fetch tasks error", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTasks();
+    if (memberId) {
+      fetchTasks();
+    }
   }, [memberId]);
-
   /* ================= ACTIONS ================= */
 
   const updateTaskStatus = (taskId: string, status: TaskStatus) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status } : t))
+      prev.map((t) => (t.id === taskId ? { ...t, status } : t)),
     );
   };
 
@@ -422,44 +450,59 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
     setShowForm(true);
   };
 
-  const deleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
-  };
-
-  const addTask = () => {
-    if (!newTask.title) return;
-
-    if (editingTaskId) {
-      setTasks((prev) =>
-        prev.map((t) =>
-          t.id === editingTaskId
-            ? {
-                ...t,
-                title: newTask.title,
-                description: newTask.description,
-                dueDate: newTask.dueDate,
-              }
-            : t
-        )
+const handleDeleteTask = async (task: Task) => {
+    try {
+      const res = await API.delete(
+        `/tasks/${auth.slug}/deleteTask/${task.projectId}/${task._id}`,
       );
-      setEditingTaskId(null);
-    } else {
-      const task: Task = {
-        id: crypto.randomUUID(),
-        projectId: "p1",
-        title: newTask.title,
-        description: newTask.description,
-        dueDate: newTask.dueDate,
-        status: "pending",
-        assignee: "John Doe",
-      };
 
-      setTasks((prev) => [task, ...prev]);
+      if (res.data.success) {
+        setTasks((prev) => prev.filter((t) => t._id !== task._id));
+
+        toast.success("Task deleted");
+        setSelectedTask(null);
+      }
+    } catch (error) {
+      console.error("Delete task error:", error);
+      toast.error("Failed to delete task");
     }
-
-    setShowForm(false);
-    setNewTask({ title: "", description: "", dueDate: "" });
   };
+
+
+  // const addTask = () => {
+  //   if (!newTask.title) return;
+
+  //   if (editingTaskId) {
+  //     setTasks((prev) =>
+  //       prev.map((t) =>
+  //         t.id === editingTaskId
+  //           ? {
+  //               ...t,
+  //               title: newTask.title,
+  //               description: newTask.description,
+  //               dueDate: newTask.dueDate,
+  //             }
+  //           : t,
+  //       ),
+  //     );
+  //     setEditingTaskId(null);
+  //   } else {
+  //     const task: Task = {
+  //       id: crypto.randomUUID(),
+  //       projectId: "p1",
+  //       title: newTask.title,
+  //       description: newTask.description,
+  //       dueDate: newTask.dueDate,
+  //       status: "pending",
+  //       assignee: "John Doe",
+  //     };
+
+  //     setTasks((prev) => [task, ...prev]);
+  //   }
+
+  //   setShowForm(false);
+  //   setNewTask({ title: "", description: "", dueDate: "" });
+  // };
 
   /* ================= SUMMARY ================= */
 
@@ -478,29 +521,25 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
         total: tasks.filter((t) => t.status === "completed").length,
       },
     ],
-    [tasks]
+    [tasks],
   );
 
   /* ================= FILTER ================= */
 
   const filteredTasks = useMemo(
     () => tasks.filter((t) => t.status === activeStatus),
-    [tasks, activeStatus]
+    [tasks, activeStatus],
   );
 
   return (
     <div className="p-4 w-full text-base-content">
-
       <h2 className="text-xl font-semibold mb-4">Tasks</h2>
 
       {/* SUMMARY */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         {summary.map((item) => (
-          <div
-            key={item.title}
-            className="bg-base-100 p-4 rounded-lg border"
-          >
+          <div key={item.title} className="bg-base-100 p-4 rounded-lg border">
             <h3 className="font-medium">{item.title}</h3>
             <p className="text-sm opacity-70">{item.total}</p>
           </div>
@@ -510,7 +549,6 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
       {/* TABS + ADD */}
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-
         <div className="flex flex-wrap gap-2">
           {STATUS_TABS.map((tab) => (
             <button
@@ -525,9 +563,15 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
           ))}
         </div>
 
-        <button
+        {/* <button
           className="btn btn-sm btn-primary w-full sm:w-auto"
           onClick={() => setShowForm(true)}
+        >
+          + Add Task
+        </button> */}
+        <button
+          className="btn btn-sm btn-primary w-full sm:w-auto"
+          onClick={() => setShowTaskModal(true)}
         >
           + Add Task
         </button>
@@ -535,146 +579,117 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
 
       {/* FORM */}
 
-      {showForm && (
-        <div className="bg-base-100 p-4 mb-4 rounded-lg border space-y-3">
-
-          <input
-            className="input input-sm input-bordered border-2 w-full placeholder:text-base-content/70"
-            placeholder="Task title"
-            value={newTask.title}
-            onChange={(e) =>
-              setNewTask({ ...newTask, title: e.target.value })
-            }
-          />
-
-          <textarea
-            className="textarea textarea-sm textarea-bordered border-2 w-full placeholder:text-base-content/70"
-            placeholder="Description"
-            value={newTask.description}
-            onChange={(e) =>
-              setNewTask({ ...newTask, description: e.target.value })
-            }
-          />
-
-          <input
-            type="date"
-            className="input input-sm input-bordered border-2 w-full sm:w-60"
-            value={newTask.dueDate}
-            onChange={(e) =>
-              setNewTask({ ...newTask, dueDate: e.target.value })
-            }
-          />
-
-          <div className="flex gap-2 flex-wrap">
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={addTask}
-            >
-              Save
-            </button>
-
-            <button
-              className="btn btn-sm btn-ghost"
-              onClick={() => setShowForm(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+      {showTaskModal && (
+        <NewTaskModal
+          onClose={() => setShowTaskModal(false)}
+          projectId={undefined}
+          userId={userId}
+          hideAssignee
+          onCreate={(task) => {
+            setTasks((prev) => [task as Task, ...prev]);
+          }}
+        />
       )}
 
       {/* DESKTOP TABLE */}
 
       <div className="hidden md:block overflow-x-auto rounded-lg">
-
         {loading ? (
-         <div className="flex flex-col justify-center items-center h-screen bg-base-100 rounded-lg ">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
-      </div>
+          <div className="flex flex-col justify-center items-center h-screen bg-base-100 rounded-lg ">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <p className="mt-4 text-lg font-medium text-base-content/70">
+              Loading...
+            </p>
+          </div>
         ) : filteredTasks.length === 0 ? (
           <p>No {activeStatus} tasks</p>
         ) : (
           <table className="table w-full border border-primary/60 rounded-lg">
-
-            <thead className="bg-primary/60 text-primary-content border-primary/60 rounded-lg">
+            <thead className="bg-primary text-primary-content border-primary/60 rounded-lg">
               <tr>
-                <th>Title</th>
-                <th>Description</th>
+                {/* <th>Title</th> */}
+                <th>Task</th>
                 <th>Status</th>
                 <th>Due</th>
                 <th>Actions</th>
               </tr>
             </thead>
 
-            <tbody >
+            <tbody>
               {filteredTasks.map((task) => (
-                <tr key={task.id} className="border border-primary/60 text-base-content/80">
-
+                <tr
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setDrawerMode("view");
+                  }}
+                  key={task.id}
+                  className="border border-primary/60 text-base-content/80"
+                >
                   <td>{task.title}</td>
-
-                  <td>{task.description}</td>
 
                   <td>
                     <TaskStatusSelect
                       value={task.status}
-                      onChange={(s) =>
-                        updateTaskStatus(task.id, s)
-                      }
+                      onChange={(s) => updateTaskStatus(task.id, s)}
                     />
                   </td>
 
-                  <td>
-                    {new Date(task.dueDate).toLocaleDateString("en-IN")}
-                  </td>
+                  <td>{new Date(task.dueDate).toLocaleDateString("en-IN")}</td>
 
                   <td>
                     <div className="flex gap-2">
                       <button
                         className="btn btn-xs btn-success text-base-100"
-                        onClick={() => editTask(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          setSelectedTask(task);
+                          setDrawerMode("edit");
+                        }}
                       >
-                      <MdEdit size={16} />
+                        <MdEdit size={16} />
                       </button>
 
                       <button
                         className="btn btn-xs btn-error text-base-100"
-                        onClick={() => deleteTask(task.id)}
+                        onClick={(e) => {
+    e.stopPropagation();
+    handleDeleteTask(task);
+  }}
                       >
-                       <MdDelete size={16} />
+                        <MdDelete size={16} />
                       </button>
                     </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>
-
           </table>
         )}
       </div>
 
       {/* MOBILE CARDS */}
 
-      <div className="md:hidden space-y-3">
-
+      <div
+        onClick={() => {
+          setSelectedTask(task);
+          setDrawerMode("view");
+        }}
+        className="md:hidden space-y-3"
+      >
         {filteredTasks.map((task) => (
           <div
-            key={task.id}
+            key={task._id}
             className="bg-base-100 p-4 rounded-lg border space-y-2"
           >
             <h3 className="font-semibold">{task.title}</h3>
 
-            <p className="text-sm opacity-70">
-              {task.description}
-            </p>
+            <p className="text-sm opacity-70">{task.description}</p>
 
             <div className="flex justify-between items-center">
               <TaskStatusSelect
                 value={task.status}
-                onChange={(s) =>
-                  updateTaskStatus(task.id, s)
-                }
+                onChange={(s) => updateTaskStatus(task._id, s)}
               />
 
               <span className="text-sm">
@@ -685,22 +700,38 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
             <div className="flex gap-2">
               <button
                 className="btn btn-xs btn-success text-base-100"
-                onClick={() => editTask(task.id)}
+                onClick={() => editTask(task._id)}
               >
                 <MdEdit size={16} />
               </button>
 
               <button
                 className="btn btn-xs btn-error text-base-100"
-                onClick={() => deleteTask(task.id)}
+                onClick={(e) => {
+    e.stopPropagation();
+    handleDeleteTask(task);
+  }}
               >
                 <MdDelete size={16} />
               </button>
             </div>
           </div>
         ))}
-
       </div>
+      {selectedTask && (
+        <TaskDrawer
+          task={selectedTask}
+          mode={drawerMode}
+          onClose={() => setSelectedTask(null)}
+          onUpdate={(updatedTask) => {
+            setTasks((prev) =>
+              prev.map((t) => (t._id === updatedTask._id ? updatedTask : t)),
+            );
+
+            setSelectedTask(updatedTask);
+          }}
+        />
+      )}
     </div>
   );
 };

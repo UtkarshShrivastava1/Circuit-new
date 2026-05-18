@@ -322,7 +322,7 @@ export default function ProfileSidebar({ member, onUpdate }: Props) {
       <div className="bg-base-100 border border-base-300 rounded-xl shadow-md overflow-hidden">
 
         {/* COVER */}
-        <div className="relative h-28 bg-primary/30 rounded-t-xl">
+        <div className="relative h-28 bg-primary rounded-t-xl">
           <button
             onClick={isEditing ? handleSave : handleEditToggle}
             className="cursor-pointer absolute top-3 right-3 bg-base-100 text-base-content p-2 rounded-full shadow"
