@@ -341,7 +341,7 @@ export default function TaskDashboard() {
           onCreate={async () => {
             await fetchTasks();
             setOpen(false);
-            toast.success("Task created");
+            
           }}
         />
       )}

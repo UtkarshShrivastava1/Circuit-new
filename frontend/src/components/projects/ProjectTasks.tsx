@@ -450,7 +450,7 @@ const canDelete =
           tags: t.tag || [],
           attachments: t.attachments || [],
           subtasks: t.subtasks || [],
-        }));
+        }));-
 
         setTasks(formattedTasks);
       } catch (err) {
@@ -543,13 +543,13 @@ const canDelete =
         ) : (
           <div className="overflow-x-auto rounded-lg">
             <table className="table min-w-[600px] border border-base-300 rounded-lg">
-              <thead className="bg-primary text-primary-content">
-                <tr className="">
+              <thead className="bg-primary text-primary-content ">
+                <tr className="divide-x divide-white/20">
                   <th>Task</th>
                   <th>Assignee</th>
                   <th>Status</th>
                   <th>Due</th>
-                  <th className="text-right">Action</th>
+                  <th className="">Action</th>
                 </tr>
               </thead>
 
@@ -557,7 +557,7 @@ const canDelete =
                 {paginatedData.map((task) => (
                   <tr
                     key={task.id}
-                    className="text-base-content hover:bg-base-300 cursor-pointer"
+                    className="text-base-content hover:bg-base-300 cursor-pointer divide-x divide-primary/10"
                     onClick={() =>
                       setSelectedTask({ ...task, isEditing: false })
                     }
@@ -581,7 +581,7 @@ const canDelete =
                     </td>
 
                     <td
-                      className="text-right"
+                      className=""
                       onClick={(e) => e.stopPropagation()}
                     >
                       {canEditTask && (

@@ -29,6 +29,15 @@ type AttendanceTab = "records" | "summary" | "mark";
 type Status = "all" | "approved" | "pending" | "absent";
 
 const AdminAttendance = () => {
+  const getLocalISODate = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
   const { auth } = useAuth();
   const user = auth?.user;
 
@@ -45,8 +54,8 @@ const AdminAttendance = () => {
   //   fromDate?: string;
   //   toDate?: string;
   // }>({});
-  const todayISO = new Date().toISOString().split("T")[0];
-
+  // const todayISO = new Date().toISOString().split("T")[0];
+  const todayISO = getLocalISODate();
   const todayDate = new Date();
 
   const [summaryFilters, setSummaryFilters] = useState({
@@ -54,6 +63,7 @@ const AdminAttendance = () => {
     year: todayDate.getFullYear(),
     name: "",
   });
+
   const { month, year } = summaryFilters;
 
   const [filters, setFilters] = useState<{
@@ -65,7 +75,8 @@ const AdminAttendance = () => {
     toDate: todayISO,
   });
   console.log("Current filters state:", filters);
-
+  console.log(todayISO);
+  console.log(filters);
   const [records, setRecords] = useState<
     (AttendanceRecord & {
       attendanceDocId: string;
@@ -190,7 +201,9 @@ const AdminAttendance = () => {
     // 🔹 Records API (unchanged)
     getAttendance(slug, filters)
       .then((res) => {
+        console.log("API RESPONSE", res.data);
         const responseData = res.data?.data || res.data || [];
+
         const arr = Array.isArray(responseData) ? responseData : [];
 
         const formattedRecords = [];
@@ -314,28 +327,28 @@ const AdminAttendance = () => {
   }, [attendanceData]);
 
   const filteredRecords = useAttendanceFilters(records, filters, statusFilter);
- const formatDate = (date: Date) =>
-  date.toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
-const todayRecords = records.filter((record) => {
-  const today = new Date().toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const todayRecords = records.filter((record) => {
+    const today = new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
-  return record.date === today;
-});
-console.log("Records for today:", todayRecords);
-console.log("TODAY:", formatDate(new Date()));
-console.log(
-  "RECORD DATES:",
-  filteredRecords.map((r) => r.date)
-);
+    return record.date === today;
+  });
+  console.log("Records for today:", todayRecords);
+  console.log("TODAY:", formatDate(new Date()));
+  console.log(
+    "RECORD DATES:",
+    filteredRecords.map((r) => r.date),
+  );
 
   if (loading) {
     return <div className="p-6 text-center">Loading attendance...</div>;

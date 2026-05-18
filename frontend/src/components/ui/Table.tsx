@@ -7,10 +7,10 @@ interface TableProps {
 
 export default function Table({ headers, children }: TableProps) {
   return (
-    <div className="overflow-x-auto rounded-lg">
-      <table className="table table-zebra w-full border-2 border-primary/40 rounded-lg ">
-        <thead className="rounded-lg ">
-          <tr className="bg-primary text-md text-primary-content uppercase">
+    <div className="overflow-x-auto   rounded-lg border border-primary/30 overflow-hidden">
+      <table className="table table-zebra w-full ">
+        <thead className="">
+          <tr className="bg-primary  text-md text-primary-content uppercase divide-x divide-white/20 ">
             {headers.map((h,i) => (
                 <th key={i}>{h}</th> 
             ))}
