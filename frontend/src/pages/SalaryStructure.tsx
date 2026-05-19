@@ -6,7 +6,7 @@ import StatutorySettingsCard from "@/components/salary/StatutorySettingsCard";
 import SalarySlipPreview from "@/components/salary/SalarySlipPreview";
 import { useAuth } from "@/auth/AuthContext";
 // import { getAllEmployees } from "@/services/attendanceService";
-import { setStructure, getStructure } from "@/services/payrollService";
+import { setStructure } from "@/services/payrollService";
 // import api from "@/services/api";
 import { toast } from "react-toastify";
 import { MdCurrencyRupee } from "react-icons/md";
@@ -32,7 +32,6 @@ export default function SalaryStructureDashboard() {
   const { auth } = useAuth();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [fetchingStructure, setFetchingStructure] = useState(false);
   const [generating, setGenerating] = useState(false);
 
   // Form State
@@ -40,9 +39,6 @@ export default function SalaryStructureDashboard() {
   const [monthlyGross, setMonthlyGross] = useState(0);
   const [limitPF, setLimitPF] = useState(true);
   
-  // Controls whether the calculation effect should run (prevents overwriting fetched data)
-  const [autoCalculate, setAutoCalculate] = useState(false);
-
   const [salaryData, setSalaryData] = useState({
     basic: 0,
     da: 0,
@@ -60,18 +56,11 @@ const [globalConfig, setGlobalConfig] = useState({
 });
 
 const handleGlobalChange = (key, value) => {
-  setGlobalConfig(prev => ({ ...prev, [key]: Number(value) }));
+  setGlobalConfig(prev => ({ ...prev, [key]: value }));
 };
 
-const handleGlobalSave = async () => {
-  try {
-    // TODO: Create and uncomment this function in your payrollService
-    // await saveGlobalPayoutConfig(auth.slug, globalConfig);
-    toast.success("Global payout configuration saved successfully!");
-  } catch (error) {
-    console.error("Failed to save global config", error);
-    toast.error("Failed to save global configuration.");
-  }
+const handleGlobalSave = () => {
+  console.log(globalConfig);
 };
   useEffect(() => {
     if (auth.slug) {
@@ -89,64 +78,17 @@ const handleGlobalSave = async () => {
     }
   }, [auth.slug]);
 
-  // Fetch existing structure when an employee is selected
   useEffect(() => {
-    if (!selectedEmployeeId || !auth.slug) {
-      setMonthlyGross(0);
-      return;
-    }
-
-    const fetchExistingStructure = async () => {
-      try {
-        setFetchingStructure(true);
-        // Pause auto-calculation so we don't overwrite the fetched custom data
-        setAutoCalculate(false);
-        
-        const res = await getStructure(auth.slug, selectedEmployeeId);
-        const existingStructure = res.data?.data || res.data;
-
-        if (existingStructure) {
-          setMonthlyGross(existingStructure.monthlyGross || 0);
-          setLimitPF(existingStructure.limitPF ?? true);
-          
-          setSalaryData({
-            basic: existingStructure.basic || 0,
-            da: existingStructure.da || 0,
-            hra: existingStructure.hra || 0,
-            special: existingStructure.special || 0,
-            epf: existingStructure.epf || 0,
-            professionalTax: existingStructure.professionalTax || 0,
-            customEarnings: existingStructure.customEarnings || [],
-            customDeductions: existingStructure.customDeductions || [],
-          });
-        }
-      } catch (error) {
-        console.log("No existing structure found or failed to fetch. Starting fresh.");
-        setMonthlyGross(0);
-      } finally {
-        setFetchingStructure(false);
-      }
-    };
-
-    fetchExistingStructure();
-  }, [selectedEmployeeId, auth.slug]);
-
-  useEffect(() => {
-    if (!autoCalculate) return; // Skip auto-calculation if we just fetched existing data
-
     const gross = monthlyGross > 0 ? monthlyGross : 0;
 
-    // Basic is dynamic % of Gross
-    const basic = gross * (globalConfig.basic / 100);
+    // Basic is 50% of Gross
+    const basic = gross * 0.5;
 
-    // HRA is dynamic % of Basic
-    const hra = basic * (globalConfig.hra / 100);
-
-    // DA is dynamic % of Basic
-    const da = basic * (globalConfig.da / 100);
+    // HRA is 40% of Basic
+    const hra = basic * 0.4;
 
     // Special Allowance is the remainder
-    const special = gross - basic - hra - da;
+    const special = gross - basic - hra;
 
     // EPF is 12% of Basic, capped at 15000 if limitPF is true
     let epfContribution = 0;
@@ -161,7 +103,7 @@ const handleGlobalSave = async () => {
 
     setSalaryData(prev => ({
       basic: Math.round(basic),
-      da: Math.round(da),
+      da: 0, // For future use
       hra: Math.round(hra),
       special: Math.round(special),
       epf: Math.round(epfContribution),
@@ -169,7 +111,7 @@ const handleGlobalSave = async () => {
       customEarnings: prev.customEarnings || [],
       customDeductions: prev.customDeductions || [],
     }));
-  }, [monthlyGross, limitPF, autoCalculate, globalConfig]);
+  }, [monthlyGross, limitPF]);
 
   const handleSaveStructure = async () => {
     if (!selectedEmployeeId || monthlyGross <= 0) {
@@ -255,12 +197,16 @@ const handleGlobalSave = async () => {
         {/* LEFT SIDE - CONFIGURATION */}
         <div className="w-full md:w-1/3 lg:w-1/4 space-y-6">
           {/* <div className="bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit"> */}
-          <div className="bg-base-200 border border-base-300 rounded-2xl p-6 shadow-sm space-y-4 h-fit">
+          <div className="bg-base-100 border border-primary rounded-2xl p-6 shadow-sm space-y-4 h-fit">
             <h3 className="text-lg font-semibold text-base-content">
               Configure Salary
             </h3>
             
-            <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)} className="w-full text-base-content" disabled={loading}>
+            <Select value={selectedEmployeeId} onChange={(e) => setSelectedEmployeeId(e.target.value)}  className={`w-full transition-all duration-200 text-base-content ${
+    selectedEmployeeId
+      ? "bg-primary/10 border-primary"
+      : "border-primary/30"
+  }`} disabled={loading}>
               <option value="">{loading ? "Loading..." : "Choose employee"}</option>
               {employees.map((emp) => (
                 <option key={emp._id} value={emp._id}>
@@ -275,11 +221,8 @@ const handleGlobalSave = async () => {
                 type="number"
                 placeholder="Enter Monthly Gross"
                 value={monthlyGross || ""}
-                onChange={(e) => {
-                  setMonthlyGross(Number(e.target.value));
-                  setAutoCalculate(true); // User is manually typing, trigger the math!
-                }}
-                className="w-full placeholder:text-base-content/60 text-base-content pl-8"
+                onChange={(e) => setMonthlyGross(Number(e.target.value))}
+                className="w-full placeholder:text-base-content/60 text-base-content border-primary/30 focus:ring-primary/50 "
               />
             </div>
           </div>

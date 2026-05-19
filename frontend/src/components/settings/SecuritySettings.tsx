@@ -68,7 +68,7 @@ const SecuritySettings = () => {
         placeholder="Current Password"
         value={form.currentPassword}
         onChange={handleChange}
-        className="input input-bordered w-full"
+        className="input input-bordered border w-full"
       />
 
       <input
@@ -77,7 +77,7 @@ const SecuritySettings = () => {
         placeholder="New Password"
         value={form.newPassword}
         onChange={handleChange}
-        className="input input-bordered w-full"
+        className="input input-bordered border w-full"
       />
 
       <input
@@ -86,7 +86,7 @@ const SecuritySettings = () => {
         placeholder="Confirm Password"
         value={form.confirmPassword}
         onChange={handleChange}
-        className="input input-bordered w-full"
+        className="input input-bordered border w-full"
       />
 
       {error && (

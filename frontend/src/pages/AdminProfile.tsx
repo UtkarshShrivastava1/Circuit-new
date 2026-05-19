@@ -5,6 +5,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { getMemberById } from '@/services/memberService';
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import type { Member } from "@/type/member";
+import MemberRightSection from '@/components/members/MemberRightSection';
 
 const AdminProfile = () => {
 
@@ -43,7 +44,8 @@ const AdminProfile = () => {
       <Breadcrumbs />
       <div className='flex flex-col md:flex-row gap-6'>
         <ProfileSidebar member={admin} />
-        <AdminRightSection adminId={admin._id || admin.id } />
+               <MemberRightSection memberId={id} />
+       
       </div>
     </div>
   )

@@ -8,7 +8,7 @@ export default function Breadcrumbs() {
   if (pathnames.length === 0) return null;
 
   return (
-    <nav className="flex text-sm text-base-content/70 mb-2" aria-label="Breadcrumb">
+    <nav className="flex text-sm font-semibold text-base-content/70 mb-2" aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-3">
         <li className="inline-flex items-center">
           <Link to="/" className="inline-flex items-center hover:text-primary transition-colors">
@@ -31,7 +31,7 @@ export default function Breadcrumbs() {
               <div className="flex items-center">
                 <MdChevronRight size={18} className="mx-1 opacity-50" />
                 {last ? (
-                  <span className="capitalize font-medium text-base-content" aria-current="page">
+                  <span className="capitalize  font-semibold text-base-content" aria-current="page">
                     {displayTitle}
                   </span>
                 ) : (

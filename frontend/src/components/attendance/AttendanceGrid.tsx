@@ -173,7 +173,8 @@
 // }
 
 import React, { useMemo } from "react";
-
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 interface Employee {
   id: string;
   name: string;
@@ -195,6 +196,8 @@ interface Props {
   year: number;
 }
 
+
+
 export default function AttendanceGrid({
   employees,
   attendanceData,
@@ -211,6 +214,39 @@ export default function AttendanceGrid({
   };
 
   const todayISO = formatLocalDate(today);
+  const exportToExcel = () => {
+  const sheetData: any[] = [];
+
+  employees.forEach((emp) => {
+    const row: any = {
+      Name: emp.name,
+      Code: emp.code,
+    };
+
+    days.forEach((d) => {
+      const status = attendanceMap[`${emp.id}_${d.fullDate}`];
+      row[`${d.date}-${d.day}`] = getLabel(status);
+    });
+
+    sheetData.push(row);
+  });
+
+  const worksheet = XLSX.utils.json_to_sheet(sheetData);
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
+
+  const data = new Blob([excelBuffer], {
+    type: "application/octet-stream",
+  });
+
+  saveAs(data, `attendance_${month + 1}_${year}.xlsx`);
+};
 
   /* ================= DAYS ================= */
   const days = useMemo(() => {
@@ -274,10 +310,22 @@ export default function AttendanceGrid({
   };
 
   return (
-    <div className="w-full overflow-auto border border-base-300 rounded-xl mt-6 bg-base-100">
-      <table className="min-w-max border-collapse table-fixed">
+    <div className="w-full p-4">
+     <div className="flex justify-between items-center mb-3">
+    <h2 className="text-lg font-semibold">Attendance Sheet</h2>
+
+    <button
+      onClick={exportToExcel}
+      className="btn btn-primary"
+    >
+      Export Excel
+    </button>
+  </div>
+    <div className="w-full overflow-auto  mt-6 rounded-xl border border-primary/50">
+      
+      <table className="min-w-max border-collapse table-fixed rounded-xl">
         {/* HEADER */}
-        <thead>
+        <thead className="rounded-xl">
           <tr className="bg-primary text-primary-content ">
             <th className="sticky left-0 z-20 bg-primary px-3 py-4 text-left min-w-[250px] align-middle">
               <div className="flex items-center h-full">
@@ -349,6 +397,7 @@ export default function AttendanceGrid({
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 }

@@ -436,7 +436,7 @@ const WorkUpdate = ({
           <table className="min-w-[800px] w-full text-sm ">
             {/* HEADER */}
             <thead>
-              <tr className="bg-primary/80 text-xs uppercase text-primary-content">
+              <tr className="bg-primary text-xs uppercase text-primary-content">
                 <th className="py-3 px-4 text-left">Project</th>
                 <th className="py-3 px-4 text-left">Description</th>
                 <th className="py-3 px-4 text-left">User</th>

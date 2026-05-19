@@ -64,7 +64,7 @@ export default function LeaveStats({ requests }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-blue-300 p-4 rounded-2xl">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-primary p-4 rounded-2xl">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
 

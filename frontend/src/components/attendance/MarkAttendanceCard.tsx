@@ -139,6 +139,15 @@ const submitAttendance = () => {
       toast.error("Failed to submit attendance");
     });
 };
+const statusStyles: Record<AttendanceStatus, string> = {
+  "not-marked": "",
+  pending:
+    "bg-warning/50 border-warning/60 text-warning-content",
+  approved:
+    "bg-success/50 border-success/60 text-success-content",
+  rejected:
+    "bg-error/50 border-error/60 text-error-content",
+};
 return (
   <div className="w-full max-w-3xl bg-white/60 border border-base-300 rounded-2xl p-6 shadow-sm">
 
@@ -154,7 +163,7 @@ return (
 
     {/* TIME */}
     <div className="text-center mb-6">
-      <p className="text-sm font-medium text-base-content/90">Check-in time</p>
+      <p className="text-md font-medium text-base-content/90">Check-in time</p>
       <p className="text-4xl font-bold tracking-wide mt-1">
         {timeNow}
       </p>
@@ -222,11 +231,14 @@ return (
         {loadingStatus ? "Checking Status..." : "Submit Attendance"}
       </Button>
     ) : (
-      <div className="p-4 rounded-xl bg-base-200 text-center border border-base-300">
+      <div  className={`
+    p-4 rounded-xl text-center border
+    ${statusStyles[status]}
+  `}>
         <p className="font-medium capitalize">
           Attendance is {status}
         </p>
-        <p className="text-xs text-base-content/60 mt-1">
+        <p className="text-xs font-medium text-base-content mt-1">
           View details in Records tab
         </p>
       </div>

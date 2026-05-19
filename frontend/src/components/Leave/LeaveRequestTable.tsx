@@ -99,7 +99,7 @@ export default function LeaveRequestTable({
       <div className="hidden md:block bg-base-100 border border-primary/35 rounded-lg overflow-hidden">
         <table className="table table-zebra w-full text-base-content ">
           <thead>
-            <tr className="bg-primary/60 text-primary-content">
+            <tr className="bg-primary text-primary-content">
               <th>Employee</th>
               <th>Leave Type</th>
               <th>Dates</th>

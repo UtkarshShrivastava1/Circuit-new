@@ -252,7 +252,7 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
   };
 
   return (
-    <div className="max-w-2xl bg-base-200 border border-primary/20 rounded-2xl shadow-sm p-6">
+    <div className="max-w-2xl bg-primary/30 border border-primary/20 rounded-2xl shadow-sm p-6">
       {/* <h2 className="text-sm font-semibold text-primary mb-5">
         Submit Work Update
       </h2> */}
@@ -261,7 +261,7 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
 
         {/* PROJECT */}
         <div>
-          <label className="text-xs font-bold text-base-content/70 mb-1 block">
+          <label className="text-sm font-semibold text-base-content/70 mb-1.5 ml-1 block">
             Project
           </label>
 
@@ -270,7 +270,7 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
     value={selectedProjectId}
     onChange={(e) => setSelectedProjectId(e.target.value)}
     className="w-full appearance-none px-4 py-3 pr-12 text-sm rounded-xl 
-    border border-base-300 bg-base-100 text-base-content/60
+    border border-base-300 bg-base-100 text-base-content/80
     focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40
     transition-all duration-200"
   >
@@ -302,7 +302,7 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
 
         {/* DESCRIPTION */}
         <div>
-          <label className="text-xs font-bold text-base-content/70 mb-1 block">
+          <label className="text-sm font-semibold text-base-content/70 mb-1.5 ml-1 block">
             Work Description
           </label>
 
@@ -311,17 +311,17 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What did you work on today?"
             rows={5}
-            className="w-full px-4 py-3 text-sm rounded-xl border border-base-300 bg-base-100 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30  transition placeholder:text-base-content/60"
+            className="w-full px-4 py-3 text-sm rounded-xl border border-base-300 bg-base-100 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30  transition placeholder:text-base-content/80"
           />
         </div>
 
         {/* FILE UPLOAD */}
         <div>
-          <label className="text-xs font-bold text-base-content/70 mb-2 block">
+          <label className="text-sm font-semibold text-base-content/70 mb-1.5 ml-1 block">
             Attachments
           </label>
 
-          <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 text-center hover:border-primary/40 transition">
+          <div className="border-2 bg-base-100 border-dashed border-primary/30 rounded-xl p-4 text-center hover:border-primary/50 transition">
             <input
               ref={fileInputRef}
               type="file"
@@ -333,7 +333,7 @@ const WorkUpdateForm = ({ slug }: WorkUpdateFormProps) => {
 
             <label
               htmlFor="fileUpload"
-              className="cursor-pointer text-sm text-base-content/70"
+              className="cursor-pointer text-sm text-base-content/80"
             >
               Click to upload files or drag & drop
             </label>

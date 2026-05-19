@@ -522,8 +522,8 @@ const canDelete =
   return (
     <>
       {/* TASK LIST */}
-      <div className="bg-base-200 border border-base-content/10 rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-base-300 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+      <div className="rounded-lg overflow-hidden">
+        <div className="p-4  border-base-300 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 ">
           <h3 className="font-semibold text-base-content">Tasks</h3>
 
           {canEditTask && (
@@ -541,10 +541,10 @@ const canDelete =
             No Tasks Found
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="table min-w-[600px]">
-              <thead>
-                <tr className="text-base-content/60">
+          <div className="overflow-x-auto rounded-lg">
+            <table className="table min-w-[600px] border border-base-300 rounded-lg">
+              <thead className="bg-primary text-primary-content">
+                <tr className="">
                   <th>Task</th>
                   <th>Assignee</th>
                   <th>Status</th>
@@ -568,6 +568,7 @@ const canDelete =
                     <td onClick={(e) => e.stopPropagation()}>
                      
                         <TaskStatusSelect
+                        
                           value={task.status}
                           onChange={(s) => updateTaskStatus(task.id, s)}
                           disabled={auth.user?.role === "employee"}

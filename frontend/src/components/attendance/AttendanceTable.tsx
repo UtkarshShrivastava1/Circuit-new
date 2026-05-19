@@ -105,8 +105,8 @@ export default function AttendanceTable({
   };
 
   return (
-    <div className="bg-base-100  rounded-lg overflow-hidden text-sm scale-[0.98]">
-      <div className="overflow-x-auto">
+    <div className="bg-base-100  rounded-lg overflow-hidden text-sm scale-[0.98] ">
+      <div className="overflow-x-auto rounded-lg">
         {/* ✅ Bulk Action Bar (ADMIN ONLY) */}
         {isAdmin && selectedIds.length > 0 && (
           <div className="sticky bottom-0 z-10 bg-base-200 border-t border-base-300 px-3 py-2 text-sm flex justify-between items-center">
