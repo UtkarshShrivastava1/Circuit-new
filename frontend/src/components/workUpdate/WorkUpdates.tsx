@@ -436,7 +436,7 @@ const WorkUpdate = ({
           <table className="min-w-[800px] w-full text-sm ">
             {/* HEADER */}
             <thead>
-              <tr className="bg-primary text-xs uppercase text-primary-content">
+              <tr className="bg-primary text-md uppercase text-primary-content">
                 <th className="py-3 px-4 text-left">Project</th>
                 <th className="py-3 px-4 text-left">Description</th>
                 <th className="py-3 px-4 text-left">User</th>
@@ -451,7 +451,7 @@ const WorkUpdate = ({
               {updates.map((item) => (
                 <tr
                   key={item._id}
-                  className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content/80"
+                  className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content text-sm"
                 >
                   {/* Project */}
                   <td className="py-3 px-4 font-medium">
@@ -482,21 +482,21 @@ const WorkUpdate = ({
                             key={i}
                             href={file}
                             target="_blank"
-                            className="text-xs px-2 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition"
+                            className=" px-2 py-1 rounded-md bg-primary/10 hover:bg-primary/20 transition"
                           >
                             File {i + 1}
                           </a>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-xs text-base-content/80">
+                      <span className=" text-base-content">
                         No files
                       </span>
                     )}
                   </td>
 
                   {/* Date */}
-                  <td className="py-3 px-4 text-xs text-base-content/80 whitespace-nowrap">
+                  <td className="py-3 px-4  text-base-content whitespace-nowrap">
                     {new Date(item.createdAt).toLocaleString("en-GB", {
                       day: "2-digit",
                       month: "short",

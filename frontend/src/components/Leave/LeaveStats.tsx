@@ -75,7 +75,7 @@ export default function LeaveStats({ requests }: Props) {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-base-content/60">
+                <p className="text-sm text-base-content/60 font-medium">
                   {stat.title}
                 </p>
                 <p className="text-xl text-base-content font-semibold">

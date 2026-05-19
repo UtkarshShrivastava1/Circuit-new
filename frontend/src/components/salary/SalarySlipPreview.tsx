@@ -9,9 +9,7 @@ export interface CustomRow {
 
 interface SalaryBreakdown {
   basic: number;
-  da: number;
-  hra: number;
-  special: number;
+  
   epf: number;
   professionalTax: number;
   customEarnings?: CustomRow[];
@@ -43,12 +41,12 @@ export default function SalarySlipPreview({
   const parse = (value: any) => Number(value) || 0;
 
   const salarySummary = useMemo(() => {
-    const gross =
-      parse(data.basic) +
-      parse(data.da) +
-      parse(data.hra) +
-      parse(data.special) +
-      (data.customEarnings || []).reduce((sum, item) => sum + parse(item.amount), 0);
+   const gross =
+    parse(data.basic) +
+    (data.customEarnings || []).reduce(
+      (sum, item) => sum + parse(item.amount),
+      0
+    );
 
     const totalDeductions =
       parse(data.epf) +
@@ -71,7 +69,7 @@ export default function SalarySlipPreview({
           <h2 className="text-lg font-semibold text-base-content">
             Pro-forma Salary Slip
           </h2>
-          <p className="text-xs text-base-content/60">
+          <p className="text-xs text-base-content">
             Salary breakdown preview
           </p>
         </div>
@@ -94,7 +92,7 @@ export default function SalarySlipPreview({
             <SalaryRow label="Basic Salary" amount={data.basic} editable={editable} onChange={(v) => onChange?.("basic", v)} />
           </div>
 
-          <div className="py-2">
+          {/* <div className="py-2">
             <SalaryRow label="Dearness Allowance" amount={data.da} editable={editable} onChange={(v) => onChange?.("da", v)} />
           </div>
 
@@ -104,7 +102,7 @@ export default function SalarySlipPreview({
 
           <div className="py-2">
             <SalaryRow label="Special Allowance" amount={data.special} editable={editable} onChange={(v) => onChange?.("special", v)} />
-          </div>
+          </div> */}
 
           {data.customEarnings?.map(row => (
             <div className="py-2" key={row.id}>

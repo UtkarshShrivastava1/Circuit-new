@@ -1,7 +1,8 @@
 
-import { useState, type ReactNode } from "react";
+import { useEffect,useRef,  useState, type ReactNode } from "react";
 import Header from "./Header";
 import ERPSidebar from "./Sidebar";
+import { useLocation } from "react-router-dom";
 
 
 interface Props {
@@ -10,6 +11,16 @@ interface Props {
 
 export default function AppLayout({ children }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+   const scrollRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+
+ useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }, [location.pathname]);
 
   return (
     <div className="flex h-screen bg-base-100 overflow-hidden">

@@ -204,7 +204,7 @@ const AddMember = () => {
         // className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
         className="w-full max-w-4xl bg-primary/40 p-5 rounded-xl shadow-sm space-y-6 border"
       >
-        <h2 className="text-xl text-center text-primary-content font-semibold">
+        <h2 className="text-2xl font-bold text-center text-primary-content ">
           Employee Onboarding
         </h2>
 

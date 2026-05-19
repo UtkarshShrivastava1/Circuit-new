@@ -345,12 +345,15 @@ type Task = {
   tags?: Tag[];
   attachments?: File[];
   checklist?: ChecklistItem[];
+  
 };
 
 interface Props {
   onClose: () => void;
   onCreate: (task: Task) => void;
   projectId?: string;
+  userId?: string;
+  hideAssignee?: boolean;
 }
 
 type User = {
@@ -369,12 +372,17 @@ export default function NewTaskModal({
   onClose,
   onCreate,
   projectId,
+  userId,
+  hideAssignee 
 }: Props) {
   const { auth } = useAuth();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [assignee, setAssignee] = useState<User | null>(null);
+  // const [assignee, setAssignee] = useState<User | null>(null);
+ const [assignee, setAssignee] = useState<User | null>(
+      userId ? { id: userId, name: "" } : null
+);
   const [assignees, setAssignees] = useState<User[]>([]);
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<Priority>("medium");
@@ -561,13 +569,24 @@ export default function NewTaskModal({
             maxLength={100}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <AssigneeSelect
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"> */}
+          <div
+  className={`grid gap-3 sm:gap-4 ${
+    userId ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
+  }`}
+>
+            {/* <AssigneeSelect
               users={assignees}
               value={assignee ?? undefined}
               onChange={setAssignee}
-            />
-
+            /> */}
+           {!hideAssignee && (
+  <AssigneeSelect
+    users={assignees}
+    value={assignee ?? undefined}
+    onChange={setAssignee}
+  />
+)}
             <DateField value={dueDate} onChange={setDueDate} />
           </div>
 

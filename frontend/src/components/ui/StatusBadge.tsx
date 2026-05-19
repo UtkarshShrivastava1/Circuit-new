@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
   absent: {
     label: "Absent",
     icon: "",
-    className: "bg-error/20 text-error border-error/30",
+    className: "bg-error text-white border-error/30",
   },
   present: {
     label: "Present",
@@ -37,12 +37,12 @@ const STATUS_CONFIG = {
   paid: {
     label: "Paid",
     icon: "",
-    className: "bg-success/20 text-success border-success/30",
+    className: "bg-success text-white border-success/30",
   },
   unpaid: {
     label: "Unpaid",
     icon: "",
-    className: "bg-error/20 text-error border-error/30",
+    className: "bg-error text-white border-error/30",
   },
   generated: {
     label :"Generate",
@@ -52,7 +52,7 @@ const STATUS_CONFIG = {
   rejected: {
     label :"rejected",
     icon : "",
-    className: "bg-error/20 text-error border-error/30"
+    className: "bg-error text-white border-error/30"
   },
   
 

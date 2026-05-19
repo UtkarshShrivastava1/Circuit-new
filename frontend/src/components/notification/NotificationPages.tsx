@@ -73,15 +73,15 @@ export default function NotificationPage({
               }`}
             >
               <div className="flex justify-between items-start mb-1 gap-2">
-                <h4 className={`font-bold text-lg truncate ${isUnread ? "text-base-content" : "text-base-content/80"}`}>
+                <h4 className={`font-bold text-lg truncate ${isUnread ? "text-base-content" : "text-base-content"}`}>
                   {n.title}
                 </h4>
                 {isUnread && <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />}
               </div>
-              <p className="text-md text-base-content/70 line-clamp-2 leading-relaxed">
+              <p className="text-md text-base-content line-clamp-2 leading-relaxed">
                 {n.message}
               </p>
-              <p className="text-[13px] text-base-content/70 mt-3 font-medium uppercase tracking-wider">
+              <p className="text-[13px] text-base-content mt-3 font-medium uppercase tracking-wider">
                 {new Date(n.createdAt).toLocaleDateString("en-IN", {
                   day: "numeric", month: "short", year: "numeric"
                 })}

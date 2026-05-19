@@ -120,15 +120,30 @@ const downloadSalarySlipPDF = asyncHandler(async (req, res) => {
   let currentY = doc.y;
   drawLine(currentY);
   currentY += 15;
-  drawRow(currentY, 'Basic Salary', slip.basicSalary);
-  currentY += 20;
-  drawRow(currentY, 'Allowances', slip.allowances);
-  currentY += 20;
-  drawRow(currentY, 'Bonus', slip.bonus);
-  currentY += 20;
+  // drawRow(currentY, 'Basic Salary', slip.basicSalary);
+  // currentY += 20;
+  // drawRow(currentY, 'Allowances', slip.allowances);
+  // currentY += 20;
+  // drawRow(currentY, 'Bonus', slip.bonus);
+  // currentY += 20;
+  drawRow(currentY, 'Basic Salary', payroll.earnings.basic);
+
+currentY += 20;
+drawRow(currentY, 'Dearness Allowance', payroll.earnings.da);
+
+currentY += 20;
+drawRow(currentY, 'HRA', payroll.earnings.hra);
+
+currentY += 20;
+drawRow(currentY, 'Special Allowance', payroll.earnings.specialAllowance);
   drawLine(currentY);
   currentY += 10;
-  const grossSalary = slip.basicSalary + slip.allowances + slip.bonus;
+  // const grossSalary = slip.basicSalary + slip.allowances + slip.bonus;
+  const grossSalary =
+  payroll.earnings.basic +
+  payroll.earnings.da +
+  payroll.earnings.hra +
+  payroll.earnings.specialAllowance;
   doc.font('Helvetica-Bold').text('Gross Earnings', descriptionX, currentY);
   doc.text(`₹ ${grossSalary.toLocaleString()}`, amountX, currentY, { align: 'right' });
   currentY += 25;
@@ -139,12 +154,23 @@ const downloadSalarySlipPDF = asyncHandler(async (req, res) => {
   currentY = doc.y;
   drawLine(currentY);
   currentY += 15;
-  drawRow(currentY, 'Standard Deductions', slip.deductions);
+  // drawRow(currentY, 'Standard Deductions', slip.deductions);
+  drawRow(currentY, 'EPF', payroll.deductions.epfEmployee);
+
+currentY += 20;
+drawRow(currentY, 'Professional Tax', payroll.deductions.professionalTax);
+
+currentY += 20;
+drawRow(currentY, 'TDS', payroll.deductions.tds);
   currentY += 20;
   drawLine(currentY);
   currentY += 10;
+  const totalDeductions =
+  payroll.deductions.epfEmployee +
+  payroll.deductions.professionalTax +
+  payroll.deductions.tds;
   doc.font('Helvetica-Bold').text('Total Deductions', descriptionX, currentY);
-  doc.text(`₹ ${slip.deductions.toLocaleString()}`, amountX, currentY, { align: 'right' });
+  doc.text(`₹ ${totalDeductions.toLocaleString()}`, amountX, currentY, { align: 'right' });
   currentY += 30;
 
   // Net Salary

@@ -163,7 +163,7 @@ export default function AttendanceTable({
                     <input
                       type="checkbox"
                       className="checkbox checkbox-sm border-white border-2 rounded
-                      bg-white   checked:bg-primary checked:border-primary"
+                      bg-white   checked:bg-white checked:border-primary"
                       checked={allSelected}
                       disabled={selectableRecords.length === 0}
                       onChange={toggleSelectAll}
@@ -184,17 +184,17 @@ export default function AttendanceTable({
             </tr>
           ) : (
             paginatedRecords.map((r) => (
-              <tr key={r.id} className="text-base-content text-xs">
+              <tr className="divide-x divide-primary/10 text-base-content text-sm " key={r.id} >
                 {/* ✅ Checkbox only for admin */}
 
-                <td>{r.employee}</td>
-                <td>{r.date}</td>
-                <td>{r.checkIn}</td>
+                <td >{r.employee}</td>
+                <td >{r.date}</td>
+                <td  >{r.checkIn}</td>
 
-                <td>
+                <td >
                   <StatusBadge status={r.status} />
                 </td>
-                <td className="capitalize">{r.mode}</td>
+                <td className=" capitalize">{r.mode}</td>
 
                 {/* ✅ Action column only for admin */}
                 {isAdmin && (
@@ -250,8 +250,8 @@ export default function AttendanceTable({
                   <td className="w-10">
                     <input
                       type="checkbox"
-                      className="checkbox 
-                      bg-white checkbox-xs rounded border-2 checked:bg-primary checked:border-primary"
+                      className=" checkbox 
+                      bg-white checkbox-xs rounded border-2 checked:bg-white checked:border-primary"
                       checked={selectedIds.includes(r.id)}
                       disabled={r.status !== "pending"}
                       onChange={() => toggleSelect(r.id)}

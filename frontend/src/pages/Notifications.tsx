@@ -118,7 +118,7 @@ export default function Notifications() {
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-semibold">Notifications</h1>
+          <h1 className="text-xl md:text-2xl font-semibold">Notifications</h1>
 
           {["admin", "owner"].includes(currentUserRole) && (
             <Button

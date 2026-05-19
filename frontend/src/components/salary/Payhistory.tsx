@@ -79,7 +79,11 @@ export default function Payhistory() {
 
   return (
     <div className="space-y-6 text-base-content">
-       <PageHeader title={"Payroll History"} subtitle={"Overview"} />
+      
+       <div>
+       <h1 className="text-base-content text-2xl font-medium">Payroll History</h1>
+       <h3 className="text-md">Overview</h3>
+       </div>
       <div className="flex gap-4 mb-4 items-center bg-base-100 p-4 rounded-xl shadow-sm border border-base-300">
         <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-48">
           {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -121,7 +125,7 @@ export default function Payhistory() {
           </tbody>
         </table>
 
-        <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} />
+        {/* <Pagination totalPages={totalPages} currentPage={currentPage} onPageChange={setCurrentPage} /> */}
 
         {totalPages > 1 && (
           <div className="flex justify-between items-center p-4 bg-base-100 border-t border-base-300">

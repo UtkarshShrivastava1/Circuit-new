@@ -31,7 +31,7 @@ const getEmployeePayrollStats = asyncHandler(async (req, res) => {
 // ✅ POST: Calculate and set salary structure for an employee
 const calculateAndSetSalary = asyncHandler(async (req, res) => {
 
-  const { employeeId, monthlyGross, taxRegime, limitPF } = req.body;
+  const { employeeId, monthlyGross, taxRegime, limitPF, customEarnings, customDeductions } = req.body;
   logger.info("Calculating salary structure with payload", { employeeId, monthlyGross, taxRegime, limitPF });
   const organizationId = req.organization?._id || req.organization || req.user?.organization;
 
@@ -54,23 +54,25 @@ const calculateAndSetSalary = asyncHandler(async (req, res) => {
 
 
   // Default standards fallback
-  const bPct = (policy?.payrollSettings?.basicPercent || 50) / 100;
-  const hPct = (policy?.payrollSettings?.hraPercent || 20) / 100;
-  const dPct = (policy?.payrollSettings?.daPercent || 10) / 100;
+  // const bPct = (policy?.payrollSettings?.basicPercent || 50) / 100;
+  // const hPct = (policy?.payrollSettings?.hraPercent || 20) / 100;
+  // const dPct = (policy?.payrollSettings?.daPercent || 10) / 100;
 
-  const basic = monthlyGross * bPct;
-  const da = basic * dPct;
-  const hra = basic * hPct;
-  const specialAllowance = monthlyGross - (basic + da + hra);
+  // const basic = monthlyGross * bPct;
+  // const da = basic * dPct;
+  // const hra = basic * hPct;
+  // const specialAllowance = monthlyGross - (basic + da + hra);
 
+const basic = monthlyGross;
   // 3. EPF Calculation (12% of Basic + DA)
-  let pfBasis = basic + da;
+  let pfBasis = basic ;
   if (limitPF && pfBasis > 15000) pfBasis = 15000; // Statutory Ceiling
   const epfEmployee = pfBasis * 0.12;
   const epfEmployer = pfBasis * 0.12;
 
   // 4. Gratuity Provision
-  const gratuityProvision = (basic + da) / 26 * 15 / 12;
+  // const gratuityProvision = (basic + da) / 26 * 15 / 12;
+  const gratuityProvision = basic / 26 * 15 / 12;
 
   // 5. TDS Estimation
   const annualTaxable = (monthlyGross * 12) - 75000;
@@ -85,9 +87,11 @@ const calculateAndSetSalary = asyncHandler(async (req, res) => {
   const payrollData = {
     organization: organizationId,
     employeeId,
+    customEarnings: customEarnings || [],
+customDeductions: customDeductions || [],
     ctc: monthlyGross + epfEmployer + gratuityProvision,
     grossSalary: monthlyGross,
-    earnings: { basic, da, hra, specialAllowance },
+    earnings: { basic },
     deductions: { epfEmployee, tds: monthlyTds, professionalTax: 200 },
     statutory: { epfEmployer, gratuityProvision },
     netSalary,

@@ -47,8 +47,14 @@ const {
   downloadSalarySlip,
   getMySalaryHistory,
   updateCompanyPayrollPolicy,
-  getCompanyPayrollPolicy
+  getCompanyPayrollPolicy,
+  
+
 } = require('../controllers/admin.payroll.controller');
+const{
+  getPayrollConfig,
+  updatePayrollConfig
+}=require('../controllers/payroll.controller');
 const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
 
@@ -86,4 +92,8 @@ router.get('/:slug/slip/:slipId/download', auth, tenant, downloadSalarySlip);
 // --- Employee Self-Service Route ---
 router.get('/:slug/my-history', auth, tenant, getMySalaryHistory);
 
+
+
+router.get('/:slug/config', auth, tenant, getPayrollConfig);
+router.patch('/:slug/config', auth, tenant, updatePayrollConfig);
 module.exports = router;

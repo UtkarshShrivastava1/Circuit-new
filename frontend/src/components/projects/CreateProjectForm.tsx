@@ -37,7 +37,7 @@ const CreateProjectForm: React.FC<Props> = ({
     >
       {/* Project Name */}
       <div>
-        <label className="block mb-1 text-base-content/70 text-sm ">
+        <label className="block mb-1 text-base-content/70 font-medium text-sm ">
           Project Name
         </label>
         <input
@@ -53,7 +53,7 @@ const CreateProjectForm: React.FC<Props> = ({
 
       {/* Project State */}
       <div>
-        <label className="block mb-1 text-base-content/70 text-sm ">
+        <label className="block mb-1 text-base-content/70 font-medium text-sm ">
           Project State
         </label>
         <select
@@ -79,7 +79,7 @@ const CreateProjectForm: React.FC<Props> = ({
       {/* Dates */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 text-base-content/70 text-sm ">
+          <label className="block mb-1 text-base-content/70 font-medium text-sm ">
             Start Date
           </label>
           <input
@@ -94,7 +94,7 @@ const CreateProjectForm: React.FC<Props> = ({
         </div>
 
         <div>
-          <label className="block mb-1 text-base-content/70 text-sm ">
+          <label className="block mb-1 text-base-content/70 font-medium text-sm ">
             End Date
           </label>
           <input
@@ -111,7 +111,7 @@ const CreateProjectForm: React.FC<Props> = ({
 
       {/* Domain */}
       <div>
-        <label className="block mb-1 text-base-content/70 text-sm ">
+        <label className="block mb-1 text-base-content/70 font-medium text-sm ">
           Project Domain
         </label>
         {/* <select
@@ -190,7 +190,7 @@ const CreateProjectForm: React.FC<Props> = ({
 
       {/* Description */}
       <div>
-        <label className="block mb-1 text-base-content/70 text-sm ">
+        <label className="block mb-1 text-base-content/70 font-medium text-sm ">
           Description
         </label>
         <textarea

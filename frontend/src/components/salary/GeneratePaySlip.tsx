@@ -110,8 +110,8 @@ export default function GeneratePaySlip() {
           <MdReceipt size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-base-content">Generate Payslips</h1>
-          <p className="text-sm text-base-content/60">Process monthly payroll for your organization</p>
+          <h1 className="text-2xl font-medium text-base-content">Generate Payslips</h1>
+          <p className="text-md text-base-content">Process monthly payroll for your organization</p>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ export default function GeneratePaySlip() {
             <h3 className="text-sm font-bold text-base-content/80 uppercase tracking-wider mb-2 flex items-center gap-2">
               <MdAttachMoney size={18} /> Salary Override
             </h3>
-            <p className="text-xs text-base-content/50 mb-4 leading-relaxed">
+            <p className="text-xs text-base-content mb-4 leading-relaxed">
               Leave blank to automatically use each employee's configured salary structure.
             </p>
             <Input
@@ -162,7 +162,7 @@ export default function GeneratePaySlip() {
           <div className="bg-primary/10 p-6 rounded-2xl border border-primary shadow-sm flex flex-col items-center text-center">
             <h3 className="text-sm font-semibold text-primary/80 uppercase tracking-wider mb-2">Ready to Process</h3>
             <div className="text-4xl font-black text-primary mb-1">{selectedEmployees.length}</div>
-            <p className="text-sm text-base-content/60 mb-6">Employees Selected</p>
+            <p className="text-sm text-base-content mb-6">Employees Selected</p>
             
             <Button variant="primary" className="w-full py-3 h-auto text-sm font-bold shadow-md hover:shadow-lg transition-all" onClick={handleGenerate} disabled={loading || selectedEmployees.length === 0}>
               {loading ? "Generating..." : "Run Payroll Batch"}
