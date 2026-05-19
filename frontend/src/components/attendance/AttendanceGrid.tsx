@@ -309,27 +309,139 @@ export default function AttendanceGrid({
     if (status === "WFH") return "W";
   };
 
-  return (
-    <div className="w-full p-4">
-     <div className="flex justify-between items-center mb-3">
-    <h2 className="text-lg font-semibold">Attendance Sheet</h2>
+  // return (
+  //   <div className="w-full p-4">
+  //    <div className="flex justify-between items-center mb-3">
+  //   <h2 className="text-lg font-semibold">Attendance Sheet</h2>
 
-    <button
-      onClick={exportToExcel}
-      className="btn btn-primary"
-    >
-      Export Excel
-    </button>
-  </div>
-    <div className="w-full overflow-auto  mt-6 rounded-xl border border-primary/50">
+  //   <button
+  //     onClick={exportToExcel}
+  //     className="btn btn-primary"
+  //   >
+  //     Export Excel
+  //   </button>
+  // </div>
+  //   <div className="w-full overflow-auto  mt-6 rounded-xl border border-primary/50">
       
-      <table className="min-w-max border-collapse table-fixed rounded-xl">
+  //     <table className="min-w-max border-collapse table-fixed rounded-xl">
+  //       {/* HEADER */}
+  //       <thead className="rounded-xl">
+  //         <tr className="bg-primary text-primary-content ">
+  //           <th className="sticky left-0 z-20 bg-primary px-3 py-4 text-left min-w-[250px] align-middle">
+  //             <div className="flex items-center h-full">
+  //               <span className="font-semibold">STAFF MEMBER</span>
+  //             </div>
+  //           </th>
+
+  //           {days.map((d) => {
+  //             const isToday = d.fullDate === todayISO;
+
+  //             return (
+  //               <th
+  //                 key={d.date}
+  //                 className={` text-center min-w-[48px]
+  //           ${isToday ? "bg-red-500 text-white" : ""}
+  //         `}
+  //               >
+  //                 <div className="flex flex-col items-center justify-center h-full"> 
+  //                   <span className="text-sm font-semibold">{d.date}</span>
+  //                   <span className="text-xs opacity-80">{d.day}</span>
+  //                 </div>
+  //               </th>
+  //             );
+  //           })}
+  //         </tr>
+  //       </thead>
+
+  //       {/* BODY */}
+  //       <tbody>
+  //         {employees.map((emp) => (
+  //           <tr
+  //             key={emp.id}
+  //             className="hover:bg-base-200/30 transition-colors duration-200"
+  //           >
+  //             {/* LEFT COLUMN */}
+  //             <td className="sticky left-0 bg-base-100 z-10 border border-base-200 px-4 py-3 shadow-sm">
+  //               <div className="flex items-center gap-3">
+  //                 <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+  //                   {emp.name.charAt(0)}
+  //                 </div>
+  //                 <div>
+  //                   <p className="font-semibold text-primary">{emp.name}</p>
+  //                   <p className="text-xs text-base-content/60">{emp.code}</p>
+  //                 </div>
+  //               </div>
+  //             </td>
+
+  //             {/* CELLS */}
+  //             {days.map((d) => {
+  //               const status = attendanceMap[`${emp.id}_${d.fullDate}`];
+
+  //               const isSunday = d.day === "Sun";
+  //               const isToday = d.fullDate === todayISO;
+
+  //               return (
+  //                 <td
+  //                   key={d.date}
+  //                   className={`w-12 h-12 text-center text-sm border border-base-300
+                  
+  //                     ${isToday ? "border-2 border-red-400 font-semibold" : ""}
+  //                     ${getStatusStyle(status)}
+  //                   `}
+  //                 >
+  //                   {getLabel(status)}
+  //                 </td>
+  //               );
+  //             })}
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+  //   </div>
+  //   </div>
+  // );
+
+
+
+return (
+  <div className="w-full p-2 sm:p-4">
+    {/* TOP SECTION */}
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+      <h2 className="text-lg font-semibold">Attendance Sheet</h2>
+
+      <button
+        onClick={exportToExcel}
+        className="btn btn-primary btn-sm sm:btn-md w-full sm:w-auto"
+      >
+        Export Excel
+      </button>
+    </div>
+
+    {/* TABLE WRAPPER */}
+   <div
+  className="
+    w-full overflow-x-auto
+    rounded-xl border border-primary/50
+    bg-base-100
+    [-webkit-overflow-scrolling:touch]
+  "
+>
+      <table className="min-w-max  border-collapse ">
         {/* HEADER */}
-        <thead className="rounded-xl">
-          <tr className="bg-primary text-primary-content ">
-            <th className="sticky left-0 z-20 bg-primary px-3 py-4 text-left min-w-[250px] align-middle">
+        <thead>
+          <tr className="bg-primary text-primary-content">
+            <th
+              className="
+                sticky left-0 z-20 bg-primary
+                px-2 sm:px-3 py-4
+                text-left align-middle
+            w-[140px] min-w-[140px] sm:w-[220px] sm:min-w-[220px]
+              "
+            >
               <div className="flex items-center h-full">
-                <span className="font-semibold">STAFF MEMBER</span>
+       <span className="font-semibold text-[10px] sm:text-base whitespace-nowrap">
+                  STAFF MEMBER
+                </span>
               </div>
             </th>
 
@@ -339,13 +451,19 @@ export default function AttendanceGrid({
               return (
                 <th
                   key={d.date}
-                  className={` text-center min-w-[48px]
-            ${isToday ? "bg-red-500 text-white" : ""}
-          `}
+                  className={`
+                    text-center min-w-[48px] py-2
+                    ${isToday ? "bg-red-500 text-white" : ""}
+                  `}
                 >
-                  <div className="flex flex-col items-center justify-center h-full"> 
-                    <span className="text-sm font-semibold">{d.date}</span>
-                    <span className="text-xs opacity-80">{d.day}</span>
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <span className="text-xs sm:text-sm font-semibold">
+                      {d.date}
+                    </span>
+
+                    <span className="text-[10px] sm:text-xs opacity-80">
+                      {d.day}
+                    </span>
                   </div>
                 </th>
               );
@@ -361,14 +479,37 @@ export default function AttendanceGrid({
               className="hover:bg-base-200/30 transition-colors duration-200"
             >
               {/* LEFT COLUMN */}
-              <td className="sticky left-0 bg-base-100 z-10 border border-base-200 px-4 py-3 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold">
+              <td
+                className="
+                  sticky left-0 z-10
+                  bg-base-100
+                  border border-base-200
+                  px-2 sm:px-4 py-3
+                 w-[220px] min-w-[220px]
+                  shadow-sm
+                "
+              >
+                <div className="flex items-center gap-2 ">
+                  <div
+                    className="
+                      w-8 h-8 sm:w-10 sm:h-10
+                      rounded-full
+                      bg-primary/10 text-primary
+                      flex items-center justify-center
+                      font-semibold text-sm
+                    "
+                  >
                     {emp.name.charAt(0)}
                   </div>
-                  <div>
-                    <p className="font-semibold text-primary">{emp.name}</p>
-                    <p className="text-xs text-base-content/60">{emp.code}</p>
+
+                  <div className="min-w-0">
+                    <p className="font-semibold text-primary text-xs sm:text-base truncate">
+                      {emp.name}
+                    </p>
+
+                    <p className="hidden sm:block  sm:text-xs text-base-content/60 truncate">
+                      {emp.code}
+                    </p>
                   </div>
                 </div>
               </td>
@@ -377,14 +518,15 @@ export default function AttendanceGrid({
               {days.map((d) => {
                 const status = attendanceMap[`${emp.id}_${d.fullDate}`];
 
-                const isSunday = d.day === "Sun";
                 const isToday = d.fullDate === todayISO;
 
                 return (
                   <td
                     key={d.date}
-                    className={`w-12 h-12 text-center text-sm border border-base-300
-                  
+                    className={`
+                   w-8 h-8 sm:w-12 sm:h-12
+                      text-center text-xs sm:text-sm
+                      border border-base-300
                       ${isToday ? "border-2 border-red-400 font-semibold" : ""}
                       ${getStatusStyle(status)}
                     `}
@@ -398,6 +540,7 @@ export default function AttendanceGrid({
         </tbody>
       </table>
     </div>
-    </div>
-  );
+  </div>
+);
+
 }

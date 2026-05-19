@@ -56,7 +56,7 @@ export default function EditTaskModal({
         {/* HEADER */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-base-300">
           <h3 className="text-lg font-semibold text-base-content">
-            Edit Task
+            Edit Task 
           </h3>
 
           <button

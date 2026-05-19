@@ -230,6 +230,7 @@ export default function LeaveRequestTable({
               >
                 <div className="flex justify-between items-start">
                   <div className="flex gap-3">
+                    {mode=="action" &&(
                     <input
                       onClick={(e) => {
                         e.stopPropagation();
@@ -238,7 +239,7 @@ export default function LeaveRequestTable({
                       checked={selectedIds.includes(r.id)}
                       onChange={(e) => handleSelectOne(e, r.id)}
                       className="checkbox checkbox-sm mt-1 bg-primary/40 border-primary checkbox-primary  "
-                    />
+                    />)}
                     <div>
                       <p className="font-semibold">{r.employee}</p>
                       <div className="flex items-center gap-2 text-sm text-base-content/60">

@@ -185,8 +185,8 @@ useEffect(() => {
                 <Route
                   path="/payroll/dashboard"
                   element={
-                      // <PayrollDashboard />
-                      <SalaryStructureDashboard />
+                      <PayrollDashboard />
+                      // <SalaryStructureDashboard />
                     // <PageContainer title="Payroll Dashboard">
                     // </PageContainer>
                   }

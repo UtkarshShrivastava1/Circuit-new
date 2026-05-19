@@ -332,7 +332,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
             <div className="space-y-1 ">
               {coreMenu.map((item) => (
-                <NavLink key={item.id} to={item.path} className={linkClass}>
+                <NavLink key={item.id} to={item.path}   onClick={onClose} className={linkClass}>
                   {item.icon}
                   {!collapsed && <span>{item.label}</span>}
                 </NavLink>
@@ -380,6 +380,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     >
                       {projectsSubMenu.map((item) => (
                         <NavLink
+                        
                           key={item.id}
                           to={item.path}
                           className={(props) => `${linkClass(props)} relative`}
@@ -396,7 +397,9 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                                 new Date().toISOString(),
                               );
                             }
-                          }}
+                              onClose()
+                          }
+                        }
                         >
                           {item.icon}
                           {!collapsed && <span>{item.label}</span>}
@@ -427,7 +430,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_projects",
                         new Date().toISOString(),
                       );
-                    }}
+                        onClose()
+                    }
+
+                  }
                     className={(props) => `${linkClass(props)} relative`}
                   >
                     <MdWorkspaces size={20} />
@@ -443,6 +449,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_workUpdates",
                         new Date().toISOString(),
                       );
+                        onClose()
                     }}
                     to="/work-updates"
                     className={linkClass}
@@ -523,6 +530,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                                   new Date().toISOString(),
                                 );
                               }
+                                onClose()
                             }}
                             className={(props) =>
                               `${linkClass(props)} relative`
@@ -547,6 +555,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_members",
                         new Date().toISOString(),
                       );
+                      onClose()
                     }}
                   >
                     <MdPeople size={20} />
@@ -576,6 +585,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         new Date().toISOString(),
                       );
                     }
+                    onClose()
                   }}
                 >
                   {item.icon}
@@ -639,6 +649,9 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                           key={item.id}
                           to={item.path}
                           className={linkClass}
+                          onClick={()=>{
+                            onClose();
+                          }}
                         >
                           {item.icon}
                           {!collapsed && <span>{item.label}</span>}
