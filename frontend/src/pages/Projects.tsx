@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import { getProject, deleteProject } from "@/services/projectServices";
 // import { getOrganizationSlug } from "@/utils/auth";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Pagination from "@/components/ui/Pagination";
 
 export default function Projects() {
   const { auth } = useAuth();
@@ -22,6 +23,8 @@ export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ProjectFilter>("all");
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Helper to check roles
   const hasRole = (roles: string[]) => auth.user?.role ? roles.includes(auth.user?.role) : false;
@@ -80,6 +83,10 @@ export default function Projects() {
     }
   }, [slug]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [filter]);
+
   const handleDeleteProject = async (id: string) => {
   try {
     await deleteProject(slug, id);
@@ -97,6 +104,13 @@ export default function Projects() {
     filter === "all"
       ? projects
       : projects.filter((p) => p.status?.toLowerCase() === filter.toLowerCase());
+
+  const totalPages = Math.ceil(filteredProjects.length / ITEMS_PER_PAGE) || 1;
+  const validPage = Math.min(page, totalPages);
+  const paginatedProjects = filteredProjects.slice(
+    (validPage - 1) * ITEMS_PER_PAGE,
+    validPage * ITEMS_PER_PAGE
+  );
 
   return (
     <div className="p-4 sm:p-6 space-y-4">
@@ -123,7 +137,7 @@ export default function Projects() {
       ) : (
         <div className="space-y-4">
           <ProjectGrid
-            projects={filteredProjects}
+            projects={paginatedProjects}
             onOpen={(project) => setSelectedProject(project)}
             onDelete={canDelete ? handleDeleteProject : undefined}
             canEdit={canEdit}
@@ -132,6 +146,11 @@ export default function Projects() {
                prev.map((p) => (p.id === updated.id ? updated : p))
              );
            }}
+          />
+          <Pagination
+            currentPage={validPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
           />
         </div>
       )}

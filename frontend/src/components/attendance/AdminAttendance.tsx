@@ -376,7 +376,7 @@ const AdminAttendance = () => {
       <>
         {/* TABS */}
         <div className="mb-5 mt-4">
-          <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1">
+          <div className="bg-base-200 p-1 rounded-lg hidden md:inline-flex gap-1">
             {/* MARK */}
             <button
               onClick={() => setActiveTab("mark")}

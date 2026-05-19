@@ -4,12 +4,15 @@ import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
+import Pagination from "@/components/ui/Pagination";
 
 export default function MyPayslips() {
   const { auth } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     if (auth.slug) {
@@ -47,6 +50,13 @@ export default function MyPayslips() {
 
   if (loading) return <div>Loading your payslips...</div>;
 
+  const totalPages = Math.ceil(history.length / ITEMS_PER_PAGE) || 1;
+  const validPage = Math.min(page, totalPages);
+  const paginatedHistory = history.slice(
+    (validPage - 1) * ITEMS_PER_PAGE,
+    validPage * ITEMS_PER_PAGE
+  );
+
   return (
     <div className="space-y-6 p-4 sm:p-6">
       <Breadcrumbs />
@@ -64,7 +74,7 @@ export default function MyPayslips() {
             </tr>
           </thead>
           <tbody>
-            {history.map((slip) => (
+            {paginatedHistory.map((slip) => (
               <tr key={slip._id} className="border-t border-base-300">
                 <td className="p-4">{slip.month} / {slip.year}</td>
                 <td className="p-4">₹{slip.netSalary}</td>
@@ -79,6 +89,15 @@ export default function MyPayslips() {
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-4">
+          <Pagination
+            currentPage={validPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
+        </div>
+      )}
     </div>
   );
 }

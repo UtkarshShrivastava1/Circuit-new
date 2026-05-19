@@ -16,7 +16,6 @@ import { getMembers } from "@/services/memberService";
 import { MdCurrencyRupee } from "react-icons/md";
 
 import type  { Employee } from "../type/payroll.types";
-import { useSalaryStructure } from "../hooks/useSalaryStructure";
 import {
   fetchSalaryStructure,
   saveSalaryStructure,
@@ -36,12 +35,6 @@ export default function SalaryStructureDashboard() {
   const [limitPF, setLimitPF] = useState(true);
   const [autoCalculate, setAutoCalculate] = useState(false);
 
-  const {
-    salaryData,
-    setSalaryData,
-    globalConfig,
-    setGlobalConfig,
-  } = useSalaryStructure(monthlyGross, limitPF);
   const [globalConfig, setGlobalConfig] = useState({
     basic: 50,
     hra: 20,
@@ -107,7 +100,6 @@ export default function SalaryStructureDashboard() {
   }, [auth.slug]);
 
   useEffect(() => {
-    if (!selectedEmployeeId || !auth.slug) return;
     if (!selectedEmployeeId || !auth.slug) {
       setMonthlyGross(0);
       return;
@@ -177,7 +169,6 @@ export default function SalaryStructureDashboard() {
 
         <GlobalPayoutConfiguration
           config={globalConfig}
-          onChange={setGlobalConfig}
           basic={globalConfig.basic}
           hra={globalConfig.hra}
           da={globalConfig.da}
@@ -216,9 +207,6 @@ export default function SalaryStructureDashboard() {
                 type="number"
                 placeholder="Monthly Gross Salary"
                 value={monthlyGross || ""}
-                onChange={(e) =>
-                  setMonthlyGross(Number(e.target.value))
-                }
                 onChange={(e) => {
                   setMonthlyGross(Number(e.target.value));
                   setAutoCalculate(true);
