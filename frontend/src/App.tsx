@@ -17,6 +17,7 @@ import SettingsPage from "./pages/Settings";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage";
 import { useAuth } from "./auth/AuthContext";
 import WorkUpdates from "./pages/WorkUpdate";
+import SalaryStructureDashboard from "./pages/SalaryStructureDashboard";
 
 
 /* Pages (lazy) */
@@ -184,7 +185,8 @@ useEffect(() => {
                 <Route
                   path="/payroll/dashboard"
                   element={
-                      <PayrollDashboard />
+                      // <PayrollDashboard />
+                      <SalaryStructureDashboard />
                     // <PageContainer title="Payroll Dashboard">
                     // </PageContainer>
                   }
