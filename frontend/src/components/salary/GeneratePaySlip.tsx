@@ -105,8 +105,9 @@ export default function GeneratePaySlip() {
   return (
     <div className="p-4 sm:p-6 bg-base-50 min-h-screen space-y-6">
       
-      <div className="flex items-center gap-3 mb-2">
-        <div className="p-3 bg-primary/10 text-primary rounded-xl">
+      {/* <div className="flex items-center gap-3 mb-2"> */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
+        <div className="sm:block hidden p-3 bg-primary/10 text-primary rounded-xl">
           <MdReceipt size={24} />
         </div>
         <div>
@@ -118,8 +119,18 @@ export default function GeneratePaySlip() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* LEFT COLUMN: Configuration */}
-        <div className="lg:col-span-4 space-y-6 h-fit sticky top-6">
-          
+        {/* <div className="lg:col-span-4 space-y-6 h-fit sticky top-6"> */}
+          <div
+  className="
+    lg:col-span-4
+    space-y-6
+    h-fit
+
+    static
+    lg:sticky
+    lg:top-6
+  "
+>
           {/* Box 1: Period Selection */}
           <div className="bg-primary mt-2 text-primary-content p-6 rounded-2xl border border-primary/20 shadow-sm">
             <h3 className="text-sm font-bold  uppercase tracking-wider mb-4 flex items-center gap-2">
@@ -171,8 +182,26 @@ export default function GeneratePaySlip() {
         </div>
 
         {/* RIGHT COLUMN: Employee Selection */}
-        <div className="lg:col-span-8 mt-2 bg-base-100 rounded-2xl border border-primary shadow-sm flex flex-col h-[calc(100vh-8rem)] min-h-[600px]">
-          
+        {/* <div className="lg:col-span-8 mt-2 bg-base-100 rounded-2xl border border-primary shadow-sm flex flex-col h-[calc(100vh-8rem)] min-h-[600px]"> */}
+          <div
+  className="
+    lg:col-span-8
+    mt-2
+    bg-base-100
+    rounded-2xl
+    border
+    border-primary
+    shadow-sm
+    flex
+    flex-col
+
+    h-auto
+    lg:h-[calc(100vh-8rem)]
+
+    min-h-[500px]
+    overflow-hidden
+  "
+>
           {/* Header & Search */}
           <div className="p-5 border-b   border-base-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-base-100 rounded-t-2xl z-10">
             <h3 className="text-base font-bold text-base-content flex items-center gap-2">
@@ -198,7 +227,19 @@ export default function GeneratePaySlip() {
           </div>
 
           {/* Grid Area */}
-          <div className="flex-1 overflow-y-auto p-5 bg-base-50/30">
+          {/* <div className="flex-1 overflow-y-auto p-5 bg-base-50/30"> */}
+          <div
+  className="
+    flex-1
+    overflow-y-auto
+    overflow-x-hidden
+    p-3 sm:p-5
+    bg-base-50/30
+
+    max-h-[500px]
+    lg:max-h-none
+  "
+>
             {filteredEmployees.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-base-content/40 space-y-3">
                 <MdPeople size={48} className="opacity-20" />

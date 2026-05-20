@@ -189,7 +189,7 @@ export default function PayrollDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* 1. Stats Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full ">
+        {/* <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full ">
           <div className="stat py-6 flex flex-col justify-center">
             <div className="stat-figure text-info">
               <MdGroup size={36} />
@@ -228,7 +228,107 @@ export default function PayrollDashboard() {
               Successfully processed
             </div>
           </div>
+        </div> */}
+        <div
+  className="
+    lg:col-span-2
+    stats stats-vertical md:stats-horizontal
+    shadow-sm border border-primary
+    bg-base-100
+    w-full rounded-2xl
+    overflow-hidden
+  "
+>
+  {/* TOTAL STAFF */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Total Staff
         </div>
+
+        <div className="stat-value text-info text-2xl sm:text-3xl mt-2">
+          {summary?.totalStaff || 0}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Eligible for payroll
+        </div>
+      </div>
+
+      <div className="text-info shrink-0 mt-1">
+        <MdGroup className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+
+  {/* PENDING PAYOUT */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Pending Payout
+        </div>
+
+        <div className="stat-value text-warning text-xl sm:text-3xl mt-2 break-words">
+          ₹{(summary?.pending || 0).toLocaleString()}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Needs disbursement
+        </div>
+      </div>
+
+      <div className="text-warning shrink-0 mt-1">
+        <MdPendingActions className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+
+  {/* TOTAL PAID */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Total Paid
+        </div>
+
+        <div className="stat-value text-success text-xl sm:text-3xl mt-2 break-words">
+          ₹{(summary?.paid || 0).toLocaleString()}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Successfully processed
+        </div>
+      </div>
+
+      <div className="text-success shrink-0 mt-1">
+        <MdAccountBalanceWallet className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* 2. Chart Box (Spans 1 col, 2 rows) */}
         <div className="lg:col-span-1 lg:row-span-2 bg-base-100 rounded-2xl border border-primary shadow-sm p-6 w-full flex flex-col h-full min-h-[320px]">
