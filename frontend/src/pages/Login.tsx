@@ -92,7 +92,7 @@ const Login = ({ setToken }: LoginProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-200 p-6">
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
       <div className="w-full max-w-5xl bg-blue-200 rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
         {/* LEFT */}
         <div className="w-full md:w-1/2 bg-blue-100 flex items-center justify-center p-10">
@@ -100,7 +100,7 @@ const Login = ({ setToken }: LoginProps) => {
         </div>
 
         {/* RIGHT */}
-        <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-700 to-blue-900 p-12 flex flex-col justify-center text-white">
+        <div className="w-full md:w-1/2 bg-gradient-to-br from-primary to-primary/40 p-12 flex flex-col justify-center text-white">
           <h1 className="text-4xl font-bold mb-2 tracking-wide">Welcome Back</h1>
           <p className="text-blue-200 text-sm mb-6">
             Sign in to access your dashboard
@@ -109,11 +109,11 @@ const Login = ({ setToken }: LoginProps) => {
           <form onSubmit={handleSubmit} className="flex flex-col space-y-5">
             {/* Email */}
             <div className="flex flex-col">
-              <label className="text-sm text-blue-200 mb-1">Email</label>
+              <label className="text-sm text-primary-content  mb-1">Email</label>
               <div className="relative">
                 <User2Icon
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 text-blue-200"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 text-primary"
                 />
                 <input
                   type="email"
@@ -121,25 +121,25 @@ const Login = ({ setToken }: LoginProps) => {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full p-3 pl-10 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 placeholder-blue-200 text-white focus:outline-none focus:ring-2 focus:ring-white/60 transition"
+                  className="w-full p-3 pl-10 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 placeholder-blue-200 text-white focus:outline-none focus:ring-2 focus:ring-primary/40 transition"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="text-sm text-blue-200 mb-4">Password</label>
+              <label className="text-sm text-primary-content mb-4">Password</label>
               <div className="relative">
                 <LockIcon
                   size={18}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 text-blue-200"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-50 text-primary"
                 />
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition pl-10"
+                  className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 bg-gray-50 text-black focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-indigo-500 transition pl-10"
                 />
                 <button
                   type="button"
@@ -156,11 +156,22 @@ const Login = ({ setToken }: LoginProps) => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-white text-blue-800 px-6 py-3 rounded-lg font-semibold hover:bg-blue-100 hover:scale-[1.02] transition-all duration-200 disabled:opacity-60"
+              className="w-full bg-primary-content text-black px-6 py-3 rounded-lg font-semibold hover:bg-primary-content/80 hover:scale-[1.02] transition-all duration-200 disabled:opacity-60"
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
           </form>
+
+          <div className="mt-6 text-center text-sm text-blue-200">
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/organizationRegister")}
+              className="text-white font-semibold hover:underline transition-all cursor-pointer"
+            >
+              Sign up
+            </button>
+          </div>
         </div>
       </div>
     </div>
