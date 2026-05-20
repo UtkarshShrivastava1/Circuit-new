@@ -94,14 +94,14 @@ export default function ProjectCard({
   };
 
   return (
-    <div className="group bg-base-100 text-primary border border-base-300 rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative  w-full h-full flex flex-col justify-between min-w-0">
+    <div   onClick={() => navigate(`/projects/${project.id}`)} className="group bg-base-200 text-primary border border-primary shadow-sm rounded-xl p-2 sm:p-5 space-y-4 hover:shadow-lg transition relative w-full  h-full flex flex-col justify-between  min-w-0 max-w-full cursor-pointer">
       {/* HEADER */}
-      <div className="flex items-start justify-between mb-3 ">
-        <h3 className="font-bold  text-lg break-words">
+      <div className="grid grid-cols-[1fr_auto] gap-3 items-start">
+        <h3 className="font-bold  text-lg leading-snug line-clamp-2 break-words flex-1 min-w-0 ">
           {project.name}
         </h3>
        
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <StatusBadge
             status={
               project.status === "Active" || project.status === "Completed"
@@ -157,13 +157,13 @@ export default function ProjectCard({
       </div>
 
       {/* MANAGER */}
-      <p className="text-sm text-primary/70 mb-4">
+      <p className="text-sm font-medium text-primary/70 mb-4">
         Manager: <span className="font-medium">{project.manager}</span>
       </p>
 
       {/* PROGRESS */}
       <div className="mb-4">
-        <div className="flex justify-between text-xs text-primary/60 mb-1">
+        <div className="flex justify-between text-xs font-medium text-primary/60 mb-1">
           <span>Progress</span>
           <span>{project.progress}%</span>
         </div>
@@ -176,39 +176,63 @@ export default function ProjectCard({
 
       
      {/* META */}
-<div className="mt-4 flex items-center justify-between gap-4 text-xs text-primary/70 flex-wrap sm:flex-nowrap">
+<div className="mt-4 flex  justify-between items-center gap-4 text-xs text-primary/70 flex-wrap">
   
   {/* Left Meta Info */}
-  <div className="flex items-center gap-4 whitespace-nowrap">
-    <span className="flex items-center gap-1">
+  <div className="flex items-center gap-4 whitespace-nowrap flex-wrap">
+    <span className="flex text-sm font-medium items-center gap-1">
       <FaUser /> {project.teamCount}
     </span>
 
-    <span className="flex items-center gap-1">
-      <FaCalendarAlt /> {project.dueDate}
+    <span className="flex text-sm font-medium items-center gap-1">
+      <FaCalendarAlt size={14} /> {project.dueDate}
     </span>
   </div>
 
   {/* Right Action Buttons */}
   <div className="flex items-center gap-1">
-    <div className="tooltip tooltip-top" data-tip="View project">
-      <button
-        className="btn btn-xs btn-ghost"
-        onClick={() => navigate(`/projects/${project.id}`)}
-      >
-        <MdFileOpen size={16} />
-      </button>
-    </div>
 
-    <div className="tooltip tooltip-top" data-tip="Open chat">
-      <button
-        onClick={() => navigate(`/projects/${project.id}?tab=chat`)}
-        className="btn btn-xs btn-ghost"
-      >
-        <MdChat size={18} />
-      </button>
-    </div>
-  </div>
+  {/* VIEW */}
+  {/* <div className="tooltip tooltip-top" data-tip="View project">
+    <button
+      onClick={() => navigate(`/projects/${project.id}`)}
+      className="
+        p-2 rounded-lg
+        text-base-content/60
+        hover:text-primary
+        hover:bg-primary/10
+        transition-all duration-200
+      "
+    >
+      <MdFileOpen size={20} />
+    </button>
+  </div> */}
+
+  {/* CHAT */}
+<div className="" data-tip="Open chat">
+  <button
+    onClick={(e) => {
+      e.stopPropagation();
+      navigate(`/projects/${project.id}?tab=chat`);
+    }}
+   className="
+  shrink-0
+  inline-flex items-center gap-2
+  px-3 py-2
+  rounded-lg
+  bg-primary/80
+  text-primary-content
+  border border-primary/20
+  hover:bg-primary
+  transition-all duration-200
+  font-medium
+"
+  >
+    <MdChat size={18} />
+    <span >Chat</span>
+  </button>
+</div>
+</div>
 </div>
       <EditProjectModal
         open={!!editProject}

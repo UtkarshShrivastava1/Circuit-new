@@ -1,4 +1,4 @@
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   MdDashboard,
@@ -13,6 +13,7 @@ import {
   MdHistory,
   MdNotifications,
   MdClose,
+  MdWallet,
 } from "react-icons/md";
 import { FolderKanban, UserPlus } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
@@ -102,7 +103,7 @@ const payrollSubMenu: MenuItem[] = [
     id: "payroll-dashboard",
     label: "Payroll Dashboard",
     path: "/payroll/dashboard",
-    icon: <MdPayments size={18} />,
+    icon: <MdWallet size={18} />,
   },
   {
     id: "salary-structure",
@@ -145,7 +146,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
       (!lastVisitedProjects ||
         new Date(a.createdAt) > new Date(lastVisitedProjects)),
   );
-  console.log("Activities for Projects:", projectCreatedDot);
+  // console.log("Activities for Projects:", projectCreatedDot);
   const workUpdateDot = (activities || []).some(
     (a) =>
       a.referenceModel === "WorkUpdateModel" &&
@@ -173,8 +174,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         new Date(a.createdAt) > new Date(lastVisitedMembers)),
   );
   const projectDot = projectCreatedDot || workUpdateDot;
-  console.log("Activities for Work Updates:", workUpdateDot);
-  console.log("Activities:", activities);
+  // console.log("Activities for Work Updates:", workUpdateDot);
+  // console.log("Activities:", activities);
   const user = auth?.user;
   const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
   const location = useLocation();
@@ -193,7 +194,16 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const isProjectsActive =
     location.pathname.startsWith("/projects") ||
     location.pathname.startsWith("/createProject");
+  
 
+  /* ================= FIX 2: RESET WHEN SIDEBAR CLOSES ================= */
+  useEffect(() => {
+    if (!isOpen) {
+      setPayrollOpen(false);
+      setTeamOpen(false);
+      setProjectsOpen(false);
+    }
+  }, [isOpen]);
   return (
     <>
       <div
@@ -322,7 +332,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
             <div className="space-y-1 ">
               {coreMenu.map((item) => (
-                <NavLink key={item.id} to={item.path} className={linkClass}>
+                <NavLink key={item.id} to={item.path}   onClick={onClose} className={linkClass}>
                   {item.icon}
                   {!collapsed && <span>{item.label}</span>}
                 </NavLink>
@@ -356,20 +366,21 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       </>
                     )}
                   </button>
-
-                  <div
-                    className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      ${
-                        projectsOpen && !collapsed
-                          ? "max-h-40 opacity-100 mt-1"
-                          : "max-h-0 opacity-0"
-                      }
-                    `}
-                  >
-                    <div className="ml-8 space-y-1 pb-1">
+<div
+  className={`
+    transition-all duration-300 ease-in-out
+    ${projectsOpen ? "block mt-1" : "hidden"}
+  `}
+>
+                    {/* <div className="ml-8 space-y-1 pb-1"> */}
+                    <div
+                      className={`space-y-1 pb-1 ${
+                        collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
+                      }`}
+                    >
                       {projectsSubMenu.map((item) => (
                         <NavLink
+                        
                           key={item.id}
                           to={item.path}
                           className={(props) => `${linkClass(props)} relative`}
@@ -386,10 +397,12 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                                 new Date().toISOString(),
                               );
                             }
-                          }}
+                              onClose()
+                          }
+                        }
                         >
                           {item.icon}
-                          <span>{item.label}</span>
+                          {!collapsed && <span>{item.label}</span>}
                           {item.id === "projects" && projectCreatedDot && (
                             <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
                           )}
@@ -417,7 +430,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_projects",
                         new Date().toISOString(),
                       );
-                    }}
+                        onClose()
+                    }
+
+                  }
                     className={(props) => `${linkClass(props)} relative`}
                   >
                     <MdWorkspaces size={20} />
@@ -433,6 +449,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_workUpdates",
                         new Date().toISOString(),
                       );
+                        onClose()
                     }}
                     to="/work-updates"
                     className={linkClass}
@@ -490,13 +507,18 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       className={`
                       overflow-hidden transition-all duration-300 ease-in-out
                       ${
-                        teamOpen && !collapsed
+                        teamOpen
                           ? "max-h-40 opacity-100 mt-1"
                           : "max-h-0 opacity-0"
                       }
                     `}
                     >
-                      <div className="ml-8 space-y-1 pb-1">
+                      {/* <div className="ml-8 space-y-1 pb-1"> */}
+                      <div
+                        className={`space-y-1 pb-1 ${
+                          collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
+                        }`}
+                      >
                         {teamSubMenu.map((item) => (
                           <NavLink
                             key={item.id}
@@ -508,13 +530,14 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                                   new Date().toISOString(),
                                 );
                               }
+                                onClose()
                             }}
                             className={(props) =>
                               `${linkClass(props)} relative`
                             }
                           >
                             {item.icon}
-                            <span>{item.label}</span>
+                            {!collapsed && <span>{item.label}</span>}
                             {item.id === "members" && memberDot && (
                               <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
                             )}
@@ -532,6 +555,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         "lastVisited_members",
                         new Date().toISOString(),
                       );
+                      onClose()
                     }}
                   >
                     <MdPeople size={20} />
@@ -561,6 +585,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                         new Date().toISOString(),
                       );
                     }
+                    onClose()
                   }}
                 >
                   {item.icon}
@@ -583,7 +608,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                   {/* PAYROLL PARENT */}
                   <button
                     onClick={() => setPayrollOpen(!payrollOpen)}
-                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all text-primary-content ${
+                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all  ${
                       isPayrollActive
                         ? "bg-base-300 font-semibold text-base-content"
                         : "text-primary-content hover:bg-base-300 hover:text-base-content"
@@ -607,21 +632,29 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     className={`
                       overflow-hidden transition-all duration-300 ease-in-out
                       ${
-                        payrollOpen && !collapsed
+                        payrollOpen
                           ? "max-h-40 opacity-100 mt-1"
                           : "max-h-0 opacity-0"
                       }
                     `}
                   >
-                    <div className="ml-8 space-y-1 pb-1">
+                    {/* <div className="ml-8 space-y-1 pb-1"> */}
+                    <div
+                      className={`space-y-1 pb-1 ${
+                        collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
+                      }`}
+                    >
                       {payrollSubMenu.map((item) => (
                         <NavLink
                           key={item.id}
                           to={item.path}
                           className={linkClass}
+                          onClick={()=>{
+                            onClose();
+                          }}
                         >
                           {item.icon}
-                          <span>{item.label}</span>
+                          {!collapsed && <span>{item.label}</span>}
                         </NavLink>
                       ))}
                     </div>

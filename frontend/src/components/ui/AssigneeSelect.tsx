@@ -123,7 +123,7 @@ export default function AssigneeSelect({
           {value ? (
             <span className="text-base-content">{value.name}</span>
           ) : (
-            <span className="text-base-content/50">
+            <span className="text-base-content/70">
               Select assignee
             </span>
           )}

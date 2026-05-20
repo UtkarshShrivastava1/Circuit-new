@@ -96,7 +96,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
 
   return (
     <div className="bg-base-200/40 backdrop-blur-md p-4 sm:p-6 rounded-xl border border-base-300 space-y-4 transition-all text-sm">
-      <h2 className="text-xl font-semibold mb-4 text-base-content">
+      <h2 className="text-xl font-semibold mb-4 text-primary-content text-center">
         Add Participant
       </h2>
 
@@ -156,12 +156,12 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
       </button>
 
       {/* Participants List */}
-      <div className="mt-4 space-y-2">
+      <div className="mt-4 space-y-2 rounded-lg p-1.5 border border-base-300 ">
         <h3 className="text-sm uppercase tracking-wide text-base-content/60 font-semibold">
           Project Members
         </h3>
         {participants?.length === 0 ? (
-          <p className="text-gray-400 text-sm">No members added yet</p>
+          <p className="text-base-content/60 text-sm">No members added yet</p>
         ) : (
           participants?.map((p, index) => (
             <div

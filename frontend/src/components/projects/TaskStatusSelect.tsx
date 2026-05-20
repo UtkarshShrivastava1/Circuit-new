@@ -17,7 +17,7 @@ export default function TaskStatusSelect({
 }) {
   return (
     <select
-      className="select select-xs select-bordered"
+      className="select select-xs select-bordered border"
       value={value}
       disabled={disabled}
       onChange={(e) => onChange(e.target.value as TaskStatus)}

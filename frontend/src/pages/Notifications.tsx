@@ -112,13 +112,13 @@ export default function Notifications() {
     }
   };
   return (
-    <div className="p-4 sm:p-6 text-base-content">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="p-4 sm:p-6 text-base-content ">
+      <div className="max-w-6xl mx-auto space-y-6  ">
         <Breadcrumbs />
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-semibold">Notifications</h1>
+          <h1 className="text-xl md:text-2xl font-semibold">Notifications</h1>
 
           {["admin", "owner"].includes(currentUserRole) && (
             <Button

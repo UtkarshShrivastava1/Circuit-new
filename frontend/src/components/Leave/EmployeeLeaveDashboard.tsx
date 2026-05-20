@@ -26,6 +26,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "@/auth/AuthContext";
 import { socket } from "@/socket";
 import Pagination from "@/components/ui/Pagination"
+import Swal from "sweetalert2";
 
 
 export default function EmployeeLeaveDashboard() {
@@ -189,8 +190,18 @@ export default function EmployeeLeaveDashboard() {
   };
 
   const handleDeleteLeave = async (id: string) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this leave request?");
-    if (!confirmDelete) return;
+   const confirmDelete = await Swal.fire({
+  title: "Are you sure?",
+  text: "You want to delete this leave request?",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#d33",
+  cancelButtonColor: "#6b7280",
+  confirmButtonText: "Yes, delete it",
+  cancelButtonText: "Cancel",
+});
+
+if (!confirmDelete.isConfirmed) return;
 
     try {
       if (!user) return;
@@ -258,55 +269,98 @@ export default function EmployeeLeaveDashboard() {
       </div>
 
       {/* ================= TABS ================= */}
-      <div className="hidden md:block">
-      <div className="tabs tabs-boxed w-fit">
-        <button
-          onClick={() => setActive("overview")}
-          className={`tab  gap-1 ${
-            active === "overview" ? "tab-active !text-base-content"
-    : "!text-base-content/40"
-          }`}
-        >
-        <MdDashboard/>  Overview
-        </button>
+   
 
-        <button
-          onClick={() => setActive("my-leaves")}
-          className={`tab gap-1 ${
-            active === "my-leaves"
-              ? "tab-active !text-base-content"
-              : "!text-base-content/40"
-          }`}
-        >
-       <MdAssignment/>   My Leaves
-        </button>
+<div className="hidden md:flex mb-5 mt-2">
+  <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1 flex-wrap">
 
-        <button
-          onClick={() => setActive("balance")}
-          className={`tab gap-1 ${
-            active === "balance" ? "tab-active !text-base-content" : "!text-base-content/40"
-          }`}
-        >
-        <MdAccountBalanceWallet/>  Leave Balance
-        </button>
-        <button
-          onClick={() => setActive("calendar")}
-          className={`tab gap-1 ${
-            active === "calendar" ? "tab-active !text-base-content" : "!text-base-content/40"
-          }`}
-        >
-         <MdCalendarMonth/> Leave Calendar
-        </button>
-        <button
-          onClick={() => setActive("policy")}
-          className={`tab gap-1 ${
-            active === "policy" ? "tab-active !text-base-content" : "!text-base-content/40"
-          }`}
-        >
-       <MdMenuBook/>   Leave Policy
-        </button>
-      </div>
-      </div>
+    {/* OVERVIEW */}
+    <button
+      onClick={() => setActive("overview")}
+      className={`
+        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        transition-all duration-200
+        ${
+          active === "overview"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }
+      `}
+    >
+      <MdDashboard size={16} />
+      Overview
+    </button>
+
+    {/* MY LEAVES */}
+    <button
+      onClick={() => setActive("my-leaves")}
+      className={`
+        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        transition-all duration-200
+        ${
+          active === "my-leaves"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }
+      `}
+    >
+      <MdAssignment size={16} />
+      My Leaves
+    </button>
+
+    {/* BALANCE */}
+    <button
+      onClick={() => setActive("balance")}
+      className={`
+        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        transition-all duration-200
+        ${
+          active === "balance"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }
+      `}
+    >
+      <MdAccountBalanceWallet size={16} />
+      Leave Balance
+    </button>
+
+    {/* CALENDAR */}
+    <button
+      onClick={() => setActive("calendar")}
+      className={`
+        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        transition-all duration-200
+        ${
+          active === "calendar"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }
+      `}
+    >
+      <MdCalendarMonth size={16} />
+      Leave Calendar
+    </button>
+
+    {/* POLICY */}
+    <button
+      onClick={() => setActive("policy")}
+      className={`
+        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        transition-all duration-200
+        ${
+          active === "policy"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }
+      `}
+    >
+      <MdMenuBook size={16} />
+      Leave Policy
+    </button>
+
+  </div>
+</div>
 
       {/* ================= TAB CONTENT ================= */}
 

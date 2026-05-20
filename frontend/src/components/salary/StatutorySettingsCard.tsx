@@ -12,7 +12,7 @@ export default function StatutorySettingsCard({
   onChange,
 }: Props) {
   return (
-    <div className="bg-primary/50 text-primary-content border border-white/20 
+    <div className="bg-primary text-primary-content border border-white/20 
                     rounded-3xl p-6  shadow-xl space-y-5">
 
       {/* Title */}

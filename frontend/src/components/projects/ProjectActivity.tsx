@@ -44,7 +44,7 @@ export default function ProjectActivity({ projectId }: Props) {
   }, [auth.slug, projectId]);
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg p-6">
+    <div className="bg-white/70  border border-base-300 rounded-lg p-6">
       <h3 className="font-semibold text-base-content mb-4">
         Activity Timeline
       </h3>

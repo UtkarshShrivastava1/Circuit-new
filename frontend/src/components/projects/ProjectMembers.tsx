@@ -129,13 +129,13 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
   };
 
   return (
-    <div className="bg-base-100 border border-base-300 rounded-lg p-6">
-      <div className="flex justify-between mb-4">
-        <h3 className="font-semibold text-base-content">
+    <div className="bg-white/70 border border-base-300 rounded-lg p-6">
+      <div className="flex justify-between mb-4 border-b border-base-300 pb-2">
+        <h3 className="font-semibold text-base-content ">
           Team Members
         </h3>
 
-        <button className="btn btn-sm" onClick={() => setShowModal(true)}>
+        <button className="btn btn-sm btn-primary text-primary-content" onClick={() => setShowModal(true)}>
           + Add Member
         </button>
       </div>

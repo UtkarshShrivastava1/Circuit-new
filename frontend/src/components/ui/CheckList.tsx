@@ -127,7 +127,7 @@ opacity-100"
           >
             <input
               type="checkbox"
-              className="checkbox border border-base-content focus:outline-none focus:ring-2 focus:ring-primary/40 checkbox-primary checkbox-sm mt-[1px] !opacity-100 "
+              className="checkbox border placeholder:text-base-content/70 border-base-content focus:outline-none focus:ring-2 focus:ring-primary/40 checkbox-primary checkbox-sm mt-[1px] !opacity-100 "
               checked={item.completed}
               onChange={() =>
                 onChange(
@@ -168,7 +168,7 @@ opacity-100"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Add checklist item..."
-          className="input rounded-lg w-full border border-base-300 focus:ring-0 focus:outline-none focus:ring-primary/40"
+          className="input placeholder:text-base-content/70 rounded-lg w-full border border-base-300 focus:ring-0 focus:outline-none focus:ring-primary/40"
         />
 
         <button

@@ -1,5 +1,5 @@
 import React, { useState, Suspense, useEffect } from "react";
-import { Routes, Route, Outlet, Navigate } from "react-router-dom";
+import { Routes, Route, Outlet, Navigate, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { socket } from "./socket";
@@ -17,6 +17,7 @@ import SettingsPage from "./pages/Settings";
 import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage";
 import { useAuth } from "./auth/AuthContext";
 import WorkUpdates from "./pages/WorkUpdate";
+import SalaryStructureDashboard from "./pages/SalaryStructureDashboard";
 
 
 /* Pages (lazy) */
@@ -48,6 +49,8 @@ const AddMember = React.lazy(() => import("./pages/AddMember"));
 const CreateProject = React.lazy(() => import("./pages/CreateProject"));
 const Login = React.lazy(() => import("./pages/Login"));
 const AddMemberPage = React.lazy(() => import("./pages/AddMembers"));
+const OrganizationRegistrationPage = React.lazy(() => import("./pages/Organization/OrganizationRegistrationPage"));
+const ERPLandingPage = React.lazy(() => import("./pages/ERPLandingPage"));
 
 
 /* ---------- Layout Wrapper ---------- */
@@ -101,9 +104,6 @@ useEffect(() => {
 }, [auth?.user]);
 
   return (
-    <>
-   { !auth.user ?
-   <Login />   :
     <Suspense fallback={
       <div className="flex flex-col justify-center items-center h-screen bg-base-100">
         <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -111,11 +111,15 @@ useEffect(() => {
       </div>
     }>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/organizationRegister" element={<OrganizationPage />} />
+        <Route path="/login" element={!auth.user ? <Login /> : <Navigate to="/" replace />} />
+        <Route path="/organizationRegister" element={<OrganizationRegistrationPage />} />
 
-        {/* If the user is logged in but hasn't registered an organization yet, force them to the registration page */}
-        {(!auth?.slug && !auth?.user?.organization) ? (
+        {!auth.user ? (
+          <>
+            <Route path="/" element={<ERPLandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        ) : (!auth?.slug && !auth?.user?.organization) ? (
           <Route path="*" element={<Navigate to="/organizationRegister" replace />} />
         ) : (
           /* Protected Layout Routes */
@@ -185,6 +189,7 @@ useEffect(() => {
                   path="/payroll/dashboard"
                   element={
                       <PayrollDashboard />
+                      // <SalaryStructureDashboard />
                     // <PageContainer title="Payroll Dashboard">
                     // </PageContainer>
                   }
@@ -242,7 +247,5 @@ useEffect(() => {
       </Routes>
       <ToastContainer />
     </Suspense>
-   }
-   </>
   );
 }

@@ -104,7 +104,7 @@ export default function Header({ onMenuClick }: HeaderProps)  {
           sendTo: n.sendTo,
         }));
 
-        console.log("formatted : ",formatted)
+        // console.log("formatted : ",formatted)
      
         setNotifications(formatted);
       } catch (err) {
@@ -276,7 +276,7 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
       </div> */}
 
       <div className="flex-1 flex items-center px-2 sm:px-6 min-w-0">
-  <div 
+  {/* <div 
     className="w-full max-w-lg relative cursor-text group min-w-0"
     onClick={() => setSearchOpen(true)}
   >
@@ -300,12 +300,12 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
         Search...
       </span>
 
-      {/* Hide shortcut on small screens */}
+   
       <span className="hidden sm:inline-flex text-[10px] bg-black/20 px-2 py-0.5 rounded-md">
         ⌘ K
       </span>
     </div>
-  </div>
+  </div> */}
 </div>
 
       {/* ================= RIGHT ================= */}
@@ -458,9 +458,9 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
             {/* <li onClick={() => fileInputRef.current?.click()}>
               <a>{isUploading ? "Uploading..." : "Change Avatar"}</a>
             </li> */}
-            <li onClick={()=>navigate("/settings")}>
+            {/* <li onClick={()=>navigate("/settings")}>
               <a>Settings</a>
-            </li>
+            </li> */}
             <li onClick={()=>{
               handleLogout()
             }}>
@@ -479,7 +479,17 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-4 border-b border-base-200 flex items-center gap-3">
-            <MdSearch size={22} className="text-base-content/50" />
+            <MdSearch 
+              size={22} 
+              className={`text-base-content/50 ${searchQuery.trim() ? "cursor-pointer hover:text-primary transition-colors" : ""}`}
+              onClick={() => {
+                if (searchQuery.trim()) {
+                  setSearchOpen(false);
+                  navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                  setSearchQuery("");
+                }
+              }}
+            />
             <input 
               autoFocus
               type="text"
@@ -492,6 +502,8 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
                   setSearchOpen(false);
                   navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
                   setSearchQuery("");
+                } else if (e.key === "Escape") {
+                  setSearchOpen(false);
                 }
               }}
             />
@@ -501,8 +513,17 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
           </div>
           <div className="p-2 max-h-64 overflow-y-auto">
             {searchQuery ? (
-              <div className="px-3 py-4 text-sm text-base-content/60 text-center">
-                Press Enter to search for "{searchQuery}" across the organization.
+              <div 
+                className="px-3 py-4 text-sm text-base-content/60 text-center cursor-pointer hover:bg-base-200 transition-colors rounded-lg"
+                onClick={() => {
+                  if (searchQuery.trim()) {
+                    setSearchOpen(false);
+                    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                    setSearchQuery("");
+                  }
+                }}
+              >
+                Press Enter or click here to search for <span className="font-semibold text-base-content">"{searchQuery}"</span> across the organization.
               </div>
             ) : (
               <div className="px-3 py-2 text-xs font-semibold text-base-content/50 uppercase">

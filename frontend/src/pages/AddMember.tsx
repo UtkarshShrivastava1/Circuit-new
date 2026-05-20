@@ -191,7 +191,7 @@ const AddMember = () => {
   };
 
   const inputStyle =
-    "w-full px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all";
+    " w-full px-3 py-2 rounded-lg border border-base-300 bg-base-100 text-base-content/50 placeholder:text-base-content/50 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all";
 
   return (
   // <div className="min-h-screen flex flex-col items-center p-6 space-y-6">
@@ -202,9 +202,9 @@ const AddMember = () => {
       <form
         onSubmit={handleSubmit}
         // className="w-full max-w-5xl bg-base-200 p-8 rounded-2xl shadow-md space-y-10 border-2"
-        className="w-full max-w-4xl bg-base-200/40 p-5 rounded-xl shadow-sm space-y-6 border"
+        className="w-full max-w-4xl bg-primary/40 p-5 rounded-xl shadow-sm space-y-6 border"
       >
-        <h2 className="text-xl text-center text-base-content font-semibold">
+        <h2 className="text-2xl font-bold text-center text-primary-content ">
           Employee Onboarding
         </h2>
 
@@ -255,8 +255,8 @@ const AddMember = () => {
 
         {/* RIGHT SIDE - PERSONAL INFO */}
         <div className="flex-1">
-          <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
-            <legend className="text-sm font-semibold text-base-content px-2">
+          <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-white p-4">
+            <legend className="text-sm font-semibold text-primary-content px-2">
               Personal Information
             </legend>
             <div className="flex gap-4 items-start md:col-span-2">
@@ -273,7 +273,7 @@ const AddMember = () => {
                 <div className="relative w-30 h-30">
                   <label
                     htmlFor="imageUpload"
-                    className="w-30 h-30 rounded-full border-2 border-dashed border-gray-400 flex items-center justify-center cursor-pointer overflow-hidden"
+                    className="w-30 h-30 rounded-full border-2 border-dashed border-white flex items-center justify-center cursor-pointer overflow-hidden"
                   >
                     {preview ? (
                       <img
@@ -282,7 +282,7 @@ const AddMember = () => {
                         className="w-full h-full object-cover rounded-full"
                       />
                     ) : (
-                      <FaUser size={30} className="text-gray-400" />
+                      <FaUser size={30} className="text-white" />
                     )}
                   </label>
 
@@ -296,7 +296,7 @@ const AddMember = () => {
                   )}
                 </div>
 
-                <p className="text-xs mt-2 text-gray-500">Upload</p>
+                <p className="text-xs mt-2 text-white">Upload</p>
               </div>
 
               {/* Name Email  */}
@@ -314,7 +314,7 @@ const AddMember = () => {
                   type="email"
                   value={formData.email}
                   placeholder="Email"
-                  onChange={handleChange}
+                  onChange={handleChange} 
                   className={inputStyle}
                 />
               </div>
@@ -393,8 +393,8 @@ const AddMember = () => {
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
-              <legend className="text-sm  text-base-content mb-2 font-semibold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-white p-4">
+              <legend className="text-sm  text-primary-content mb-2 font-semibold p-2">
                 Emergency Contact
               </legend>
 
@@ -448,8 +448,8 @@ const AddMember = () => {
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
-              <legend className="text-sm  text-base-content mb-2 font-semibold p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-white p-4">
+              <legend className="text-sm  text-primary-content mb-2 font-semibold p-2">
                 Identity & Legal Details
               </legend>
 
@@ -510,8 +510,8 @@ const AddMember = () => {
             Employment Details
           </h3> */}
           <div className=" gap-6">
-            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
-              <legend className="text-sm  text-base-content mb-2 font-semibold   p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-white p-4">
+              <legend className="text-sm  text-primary-content mb-2 font-semibold   p-2">
                 Employment Details
               </legend>
 
@@ -578,8 +578,8 @@ const AddMember = () => {
           </h3> */}
 
           <div className=" gap-6">
-            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-base-content/20 p-4">
-              <legend className="text-sm  text-base-content mb-2 font-semibold   p-2">
+            <fieldset className="grid md:grid-cols-2 gap-4 border rounded-lg border-white p-4">
+              <legend className="text-sm  text-primary-content mb-2 font-semibold   p-2">
                 Bank Account Details
               </legend>
 

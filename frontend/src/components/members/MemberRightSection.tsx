@@ -10,7 +10,7 @@ import Tabs from "../ui/Tabs";
 import { useAuth } from "@/auth/AuthContext";
 import { getProject } from "@/services/projectServices";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+
 
 type Filter = "all" | "active" | "completed" | "on-hold";
 type RightTab = "projects" | "tasks";
@@ -83,7 +83,7 @@ const navigate = useNavigate();
         );
 
   return (
-<div className="flex-1 w-full px-3 sm:px-4 lg:px-6">
+<div className="flex-1 w-full px-3 sm:px-4 lg:px-1 ">
    
       <Tabs<RightTab>
         value={activeTab}
@@ -113,6 +113,12 @@ const navigate = useNavigate();
               onOpen={(project) => setSelectedProject(project)}
               projects={filteredProjects}
               canDelete
+              gridClassName="
+    grid
+    grid-cols-1
+    xl:grid-cols-2
+    gap-5
+  "
             />
           )}
         </>

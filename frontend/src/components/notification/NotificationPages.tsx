@@ -53,9 +53,9 @@ export default function NotificationPage({
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div className="grid grid-cols-1 w-full   lg:grid-cols-12 gap-6 items-start">
       {/* LEFT COLUMN: LIST VIEW */}
-      <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-3 overflow-y-auto max-h-[40vh] lg:max-h-[70vh] pr-1 sm:pr-2">
+      <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-3 overflow-y-auto max-h-[40vh] lg:max-h-[70vh]   pr-1 sm:pr-2">
         {visibleNotifications.map((n) => {
           const isSelected = n.id === selectedNotif?.id;
           const isUnread = !n.readBy.includes(currentUserId);
@@ -66,22 +66,22 @@ export default function NotificationPage({
               onClick={() => setSelectedId(n.id)}
               className={`text-left p-4 rounded-xl border transition-all ${
                 isSelected
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                  : "border-base-300 bg-base-100 hover:bg-base-200/50 hover:border-base-content/20"
+                  ? "border-primary bg-primary/20 ring-1 ring-primary/20 shadow-md"
+                  : "border-primary/30 bg-base-100 hover:bg-base-200/50  shadow-md hover:border-base-content/20"
               } ${
                 n.priority === "urgent" && !isSelected ? "border-l-4 border-l-error" : ""
               }`}
             >
               <div className="flex justify-between items-start mb-1 gap-2">
-                <h4 className={`font-semibold text-sm truncate ${isUnread ? "text-base-content" : "text-base-content/80"}`}>
+                <h4 className={`font-bold text-lg truncate ${isUnread ? "text-base-content" : "text-base-content"}`}>
                   {n.title}
                 </h4>
                 {isUnread && <span className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1.5" />}
               </div>
-              <p className="text-xs text-base-content/60 line-clamp-2 leading-relaxed">
+              <p className="text-md text-base-content line-clamp-2 leading-relaxed">
                 {n.message}
               </p>
-              <p className="text-[10px] text-base-content/40 mt-3 font-medium uppercase tracking-wider">
+              <p className="text-[13px] text-base-content mt-3 font-medium uppercase tracking-wider">
                 {new Date(n.createdAt).toLocaleDateString("en-IN", {
                   day: "numeric", month: "short", year: "numeric"
                 })}
@@ -92,20 +92,20 @@ export default function NotificationPage({
       </div>
 
       {/* RIGHT COLUMN: PREVIEW PANE */}
-      <div className="lg:col-span-7 xl:col-span-8 bg-base-100 border border-base-300 rounded-2xl p-6 shadow-sm min-h-[50vh] flex flex-col lg:sticky lg:top-6">
+      <div className="lg:col-span-7 xl:col-span-8    bg-primary border border-primary/20 rounded-2xl p-6 shadow-md min-h-[50vh] flex flex-col lg:sticky lg:top-6">
         {selectedNotif ? (
           <>
-            <div className="flex justify-between items-start border-b border-base-200 pb-4 mb-4 gap-4">
+            <div className="flex justify-between items-start border-b border-base-300 pb-4 mb-4 gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <h2 className="text-xl font-bold text-base-content leading-tight">{selectedNotif.title}</h2>
+                  <h2 className="text-xl font-bold text-primary-content leading-tight">{selectedNotif.title}</h2>
                   {selectedNotif.priority === "urgent" && (
                     <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-error/10 text-error border border-error/20 shrink-0">
                       Urgent
                     </span>
                   )}
                   </div>
-                <p className="text-xs text-base-content/50 font-medium">
+                <p className="text-sm text-primary-content/70 font-medium">
                   {new Date(selectedNotif.createdAt).toLocaleString("en-IN", {
                     weekday: "long", day: "numeric", month: "short", year: "numeric",
                     hour: "2-digit", minute: "2-digit"
@@ -117,7 +117,7 @@ export default function NotificationPage({
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     onClick={() => onEdit(selectedNotif)}
-                    className="p-2 rounded-lg bg-base-200 hover:bg-base-300 text-base-content/70 hover:text-base-content transition"
+                    className="p-2 rounded-lg bg-base-100 hover:bg-base-200 text-base-content/70 hover:text-base-content transition"
                     title="Edit"
                   >
                     <MdEdit size={18} />
@@ -127,7 +127,7 @@ export default function NotificationPage({
                       onDelete(selectedNotif.id);
                       if (selectedId === selectedNotif.id) setSelectedId(null);
                     }}
-                    className="p-2 rounded-lg bg-error/10 hover:bg-error/20 text-error transition"
+                    className="p-2 rounded-lg bg-error/70 hover:bg-error/80 text-white transition"
                     title="Delete"
                   >
                     <Trash2 size={18} />
@@ -137,14 +137,14 @@ export default function NotificationPage({
             </div>
 
             <div className="flex-1">
-              <p className="text-sm text-base-content/80 leading-relaxed whitespace-pre-wrap">
+              <p className="text-[15px] text-primary-content/70 leading-relaxed whitespace-pre-wrap">
                 {selectedNotif.message}
               </p>
             </div>
 
             {selectedNotif.attachments?.length > 0 && (
               <div className="mt-8 pt-6 border-t border-base-200">
-                <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-3">Attachments</h4>
+                <h4 className="text-xs font-semibold text-primary-content/50 uppercase tracking-wider mb-3">Attachments</h4>
                 <a
                   href={selectedNotif.attachments[0].fileUrl}
                   target="_blank"

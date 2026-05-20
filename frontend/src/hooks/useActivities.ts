@@ -11,7 +11,7 @@ export const useActivities = () => {
   useEffect(() => {
     const load = async () => {
       const data = await getActivities(slug);
-      console.log("Fetched activities:", data);
+      // console.log("Fetched activities:", data);
       setActivities(data);
     };
 

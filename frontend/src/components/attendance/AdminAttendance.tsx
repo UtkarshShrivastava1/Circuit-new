@@ -22,13 +22,22 @@ import MobileTabs from "../attendance/MobileTabs";
 import AttendanceMobileTopBar from "./AttendanceMobileTopBar";
 import { useAuth } from "@/auth/AuthContext";
 import { getAttendance } from "@/services/attendanceService";
-import Button from "../ui/Button";
+
 import AttendanceGrid from "./AttendanceGrid";
 
 type AttendanceTab = "records" | "summary" | "mark";
 type Status = "all" | "approved" | "pending" | "absent";
 
 const AdminAttendance = () => {
+  const getLocalISODate = () => {
+    const now = new Date();
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
   const { auth } = useAuth();
   const user = auth?.user;
 
@@ -45,18 +54,18 @@ const AdminAttendance = () => {
   //   fromDate?: string;
   //   toDate?: string;
   // }>({});
-  const todayISO = new Date().toISOString().split("T")[0];
-  
-const todayDate = new Date(); 
+  // const todayISO = new Date().toISOString().split("T")[0];
+  const todayISO = getLocalISODate();
+  const todayDate = new Date();
 
   const [summaryFilters, setSummaryFilters] = useState({
     month: todayDate.getMonth(),
     year: todayDate.getFullYear(),
     name: "",
   });
+
   const { month, year } = summaryFilters;
- 
- 
+
   const [filters, setFilters] = useState<{
     name?: string;
     fromDate?: string;
@@ -66,7 +75,8 @@ const todayDate = new Date();
     toDate: todayISO,
   });
   console.log("Current filters state:", filters);
-
+  console.log(todayISO);
+  console.log(filters);
   const [records, setRecords] = useState<
     (AttendanceRecord & {
       attendanceDocId: string;
@@ -182,73 +192,71 @@ const todayDate = new Date();
   //     });
   //   }
   // }, [slug, filters, refetchIndex,  summaryFilters.month, summaryFilters.year, debouncedName]);
-  
+
   useEffect(() => {
-  if (!slug) return;
+    if (!slug) return;
 
-  setLoading(true);
+    setLoading(true);
 
-  // 🔹 Records API (unchanged)
-  getAttendance(slug, filters)
-    .then((res) => {
-      const responseData = res.data?.data || res.data || [];
-      const arr = Array.isArray(responseData) ? responseData : [];
+    // 🔹 Records API (unchanged)
+    getAttendance(slug, filters)
+      .then((res) => {
+        console.log("API RESPONSE", res.data);
+        const responseData = res.data?.data || res.data || [];
 
-      const formattedRecords = [];
+        const arr = Array.isArray(responseData) ? responseData : [];
 
-      arr.forEach((doc: any) => {
-        const formattedDate = new Date(doc.date).toLocaleDateString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        });
+        const formattedRecords = [];
 
-        (doc.records || []).forEach((record: any) => {
-          if (!record.employee?._id) return;
+        arr.forEach((doc: any) => {
+          const formattedDate = new Date(doc.date).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          });
 
-          formattedRecords.push({
-            id: record._id,
-            attendanceDocId: doc._id,
-            employeeId: record.employee._id,
-            employee: record.employee.name || "Unknown",
-            date: formattedDate,
-            rawDate: new Date(doc.date).toISOString(),
-            checkIn: record.checkIn
-              ? new Date(record.checkIn).toLocaleTimeString("en-IN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-              : "",
-            status:
-              record.status === "PRESENT" || record.status === "HALF_DAY"
-                ? "approved"
-                : record.status === "ABSENT" || record.status === "REJECTED"
-                ? "absent"
-                : "pending",
-            mode: record.mode || "office",
+          (doc.records || []).forEach((record: any) => {
+            if (!record.employee?._id) return;
+
+            formattedRecords.push({
+              id: record._id,
+              attendanceDocId: doc._id,
+              employeeId: record.employee._id,
+              employee: record.employee.name || "Unknown",
+              date: formattedDate,
+              rawDate: new Date(doc.date).toISOString(),
+              checkIn: record.checkIn
+                ? new Date(record.checkIn).toLocaleTimeString("en-IN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "",
+              status:
+                record.status === "PRESENT" || record.status === "HALF_DAY"
+                  ? "approved"
+                  : record.status === "ABSENT" || record.status === "REJECTED"
+                    ? "absent"
+                    : "pending",
+              mode: record.mode || "office",
+            });
           });
         });
-      });
 
-      setRecords(formattedRecords);
-    })
-    .finally(() => setLoading(false));
+        setRecords(formattedRecords);
+      })
+      .finally(() => setLoading(false));
 
-  // 🔹 Summary API (debounced 🔥)
-  const { fromDate, toDate } = getMonthDateRange(month, year);
+    // 🔹 Summary API (debounced 🔥)
+    const { fromDate, toDate } = getMonthDateRange(month, year);
 
-  getAttendance(slug, {
-    fromDate,
-    toDate,
-   
-  }).then((res) => {
-    setAttendanceData(res.data?.data || []);
-  });
+    getAttendance(slug, {
+      fromDate,
+      toDate,
+    }).then((res) => {
+      setAttendanceData(res.data?.data || []);
+    });
+  }, [slug, filters, refetchIndex, month, year]);
 
-}, [slug, filters, refetchIndex, month, year]);
-  
-  
-  
   const employees = useMemo(() => {
     const map = new Map();
 
@@ -268,12 +276,12 @@ const todayDate = new Date();
   }, [attendanceData]);
 
   const filteredEmployees = useMemo(() => {
-  if (!summaryFilters.name) return employees;
+    if (!summaryFilters.name) return employees;
 
-  return employees.filter((emp) =>
-    emp.name.toLowerCase().includes(summaryFilters.name.toLowerCase())
-  );
-}, [employees, summaryFilters.name]);
+    return employees.filter((emp) =>
+      emp.name.toLowerCase().includes(summaryFilters.name.toLowerCase()),
+    );
+  }, [employees, summaryFilters.name]);
   // const monthlySummary = useMemo(() => {
   //   const present = records.filter((r) => r.status === "approved").length;
   //   const pending = records.filter((r) => r.status === "pending").length;
@@ -314,18 +322,32 @@ const todayDate = new Date();
       wfh: 0,
       halfDay: 0,
       attendancePercentage: total ? Math.round((present / total) * 100) : 0,
+      rejected: 0,
     };
   }, [attendanceData]);
 
   const filteredRecords = useAttendanceFilters(records, filters, statusFilter);
-  const today = new Date().toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
 
-  const todayRecords = filteredRecords.filter(
-    (record) => record.date === today,
+  const todayRecords = records.filter((record) => {
+    const today = new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+    return record.date === today;
+  });
+  console.log("Records for today:", todayRecords);
+  console.log("TODAY:", formatDate(new Date()));
+  console.log(
+    "RECORD DATES:",
+    filteredRecords.map((r) => r.date),
   );
 
   if (loading) {
@@ -354,50 +376,50 @@ const todayDate = new Date();
       <>
         {/* TABS */}
         <div className="mb-5 mt-4">
-          <div className="tabs tabs-boxed bg-base-200 md:inline-flex hidden gap-2 p-1 rounded-lg">
-            <Button
-              className={`
-    tab gap-2 px-3 py-1.5 rounded-lg font-medium 
-    ${
-      activeTab === "mark"
-        ? "text-primary-content bg-primary shadow-sm"
-        : "text-base-content/60 bg-base-200 border-base-300"
-    }
-  `}
+          <div className="bg-base-200 p-1 rounded-lg hidden md:inline-flex gap-1">
+            {/* MARK */}
+            <button
               onClick={() => setActiveTab("mark")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "mark"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
             >
-              <Clock size={18} /> Mark Attendance
-            </Button>
-            <Button
-              className={`
-      tab gap-2 px-3 py-1.5 rounded-md font-medium 
-      ${
-        activeTab === "records"
-          ? "text-primary-content bg-primary  shadow-sm"
-          : "text-base-content/60 bg-base-200 border-base-300"
-      }
-    `}
-              onClick={() => setActiveTab("records")}
-            >
-              <NotepadText size={18} /> Records
-            </Button>
+              <Clock size={16} />
+              Mark Attendance
+            </button>
 
-            <Button
-              className={`
-      tab gap-2 px-3 py-1.5 rounded-lg font-medium 
-      ${
-        activeTab === "summary"
-          ? " text-primary-content bg-primary  shadow-sm"
-          : "text-base-content/60 bg-base-200 border-base-300"
-      }
-    `}
-              onClick={() => setActiveTab("summary")}
+            {/* RECORDS */}
+            <button
+              onClick={() => setActiveTab("records")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "records"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
             >
-              <Clock size={18} /> Attendance Summary
-            </Button>
+              <NotepadText size={16} />
+              Records
+            </button>
+
+            {/* SUMMARY */}
+            <button
+              onClick={() => setActiveTab("summary")}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+        ${
+          activeTab === "summary"
+            ? "bg-primary text-primary-content shadow-sm"
+            : "text-base-content/60 hover:bg-base-100"
+        }`}
+            >
+              <Clock size={16} />
+              Attendance Summary
+            </button>
           </div>
         </div>
-
         {activeTab === "records" && (
           <>
             <AttendanceFilterDrawer
@@ -438,8 +460,8 @@ const todayDate = new Date();
                 </div>
               </div>
             </div> */}
-            <div className="hidden md:flex flex-col gap-3  border border-base-200 shadow-sm rounded-xl p-3 bg-white/40">
-              <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wide">
+            <div className="hidden md:flex flex-col gap-3  border border-primary/20 shadow-sm rounded-xl p-3 bg-primary/10">
+              <h3 className="text-sm font-semibold text-base-content/60 uppercase tracking-wide">
                 Filter Records
               </h3>
 
@@ -489,7 +511,7 @@ const todayDate = new Date();
 
         {activeTab === "summary" && (
           <div className="space-y-4">
-              {/* 🔽 SUMMARY CARDS */}
+            {/* 🔽 SUMMARY CARDS */}
             <AttendanceSummaryCards summary={monthlySummary} />
             {/* 🔽 FILTER BAR */}
             <div className="flex flex-wrap gap-3 items-end bg-primary/70 border border-base-300 p-4 rounded-xl text-base-content">
@@ -556,8 +578,6 @@ const todayDate = new Date();
                 className="input input-bordered border-2 border-base-300 flex-1"
               />
             </div>
-
-          
 
             {/* 🔽 GRID */}
             <AttendanceGrid

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { getSummary, getMonthlyList, markSlipPaid } from "@/services/payrollService";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
-import Button from "@/components/ui/Button";
-import PageHeader from "@/components/ui/PageHeader";
+// import Button from "@/components/ui/Button";
+// import PageHeader from "@/components/ui/PageHeader";
 import Pagination from "@/components/ui/Pagination";
 import {
   MdPendingActions,
@@ -163,7 +163,7 @@ export default function PayrollDashboard() {
       </div>
 
       {/* Top Controls: Month/Year & Bulk Actions */}
-      <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center bg-base-100 p-4 rounded-2xl shadow-sm border border-base-300">
+      <div className="flex flex-col md:flex-row justify-between gap-4 items-start md:items-center bg-primary p-4 rounded-2xl shadow-sm border border-base-300">
         <div className="flex items-center gap-3">
           <Select value={month} onChange={(e) => setMonth(Number(e.target.value))} className="w-40 select-sm md:select-md">
             {months.map(m => <option key={m.value} value={m.value}>{m.name}</option>)}
@@ -189,16 +189,16 @@ export default function PayrollDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* 1. Stats Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-base-300 bg-base-100 w-full rounded-2xl h-full">
+        {/* <div className="lg:col-span-2 stats stats-vertical sm:stats-horizontal shadow-sm border border-primary bg-base-100 w-full rounded-2xl h-full ">
           <div className="stat py-6 flex flex-col justify-center">
             <div className="stat-figure text-info">
               <MdGroup size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Total Staff</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Total Staff</div>
             <div className="stat-value text-info text-3xl mt-1">
               {summary?.totalStaff || 0}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1 text-base-content ">
               Eligible for payroll
             </div>
           </div>
@@ -207,11 +207,11 @@ export default function PayrollDashboard() {
             <div className="stat-figure text-warning">
               <MdPendingActions size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Pending Payout</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Pending Payout</div>
             <div className="stat-value text-warning text-3xl mt-1">
               ₹{(summary?.pending || 0).toLocaleString()}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1  text-base-content ">
               Needs disbursement
             </div>
           </div>
@@ -220,18 +220,118 @@ export default function PayrollDashboard() {
             <div className="stat-figure text-success">
               <MdAccountBalanceWallet size={36} />
             </div>
-            <div className="stat-title text-sm font-semibold uppercase tracking-wider">Total Paid</div>
+            <div className="stat-title text-sm font-semibold uppercase tracking-wider text-base-content ">Total Paid</div>
             <div className="stat-value text-success text-3xl mt-1">
               ₹{(summary?.paid || 0).toLocaleString()}
             </div>
-            <div className="stat-desc text-xs mt-1 opacity-70">
+            <div className="stat-desc text-xs mt-1 text-base-content">
               Successfully processed
             </div>
           </div>
+        </div> */}
+        <div
+  className="
+    lg:col-span-2
+    stats stats-vertical md:stats-horizontal
+    shadow-sm border border-primary
+    bg-base-100
+    w-full rounded-2xl
+    overflow-hidden
+  "
+>
+  {/* TOTAL STAFF */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Total Staff
         </div>
 
+        <div className="stat-value text-info text-2xl sm:text-3xl mt-2">
+          {summary?.totalStaff || 0}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Eligible for payroll
+        </div>
+      </div>
+
+      <div className="text-info shrink-0 mt-1">
+        <MdGroup className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+
+  {/* PENDING PAYOUT */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Pending Payout
+        </div>
+
+        <div className="stat-value text-warning text-xl sm:text-3xl mt-2 break-words">
+          ₹{(summary?.pending || 0).toLocaleString()}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Needs disbursement
+        </div>
+      </div>
+
+      <div className="text-warning shrink-0 mt-1">
+        <MdPendingActions className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+
+  {/* TOTAL PAID */}
+  <div className="stat py-5 px-4 sm:px-6">
+    <div className="flex items-start justify-between gap-3">
+      <div className="min-w-0">
+        <div
+          className="
+            stat-title
+            text-xs sm:text-sm
+            font-semibold uppercase tracking-wider
+            text-base-content
+          "
+        >
+          Total Paid
+        </div>
+
+        <div className="stat-value text-success text-xl sm:text-3xl mt-2 break-words">
+          ₹{(summary?.paid || 0).toLocaleString()}
+        </div>
+
+        <div className="stat-desc text-[11px] sm:text-xs mt-1 text-base-content">
+          Successfully processed
+        </div>
+      </div>
+
+      <div className="text-success shrink-0 mt-1">
+        <MdAccountBalanceWallet className="text-2xl sm:text-3xl" />
+      </div>
+    </div>
+  </div>
+</div>
+
         {/* 2. Chart Box (Spans 1 col, 2 rows) */}
-        <div className="lg:col-span-1 lg:row-span-2 bg-base-100 rounded-2xl border border-base-300 shadow-sm p-6 w-full flex flex-col h-full min-h-[320px]">
+        <div className="lg:col-span-1 lg:row-span-2 bg-base-100 rounded-2xl border border-primary shadow-sm p-6 w-full flex flex-col h-full min-h-[320px]">
           <h3 className="text-sm font-bold text-base-content/80 mb-4 uppercase tracking-wider">
             Payout Distribution
           </h3>
@@ -255,7 +355,7 @@ export default function PayrollDashboard() {
         </div>
 
         {/* 3. Filters Box (Spans 2 columns) */}
-        <div className="lg:col-span-2 flex flex-col md:flex-row gap-4 justify-between items-center bg-base-100 p-4 rounded-2xl border border-base-300 shadow-sm w-full h-full">
+        <div className="lg:col-span-2 flex flex-col md:flex-row gap-4 justify-between items-center bg-primary/50 p-4 rounded-2xl border border-base-300 shadow-sm w-full h-full">
           <div className="flex flex-1 w-full gap-4">
             <div className="relative w-full max-w-xs">
               <Input placeholder="Search employee..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full bg-base-200 border-none focus:ring-2 focus:ring-primary/50" />
@@ -267,17 +367,17 @@ export default function PayrollDashboard() {
               <option value="FAILED">Failed</option>
             </Select>
           </div>
-          <button className="btn btn-outline btn-sm md:btn-md border-base-300 text-base-content/70 hover:bg-base-200 hover:text-base-content">
+          {/* <button className="btn btn-outline btn-sm md:btn-md border-base-300 text-base-content/70 hover:bg-base-200 hover:text-base-content">
             <MdFilterList size={18} className="mr-2" /> Advanced Filters
-          </button>
+          </button> */}
         </div>
 
       </div>
 
       {/* Monthly Slips Table */}
-      <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 overflow-x-auto">
-        <table className="table table-zebra table-sm md:table-md w-full">
-          <thead className="bg-base-200 text-base-content/80 text-sm">
+      <div className="bg-base-100 rounded-2xl shadow-sm border border-primary/40 overflow-x-auto">
+        <table className="table table-zebra table-sm md:table-md w-full  border-primary/40">
+          <thead className="bg-primary text-primary-content text-sm ">
             <tr>
               <th className="p-4 w-12">
                 <label>
@@ -310,7 +410,7 @@ export default function PayrollDashboard() {
                   </label>
                 </td>
                 <td className="p-4 font-medium">{slip.employeeName || slip.employeeId}</td>
-                <td className="p-4 text-base-content/70">₹{slip.grossSalary.toLocaleString()}</td>
+                <td className="p-4 text-base-content">₹{slip.grossSalary.toLocaleString()}</td>
                 <td className="p-4 font-bold text-primary">₹{slip.netSalary.toLocaleString()}</td>
                 <td className="p-4">
                   <StatusBadge status={slip.paymentStatus.toLowerCase()} />

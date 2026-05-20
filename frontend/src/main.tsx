@@ -12,11 +12,12 @@ import { AuthProvider } from "./auth/AuthContext.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <HelmetProvider>
           <ThemeProvider>
             <NotificationProvider>
-              <ScrollToTop />
+             
               <App />
             </NotificationProvider>
           </ThemeProvider>

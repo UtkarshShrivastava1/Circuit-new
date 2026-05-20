@@ -138,13 +138,13 @@ const handleCreateProject = async () => {
 
   return (
     <div className="min-h-screen bg-base-100 px-4 py-6 sm:py-10 flex justify-center">
-      <div className="w-full max-w-3xl bg-base-200/40 backdrop-blur-md border border-base-200 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8">
+      <div className="w-full max-w-4xl bg-primary/30 backdrop-blur-md border border-base-200 rounded-2xl sm:rounded-3xl shadow-xl p-4 sm:p-8">
         {/* ================= HEADING ================= */}
         <div className="mb-8 text-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-base-content">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary-content">
             Create New Project
           </h1>
-          <p className="text-sm text-base-content/60 mt-2">
+          <p className="text-md font-medium text-base-content/80 mt-2">
             Fill in project details and assign team members
           </p>
         </div>
@@ -170,7 +170,7 @@ const handleCreateProject = async () => {
       </div> */}
 
         <div className="mb-6 sm:mb-8">
-          <div className="flex bg-base-300 rounded-xl p-1">
+          <div className="flex bg-primary/20 rounded-xl p-1">
             {TABS.map((tab) => (
               <button
                 key={tab}
@@ -180,7 +180,7 @@ const handleCreateProject = async () => {
           ${
             activeTab === tab
               ? "bg-primary shadow text-primary-content"
-              : "text-base-content/60 hover:text-base-content"
+              : "text-base-content/80 hover:text-base-content"
           }
         `}
               >

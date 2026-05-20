@@ -1,290 +1,145 @@
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* ========================================
+   LIGHT THEME
+======================================== */
+
 @plugin "daisyui/theme" {
-  name: "mytheme";
-  default: true; /* set as default */
-  prefersdark: false; /* set as default dark mode (prefers-color-scheme:dark) */
-  color-scheme: light; /* color of browser-provided UI */
+  name: "lighttheme";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
 
-/* ================= BASE ================= */
- --color-base-100: oklch(94% 0.005 260);
---color-base-200: oklch(90% 0.008 260);
---color-base-300: oklch(86% 0.01 260);
---color-base-content: oklch(22% 0.03 255);
+  /* Base */
+  --color-base-100: oklch(96% 0.004 260);
+  --color-base-200: oklch(92% 0.006 260);
+  --color-base-300: oklch(88% 0.008 260);
+  --color-base-content: oklch(22% 0.02 255);
 
-/* ================= PRIMARY ================= */
---color-primary: oklch(35% 0.10 300);
---color-primary-content: oklch(98% 0.01 300);
+  /* Primary */
+  --color-primary: oklch(42% 0.16 295);
+  --color-primary-content: oklch(98% 0.01 295);
 
-/* --color-primary: oklch(40% 0.14 275);
---color-primary-content: oklch(98% 0.01 275); */
+  /* Secondary */
+  --color-secondary: oklch(55% 0.05 255);
+  --color-secondary-content: oklch(98% 0.01 255);
 
-/* --color-primary: oklch(38% 0.13 280);
---color-primary-content: oklch(98% 0.01 280); */
+  /* Accent */
+  --color-accent: oklch(60% 0.14 240);
+  --color-accent-content: oklch(98% 0.01 240);
 
-/* ================= SECONDARY ================= */
---color-secondary: oklch(55% 0.04 255);
---color-secondary-content: oklch(98% 0.01 255);
+  /* States */
+  --color-success: oklch(65% 0.18 145);
+  --color-warning: oklch(75% 0.16 85);
+  --color-error: oklch(62% 0.20 25);
+  --color-info: oklch(65% 0.15 240);
 
-/* ================= ACCENT ================= */
---color-accent: oklch(60% 0.14 240);
---color-accent-content: oklch(98% 0.01 240);
+  /* Neutral */
+  --color-neutral: oklch(30% 0.02 260);
+  --color-neutral-content: oklch(96% 0.01 260);
 
-/* ================= STATES ================= */
---color-success: oklch(65% 0.20 140);
---color-success-content: oklch(98% 0.01 140);
+  /* Sidebar */
+  --sidebar-bg: oklch(24% 0.02 260);
+  --sidebar-hover: oklch(30% 0.03 260);
+  --sidebar-active: oklch(38% 0.06 295);
+  --sidebar-text: oklch(92% 0.01 250);
 
---color-info: oklch(60% 0.14 240);
---color-info-content: oklch(98% 0.01 240);
-
---color-warning: oklch(75% 0.16 85);
---color-error: oklch(60% 0.18 25);
-
-/* ================= NEUTRAL ================= */
---color-neutral: oklch(30% 0.02 260);
---color-neutral-content: oklch(98% 0.01 260);
-
-
---sidebar-bg: oklch(20% 0.02 260);   /* #181824 */
---sidebar-hover: oklch(26% 0.03 260);
---sidebar-active: oklch(30% 0.04 260);
---sidebar-text: oklch(90% 0.01 250);
-
-  /* border radius */
-  --radius-selector: 1rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
-
-  /* base sizes */
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-
-  /* border size */
-  --border: 1px;
-
-  /* effects */
-  --depth: 1;
-  --noise: 0; 
+  /* Radius */
+  --radius-box: 1rem;
+  --radius-field: 0.75rem;
 }
 
-/* ================================
-   DESIGN TOKENS (LIGHT THEME)
-================================ */
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+/* ========================================
+   DARK THEME
+======================================== */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+@plugin "daisyui/theme" {
+  name: "darktheme";
+  prefersdark: true;
+  color-scheme: dark;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+  /* Base */
+  --color-base-100: oklch(18% 0.015 260);
+  --color-base-200: oklch(22% 0.018 260);
+  --color-base-300: oklch(26% 0.02 260);
+  --color-base-content: oklch(94% 0.01 255);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+  /* Primary */
+  --color-primary: oklch(42% 0.16 295);
+  --color-primary-content: oklch(98% 0.01 295);
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+  /* Secondary */
+  --color-secondary: oklch(60% 0.08 260);
+  --color-secondary-content: oklch(98% 0.01 260);
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+  /* Accent */
+  --color-accent: oklch(70% 0.12 220);
+  --color-accent-content: oklch(20% 0.01 220);
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+  /* States */
+  --color-success: oklch(70% 0.18 145);
+  --color-warning: oklch(78% 0.16 85);
+  --color-error: oklch(65% 0.18 25);
+  --color-info: oklch(72% 0.15 240);
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+  /* Neutral */
+  --color-neutral: oklch(12% 0.01 260);
+  --color-neutral-content: oklch(94% 0.01 260);
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 47.4% 11.2%;
+  /* Sidebar */
+  --sidebar-bg: oklch(16% 0.015 260);
+  --sidebar-hover: oklch(22% 0.02 260);
+  --sidebar-active: oklch(32% 0.08 295);
+  --sidebar-text: oklch(92% 0.01 250);
 
-    --radius: 0.5rem;
-  }
-
-  /* ================================
-     DARK THEME
-  ================================ */
-  .dark {
-      --color-base-100: oklch(25.33% 0.016 252.42);
-  --color-base-200: oklch(23.26% 0.014 253.1);
-  --color-base-300: oklch(21.15% 0.012 254.09);
-  --color-base-content: oklch(97.807% 0.029 256.847);
-  --color-primary: oklch(58% 0.233 277.117);
-  --color-primary-content: oklch(96% 0.018 272.314);
-  --color-secondary: oklch(65% 0.241 354.308);
-  --color-secondary-content: oklch(94% 0.028 342.258);
-  --color-accent: oklch(77% 0.152 181.912);
-  --color-accent-content: oklch(38% 0.063 188.416);
-  --color-neutral: oklch(14% 0.005 285.823);
-  --color-neutral-content: oklch(92% 0.004 286.32);
-  --color-info: oklch(74% 0.16 232.661);
-  --color-info-content: oklch(29% 0.066 243.157);
-  --color-success: oklch(76% 0.177 163.223);
-  --color-success-content: oklch(37% 0.077 168.94);
-  --color-warning: oklch(82% 0.189 84.429);
-  --color-warning-content: oklch(41% 0.112 45.904);
-  --color-error: oklch(71% 0.194 13.428);
-  --color-error-content: oklch(27% 0.105 12.094);
-  --radius-selector: 0.5rem;
-  --radius-field: 0.25rem;
-  --radius-box: 0.5rem;
-  --size-selector: 0.25rem;
-  --size-field: 0.25rem;
-  --border: 1px;
-  --depth: 1;
-  --noise: 0;
-  }
+  /* Radius */
+  --radius-box: 1rem;
+  --radius-field: 0.75rem;
 }
 
-/* ================================
-   GLOBAL BASE STYLES (TAILWIND v4 SAFE)
-================================ */
+/* ========================================
+   GLOBAL BASE
+======================================== */
+
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    box-sizing: border-box;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-base-100 text-base-content;
+    font-family: Inter, sans-serif;
   }
 
-  /* Hide arrows from number input */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  input[type="number"] {
+  input[type=\"number\"] {
     -moz-appearance: textfield;
   }
 }
 
-/* ================================
-   CUSTOM ANIMATIONS
-================================ */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* ========================================
+   CUSTOM UTILITIES
+======================================== */
 
-.animate-spin-slow {
-  animation: spin 2s linear infinite;
-}
-
-/* LIGHT MODE */
-.neu {
-  background: var(--fallback-b1, oklch(var(--b1)));
-  box-shadow:
-    6px 6px 12px rgba(0, 0, 0, 0.12),
-    -6px -6px 12px rgba(255, 255, 255, 0.7);
-}
-
-/* Pressed */
-.neu-inset {
-  box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.12),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.7);
-}
-
-/* DARK MODE */
-[data-theme="dark"] .neu {
-  box-shadow:
-    6px 6px 12px rgba(0, 0, 0, 0.5),
-    -6px -6px 12px rgba(255, 255, 255, 0.04);
-}
-
-[data-theme="dark"] .neu-inset {
-  box-shadow:
-    inset 4px 4px 8px rgba(0, 0, 0, 0.6),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.05);
-}
-
-#LeaveForm::-webkit-scrollbar {
-  display: none;
-}
-
-
-
-.shapedividers_com-4472{
-overflow:hidden;
-position:relative;
-}
-.shapedividers_com-4472::before{
-content:'';
-font-family:'shape divider from ShapeDividers.com';
-position: absolute;
-bottom: -1px;
-left: -1px;
-right: -1px;
-top: -1px;
-z-index: 3;
-pointer-events: none;
-background-repeat: no-repeat; 
-background-size: 134px 100%;
-background-position: 0% 50%;    
-background-image: url('data:image/svg+xml;charset=utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2.17 35.28" preserveAspectRatio="none"><path d="M.5 35.28C1.04 32.2.07 26 .5 19.13.9 12.26 1.06 5.4.38 0H0v35.28z" fill="%23ffffff"/><path d="M1 35.28c.8-3.17-.38-7.3-.55-10.04-.17-2.76 1.47-9.25 1.3-12.68C1.58 9.14.91 7.92.88 5.52.86 3.12 1.76 0 1.76 0H0v35.28z" opacity=".5" fill="%23ffffff"/><path d="M1.85 35.28c-.83-2.57-.3-7.68-.42-11.8-.12-4.1-.61-6.85-.28-9.57.33-2.73 1.17-5.61 1-8.61-.19-3-.82-4.73-.84-5.3H.1v35.28z" opacity=".5" fill="%23ffffff"/></svg>'); 
-}
-
-@media (min-width:768px){
-.shapedividers_com-4472::before{
-background-size: 134px 100%;
-background-position: 0% 50%;   
-}  
-}
- 
-@media (min-width:1025px){
-.shapedividers_com-4472::before{ 
-bottom: -0.1vw;
-left: -0.1vw;
-right: -0.1vw;
-top: -0.1vw; 
-background-size: 100px 100%;
-background-position: 100% 50%;  
-background-image: url('data:image/svg+xml;charset=utf8, <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2.17 35.28" preserveAspectRatio="none"><path d="M1.67 0c-.55 3.07.41 9.27 0 16.14-.4 6.88-.58 13.75.1 19.14h.4V0z" fill="%23ffffff"/><path d="M1.16 0c-.8 3.17.4 7.29.56 10.04C1.89 12.8.25 19.3.42 22.71c.16 3.43.84 4.65.86 7.05.03 2.4-.88 5.52-.88 5.52h1.77V0z" opacity=".5" fill="%23ffffff"/><path d="M.31 0c.84 2.56.3 7.68.43 11.79.12 4.1.61 6.86.28 9.58-.33 2.73-1.18 5.61-1 8.61.19 3 .82 4.73.84 5.3h1.2V0z" opacity=".5" fill="%23ffffff"/></svg>'); 
-}
-}
-
-
-/* Invisible by default */
 .modern-scroll::-webkit-scrollbar {
   width: 6px;
+}
+
+.modern-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 999px;
 }
 
 .modern-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.modern-scroll::-webkit-scrollbar-thumb {
-  background: #ffffff;
-  border-radius: 10px;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-/* Hover ya scroll container active ho tab visible */
-.modern-scroll:hover::-webkit-scrollbar-thumb,
-.modern-scroll:active::-webkit-scrollbar-thumb {
-  opacity: 1;
-}
-
-/* Firefox support */
-.modern-scroll {
-  scrollbar-width: thin;
-  scrollbar-color: transparent transparent;
-}
-
-.modern-scroll:hover {
-  scrollbar-color: #ffffff transparent;
-}
-
 .tasktable::-webkit-scrollbar {
-   display: none;
+  display: none;
 }

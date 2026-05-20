@@ -1,7 +1,13 @@
 import { useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PageContainer from "../components/ui/PageContainer";
-
+import {
+  ClipboardList,
+  CheckCircle2,
+  LoaderCircle,
+  Clock3,
+  AlertTriangle,
+} from "lucide-react";
 // tab components
 import ProjectTasks from "../components/projects/ProjectTasks";
 import ProjectMembers from "../components/projects/ProjectMembers";
@@ -97,7 +103,7 @@ export default function ProjectWorkspace() {
 
   return (
     
-    <PageContainer title={project.projectName || project.name || "Untitled Project"} subtitle={`Managed by ${manager?.user?.name || "Unknown"}`}>
+    <PageContainer >
       <div className="mb-4">
         <Breadcrumbs />
       </div>
@@ -107,43 +113,54 @@ export default function ProjectWorkspace() {
       subtitle={`Managed by ${manager?.user.name || "Unknown"}`}
     >
       {/* Tabs */}
-      <div className="flex gap-2 border-b border-base-300 mb-6 overflow-x-auto whitespace-nowrap">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 text-sm font-medium transition flex-shrink-0
-                ${isActive ? "border-b-2 border-primary text-primary bg-primary/5" : "text-base-content/60 hover:text-base-content hover:bg-base-200"}`}
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
+      <div className="mb-6 overflow-x-auto">
+  <div className="bg-base-200 p-1 rounded-xl inline-flex gap-1 min-w-max">
+    {tabs.map((tab) => {
+      const isActive = activeTab === tab.key;
+
+      return (
+        <button
+          key={tab.key}
+          onClick={() => setActiveTab(tab.key)}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap
+            ${
+              isActive
+                ? "bg-primary text-primary-content shadow-sm"
+                : "text-base-content/60 hover:bg-base-100 hover:text-base-content"
+            }`}
+        >
+          {tab.label}
+        </button>
+      );
+    })}
+  </div>
+</div>
 
       {/* Tab Content */}
       {activeTab === "overview" && (
         <>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-6">
-            <StatCard label="Total Tasks" color="base-content" value={totalTasks} />
+            <StatCard label="Total Tasks" color="base-content" value={totalTasks}
+            icon={<ClipboardList className="w-4 h-4" />} />
             <StatCard
               label="Completed"
               value={completedTasks}
               color="success"
-            />
+              borderColor="border-success"
+              icon={<CheckCircle2 className="w-4 h-4" />} />
             <StatCard
               label="In Progress"
               value={inProgressTasks}
               color="primary"
-            />
-            <StatCard label="Pending" value={pendingTasks} color="warning" />
+              borderColor="border-primary"
+              icon={<LoaderCircle className="w-4 h-4" />} />
+            <StatCard label="Pending" value={pendingTasks} color="warning" borderColor="border-warning" icon={<Clock3 className="w-4 h-4 " />} />
             <StatCard
               label="High Priority"
               value={highPriorityTasks.length}
               color="error"
-            />
+              borderColor="border-error"
+              icon={<AlertTriangle className="w-4 h-4" />} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -176,7 +193,7 @@ export default function ProjectWorkspace() {
       )}
       {activeTab === "activity" && <ProjectActivity projectId={id!} />} 
       {activeTab === "chat" && <ProjectChat projectId={id!} currentUser={auth.user} />}
-      {activeTab === "activity" && <ProjectActivity projectId={id!} />}
+      
       
       {activeTab === "workUpdates" && <WorkUpdate slug={auth.slug} projectId={id!} />}
     </PageContainer>
@@ -190,31 +207,38 @@ const StatCard = ({
   label,
   value,
   color,
+  borderColor,
+  icon,
 }: {
   label: string;
   value: number;
   color?: string;
+  borderColor?: string;
+  icon?: React.ReactNode;
 }) => (
   <div
-    className={`bg-base-200 border border-base-300 rounded-lg p-4 text-center ${color ? `text-${color}` : ""}`}
+    className={`flex flex-col items-start bg-white/70 border ${borderColor || "border-primary"} rounded-lg p-4 text-center ${color ? `text-${color}` : ""}`}
   >
-    <p className="text-xs text-base-content/60">{label}</p>
+    <div className="flex justify-between  w-full ">
+    <p className="text-sm font-bold ">{label}</p>
+    {icon && <div className="bg-primary/50 text-primary-content rounded-lg p-1">{icon}</div>}
+    </div>
     <p className="text-lg font-semibold">{value}</p>
   </div>
 );
 
 const DescriptionCard = ({ description }: { description: string }) => (
-  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+  <div className="bg-white/70 border border-primary/30 rounded-lg p-6">
     <h3 className=" text-base-content font-semibold mb-2">Description</h3>
-    <p className="text-sm text-base-content/70">{description}</p>
+    <p className="text-sm font-medium text-base-content/60">{description}</p>
   </div>
 );
 
 const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
-  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+  <div className="bg-white/70 border border-error rounded-lg p-6">
     <h3 className=" text-base-content font-semibold mb-3">High Priority Tasks</h3>
     {tasks.length === 0 ? (
-      <p className="text-sm text-base-content/60">No high priority tasks </p>
+      <p className="text-sm font-medium text-base-content/50">No high priority tasks </p>
     ) : (
       <ul className="space-y-2 text-sm">
         {tasks.slice(0, 3).map((task) => (
@@ -229,10 +253,10 @@ const HighPriorityTasksCard = ({ tasks }: { tasks: any[] }) => (
 );
 
 const LatestTasksCard = ({ tasks }: { tasks: any[] }) => (
-  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
+  <div className="bg-white/70 border border-primary/30 rounded-lg p-6">
     <h3 className=" text-base-content font-semibold mb-3">Latest Tasks</h3>
     {tasks.length === 0 ? (
-      <p className="text-sm text-base-content/60">No latest tasks </p>
+      <p className="text-sm font-medium text-base-content/50">No latest tasks </p>
     ) : (
       <ul className="space-y-2 text-sm">
         {tasks.map((task) => (
@@ -273,16 +297,16 @@ const OverdueTasksCard = ({ tasks }: { tasks: any[] }) => (
 );
 
 const TeamCard = ({ team }: { team: any[] }) => (
-  <div className="bg-base-200 border border-base-300 rounded-lg p-6">
-    <h3 className="font-semibold text-base-content mb-3">Team Members</h3>
+  <div className="bg-primary rounded-lg p-6">
+    <h3 className="font-semibold text-primary-content mb-3">Team Members</h3>
     <ul className="space-y-2 text-sm">
       {team.map((member: any) => (
         <li
           key={member.user._id}
-          className="flex justify-between text-base-content"
+          className="flex justify-between text-primary-content"
         >
           <span>{member.user.name || "Unknown"}</span>
-          <span className="text-base-content/60">{member.role}</span>
+          <span className="">{member.role}</span>
         </li>
       ))}
     </ul>

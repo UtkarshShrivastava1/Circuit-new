@@ -52,8 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
        const res = await API.get("/auth/me");
 
-         console.log("User from /me:", res.data);
-         console.log("User's slug:", res.data.slug);
+        //  console.log("User from /me:", res.data);
+        //  console.log("User's slug:", res.data.slug);
 
         // Update AuthContext
         setAuth({

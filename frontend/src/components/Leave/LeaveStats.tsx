@@ -64,7 +64,7 @@ export default function LeaveStats({ requests }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-blue-300 p-4 rounded-2xl">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 bg-primary p-4 rounded-2xl">
       {stats.map((stat, index) => {
         const Icon = stat.icon;
 
@@ -75,7 +75,7 @@ export default function LeaveStats({ requests }: Props) {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-base-content/60">
+                <p className="text-sm text-base-content/60 font-medium">
                   {stat.title}
                 </p>
                 <p className="text-xl text-base-content font-semibold">

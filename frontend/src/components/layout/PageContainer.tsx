@@ -19,7 +19,7 @@ export default function PageContainer({
         <div className="flex items-start justify-between">
           <div>
             {title && (
-              <h1 className="text-xl font-semibold text-base-content">
+              <h1 className="text-2xl font-semibold text-base-content">
                 {title}
               </h1>
             )}

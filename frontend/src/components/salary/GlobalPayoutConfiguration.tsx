@@ -1,23 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
+
+import { useAuth } from "@/auth/AuthContext";
 
 interface Props {
   basic: number;
-  hra: number;
-  da: number;
-  onChange: (key: "basic" | "hra" | "da", value: number) => void;
+  // hra: number;
+  // da: number;
+  onChange: (key: "basic" , value: number) => void;
   onSave: () => void;
 }
 
 export default function GlobalPayoutConfig({
   basic,
-  hra,
-  da,
+ 
   onChange,
   onSave,
 }: Props) {
   const [open, setOpen] = useState(false);
-
+  const { auth } = useAuth();
+ 
   return (
     <div className="bg-primary text-primary-content rounded-2xl p-4 shadow-lg transition-all">
       
@@ -53,7 +55,7 @@ export default function GlobalPayoutConfig({
             />
           </div>
 
-          <div>
+          {/* <div>
             <p className="text-xs mb-1 opacity-70">HRA %</p>
             <input
               type="number"
@@ -71,7 +73,7 @@ export default function GlobalPayoutConfig({
               onChange={(e) => onChange("da", Number(e.target.value))}
               className="input w-full bg-base-200 text-base-content"
             />
-          </div>
+          </div> */}
         </div>
 
         {/* SAVE BUTTON */}

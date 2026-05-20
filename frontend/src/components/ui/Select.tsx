@@ -18,7 +18,7 @@ export default function Select({
     <select
       {...props}
      className={clsx(
-  "select w-full text-base-content/50 rounded-lg border border-base-300 bg-base-100 transition-all duration-200",
+  " select w-full text-base-content/70 rounded-lg border border-base-300 bg-base-100 transition-all duration-200",
   "focus:outline-none focus:ring-2 focus:ring-primary/40 appearance-none",
   fieldSizeClasses[size],
   className

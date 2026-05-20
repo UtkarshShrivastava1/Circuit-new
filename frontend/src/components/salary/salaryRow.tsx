@@ -18,7 +18,7 @@ function SalaryRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="flex justify-between items-center text-base-content/80 py-1">
+    <div className="flex justify-between items-center text-base-content py-1">
       {isCustom && editable ? (
         <div className="flex items-center gap-2">
           {onRemove && (
