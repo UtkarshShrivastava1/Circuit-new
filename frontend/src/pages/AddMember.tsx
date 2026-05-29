@@ -16,6 +16,7 @@ type Errors = {
   aadhaar?: string;
   pan?: string;
   designation?: string;
+  department?: string;
 };
 const AddMember = () => {
   const { auth } = useAuth();
@@ -49,6 +50,8 @@ const AddMember = () => {
     // Employment
     role: "employee" as UserRole,
     designation: "", // ✅ ADD THIS
+    department: "",
+    customDepartment: "",
     joiningDate: "",
     previousCompany: "",
 
@@ -105,7 +108,12 @@ const AddMember = () => {
     if (!formData.designation) {
       newErrors.designation = "Designation is required";
     }
-
+     if (
+  formData.department === "other" &&
+  !formData.customDepartment.trim()
+) {
+  newErrors.department = "Custom department is required";
+}
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -172,6 +180,8 @@ const AddMember = () => {
         passport: "",
         role: "employee" as UserRole,
         designation: "",
+        department: "",
+        customDepartment: "",
         joiningDate: "",
         previousCompany: "",
         bankName: "",
@@ -551,7 +561,31 @@ const AddMember = () => {
                   {errors.designation}
                 </p>
               )}
+              <select
+  name="department"
+  value={formData.department}
+  onChange={handleChange}
+  className={inputStyle}
+>
+  <option value="">Select Department</option>
+  <option value="sales">Sales</option>
+  <option value="marketing">Marketing</option>
+  <option value="customer-support">Customer Support</option>
+  <option value="it">IT</option>
+  <option value="human-resource">Human Resource and Administration</option>
 
+  <option value="other">Other</option>
+</select>
+{formData.department === "other" && (
+  <input
+    type="text"
+    name="customDepartment"
+    value={formData.customDepartment}
+    onChange={handleChange}
+    placeholder="Enter Custom Department"
+    className={inputStyle}
+  />
+)}
               <input
                 type="date"
                 name="joiningDate"

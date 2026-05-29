@@ -43,7 +43,7 @@ exports.createEmployee = async (req, res) => {
       // Identity
       aadhaar, pan, passport,
       // Employment
-      role, designation, department, joiningDate, previousCompany,
+      role, designation, department,customDepartment, joiningDate, previousCompany,
       // Financial
       bankName, accountNumber, ifscCode
     } = req.body;
@@ -72,6 +72,36 @@ exports.createEmployee = async (req, res) => {
 
     }
 
+    const departmentCodes = {
+  sales: "SAL",
+  marketing: "MKT",
+  "customer-support": "CSR",
+  it: "IT",
+  
+  "human-resource and administration": "HR",
+};
+
+let deptCode = "";
+
+if (department === "other") {
+
+  deptCode = customDepartment
+    .replace(/\s+/g, "")
+    .slice(0, 3)
+    .toUpperCase();
+
+} else {
+
+  deptCode = departmentCodes[department];
+
+}
+
+const count = await User.countDocuments({
+  organization,
+});
+
+const employeeId = `${deptCode}-${String(count + 1).padStart(3, "0")}`;
+
     const user = await User.create({
       // Personal
       name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
@@ -81,7 +111,8 @@ exports.createEmployee = async (req, res) => {
       aadhaar, pan, passport,
       // Employment
       role: role || "member",
-      designation, department, joiningDate, previousCompany,
+      employeeId,
+      designation, department, customDepartment, joiningDate, previousCompany,
       // Financial
       bankName, accountNumber, ifscCode,
       // Organization
@@ -90,7 +121,8 @@ exports.createEmployee = async (req, res) => {
 
     logger.info("Employee created", {
       userId: user._id,
-      organization
+      organization,
+      employeeId: user.employeeId
     });
 
     console.log(
