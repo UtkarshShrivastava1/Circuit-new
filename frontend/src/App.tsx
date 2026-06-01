@@ -18,6 +18,16 @@ import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage"
 import { useAuth } from "./auth/AuthContext";
 import WorkUpdates from "./pages/WorkUpdate";
 import SalaryStructureDashboard from "./pages/SalaryStructureDashboard";
+import NewProduct from "./pages/Sales/Products";
+import AllProducts from "./pages/Sales/AllProducts";
+import Leads from "./pages/Sales/Leads";
+import AllLeads from "./pages/Sales/AllLeads";
+import NewContact from "./pages/Sales/NewContacts";
+import AllContact from "./pages/Sales/AllContact";
+import AllContacts from "./pages/Sales/AllContact";
+import SalesRepDetails from "./pages/Sales/SalesRepDetails";
+import AddSalesRep from "./pages/Sales/AddSalesRep";
+import NewOrderForm from "./pages/Sales/Orders";
 
 
 /* Pages (lazy) */
@@ -51,6 +61,8 @@ const Login = React.lazy(() => import("./pages/Login"));
 const AddMemberPage = React.lazy(() => import("./pages/AddMembers"));
 const OrganizationRegistrationPage = React.lazy(() => import("./pages/Organization/OrganizationRegistrationPage"));
 const ERPLandingPage = React.lazy(() => import("./pages/ERPLandingPage"));
+const SalesDashboard = React.lazy(() => import("./pages/Sales/SalesDashboard"));
+
 
 
 /* ---------- Layout Wrapper ---------- */
@@ -124,6 +136,16 @@ useEffect(() => {
         ) : (
           /* Protected Layout Routes */
           <Route element={<LayoutWrapper />}>
+              <Route path="/sales" element={<SalesDashboard />} />
+              <Route path="/sales/products" element={<AllProducts />} />
+              <Route path="/sales/products/new" element={ <NewProduct />} />
+              <Route path="/sales/leads/new" element={<Leads />} />
+              <Route path="/sales/leads" element={<AllLeads />} />
+              <Route path="/sales/contacts" element={<AllContacts />} />
+              <Route path="/sales/contacts/new" element={<NewContact />} />
+              <Route path="/sales/representatives" element={<SalesRepDetails />} />
+              <Route path="/sales/representatives/new" element={<AddSalesRep />} />
+              <Route path="/sales/orders" element={<NewOrderForm />} />
             <Route
               path="/"
               element={
@@ -244,6 +266,8 @@ useEffect(() => {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         )}
+
+        
       </Routes>
       <ToastContainer />
     </Suspense>
