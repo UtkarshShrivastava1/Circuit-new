@@ -114,7 +114,7 @@ const userSchema = new mongoose.Schema({
     
     "other",
   ],
-  default: "other",
+  
 },
 customDepartment: {
   type: String,

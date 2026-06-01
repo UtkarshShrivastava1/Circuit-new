@@ -79,7 +79,15 @@ const Login = ({ setToken }: LoginProps) => {
         });
 
         // Navigate to the dashboard upon successful login
-        navigate("/", { replace: true });
+       const dept = payload.user.department?.trim().toLowerCase();
+
+if (dept === "sales") {
+  navigate("/sales/dashboard", { replace: true });
+} else if (dept === "it") {
+  navigate("/", { replace: true });
+} else {
+  navigate("/", { replace: true });
+}
       }
 
       

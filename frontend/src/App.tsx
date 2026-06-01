@@ -18,11 +18,15 @@ import OrganizationPage from "./pages/Organization/OrganizationRegistrationPage"
 import { useAuth } from "./auth/AuthContext";
 import WorkUpdates from "./pages/WorkUpdate";
 import SalaryStructureDashboard from "./pages/SalaryStructureDashboard";
-
+import SalesDashboard from "./pages/Sales/SalesDashboard";
+import SalesLeads from "./pages/Sales/Employee/SalesLeads";
+import SalesMemberProfile from "./pages/Sales/Employee/SalesMemberProfile";
 
 /* Pages (lazy) */
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
-const PageContainer = React.lazy(() => import("./components/layout/PageContainer"));
+const PageContainer = React.lazy(
+  () => import("./components/layout/PageContainer"),
+);
 // const Login = React.lazy(() => import("./pages/Login"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Attendance = React.lazy(() => import("./pages/Attendance"));
@@ -32,15 +36,17 @@ const TaskDashboard = React.lazy(() => import("./pages/Tasks"));
 const LeaveDashboard = React.lazy(() => import("./pages/LeaveDashboard"));
 
 const SalaryStructure = React.lazy(() => import("./pages/SalaryStructure"));
-const PayrollDashboard = React.lazy(
-  () => import("./pages/PayrollDashboard"),
-);
+const PayrollDashboard = React.lazy(() => import("./pages/PayrollDashboard"));
 const GeneratePaySlip = React.lazy(
   () => import("./components/salary/GeneratePaySlip"),
 );
 const PayHistory = React.lazy(() => import("./components/salary/Payhistory"));
-const EmployeePayslip = React.lazy(() => import("./components/salary/EmployeePayslip"));
-const PayrollPolicySetup = React.lazy(() => import("./components/salary/PayrollPolicySetup"));
+const EmployeePayslip = React.lazy(
+  () => import("./components/salary/EmployeePayslip"),
+);
+const PayrollPolicySetup = React.lazy(
+  () => import("./components/salary/PayrollPolicySetup"),
+);
 
 const Members = React.lazy(() => import("./pages/Members"));
 const MemberDetails = React.lazy(() => import("./pages/MemberDetails"));
@@ -49,7 +55,6 @@ const AddMember = React.lazy(() => import("./pages/AddMember"));
 const CreateProject = React.lazy(() => import("./pages/CreateProject"));
 const Login = React.lazy(() => import("./pages/Login"));
 const AddMemberPage = React.lazy(() => import("./pages/AddMembers"));
-
 
 /* ---------- Layout Wrapper ---------- */
 
@@ -63,188 +68,236 @@ function LayoutWrapper() {
 
 export default function App() {
   const { auth } = useAuth();
-  const isManagement = ['admin', 'owner', 'manager'].includes(auth?.user?.role || '');
+  const isManagement = ["admin", "owner", "manager"].includes(
+    auth?.user?.role || "",
+  );
 
-useEffect(() => {
-  if (!auth?.user) return;
+  useEffect(() => {
+    if (!auth?.user) return;
 
-  const isAdmin =
-    auth.user.role === "admin" || auth.user.role === "owner";
+    const isAdmin = auth.user.role === "admin" || auth.user.role === "owner";
 
-  socket.connect();
+    socket.connect();
 
-  const handleConnect = () => {
-    console.log("🟢 Socket connected:", socket.id);
+    const handleConnect = () => {
+      console.log("🟢 Socket connected:", socket.id);
 
-    if (isAdmin) {
-      socket.emit("joinAdminRoom");
-      console.log("👑 Sent joinAdminRoom");
-    }
+      if (isAdmin) {
+        socket.emit("joinAdminRoom");
+        console.log("👑 Sent joinAdminRoom");
+      }
 
-    socket.emit("joinUserRoom", auth.user?.userId);
-  };
+      socket.emit("joinUserRoom", auth.user?.userId);
+    };
 
-  const handleNotification = (data: any) => {
-    console.log("🔔 Notification received:", data);
+    const handleNotification = (data: any) => {
+      console.log("🔔 Notification received:", data);
 
-    const audio = new Audio("/notification.mp3");
-    audio.play().catch(() => {});
-  };
+      const audio = new Audio("/notification.mp3");
+      audio.play().catch(() => {});
+    };
 
-  socket.on("connect", handleConnect);
-  socket.on("notification", handleNotification);
+    socket.on("connect", handleConnect);
+    socket.on("notification", handleNotification);
 
-  return () => {
-    socket.off("connect", handleConnect);
-    socket.off("notification", handleNotification);
-    socket.disconnect();
-  };
-}, [auth?.user]);
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("notification", handleNotification);
+      socket.disconnect();
+    };
+  }, [auth?.user]);
 
   return (
     <>
-   { !auth.user ?
-   <Login />   :
-    <Suspense fallback={
-      <div className="flex flex-col justify-center items-center h-screen bg-base-100">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-        <p className="mt-4 text-lg font-medium text-base-content/70">Loading...</p>
-      </div>
-    }>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/organizationRegister" element={<OrganizationPage />} />
-
-        {/* If the user is logged in but hasn't registered an organization yet, force them to the registration page */}
-        {(!auth?.slug && !auth?.user?.organization) ? (
-          <Route path="*" element={<Navigate to="/organizationRegister" replace />} />
-        ) : (
-          /* Protected Layout Routes */
-          <Route element={<LayoutWrapper />}>
+      {!auth.user ? (
+        <Login />
+      ) : (
+        <Suspense
+          fallback={
+            <div className="flex flex-col justify-center items-center h-screen bg-base-100">
+              <span className="loading loading-spinner loading-lg text-primary"></span>
+              <p className="mt-4 text-lg font-medium text-base-content/70">
+                Loading...
+              </p>
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/login" element={<Login />} />
             <Route
-              path="/"
-              element={
-                  <Dashboard />
-                // <PageContainer title="Dashboard" subtitle="Overview">
-                // </PageContainer>
-              }
-            />
-            <Route
-              path="/attendance"
-              element={
-                  <Attendance />
-                // <PageContainer title="Attendance" subtitle="Daily validation">
-                // </PageContainer>
-              }
-            />
-            <Route
-              path="/projects"
-              element={
-                  <Projects />
-                // <PageContainer title="Projects">
-                // </PageContainer>
-              }
-            />
-            <Route path="/work-updates" element={
-              <WorkUpdates/>
-
-
-            }
-            />
-            <Route
-              path="/tasks"
-              element={
-                  <TaskDashboard />
-                // <PageContainer title="Tasks">
-                // </PageContainer>
-              }
-            />
-            <Route
-              path="/leaves"
-              element={
-                  <LeaveDashboard />
-                // <PageContainer title="My Leaves" subtitle="Track your leave requests">
-                // </PageContainer>
-              }
+              path="/organizationRegister"
+              element={<OrganizationPage />}
             />
 
-            {/* My Salary - For all employees to view their own payslips */}
-            <Route
-              path="/my-salary"
-              element={
-                <PageContainer title="My Salary">
-                  <EmployeePayslip />
-                </PageContainer>
-              }
-            />
-
-
-            {/* Payroll - Restricted to Admin, Owner, and Manager */}
-            {isManagement && (
-              <>
+            {/* If the user is logged in but hasn't registered an organization yet, force them to the registration page */}
+            {!auth?.slug && !auth?.user?.organization ? (
+              <Route
+                path="*"
+                element={<Navigate to="/organizationRegister" replace />}
+              />
+            ) : (
+              /* Protected Layout Routes */
+              <Route element={<LayoutWrapper />}>
                 <Route
-                  path="/payroll/dashboard"
+                  path="/"
                   element={
-                      <PayrollDashboard />
-                      // <SalaryStructureDashboard />
-                    // <PageContainer title="Payroll Dashboard">
+                    <Dashboard />
+                    // <PageContainer title="Dashboard" subtitle="Overview">
+                    // </PageContainer>
+                  }
+                />
+
+                <Route path="/sales/dashboard" element={<SalesDashboard />} />
+                <Route path="/sales/leads" element={<SalesLeads />} />
+                <Route
+  path="/sales/profile/:id"
+  element={<SalesMemberProfile />}
+/>
+                <Route
+                  path="/attendance"
+                  element={
+                    <Attendance />
+                    // <PageContainer title="Attendance" subtitle="Daily validation">
                     // </PageContainer>
                   }
                 />
                 <Route
-                  path="/payroll/salary-structure"
+                  path="/projects"
                   element={
-                      <SalaryStructure />
-                    // <PageContainer title="Salary Structure">
+                    <Projects />
+                    // <PageContainer title="Projects">
+                    // </PageContainer>
+                  }
+                />
+                <Route path="/work-updates" element={<WorkUpdates />} />
+                <Route
+                  path="/tasks"
+                  element={
+                    <TaskDashboard />
+                    // <PageContainer title="Tasks">
                     // </PageContainer>
                   }
                 />
                 <Route
-                  path="/payroll/generate"
+                  path="/leaves"
                   element={
-                      <GeneratePaySlip />
-                    // <PageContainer title="Generate Pay Slip">
+                    <LeaveDashboard />
+                    // <PageContainer title="My Leaves" subtitle="Track your leave requests">
                     // </PageContainer>
+                  }
+                />
+
+                {/* My Salary - For all employees to view their own payslips */}
+                <Route
+                  path="/my-salary"
+                  element={
+                    <PageContainer title="My Salary">
+                      <EmployeePayslip />
+                    </PageContainer>
+                  }
+                />
+
+                {/* Payroll - Restricted to Admin, Owner, and Manager */}
+                {isManagement && (
+                  <>
+                    <Route
+                      path="/payroll/dashboard"
+                      element={
+                        <PayrollDashboard />
+                        // <SalaryStructureDashboard />
+                        // <PageContainer title="Payroll Dashboard">
+                        // </PageContainer>
+                      }
+                    />
+                    <Route
+                      path="/payroll/salary-structure"
+                      element={
+                        <SalaryStructure />
+                        // <PageContainer title="Salary Structure">
+                        // </PageContainer>
+                      }
+                    />
+                    <Route
+                      path="/payroll/generate"
+                      element={
+                        <GeneratePaySlip />
+                        // <PageContainer title="Generate Pay Slip">
+                        // </PageContainer>
+                      }
+                    />
+                    <Route
+                      path="/payroll/history"
+                      element={
+                        <PayHistory />
+                        // <PageContainer title="Payroll History">
+                        // </PageContainer>
+                      }
+                    />
+                    <Route
+                      path="/payroll/policy"
+                      element={
+                        <PayrollPolicySetup />
+                        // <PageContainer title="Payroll Policy Setup">
+                        // </PageContainer>
+                      }
+                    />
+                  </>
+                )}
+
+                <Route path="/projects/:id" element={<ProjectWorkspace />}>
+                  <Route path="chat" element={<ProjectChat />} />
+                </Route>
+                <Route
+                  path="/members"
+                  element={
+                    <PageContainer title="Members">
+                      <Members />
+                    </PageContainer>
                   }
                 />
                 <Route
-                  path="/payroll/history"
+                  path="/members/:id"
                   element={
-                      <PayHistory />
-                    // <PageContainer title="Payroll History">
-                    // </PageContainer>
+                    <PageContainer>
+                      <MemberDetails />
+                    </PageContainer>
+                  }
+                />
+                <Route path="/profile/:id" element={<AdminProfile />} />
+                <Route path="/addMember" element={<AddMember />} />
+                <Route
+                  path="/createProject"
+                  element={
+                    <PageContainer>
+                      <CreateProject />
+                    </PageContainer>
                   }
                 />
                 <Route
-                  path="/payroll/policy"
+                  path="/notifications"
                   element={
-                      <PayrollPolicySetup />
-                    // <PageContainer title="Payroll Policy Setup">
-                    // </PageContainer>
+                    <PageContainer>
+                      <Notifications />
+                    </PageContainer>
                   }
                 />
-              </>
+                <Route
+                  path="/createMember"
+                  element={
+                    <PageContainer>
+                      <AddMemberPage />
+                    </PageContainer>
+                  }
+                />
+                <Route path="/settings" element={<SettingsPage />} />
+
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
             )}
-
-            <Route path="/projects/:id" element={<ProjectWorkspace />}>
-               <Route path="chat" element={<ProjectChat />} />
-            </Route>
-            <Route path="/members" element={<PageContainer title="Members"><Members /></PageContainer>} />
-            <Route path="/members/:id" element={<PageContainer><MemberDetails /></PageContainer>} />
-            <Route path="/profile/:id" element={<AdminProfile />} />
-            <Route path="/addMember" element={<AddMember />} />
-            <Route path="/createProject" element={<PageContainer><CreateProject /></PageContainer>} />
-            <Route path="/notifications" element={<PageContainer><Notifications /></PageContainer>} />
-            <Route path="/createMember" element={<PageContainer><AddMemberPage /></PageContainer>} />
-            <Route path="/settings" element={<SettingsPage />} />
-
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        )}
-      </Routes>
-      <ToastContainer />
-    </Suspense>
-   }
-   </>
+          </Routes>
+          <ToastContainer />
+        </Suspense>
+      )}
+    </>
   );
 }
