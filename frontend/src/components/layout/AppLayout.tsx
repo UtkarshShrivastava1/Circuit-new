@@ -1,9 +1,8 @@
 
 import { useEffect,useRef,  useState, type ReactNode } from "react";
 import Header from "./Header";
-import ERPSidebar from "./Sidebar";
+import Sidebar from "./Sidebar";
 import { useLocation } from "react-router-dom";
-import SalesSidebar from "../sales/SalesSidebar";
 
 
 interface Props {
@@ -15,8 +14,6 @@ export default function AppLayout({ children }: Props) {
    const scrollRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
-
-const isSalesRoute = location.pathname.startsWith("/sales");
  useEffect(() => {
     scrollRef.current?.scrollTo({
       top: 0,
@@ -29,13 +26,7 @@ const isSalesRoute = location.pathname.startsWith("/sales");
     <div className="flex h-screen bg-base-100 overflow-hidden">
       
       {/* Sidebar */}
-     {isSalesRoute ? (
-  <SalesSidebar isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}   />
-) : (
-  <ERPSidebar isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)} />
-)}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
  
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">

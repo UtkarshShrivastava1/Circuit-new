@@ -158,6 +158,8 @@ const AddMember = () => {
         imageUrl: imgUrl,
       };
 
+      console.log(slug , finalData);
+
       await createMember(slug, finalData);
 
       toast.success("Employee Registered Successfully");
@@ -647,7 +649,7 @@ const AddMember = () => {
           <button
             type="submit"
             disabled={adding}
-            className={`px-5 py-2.5 bg-primary text-primary-content rounded-xl hover:bg-primary/80 transition ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
+            className={`px-5 py-2.5 bg-primary text-primary-content rounded-xl hover:bg-primary/80 transition cursor-pointer ${adding ? `disabled:opacity-50 disabled:cursor-not-allowed` : ""}`}
           >
             {adding ? "Submitting..." : "Register Employee"}
           </button>
