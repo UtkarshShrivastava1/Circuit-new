@@ -2,13 +2,14 @@
 
 import API from "@/api/axios";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-
+import { useNavigate } from "react-router-dom";
 type User = {
   userId: string;
   name: string;
   email: string;
   role: string;
   organization: string;
+  department: string;
 };
 
 type AuthState = {
@@ -45,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   //  Check login on refresh using cookie
   useEffect(() => {
@@ -80,8 +82,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     setAuth(newAuth);
-   
-
+    console.log("Logged in user:", newAuth.user);
+    
   };
 
   const logout = async () => {

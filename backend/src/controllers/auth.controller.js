@@ -213,6 +213,7 @@ exports.login = async (req, res) => {
       organization: user.organization,
       slug: org.slug,
       department: user.department || null,
+      
     
     }), {
       secure: process.env.NODE_ENV === "production",
@@ -248,10 +249,12 @@ exports.login = async (req, res) => {
           userId: user._id,
         name: user.name,
         email: user.email,
+
         role: user.role,
         organization: user.organization,
         slug: org.slug,
         department: user.department || null,
+        customDepartment: user.customDepartment || null,
         imageUrl: user.imageUrl || null,
       
       },

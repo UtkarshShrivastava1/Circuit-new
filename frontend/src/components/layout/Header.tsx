@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 import { MdNotifications, MdMenu, MdSearch, MdClose, MdLightMode, MdDarkMode } from "react-icons/md";
 import type { Notification } from "@/type/notification";
@@ -73,7 +73,10 @@ export default function Header({ onMenuClick }: HeaderProps)  {
   }, []);
 
   const currentUserId = user?.userId || user?._id || "1";
- 
+ const location = useLocation();
+
+const isSales =
+  location.pathname.startsWith("/sales");
  const navigate=useNavigate();
   const isDark = theme === "dark";
 
@@ -452,7 +455,13 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
             <li className="menu-title">
               <span>Admin</span>
             </li>
-            <li onClick={()=>navigate(`/profile/${user?.userId}`)}>
+            <li onClick={() =>
+    navigate(
+      isSales
+        ? `/sales/profile/${user?.userId}`
+        : `/profile/${user?.userId}`
+    )
+  }>
               <a>Profile</a>
             </li>
             {/* <li onClick={() => fileInputRef.current?.click()}>

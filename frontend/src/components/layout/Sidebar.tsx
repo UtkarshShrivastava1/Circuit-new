@@ -366,6 +366,17 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
   const location = useLocation();
 
+  /* ── enforce department for non-management employees ── */
+  useEffect(() => {
+    if (user && !isManagement) {
+      const userDept = (user.department === "sales" ? "sales" : "erp") as Department;
+      if (department !== userDept) {
+        setDepartment(userDept);
+        localStorage.setItem("selected_department", userDept);
+      }
+    }
+  }, [user, isManagement, department]);
+
   /* ── nav link class helper ── */
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
@@ -407,7 +418,6 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const handleDeptSwitch = (dept: Department) => {
     setDepartment(dept);
     localStorage.setItem("selected_department", dept);
-    // Redirect to the department's default page
     navigate(dept === "sales" ? "/sales" : "/");
     onClose();
   };
@@ -509,7 +519,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
         </div>
 
         {/* ── DEPARTMENT SWITCHER ── */}
-        {!collapsed && (
+        {!collapsed && isManagement && (
           <div className="px-3 pt-3 pb-1">
             <p className="text-[10px] font-semibold uppercase text-primary-content/50 mb-2 px-1">
               Department
@@ -792,245 +802,282 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           {/* ════════════ SALES NAV ════════════ */}
           {department === "sales" && (
             <>
-              {/* OVERVIEW */}
-              <div>
-                {!collapsed && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                    Overview
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {salesCoreMenu.map((item) => (
-                    <NavLink
-                      key={item.id}
-                      to={item.path}
-                      onClick={onClose}
-                      className={linkClass}
-                    >
-                      {item.icon}
-                      {!collapsed && <span>{item.label}</span>}
-                    </NavLink>
-                  ))}
-                </div>
-              </div>
-
-              {/* CATALOG */}
-              <div>
-                {!collapsed && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                    Catalog
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {/* Products */}
-                  <button
-                    onClick={() => setSalesProductsOpen(!salesProductsOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
-                  >
-                    <MdStorefront size={20} />
+              {isManagement ? (
+                <>
+                  {/* OVERVIEW */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Products</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesProductsOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Overview
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesProductsSubMenu, salesProductsOpen)}
-                </div>
-              </div>
+                    <div className="space-y-1">
+                      {salesCoreMenu.map((item) => (
+                        <NavLink
+                          key={item.id}
+                          to={item.path}
+                          onClick={onClose}
+                          className={linkClass}
+                        >
+                          {item.icon}
+                          {!collapsed && <span>{item.label}</span>}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
 
-              {/* ORDERS */}
-              <div>
-                {!collapsed && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                    Orders
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {/* Sales Orders */}
-                  <button
-                    onClick={() => setSalesOrdersOpen(!salesOrdersOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/orders"))}
-                  >
-                    <MdShoppingCart size={20} />
+                  {/* CATALOG */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Sales Orders</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesOrdersOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Catalog
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesOrdersSubMenu, salesOrdersOpen)}
+                    <div className="space-y-1">
+                      {/* Products */}
+                      <button
+                        onClick={() => setSalesProductsOpen(!salesProductsOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
+                      >
+                        <MdStorefront size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Products</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesProductsOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesProductsSubMenu, salesProductsOpen)}
+                    </div>
+                  </div>
 
-                  {/* Sales Reps */}
-                  <button
-                    onClick={() => setSalesRepsOpen(!salesRepsOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/representatives"))}
-                  >
-                    <MdPeople size={20} />
+                  {/* ORDERS */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Sales Reps</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesRepsOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Orders
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesRepsSubMenu, salesRepsOpen)}
-                </div>
-              </div>
+                    <div className="space-y-1">
+                      {/* Sales Orders */}
+                      <button
+                        onClick={() => setSalesOrdersOpen(!salesOrdersOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/orders"))}
+                      >
+                        <MdShoppingCart size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Sales Orders</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesOrdersOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesOrdersSubMenu, salesOrdersOpen)}
 
-              {/* CRM */}
-              <div>
-                {!collapsed && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                    CRM
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {/* Lead */}
-                  <button
-                    onClick={() => setSalesLeadOpen(!salesLeadOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
-                  >
-                    <Target size={20} />
+                      {/* Sales Reps */}
+                      <button
+                        onClick={() => setSalesRepsOpen(!salesRepsOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/representatives"))}
+                      >
+                        <MdPeople size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Sales Reps</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesRepsOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesRepsSubMenu, salesRepsOpen)}
+                    </div>
+                  </div>
+
+                  {/* CRM */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Lead</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesLeadOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        CRM
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesLeadSubMenu, salesLeadOpen)}
+                    <div className="space-y-1">
+                      {/* Lead */}
+                      <button
+                        onClick={() => setSalesLeadOpen(!salesLeadOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
+                      >
+                        <Target size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Lead</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesLeadOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesLeadSubMenu, salesLeadOpen)}
 
-                  {/* Account */}
-                  <button
-                    onClick={() => setSalesAccountOpen(!salesAccountOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
-                  >
-                    <MdBusiness size={20} />
+                      {/* Account */}
+                      <button
+                        onClick={() => setSalesAccountOpen(!salesAccountOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
+                      >
+                        <MdBusiness size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Account</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesAccountOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesAccountSubMenu, salesAccountOpen)}
+
+                      {/* Contact */}
+                      <button
+                        onClick={() => setSalesContactOpen(!salesContactOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
+                      >
+                        <MdContactPage size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Contact</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesContactOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesContactSubMenu, salesContactOpen)}
+                    </div>
+                  </div>
+
+                  {/* PIPELINE */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Account</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesAccountOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Pipeline
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesAccountSubMenu, salesAccountOpen)}
+                    <div className="space-y-1">
+                      {/* Task */}
+                      <button
+                        onClick={() => setSalesTaskOpen(!salesTaskOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
+                      >
+                        <MdTask size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Task</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesTaskOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesTaskSubMenu, salesTaskOpen)}
 
-                  {/* Contact */}
-                  <button
-                    onClick={() => setSalesContactOpen(!salesContactOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
-                  >
-                    <MdContactPage size={20} />
+                      {/* Case */}
+                      <button
+                        onClick={() => setSalesCaseOpen(!salesCaseOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
+                      >
+                        <MdSupportAgent size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Case</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesCaseOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesCaseSubMenu, salesCaseOpen)}
+
+                      {/* Forecast */}
+                      <button
+                        onClick={() => setSalesForecastOpen(!salesForecastOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
+                      >
+                        <MdTrendingUp size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Forecast</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesForecastOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesForecastSubMenu, salesForecastOpen)}
+                    </div>
+                  </div>
+
+                  {/* SETTINGS */}
+                  <div>
                     {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Contact</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesContactOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Settings
+                      </p>
                     )}
-                  </button>
-                  {renderSubMenu(salesContactSubMenu, salesContactOpen)}
-                </div>
-              </div>
-
-              {/* PIPELINE */}
-              <div>
-                {!collapsed && (
-                  <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                    Pipeline
-                  </p>
-                )}
-                <div className="space-y-1">
-                  {/* Task */}
-                  <button
-                    onClick={() => setSalesTaskOpen(!salesTaskOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
-                  >
-                    <MdTask size={20} />
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Task</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesTaskOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
-                    )}
-                  </button>
-                  {renderSubMenu(salesTaskSubMenu, salesTaskOpen)}
-
-                  {/* Case */}
-                  <button
-                    onClick={() => setSalesCaseOpen(!salesCaseOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
-                  >
-                    <MdSupportAgent size={20} />
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Case</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesCaseOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
-                    )}
-                  </button>
-                  {renderSubMenu(salesCaseSubMenu, salesCaseOpen)}
-
-                  {/* Forecast */}
-                  <button
-                    onClick={() => setSalesForecastOpen(!salesForecastOpen)}
-                    className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
-                  >
-                    <MdTrendingUp size={20} />
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Forecast</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${salesForecastOpen ? "rotate-180" : ""}`}
-                        />
-                      </>
-                    )}
-                  </button>
-                  {renderSubMenu(salesForecastSubMenu, salesForecastOpen)}
-                </div>
-              </div>
-
-              {/* SETTINGS */}
-              {isManagement && (
-                <div>
-                  {!collapsed && (
-                    <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                      Settings
-                    </p>
-                  )}
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setSalesAdminOpen(!salesAdminOpen)}
-                      className={dropdownBtnClass(location.pathname.startsWith("/sales/admin"))}
-                    >
-                      <MdAdminPanelSettings size={20} />
-                      {!collapsed && (
-                        <>
-                          <span className="flex-1 text-left">Admin</span>
-                          <MdExpandMore
-                            className={`transition-transform duration-300 ${salesAdminOpen ? "rotate-180" : ""}`}
+                    <div className="space-y-1">
+                      <button
+                        onClick={() => setSalesAdminOpen(!salesAdminOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/admin"))}
+                      >
+                        <MdAdminPanelSettings size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Admin</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesAdminOpen ? "rotate-180" : ""}`}
                           />
                         </>
                       )}
-                    </button>
-                    {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
+                      </button>
+                      {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* EMPLOYEE SALES MENU */
+                <div>
+                  {!collapsed && (
+                    <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                      My Sales
+                    </p>
+                  )}
+                  <div className="space-y-1">
+                    <NavLink to="/sales" onClick={onClose} className={linkClass}>
+                      <MdDashboard size={20} />
+                      {!collapsed && <span>Dashboard</span>}
+                    </NavLink>
+                    <NavLink to="/sales/employee-leads" onClick={onClose} className={linkClass}>
+                      <Target size={20} />
+                      {!collapsed && <span>My Leads</span>}
+                    </NavLink>
+                    <NavLink to={`/sales/profile/${user?.userId || ""}`} onClick={onClose} className={linkClass}>
+                      <MdPeople size={20} />
+                      {!collapsed && <span>My Profile</span>}
+                    </NavLink>
+                    <NavLink to="/sales/products" onClick={onClose} className={linkClass}>
+                      <MdStorefront size={20} />
+                      {!collapsed && <span>Products</span>}
+                    </NavLink>
+                    <NavLink to="/sales/orders" onClick={onClose} className={linkClass}>
+                      <MdShoppingCart size={20} />
+                      {!collapsed && <span>Orders</span>}
+                    </NavLink>
+                    <NavLink to="/sales/contacts" onClick={onClose} className={linkClass}>
+                      <MdContactPage size={20} />
+                      {!collapsed && <span>Contacts</span>}
+                    </NavLink>
                   </div>
                 </div>
               )}
