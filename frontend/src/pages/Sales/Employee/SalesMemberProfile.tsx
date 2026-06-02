@@ -3,7 +3,7 @@ import ProfileSidebar from '@/components/members/ProfileSidebar';
 import { getMemberById } from '@/services/memberService';
 import type { Member } from '@/type/member';
 import { ArrowLeft } from 'lucide-react';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 
 const SalesMemberProfile = () => {

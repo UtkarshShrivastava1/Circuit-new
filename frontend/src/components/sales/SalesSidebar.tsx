@@ -1,120 +1,21 @@
-// import { NavLink } from "react-router-dom";
-// import {
-//   MdDashboard,
-//   MdInventory,
-//   MdShoppingCart,
-//   MdPeople,
-//   MdPerson,
-//   MdAccountBalance,
-//   MdContacts,
-//   MdTask,
-//   MdSupportAgent,
-//   MdTrendingUp,
-// } from "react-icons/md";
-
-// const salesMenu = [
-//   {
-//     label: "Dashboard",
-//     path: "/sales/dashboard",
-//     icon: <MdDashboard size={20} />,
-//   },
-//   {
-//     label: "Products",
-//     path: "/sales/products",
-//     icon: <MdInventory size={20} />,
-//   },
-//   {
-//     label: "Sales Orders",
-//     path: "/sales/orders",
-//     icon: <MdShoppingCart size={20} />,
-//   },
-//   {
-//     label: "Sales Representatives",
-//     path: "/sales/representatives",
-//     icon: <MdPeople size={20} />,
-//   },
-//   {
-//     label: "Leads",
-//     path: "/sales/leads",
-//     icon: <MdPerson size={20} />,
-//   },
-//   {
-//     label: "Accounts",
-//     path: "/sales/accounts",
-//     icon: <MdAccountBalance size={20} />,
-//   },
-//   {
-//     label: "Contacts",
-//     path: "/sales/contacts",
-//     icon: <MdContacts size={20} />,
-//   },
-//   {
-//     label: "Tasks",
-//     path: "/sales/tasks",
-//     icon: <MdTask size={20} />,
-//   },
-//   {
-//     label: "Cases",
-//     path: "/sales/cases",
-//     icon: <MdSupportAgent size={20} />,
-//   },
-//   {
-//     label: "Forecast",
-//     path: "/sales/forecast",
-//     icon: <MdTrendingUp size={20} />,
-//   },
-// ];
-
-// export default function SalesSidebar() {
-//   const linkClass = ({ isActive }: { isActive: boolean }) =>
-//     [
-//       "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-//       isActive
-//         ? "bg-base-300 font-semibold text-base-content"
-//         : "text-primary-content hover:bg-base-300 hover:text-base-content",
-//     ].join(" ");
-
-//   return (
-//     <aside className="w-64 h-screen bg-primary border-r border-base-300">
-//       <div className="p-4 border-b border-base-300">
-//         <h2 className="text-lg font-semibold text-base-100">
-//           Sales Management
-//         </h2>
-//       </div>
-
-//       <nav className="p-2 space-y-1">
-//         {salesMenu.map((item) => (
-//           <NavLink
-//             key={item.path}
-//             to={item.path}
-//             className={linkClass}
-//           >
-//             {item.icon}
-//             <span>{item.label}</span>
-//           </NavLink>
-//         ))}
-//       </nav>
-//     </aside>
-//   );
-// }
 
 
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   MdDashboard,
-  MdInventory,
+
   MdShoppingCart,
   MdPeople,
   MdPerson,
-  MdAccountBalance,
+
   MdContacts,
   MdTask,
-  MdSupportAgent,
-  MdTrendingUp,
+ 
   MdChevronLeft,
   MdClose,
   MdNotifications,
+  MdEventAvailable,
 } from "react-icons/md";
 import { useAuth } from "../../auth/AuthContext";
 
@@ -174,6 +75,13 @@ export default function SalesSidebar({ isOpen, onClose }: Props) {
       path: "/sales/dashboard",
       icon: <MdDashboard size={20} />,
     },
+     {
+       
+        label: "Attendance",
+        path: "/attendance",
+        icon: <MdEventAvailable size={20} />,
+      },
+    
     {
       label: "My Leads",
       path: "/sales/leads",
