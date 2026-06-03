@@ -25,6 +25,9 @@ import NewAccounts from "./pages/Sales/NewAccounts";
 import NewTask from "./pages/Sales/NewTask";
 import SalesTasksList from "./pages/Sales/TasksList";
 import PendingOrders from "./pages/Sales/PendingOrders";
+import SalesRepProfile from "./pages/Sales/SalesRepProfile";
+import SalesRepAdminProfile from "./pages/Sales/SalesRepAdminProfile";
+import ContactDetails from "./pages/Sales/ContactDetails";
 
 /* Pages (lazy) */
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
@@ -148,8 +151,8 @@ export default function App() {
             <Route path="/sales/employee-leads" element={<Leads />} />
             <Route path="/sales/profile/:id" element={<SalesMemberProfile />} />
             <Route path="/sales/contacts" element={<AllContacts />} />
-            <Route path="/sales/contacts/new" element={<NewContact />} />
-            <Route path="/sales/representatives" element={<SalesRepDetails />} />
+            <Route path="/sales/contacts/new" element={<ContactDetails />} />
+            <Route path="/sales/representatives" element={<SalesRepAdminProfile />} />
             <Route path="/sales/representatives/new" element={<AddSalesRep />} />
             <Route path="/sales/orders" element={<NewOrderForm />} />
             <Route path="/sales/orders/pending" element={<PendingOrders />} />
