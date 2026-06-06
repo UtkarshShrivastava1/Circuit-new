@@ -19,6 +19,8 @@ const activityRoutes = require("./routes/activity.routes.js");
 const notificationRoutes = require("./routes/notification.routes.js");
 const message = require("./routes/message.routes.js")
 const workUpdateRoutes = require("./routes/workUpdate.routes.js");
+const leadRoutes = require("./routes/lead.routes.js");
+const accountRoutes = require("./routes/account.routes.js");
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -67,6 +69,8 @@ app.use("/api/activity", activityRoutes);
 app.use("/api", notificationRoutes);
 app.use('/api/messages',message);
 app.use("/api", workUpdateRoutes);
+app.use("/api/leads", leadRoutes);
+app.use("/api/accounts",accountRoutes);
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({
 //   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined
