@@ -255,7 +255,7 @@ export default function ContactDetails() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <StatCard title="Meetings Scheduled" value={con.meetingsScheduled} />
              <StatCard title="Active Deals" value={MOCK_LEADS.length} />
-             <StatCard title="Account Revenue" value={`$${MOCK_ACCOUNTS[0].revenue.toLocaleString()}`} />
+             <StatCard title="Account Revenue" value={`₹${MOCK_ACCOUNTS[0].revenue.toLocaleString()}`} />
           </div>
 
           {/* Tabs Section */}
@@ -340,7 +340,7 @@ export default function ContactDetails() {
                             <td className="font-bold">{a.name}</td>
                             <td>{a.industry}</td>
                             <td>{a.territory}</td>
-                            <td className="text-right font-bold text-success">${a.revenue.toLocaleString()}</td>
+                            <td className="text-right font-bold text-success">₹{a.revenue.toLocaleString()}</td>
                             <td><span className="badge badge-sm badge-warning font-bold">{a.status}</span></td>
                             <td className="text-right">
                               <button className="btn btn-ghost btn-xs text-primary" onClick={() => navigate(`/sales/accounts/${a.id}`)}>View</button>
@@ -378,7 +378,7 @@ export default function ContactDetails() {
                             <td className="font-bold text-primary">{l.name}</td>
                             <td>{l.company}</td>
                             <td>{l.source}</td>
-                            <td className="text-right font-bold">${l.expectedValue.toLocaleString()}</td>
+                            <td className="text-right font-bold">₹{l.expectedValue.toLocaleString()}</td>
                             <td><span className="badge badge-sm badge-warning">{l.status}</span></td>
                             <td className="text-right">
                               <button className="btn btn-ghost btn-xs" onClick={() => navigate('/sales/leads')}>View</button>

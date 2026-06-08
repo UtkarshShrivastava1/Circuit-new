@@ -23,6 +23,21 @@ import {
   MdDelete,
   MdAssignmentInd,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
+
+const contactColumns: ColumnConfig[] = [
+  { key: "name", label: "Contact Name", required: true, type: "string" },
+  { key: "designation", label: "Designation", type: "string" },
+  { key: "email", label: "Email", required: true, type: "email" },
+  { key: "phoneNumber", label: "Phone", type: "string" },
+  { key: "company", label: "Company", required: true, type: "string" },
+  { key: "lead", label: "Linked Lead", type: "string" },
+  { key: "city", label: "City", type: "string" },
+  { key: "status", label: "Status", type: "string" },
+  { key: "assignedRep", label: "Assigned Rep", type: "string" },
+];
 
 /* ─────────────────────────── types ─────────────────────────── */
 export interface Contact {
@@ -99,7 +114,7 @@ const SAMPLE: Contact[] = [
     lastActivity: "2026-05-30",
     createdDate: "2026-05-01",
   },
-];
+]; 
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function ContactsDashboard() {
@@ -121,6 +136,11 @@ export default function ContactsDashboard() {
       linkedLeads: contacts.filter(c => c.lead && c.lead !== "-").length,
     };
   }, [contacts]);
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    // Mock API call to simulate saving imported data
+    toast.success(`${validRows.length} contacts imported successfully!`);
+  };
 
   // TanStack Table Setup
   const columnHelper = createColumnHelper<Contact>();
@@ -243,9 +263,13 @@ export default function ContactsDashboard() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2 bg-base-100">
-            <MdDownload size={16} /> Export CSV
-          </button>
+          <ImportExportActions
+            moduleName="Contacts"
+            columns={contactColumns}
+            data={filteredContacts}
+            selectedData={Object.keys(rowSelection).map(idx => filteredContacts[Number(idx)])}
+            onImportSubmit={handleImportSubmit}
+          />
           <button className="btn btn-outline btn-sm btn-square bg-base-100">
             <MdRefresh size={16} />
           </button>

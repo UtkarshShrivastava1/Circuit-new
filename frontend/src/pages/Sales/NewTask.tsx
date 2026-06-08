@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useMemo} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { MdSave, MdContentCopy, MdAttachment, MdSend, MdDelete } from "react-icons/md";
+import { MdSave, MdContentCopy, MdAttachment, MdSend, MdDelete, MdCheckCircle } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createSalesTask } from "@/services/salesTaskServices";
+import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const taskSchema = z.object({
@@ -67,9 +71,36 @@ type TaskFormValues = z.infer<typeof taskSchema>;
 export default function NewTask() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [comments, setComments] = useState<{ user: string, text: string, time: string }[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [assigneeSearch, setAssigneeSearch] = useState("");
+  const { auth } = useAuth();
+  const queryClient = useQueryClient();
+
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth.slug],
+    queryFn: () => getSalesReps(auth.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
+  const mutation = useMutation({
+    mutationFn: (newData: Partial<SalesTask>) => createSalesTask(auth.slug || "default-tenant", newData as Partial<SalesTask>),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["salesTasks"] });
+      setSuccessModalOpen(true);
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || "Failed to create task.");
+    },
+    onSettled: () => {
+      setIsSubmitting(false);
+    }
+  });
 
   const {
     register,
@@ -101,6 +132,13 @@ export default function NewTask() {
   const wCustomer = watch("customer");
   const wPriority = watch("priority");
   const wValue = watch("expectedDealValue");
+  const wAssignedTo = watch("assignedTo");
+
+  const filteredReps = useMemo(() => {
+    if (!assigneeSearch) return salesReps;
+    return salesReps.filter(rep => 
+      rep.toLowerCase().includes(assigneeSearch.toLowerCase()));
+  }, [salesReps, assigneeSearch]);
 
   // Check for Delay Display
   const isOverdue = watchedDueDate ? new Date(watchedDueDate) < new Date() : false;
@@ -134,6 +172,17 @@ export default function NewTask() {
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setAttachments(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
+    }
+  };
+
   const addComment = () => {
     if (!newComment.trim()) return;
     setComments([...comments, { user: "Current User", text: newComment, time: new Date().toLocaleString() }]);
@@ -142,18 +191,14 @@ export default function NewTask() {
 
   const onSubmit = async (data: TaskFormValues) => {
     setIsSubmitting(true);
-    try {
-      // MOCK: Submit data to backend
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Payload:", data);
-      console.log("Attachments:", attachments);
-      toast.success("Sales task created successfully!");
-      navigate("/sales");
-    } catch (err) {
-      toast.error("Failed to create task.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    const completionNotes = comments.map(c => `${c.user} (${c.time}): ${c.text}`).join('\n');
+    const payload = {
+        ...data,
+        completionNotes: data.completionNotes ? `${data.completionNotes}\n${completionNotes}` : completionNotes
+    };
+    // Note: File attachments are not sent as the backend endpoint does not currently support multipart/form-data.
+    // The 'attachments' field in the model expects URLs.
+    mutation.mutate(payload);
   };
 
   return (
@@ -271,12 +316,27 @@ export default function NewTask() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned To *</span></label>
-                  <select {...register("assignedTo")} className={`select select-bordered w-full ${errors.assignedTo ? "select-error" : ""}`}>
-                    <option value="">-Select Employee-</option>
-                    <option value="Alice Johnson">Alice Johnson</option>
-                    <option value="Bob Smith">Bob Smith</option>
-                    <option value="V VINAY Kumar">V VINAY Kumar</option>
-                  </select>
+                  <div className="dropdown w-full">
+                    <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedTo ? "border-error" : "border-base-300"}`}>
+                      {wAssignedTo || "-Select Employee-"}
+                    </label>
+                    <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                      <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        className="input input-sm input-bordered w-full mb-2"
+                        value={assigneeSearch}
+                        onChange={e => setAssigneeSearch(e.target.value)}
+                      />
+                      <ul className="max-h-60 overflow-y-auto">
+                        {filteredReps.map((rep) => (
+                          <li key={rep}>
+                            <a onClick={() => { setValue("assignedTo", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                   {errors.assignedTo && <span className="text-error text-xs">{errors.assignedTo.message}</span>}
                 </div>
                 
@@ -404,7 +464,7 @@ export default function NewTask() {
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Expected Deal Value</span></label>
                   <div className="relative">
-                    <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                    <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                     <input {...register("expectedDealValue")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.expectedDealValue ? "input-error" : ""}`} placeholder="0.00" />
                   </div>
                   {errors.expectedDealValue && <span className="text-error text-xs">{errors.expectedDealValue.message}</span>}
@@ -538,12 +598,17 @@ export default function NewTask() {
               8. Attachments
             </div>
             <div className="collapse-content pt-5">
-              <div className="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:bg-base-200/50 transition-colors">
+          <div 
+            className="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById("file-upload")?.click()}
+          >
                 <MdAttachment className="mx-auto text-base-content/40 mb-2" size={32} />
-                <p className="text-sm text-base-content/70">Drag & drop files or click to upload</p>
-                <p className="text-xs text-base-content/50 mt-1">Allowed: PDF, DOCX, XLSX, JPG, PNG</p>
+            <p className="text-sm font-medium">Drag & Drop files or click to upload</p>
+            <p className="text-xs text-base-content/50 mt-1">PDF, DOCX, XLSX, JPG, PNG.</p>
                 <input type="file" multiple className="hidden" id="file-upload" onChange={handleFileChange} accept=".pdf,.docx,.xlsx,.jpg,.png" />
-                <label htmlFor="file-upload" className="btn btn-outline btn-sm mt-4 cursor-pointer">Browse Files</label>
+            <label htmlFor="file-upload" className="btn btn-outline btn-sm mt-4 cursor-pointer" onClick={(e) => e.stopPropagation()}>Browse Files</label>
               </div>
 
               {attachments.length > 0 && (
@@ -643,7 +708,7 @@ export default function NewTask() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Expected Value</span>
-                <p className="font-medium text-success text-lg mt-1">${wValue ? Number(wValue).toLocaleString() : "0.00"}</p>
+                <p className="font-medium text-success text-lg mt-1">₹{wValue ? Number(wValue).toLocaleString() : "0.00"}</p>
               </div>
 
               <div>
@@ -687,6 +752,19 @@ export default function NewTask() {
 
         </div>
       </form>
+
+      {/* Success Modal */}
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">Sales task has been created successfully.</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => { setSuccessModalOpen(false); navigate("/sales/tasks"); }}>Close</button>
+          </div>
+        </div>
+      </dialog>
+
     </div>
   );
 }

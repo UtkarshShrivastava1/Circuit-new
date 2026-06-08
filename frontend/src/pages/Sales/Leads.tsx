@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { MdSave, MdContentCopy, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const leadSchema = z.object({
@@ -55,16 +58,26 @@ const DEFAULT_COUNTRIES = [
   "Canada", "Germany", "France", "Singapore", "UAE", "Other",
 ];
 
-const DEFAULT_OWNERS = [
-  { value: "owner1", label: "Vinay Kumar" },
-  { value: "owner2", label: "Riya Sharma" },
-  { value: "owner3", label: "Arjun Mehta" },
-];
-
 /* ─────────────────────────── component ─────────────────────── */
 export default function Leads() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { auth } = useAuth();
+  const [ownerSearch, setOwnerSearch] = useState("");
+
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth?.slug],
+    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
+  const filteredOwners = useMemo(() => {
+    if (!ownerSearch) return salesReps;
+    return salesReps.filter(rep => rep.toLowerCase().includes(ownerSearch.toLowerCase()));
+  }, [salesReps, ownerSearch]);
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
@@ -149,12 +162,27 @@ export default function Leads() {
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Lead Owner" required error={errors.leadOwner?.message}>
-                <select {...register("leadOwner")} className={`select select-bordered w-full ${errors.leadOwner ? "select-error" : ""}`}>
-                  <option value="">-Select Owner-</option>
-                  {DEFAULT_OWNERS.map((o) => (
-                    <option key={o.value} value={o.label}>{o.label}</option>
-                  ))}
-                </select>
+                <div className="dropdown w-full">
+                  <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.leadOwner ? "border-error" : "border-base-300"}`}>
+                    {wOwner || "-Select Owner-"}
+                  </label>
+                  <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                    <input 
+                      type="text" 
+                      placeholder="Search..." 
+                      className="input input-sm input-bordered w-full mb-2"
+                      value={ownerSearch}
+                      onChange={e => setOwnerSearch(e.target.value)}
+                    />
+                    <ul className="max-h-60 overflow-y-auto">
+                      {filteredOwners.map((rep) => (
+                        <li key={rep}>
+                          <a onClick={() => { setValue("leadOwner", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </FormRow>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

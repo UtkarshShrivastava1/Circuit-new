@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getSalesRepById } from "@/services/salesRepServices";
+import { useAuth } from "@/auth/AuthContext";
 import {
   MdEdit,
   MdPeople,
@@ -115,7 +118,7 @@ const MOCK_DOCS = [
 
 const MOCK_TIMELINE = [
   { id: "T1", action: "Logged into ERP System", time: "Today, 09:14 AM", icon: <MdLogin /> },
-  { id: "T2", action: "Target Updated to $150,000", time: "2026-05-01 10:00 AM", icon: <MdEdit /> },
+  { id: "T2", action: "Target Updated to ₹150,000", time: "2026-05-01 10:00 AM", icon: <MdEdit /> },
   { id: "T3", action: "Order SO-2026-0105 Created", time: "2026-05-28 03:45 PM", icon: <MdOutlineAssignmentTurnedIn /> },
   { id: "T4", action: "Customer Acme Corp Assigned", time: "2026-02-15 11:20 AM", icon: <MdPeople /> },
   { id: "T5", action: "Profile Created by Admin", time: "2024-01-10 09:00 AM", icon: <MdCheckCircle /> },
@@ -139,16 +142,65 @@ const InfoItem = ({ label, value }: { label: string; value: string | React.React
 
 /* ─────────────────────────── Main Component ─────────────────────────── */
 export default function SalesRepAdminProfile() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { auth } = useAuth();
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["salesRep", id, auth?.slug],
+    queryFn: () => getSalesRepById(id!, auth?.slug || "default-tenant"),
+    enabled: !!id && !!auth?.slug,
+  });
 
   const [activeTab, setActiveTab] = useState("Overview");
-  const rep = MOCK_ADMIN_REP;
+  
+  const repData = response?.data;
+  const rep = repData ? {
+    ...MOCK_ADMIN_REP,
+    ...repData,
+    id: repData.id || repData._id || MOCK_ADMIN_REP.id,
+    firstName: repData.fullName?.split(" ")[0] || repData.firstName || MOCK_ADMIN_REP.firstName,
+    lastName: repData.fullName?.split(" ").slice(1).join(" ") || repData.lastName || MOCK_ADMIN_REP.lastName,
+    phone: repData.phone || repData.mobileNumber || MOCK_ADMIN_REP.phone,
+    email: repData.email || MOCK_ADMIN_REP.email,
+    employeeCode: repData.employeeCode || repData.employeeId || MOCK_ADMIN_REP.employeeCode,
+    designation: repData.designation || MOCK_ADMIN_REP.designation,
+    team: repData.team || MOCK_ADMIN_REP.team,
+    territory: repData.territory || repData.salesTerritory || MOCK_ADMIN_REP.territory,
+    status: repData.status || repData.employmentStatus || MOCK_ADMIN_REP.status,
+    avatarUrl: repData.avatarUrl || MOCK_ADMIN_REP.avatarUrl,
+    monthlyTarget: repData.monthlyTarget || MOCK_ADMIN_REP.monthlyTarget,
+    monthlyAchievement: repData.achievement || repData.monthlyAchievement || MOCK_ADMIN_REP.monthlyAchievement,
+    revenueGenerated: repData.revenueGenerated || MOCK_ADMIN_REP.revenueGenerated,
+    gender: repData.gender || MOCK_ADMIN_REP.gender,
+    addressLine1: repData.addressLine1 || MOCK_ADMIN_REP.addressLine1,
+    addressLine2: repData.addressLine2 || MOCK_ADMIN_REP.addressLine2,
+    city: repData.city || MOCK_ADMIN_REP.city,
+    state: repData.state || MOCK_ADMIN_REP.state,
+    country: repData.country || MOCK_ADMIN_REP.country,
+    postalCode: repData.postalCode || MOCK_ADMIN_REP.postalCode,
+  } : MOCK_ADMIN_REP;
 
   const TABS = ["Overview", "Customers", "Leads", "Orders", "Performance", "Documents", "Activity Timeline", "Login & Access"];
 
   // Mock Pagination state for Customers
   const [custPage, setCustPage] = useState(1);
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col lg:flex-row gap-6 p-6 min-h-screen bg-base-200 animate-pulse">
+        <div className="w-full lg:w-[320px] h-[600px] bg-base-100 rounded-xl shadow-sm border border-base-300"></div>
+        <div className="flex-1 flex flex-col gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {Array(8).fill(0).map((_, i) => (
+              <div key={i} className="h-24 bg-base-100 rounded-xl shadow-sm border border-base-300"></div>
+            ))}
+          </div>
+          <div className="flex-1 bg-base-100 rounded-xl shadow-sm border border-base-300 h-[400px]"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-base-200 font-sans flex flex-col pb-10">
@@ -174,7 +226,7 @@ export default function SalesRepAdminProfile() {
           </div>
           
           <div className="flex gap-2 flex-wrap">
-            <button className="btn btn-outline btn-sm gap-2 bg-base-100"><MdEdit size={16} /> Edit Profile</button>
+            <button className="btn btn-outline btn-sm gap-2 bg-base-100" onClick={() => navigate(`/sales/representatives/edit/${rep.id}`)}><MdEdit size={16} /> Edit Profile</button>
             <button className="btn btn-outline btn-sm gap-2 bg-base-100" onClick={() => (document.getElementById('modal_assign_customer') as HTMLDialogElement)?.showModal()}><MdPeople size={16} /> Assign Customers</button>
             <button className="btn btn-outline btn-sm gap-2 bg-base-100" onClick={() => (document.getElementById('modal_assign_lead') as HTMLDialogElement)?.showModal()}><MdOutlineAssignmentTurnedIn size={16} /> Assign Leads</button>
             <div className="dropdown dropdown-end">
@@ -274,14 +326,14 @@ export default function SalesRepAdminProfile() {
 
           {/* Dashboard Summary Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <StatCard title="Monthly Target" value={`$${rep.monthlyTarget.toLocaleString()}`} />
-            <StatCard title="Monthly Achievement" value={`$${rep.monthlyAchievement.toLocaleString()}`} alert={rep.monthlyAchievement < rep.monthlyTarget} subtitle={`${((rep.monthlyAchievement/rep.monthlyTarget)*100).toFixed(1)}% Completed`} />
+            <StatCard title="Monthly Target" value={`₹${rep.monthlyTarget.toLocaleString()}`} />
+            <StatCard title="Monthly Achievement" value={`₹${rep.monthlyAchievement.toLocaleString()}`} alert={rep.monthlyAchievement < rep.monthlyTarget} subtitle={`${((rep.monthlyAchievement/rep.monthlyTarget)*100).toFixed(1)}% Completed`} />
             <StatCard title="Conversion Rate" value={`${rep.conversionRate}%`} />
-            <StatCard title="Commission Earned" value={`$${rep.commissionEarned.toLocaleString()}`} />
+            <StatCard title="Commission Earned" value={`₹${rep.commissionEarned.toLocaleString()}`} />
             <StatCard title="Total Customers" value={rep.totalCustomers} />
             <StatCard title="Active Leads" value={rep.activeLeads} />
             <StatCard title="Orders This Month" value={rep.ordersThisMonth} />
-            <StatCard title="Revenue Generated" value={`$${rep.revenueGenerated.toLocaleString()}`} />
+            <StatCard title="Revenue Generated" value={`₹${rep.revenueGenerated.toLocaleString()}`} />
           </div>
 
           {/* Tabs Section */}
@@ -381,7 +433,7 @@ export default function SalesRepAdminProfile() {
                             <td>{c.city}</td>
                             <td>{c.contactPerson}</td>
                             <td className="font-mono">{c.phone}</td>
-                            <td className="text-right font-bold text-success">${c.revenue.toLocaleString()}</td>
+                            <td className="text-right font-bold text-success">₹{c.revenue.toLocaleString()}</td>
                             <td><span className={`badge badge-sm ${c.status === 'Active' ? 'badge-success text-white' : 'badge-ghost'}`}>{c.status}</span></td>
                             <td className="text-right">
                               <button className="btn btn-ghost btn-xs">View</button>
@@ -433,7 +485,7 @@ export default function SalesRepAdminProfile() {
                             <td>{l.contact}</td>
                             <td>{l.source}</td>
                             <td><span className="badge badge-sm badge-info badge-outline font-semibold">{l.stage}</span></td>
-                            <td className="text-right font-bold">${l.value.toLocaleString()}</td>
+                            <td className="text-right font-bold">₹{l.value.toLocaleString()}</td>
                             <td><span className={`badge badge-sm ${l.status === 'Hot' ? 'badge-error text-white' : 'badge-warning'}`}>{l.status}</span></td>
                             <td className="text-right">
                               <button className="btn btn-ghost btn-xs">View</button>
@@ -453,11 +505,11 @@ export default function SalesRepAdminProfile() {
                   <div className="flex justify-between items-center bg-success/10 p-4 rounded-xl border border-success/20">
                     <div>
                       <p className="text-sm font-bold text-success/80 uppercase tracking-wide">Total Order Value Processed</p>
-                      <p className="text-3xl font-black text-success mt-1">$47,000.00</p>
+                      <p className="text-3xl font-black text-success mt-1">₹47,000.00</p>
                     </div>
                     <div className="text-right text-sm font-semibold text-base-content/60">
                       <p>Total Orders: {rep.totalOrders}</p>
-                      <p>Avg Order Value: ${rep.revenueGenerated / rep.totalOrders | 0}</p>
+                      <p>Avg Order Value: ₹{rep.revenueGenerated / rep.totalOrders | 0}</p>
                     </div>
                   </div>
                   
@@ -481,7 +533,7 @@ export default function SalesRepAdminProfile() {
                             <td className="font-semibold">{o.customer}</td>
                             <td>{o.orderDate}</td>
                             <td className={o.deliveryDate < "2026-06-01" ? "text-error font-bold" : ""}>{o.deliveryDate}</td>
-                            <td className="text-right font-bold text-success">${o.value.toLocaleString()}</td>
+                            <td className="text-right font-bold text-success">₹{o.value.toLocaleString()}</td>
                             <td><span className={`badge badge-sm ${o.status === 'Delivered' ? 'badge-success text-white' : 'badge-warning'}`}>{o.status}</span></td>
                             <td className="text-right">
                               <button className="btn btn-ghost btn-xs text-primary">View</button>
@@ -499,11 +551,11 @@ export default function SalesRepAdminProfile() {
               {activeTab === "Performance" && (
                 <div className="animate-fade-in space-y-6">
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                    <StatCard title="YTD Revenue" value="$425,000" />
+                    <StatCard title="YTD Revenue" value="₹425,000" />
                     <StatCard title="YTD Orders" value="65" />
                     <StatCard title="YTD Leads" value="210" />
                     <StatCard title="Avg Conv. Rate" value="28.5%" />
-                    <StatCard title="Avg Order Value" value="$6,538" />
+                    <StatCard title="Avg Order Value" value="₹6,538" />
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -516,7 +568,7 @@ export default function SalesRepAdminProfile() {
                           <BarChart data={MOCK_PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(var(--b3))" />
                             <XAxis dataKey="month" tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} />
-                            <YAxis tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} tickFormatter={(val) => `$${val/1000}k`} />
+                            <YAxis tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} tickFormatter={(val) => `₹${val/1000}k`} />
                             <Tooltip cursor={{ fill: "transparent" }} contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
                             <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} iconType="circle" />
                             <Bar dataKey="target" fill="#9ca3af" name="Target" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -706,7 +758,7 @@ export default function SalesRepAdminProfile() {
                  <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" />
                  <div className="flex flex-col">
                    <span className="font-medium">ERP Upgrade Proposal</span>
-                   <span className="text-[10px] text-base-content/50">Tech Corp Inc. • $15,000</span>
+                   <span className="text-[10px] text-base-content/50">Tech Corp Inc. • ₹15,000</span>
                  </div>
                </li>
              </ul>
@@ -725,7 +777,7 @@ export default function SalesRepAdminProfile() {
         <div className="modal-box">
           <h3 className="font-bold text-lg border-b border-base-200 pb-3 mb-4">Update Monthly Target</h3>
           <div className="form-control mb-4">
-            <label className="label"><span className="label-text font-semibold">New Revenue Target ($)</span></label>
+            <label className="label"><span className="label-text font-semibold">New Revenue Target (₹)</span></label>
             <input type="number" className="input input-bordered w-full" defaultValue={rep.monthlyTarget} />
           </div>
           <div className="form-control mb-4">

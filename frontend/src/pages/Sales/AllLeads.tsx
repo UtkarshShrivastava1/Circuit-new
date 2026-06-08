@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,107 +27,103 @@ import {
   MdNotes,
   MdPerson,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import { useAuth } from "@/auth/AuthContext"; 
+import { getLeads, updateLead, deleteLead, createLead, type Lead } from "@/services/leadServices";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
 
-/* ─────────────────────────── types ─────────────────────────── */
-export interface Lead {
-  id: string;
-  firstName: string;
-  lastName: string;
-  companyName: string;
-  email: string;
-  phoneNumber: string;
-  leadOwner: string;
-  source: string;
-  industry: string;
-  status: "New" | "Contacted" | "Qualified" | "Proposal Sent" | "Negotiation" | "Won" | "Lost";
-  priority: "Low" | "Medium" | "High" | "Urgent";
-  createdDate: string;
-  lastContacted: string;
-  value?: number;
-}
-
-/* ─────────────────────────── mock data ──────────────────────── */
-const SAMPLE: Lead[] = [
-  {
-    id: "LD-1001",
-    firstName: "Sarah",
-    lastName: "Connor",
-    companyName: "Cyberdyne Systems",
-    email: "sarah.connor@cyberdyne.com",
-    phoneNumber: "+1 555-0198",
-    leadOwner: "V VINAY Kumar",
-    source: "Website",
-    industry: "Technology",
-    status: "New",
-    priority: "High",
-    createdDate: "2026-06-01",
-    lastContacted: "2026-06-02",
-    value: 15000,
-  },
-  {
-    id: "LD-1002",
-    firstName: "Bruce",
-    lastName: "Wayne",
-    companyName: "Wayne Enterprises",
-    email: "bruce@wayne.com",
-    phoneNumber: "+1 555-0199",
-    leadOwner: "Riya Sharma",
-    source: "Referral",
-    industry: "Manufacturing",
-    status: "Qualified",
-    priority: "Urgent",
-    createdDate: "2026-05-15",
-    lastContacted: "2026-06-01",
-    value: 120000,
-  },
-  {
-    id: "LD-1003",
-    firstName: "Clark",
-    lastName: "Kent",
-    companyName: "Daily Planet",
-    email: "ckent@dailyplanet.com",
-    phoneNumber: "+1 555-0200",
-    leadOwner: "V VINAY Kumar",
-    source: "Trade Show",
-    industry: "Media",
-    status: "Negotiation",
-    priority: "Medium",
-    createdDate: "2026-05-20",
-    lastContacted: "2026-05-28",
-    value: 8500,
-  },
-  {
-    id: "LD-1004",
-    firstName: "Tony",
-    lastName: "Stark",
-    companyName: "Stark Industries",
-    email: "tony@stark.com",
-    phoneNumber: "+1 555-0201",
-    leadOwner: "Arjun Mehta",
-    source: "Cold Call",
-    industry: "Defense",
-    status: "Won",
-    priority: "High",
-    createdDate: "2026-04-10",
-    lastContacted: "2026-05-10",
-    value: 250000,
-  },
+const leadColumns: ColumnConfig[] = [
+  { key: "firstName", label: "First Name", required: true, type: "string" },
+  { key: "lastName", label: "Last Name", required: true, type: "string" },
+  { key: "email", label: "Email", required: true, type: "email" },
+  { key: "phoneNumber", label: "Phone", type: "string" },
+  { key: "companyName", label: "Company", required: true, type: "string" },
+  { key: "status", label: "Status", type: "string" },
+  { key: "priority", label: "Priority", type: "string" },
+  { key: "source", label: "Lead Source", type: "string" },
+  { key: "industry", label: "Industry", type: "string" },
+  { key: "leadOwner", label: "Lead Owner", type: "string" },
+  { key: "value", label: "Estimated Value", type: "number" },
 ];
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function AllLeads() {
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const queryClient = useQueryClient();
 
   // State
-  const [leads, setLeads] = useState<Lead[]>(SAMPLE);
   const [search, setSearch] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [activeTab, setActiveTab] = useState<"overview" | "timeline" | "notes">("overview");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState<Lead["status"]>("New");
+
+  // Data Fetching
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["leads", auth.slug],
+    queryFn: () => getLeads(auth.slug || "default-tenant"),
+  });
+
+  const leads = data?.data || [];
+
+  // Mutations
+  const updateMutation = useMutation({
+    mutationFn: (vars: { id: string; payload: Partial<Lead> }) => updateLead(vars.id, vars.payload, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["leads"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteLead(id, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["leads"] }),
+  });
+
+  // Actions
+  const initiateDelete = useCallback((id: string) => {
+    setLeadToDelete(id);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (!leadToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(leadToDelete);
+      setDeleteModalOpen(false);
+      setLeadToDelete(null);
+      if (selectedLead?.id === leadToDelete) setSelectedLead(null);
+      toast.success("Lead deleted successfully!");
+    } catch (error: unknown) {
+      toast.error("Failed to delete lead.");
+    }
+  };
+
+  const getSelectedLeads = () => {
+    const selectedIndices = Object.keys(rowSelection).map(Number);
+    return selectedIndices.map(index => filteredLeads[index]);
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    const selected = getSelectedLeads();
+    try {
+      await Promise.all(selected.map(l => updateMutation.mutateAsync({ id: l.id, payload: { status: newStatus } })));
+      setBulkStatusModalOpen(false);
+      setRowSelection({});
+      toast.success(`Status updated to ${newStatus} for selected leads!`);
+    } catch (error: unknown) {
+      toast.error("Failed to update status for some leads.");
+    }
+  };
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    await Promise.all(validRows.map(row => createLead(auth.slug || "default-tenant", row as Partial<Lead>)));
+    queryClient.invalidateQueries({ queryKey: ["leads"] });
+  };
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -158,7 +155,7 @@ export default function AllLeads() {
         <div className="flex items-center gap-3">
           <div className="avatar placeholder">
             <div className="bg-primary text-primary-content rounded-full w-8 h-8">
-              <span className="text-xs">{info.row.original.firstName[0]}{info.row.original.lastName[0]}</span>
+              <span className="text-xs">{info.row.original.firstName?.[0]}{info.row.original.lastName?.[0]}</span>
             </div>
           </div>
           <div>
@@ -202,7 +199,7 @@ export default function AllLeads() {
     }),
     columnHelper.accessor("createdDate", {
       header: "Created",
-      cell: (info) => <span className="text-sm text-base-content/70">{info.getValue()}</span>,
+      cell: (info) => <span className="text-sm text-base-content/70">{info.getValue() ? new Date(info.getValue()).toLocaleDateString() : ""}</span>,
     }),
     columnHelper.display({
       id: "actions",
@@ -216,19 +213,19 @@ export default function AllLeads() {
             <li><a onClick={() => setSelectedLead(row.original)}><MdPerson size={16} /> View Details</a></li>
             <li><a onClick={() => navigate(`/sales/leads/edit/${row.original.id}`)}><MdEdit size={16} /> Edit Lead</a></li>
             <div className="divider my-1"></div>
-            <li><a className="text-error hover:bg-error/10" onClick={() => setDeleteModalOpen(true)}><MdDelete size={16} /> Delete</a></li>
+            <li><a className="text-error hover:bg-error/10" onClick={() => initiateDelete(row.original.id)}><MdDelete size={16} /> Delete</a></li>
           </ul>
         </div>
       ),
     }),
-  ], [navigate]);
+  ], [navigate, initiateDelete]);
 
   const filteredLeads = useMemo(() => {
     return leads.filter(l => 
-      l.firstName.toLowerCase().includes(search.toLowerCase()) || 
-      l.lastName.toLowerCase().includes(search.toLowerCase()) ||
-      l.companyName.toLowerCase().includes(search.toLowerCase()) ||
-      l.email.toLowerCase().includes(search.toLowerCase())
+      l.firstName?.toLowerCase().includes(search.toLowerCase()) || 
+      l.lastName?.toLowerCase().includes(search.toLowerCase()) ||
+      l.companyName?.toLowerCase().includes(search.toLowerCase()) ||
+      l.email?.toLowerCase().includes(search.toLowerCase())
     );
   }, [leads, search]);
 
@@ -242,11 +239,6 @@ export default function AllLeads() {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
-
-  const exportCSV = () => {
-    console.log("Exporting CSV...");
-    // Implementation for CSV export
-  };
 
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
@@ -264,10 +256,14 @@ export default function AllLeads() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2 bg-base-100" onClick={exportCSV}>
-            <MdDownload size={16} /> Export CSV
-          </button>
-          <button className="btn btn-outline btn-sm btn-square bg-base-100">
+          <ImportExportActions
+            moduleName="Leads"
+            columns={leadColumns}
+            data={filteredLeads}
+            selectedData={getSelectedLeads()}
+            onImportSubmit={handleImportSubmit}
+          />
+          <button onClick={() => refetch()} className="btn btn-outline btn-sm btn-square bg-base-100">
             <MdRefresh size={16} />
           </button>
           <button onClick={() => navigate("/sales/leads/new")} className="btn btn-primary btn-sm gap-2 shadow-sm">
@@ -301,7 +297,7 @@ export default function AllLeads() {
               type="text"
               placeholder="Search leads by name, email, company..."
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               className="input input-sm input-bordered w-full pl-9 focus:outline-none focus:border-primary"
             />
           </div>
@@ -338,14 +334,20 @@ export default function AllLeads() {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
           <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} leads selected</span>
           <div className="flex gap-2">
-            <button className="btn btn-xs btn-primary">Update Status</button>
+            <button className="btn btn-xs btn-primary" onClick={() => setBulkStatusModalOpen(true)}>Update Status</button>
             <button className="btn btn-xs btn-outline bg-base-100">Assign Owner</button>
-            <button className="btn btn-xs btn-error text-white">Delete</button>
+            <button className="btn btn-xs btn-error text-white" onClick={() => {toast.info("Bulk delete not fully implemented");}}>Delete</button>
           </div>
         </div>
       )}
 
       {/* ── Main Content Area ── */}
+      {isLoading ? (
+        <div className="flex-1 flex flex-col justify-center items-center h-full space-y-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p>Loading Leads...</p>
+        </div>
+      ) : (
       <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
         <div className="flex-1 overflow-auto">
           <table className="table table-pin-rows w-full text-sm">
@@ -399,7 +401,7 @@ export default function AllLeads() {
             <select 
               className="select select-sm select-bordered bg-base-200"
               value={table.getState().pagination.pageSize}
-              onChange={e => table.setPageSize(Number(e.target.value))}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
             >
               {[10, 25, 50].map(pageSize => (
                 <option key={pageSize} value={pageSize}>Show {pageSize}</option>
@@ -413,10 +415,11 @@ export default function AllLeads() {
           </div>
         </div>
       </div>
+      )}
 
       {/* ── Lead Details Drawer ── */}
       <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity ${selectedLead ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setSelectedLead(null)}>
-        <div className={`absolute right-0 top-0 h-full w-full md:w-[600px] bg-base-100 shadow-2xl transition-transform duration-300 transform ${selectedLead ? "translate-x-0" : "translate-x-full"} flex flex-col`} onClick={e => e.stopPropagation()}>
+        <div className={`absolute right-0 top-0 h-full w-full md:w-[600px] bg-base-100 shadow-2xl transition-transform duration-300 transform ${selectedLead ? "translate-x-0" : "translate-x-full"} flex flex-col`} onClick={(e) => e.stopPropagation()}>
           
           {/* Drawer Header */}
           <div className="p-6 border-b border-base-300 bg-base-200/50 flex flex-col gap-4">
@@ -424,7 +427,7 @@ export default function AllLeads() {
               <div className="flex items-center gap-4">
                 <div className="avatar placeholder">
                   <div className="bg-primary text-primary-content rounded-full w-14 h-14 text-xl font-bold shadow-sm">
-                    <span>{selectedLead?.firstName[0]}{selectedLead?.lastName[0]}</span>
+                    <span>{selectedLead?.firstName?.[0]}{selectedLead?.lastName?.[0]}</span>
                   </div>
                 </div>
                 <div>
@@ -446,7 +449,7 @@ export default function AllLeads() {
                   <li><a onClick={() => navigate(`/sales/leads/edit/${selectedLead?.id}`)}>Edit Lead</a></li>
                   <li><a>Convert to Customer</a></li>
                   <div className="divider my-1"></div>
-                  <li><a className="text-error" onClick={() => setDeleteModalOpen(true)}>Delete Lead</a></li>
+                  <li><a className="text-error" onClick={() => { if(selectedLead) initiateDelete(selectedLead.id); }}>Delete Lead</a></li>
                 </ul>
               </div>
             </div>
@@ -488,8 +491,8 @@ export default function AllLeads() {
 
                 <section className="bg-base-200/30 p-4 rounded-xl border border-base-200 text-xs">
                   <div className="grid grid-cols-2 gap-2 text-base-content/60">
-                    <p>Created: {selectedLead?.createdDate}</p>
-                    <p>Last Contact: {selectedLead?.lastContacted}</p>
+                    <p>Created: {selectedLead?.createdDate ? new Date(selectedLead.createdDate).toLocaleDateString() : ""}</p>
+                    <p>Last Contact: {selectedLead?.lastContacted ? new Date(selectedLead.lastContacted).toLocaleDateString() : "Never"}</p>
                   </div>
                 </section>
               </div>
@@ -502,7 +505,7 @@ export default function AllLeads() {
                     <hr className="bg-primary" />
                     <div className="timeline-middle text-primary"><MdTimeline /></div>
                     <div className="timeline-end timeline-box border-none shadow-none bg-transparent py-2">
-                      <div className="text-xs text-base-content/50">{selectedLead?.lastContacted}</div>
+                      <div className="text-xs text-base-content/50">{selectedLead?.lastContacted ? new Date(selectedLead.lastContacted).toLocaleDateString() : "N/A"}</div>
                       <div className="text-sm font-medium">Status changed to {selectedLead?.status}</div>
                     </div>
                     <hr className="bg-base-300" />
@@ -511,7 +514,7 @@ export default function AllLeads() {
                     <hr className="bg-base-300" />
                     <div className="timeline-middle text-base-300"><MdTimeline /></div>
                     <div className="timeline-end timeline-box border-none shadow-none bg-transparent py-2">
-                      <div className="text-xs text-base-content/50">{selectedLead?.createdDate}</div>
+                      <div className="text-xs text-base-content/50">{selectedLead?.createdDate ? new Date(selectedLead.createdDate).toLocaleDateString() : ""}</div>
                       <div className="text-sm font-medium">Lead Created by System</div>
                     </div>
                   </li>
@@ -534,10 +537,30 @@ export default function AllLeads() {
       <dialog className={`modal ${deleteModalOpen ? 'modal-open' : ''}`}>
         <div className="modal-box">
           <h3 className="font-bold text-lg text-error">Delete Lead</h3>
-          <p className="py-4 text-base-content/80">Are you sure you want to delete <strong>{selectedLead?.firstName} {selectedLead?.lastName}</strong>? This action cannot be undone.</p>
+          <p className="py-4 text-base-content/80">Are you sure you want to delete this lead? This action cannot be undone.</p>
           <div className="modal-action mt-6">
             <button className="btn btn-ghost" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
-            <button className="btn btn-error text-white" onClick={() => { setDeleteModalOpen(false); setSelectedLead(null); }}>Yes, Delete</button>
+            <button className="btn btn-error text-white" onClick={confirmDelete}>Yes, Delete</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* ── Bulk Status Update Modal ── */}
+      <dialog className={`modal ${bulkStatusModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Update Status for Selected Leads</h3>
+          <select className="select select-bordered w-full" value={newStatus} onChange={(e) => setNewStatus(e.target.value as Lead["status"])}>
+            <option value="New">New</option>
+            <option value="Contacted">Contacted</option>
+            <option value="Qualified">Qualified</option>
+            <option value="Proposal Sent">Proposal Sent</option>
+            <option value="Negotiation">Negotiation</option>
+            <option value="Won">Won</option>
+            <option value="Lost">Lost</option>
+          </select>
+          <div className="modal-action mt-6">
+            <button className="btn btn-ghost" onClick={() => setBulkStatusModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleBulkStatusUpdate}>Update Status</button>
           </div>
         </div>
       </dialog>

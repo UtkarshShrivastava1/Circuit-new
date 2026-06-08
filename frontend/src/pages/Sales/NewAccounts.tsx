@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import { MdSave, MdBusiness, MdDelete } from "react-icons/md";
+import { MdSave, MdBusiness, MdDelete, MdCheckCircle } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesReps } from "@/services/salesRepServices";
 
 const COUNTRIES = [
   "India", "United States", "United Kingdom", "Canada", "Australia",
@@ -63,6 +66,9 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function NewAccountForm() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const { auth } = useAuth();
+  const [ownerSearch, setOwnerSearch] = useState("");
 
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
@@ -75,6 +81,15 @@ export default function NewAccountForm() {
     }
   });
 
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth?.slug],
+    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
   // Live Watches
   const wAccountName = watch("accountName");
   const wType = watch("accountType");
@@ -82,13 +97,17 @@ export default function NewAccountForm() {
   const wOwner = watch("accountOwner");
   const wSameAsBilling = watch("sameAsBilling");
 
+  const filteredOwners = useMemo(() => {
+    if (!ownerSearch) return salesReps;
+    return salesReps.filter(rep => rep.toLowerCase().includes(ownerSearch.toLowerCase()));
+  }, [salesReps, ownerSearch]);
+
   const onSubmit = async (data: AccountFormValues) => {
     setIsSubmitting(true);
     try {
       await new Promise(resolve => setTimeout(resolve, 1500)); // MOCK API
       console.log("Account Payload:", data);
-      toast.success("Account created successfully!");
-      navigate("/sales/accounts");
+      setSuccessModalOpen(true);
     } catch (err) {
       toast.error("Failed to create account.");
     } finally {
@@ -145,11 +164,27 @@ export default function NewAccountForm() {
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Account Owner" required error={errors.accountOwner?.message}>
-                <select {...register("accountOwner")} className={`select select-bordered w-full ${errors.accountOwner ? "select-error" : ""}`}>
-                  <option value="">-Select Owner-</option>
-                  <option value="V VINAY Kumar">V VINAY Kumar</option>
-                  <option value="Riya Sharma">Riya Sharma</option>
-                </select>
+                <div className="dropdown w-full">
+                  <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.accountOwner ? "border-error" : "border-base-300"}`}>
+                    {wOwner || "-Select Owner-"}
+                  </label>
+                  <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                    <input 
+                      type="text" 
+                      placeholder="Search..." 
+                      className="input input-sm input-bordered w-full mb-2"
+                      value={ownerSearch}
+                      onChange={e => setOwnerSearch(e.target.value)}
+                    />
+                    <ul className="max-h-60 overflow-y-auto">
+                      {filteredOwners.map((rep) => (
+                        <li key={rep}>
+                          <a onClick={() => { setValue("accountOwner", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </FormRow>
               
               <FormRow label="Account Name" required error={errors.accountName?.message}>
@@ -354,6 +389,17 @@ export default function NewAccountForm() {
           </div>
         </div>
       </form>
+
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">Account created successfully!</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => { setSuccessModalOpen(false); navigate("/sales/accounts"); }}>Close</button>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

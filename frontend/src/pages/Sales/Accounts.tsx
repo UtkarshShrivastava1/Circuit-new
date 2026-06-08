@@ -22,6 +22,22 @@ import {
   MdAssignmentInd,
   MdPeople,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
+
+const accountColumns: ColumnConfig[] = [
+  { key: "accountName", label: "Account Name", required: true, type: "string" },
+  { key: "accountOwner", label: "Account Owner", type: "string" },
+  { key: "industry", label: "Industry", type: "string" },
+  { key: "accountType", label: "Account Type", type: "string" },
+  { key: "status", label: "Status", type: "string" },
+  { key: "contactName", label: "Primary Contact", type: "string" },
+  { key: "contactEmail", label: "Contact Email", type: "email" },
+  { key: "contactNumber", label: "Contact Number", type: "string" },
+  { key: "territory", label: "Territory", type: "string" },
+  { key: "revenue", label: "Revenue", type: "number" },
+];
 
 /* ─────────────────────────── types ─────────────────────────── */
 export interface Account {
@@ -124,6 +140,11 @@ export default function AccountsDashboard() {
       revenue: accounts.reduce((sum, a) => sum + a.revenue, 0),
     };
   }, [accounts]);
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    // Mock API call to simulate saving imported data
+    toast.success(`${validRows.length} accounts imported successfully!`);
+  };
 
   // TanStack Table Setup
   const columnHelper = createColumnHelper<Account>();
@@ -245,9 +266,13 @@ export default function AccountsDashboard() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2 bg-base-100">
-            <MdDownload size={16} /> Export CSV
-          </button>
+          <ImportExportActions
+            moduleName="Accounts"
+            columns={accountColumns}
+            data={filteredAccounts}
+            selectedData={Object.keys(rowSelection).map(idx => filteredAccounts[Number(idx)])}
+            onImportSubmit={handleImportSubmit}
+          />
           <button className="btn btn-outline btn-sm btn-square bg-base-100">
             <MdRefresh size={16} />
           </button>

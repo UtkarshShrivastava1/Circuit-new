@@ -17,6 +17,7 @@ import AllContacts from "./pages/Sales/AllContact";
 import SalesRepDetails from "./pages/Sales/SalesRepDetails";
 import AddSalesRep from "./pages/Sales/AddSalesRep";
 import NewOrderForm from "./pages/Sales/Orders";
+import AllOrders from "./pages/Sales/AllOrders";
 import SalesLeads from "./pages/Sales/Employee/SalesLeads";
 import SalesMemberProfile from "./pages/Sales/Employee/SalesMemberProfile";
 import Accounts from "./pages/Sales/Accounts";
@@ -28,6 +29,9 @@ import PendingOrders from "./pages/Sales/PendingOrders";
 import SalesRepProfile from "./pages/Sales/SalesRepProfile";
 import SalesRepAdminProfile from "./pages/Sales/SalesRepAdminProfile";
 import ContactDetails from "./pages/Sales/ContactDetails";
+import AllSalesReps from "./pages/Sales/AllSalesReps";
+import AllCase from "./pages/Sales/AllCase";
+import AddCases from "./pages/Sales/AddCases";
 
 /* Pages (lazy) */
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
@@ -146,20 +150,29 @@ export default function App() {
             <Route path="/sales/dashboard" element={<Navigate to="/sales" replace />} />
             <Route path="/sales/products" element={<AllProducts />} />
             <Route path="/sales/products/new" element={<NewProduct />} />
+
             <Route path="/sales/leads/new" element={<Leads />} />
             <Route path="/sales/leads" element={<AllLeads />} />
             <Route path="/sales/employee-leads" element={<Leads />} />
+            
             <Route path="/sales/profile/:id" element={<SalesMemberProfile />} />
             <Route path="/sales/contacts" element={<AllContacts />} />
-            <Route path="/sales/contacts/new" element={<ContactDetails />} />
-            <Route path="/sales/representatives" element={<SalesRepAdminProfile />} />
+            <Route path="/sales/contacts/:id" element={<ContactDetails />} />
+            <Route path="/sales/contacts/new" element={<NewContact />} />
+            <Route path="/sales/representatives/all" element={<AllSalesReps />} />
             <Route path="/sales/representatives/new" element={<AddSalesRep />} />
-            <Route path="/sales/orders" element={<NewOrderForm />} />
+            <Route path="/sales/representatives/edit/:id" element={<AddSalesRep />} />
+            <Route path="/sales/representatives/:id" element={<SalesRepAdminProfile />} />
+            <Route path="/sales/orders" element={<AllOrders />} />
             <Route path="/sales/orders/pending" element={<PendingOrders />} />
+            <Route path="/sales/orders/new" element={<NewOrderForm />} />
             <Route path="/sales/accounts" element={<AllAccountDetails />} />
             <Route path="/sales/accounts/new" element={<NewAccounts />} />
             <Route path="/sales/tasks/new" element={<NewTask />} />
             <Route path="/sales/tasks" element={<SalesTasksList />} />
+            <Route path="/sales/cases" element={<AllCase />} />
+            <Route path="/sales/cases/new" element={<AddCases/>} />
+
 
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/projects" element={<Projects />} />

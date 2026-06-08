@@ -2,9 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { MdSave, MdContentCopy, MdAttachment, MdDelete, MdAdd } from "react-icons/md";
+import { MdSave, MdContentCopy, MdAttachment, MdDelete, MdAdd, MdCheckCircle } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import {useAuth} from "@/auth/AuthContext";
+import { createProduct, getProductById, updateProduct } from "@/services/productServices";
 
 /* ─────────────────────────── types ─────────────────────────── */
 const productSchema = z.object({
@@ -59,16 +61,42 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
+/* ── Shared Component: Form Row ── */
+const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
+  <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+    <label className="text-sm font-medium text-base-content/80 pt-2.5">
+      {label} {required && <span className="text-error">*</span>}
+    </label>
+    <div className="w-full">
+      {children}
+      {error && <p className="text-error text-xs mt-1">{error}</p>}
+    </div>
+  </div>
+);
+
 /* ─────────────────────────── component ─────────────────────── */
-export default function NewProduct() {
+export default function NewProduct() { 
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const duplicateProduct = location.state?.duplicateProduct;
+  const isEditMode = !!id;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const { auth } = useAuth();
   
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [documents, setDocuments] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const docInputRef = useRef<HTMLInputElement>(null);
+
+  // Custom Brands and Categories State
+  const [customBrands, setCustomBrands] = useState<string[]>([]);
+  const [newBrandInput, setNewBrandInput] = useState("");
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+  const [newCategoryInput, setNewCategoryInput] = useState("");
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -87,6 +115,42 @@ export default function NewProduct() {
       sellingPrice: 0,
     }
   });
+
+  /* ── Fetch Product Data if in Edit Mode ── */
+  useEffect(() => {
+    if (isEditMode && id && auth?.slug) {
+      const fetchProduct = async () => {
+        try {
+          const product = await getProductById(id, auth.slug);
+          if (product) {
+            // Map backend product structure to form values
+            reset({ ...product });
+            
+            if (product.imageUrl) {
+              setImagePreviews([product.imageUrl]);
+            } else if (product.images && product.images.length > 0) {
+              setImagePreviews(product.images);
+            }
+          }
+        } catch (error: unknown) {
+          toast.error("Failed to load product details.",error);
+        }
+      };
+      fetchProduct();
+    } else if (duplicateProduct && !isEditMode) {
+      // Hydrate form using the duplicated product data
+      reset({
+        ...duplicateProduct,
+        productName: `${duplicateProduct.productName} (Copy)`,
+        productCode: `${duplicateProduct.productCode}-COPY`,
+      });
+      if (duplicateProduct.imageUrl) {
+        setImagePreviews([duplicateProduct.imageUrl]);
+      } else if (duplicateProduct.images && duplicateProduct.images.length > 0) {
+        setImagePreviews(duplicateProduct.images);
+      }
+    }
+  }, [isEditMode, id, auth?.slug, reset, duplicateProduct]);
 
   // Watches for Real-Time UI Updates
   const wCostPrice = watch("costPrice") || 0;
@@ -110,6 +174,24 @@ export default function NewProduct() {
       setValue("productGroup", "Electronics");
       setValue("tax", 18);
       setValue("uom", "Piece");
+    }
+  };
+
+  const handleAddBrand = () => {
+    if (newBrandInput.trim()) {
+      setCustomBrands(prev => [...prev, newBrandInput.trim()]);
+      setValue("brand", newBrandInput.trim());
+      setNewBrandInput("");
+      (document.getElementById('add_brand_modal') as HTMLDialogElement).close();
+    }
+  };
+
+  const handleAddCategory = () => {
+    if (newCategoryInput.trim()) {
+      setCustomCategories(prev => [...prev, newCategoryInput.trim()]);
+      setValue("category", newCategoryInput.trim());
+      setNewCategoryInput("");
+      (document.getElementById('add_category_modal') as HTMLDialogElement).close();
     }
   };
 
@@ -140,6 +222,24 @@ export default function NewProduct() {
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
+  const handleImageDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleImageDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files) {
+      const newFiles = Array.from(e.dataTransfer.files);
+      if (images.length + newFiles.length > 5) {
+        toast.error("Maximum 5 images allowed.");
+        return;
+      }
+      const validFiles = newFiles.filter(f => ["image/jpeg", "image/png", "image/webp"].includes(f.type));
+      setImages([...images, ...validFiles]);
+      setImagePreviews([...imagePreviews, ...validFiles.map(f => URL.createObjectURL(f))]);
+    }
+  };
+
   const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const validDocs = Array.from(e.target.files).filter(f => 
@@ -157,31 +257,70 @@ export default function NewProduct() {
   const onSubmit = async (data: ProductFormValues) => {
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // MOCK API
-      console.log("Saved Product Data:", data);
-      console.log("Images:", images);
-      console.log("Documents:", documents);
-      toast.success("Product created successfully!");
-      navigate("/sales/products");
-    } catch (err) {
-      toast.error("Failed to create product.");
+      // Convert form data and files into a multipart/form-data payload
+      const formData = new FormData();
+      
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          if (Array.isArray(value)) {
+            value.forEach((val) => formData.append(key, val));
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      images.forEach((img) => formData.append("images", img));
+      documents.forEach((doc) => formData.append("documents", doc));
+
+      // Append existing image URLs if any (useful for duplicate)
+      const existingImages = imagePreviews.filter(src => src.startsWith('http'));
+      if (existingImages.length > 0) {
+        formData.append("imageUrl", existingImages[0]);
+      }
+
+      let response: { 
+        success?: boolean; 
+        status?: number; 
+        data?: { success?: boolean; message?: string }; 
+        _id?: string; 
+        id?: string; 
+        error?: string | boolean; 
+        message?: string; 
+      } | undefined;
+      if (isEditMode && id) {
+        response = await updateProduct(id, formData as any, auth.slug || "default-tenant");
+      } else {
+        console.log(formData)
+        response = await createProduct(formData as any, auth.slug || "default-tenant");
+      }
+      
+      // Check for common backend success indicators (success boolean, HTTP status, or returned IDs)
+      const isSuccess = response && (
+        response.success === true || 
+        response.status === 200 || 
+        response.status === 201 || 
+        response.data?.success === true || 
+        response._id || 
+        response.id ||
+        isEditMode // Assume implicit success on edit if no error is thrown
+      );
+      // If there's no success property but also no error/message, assume it's implicitly successful
+      const isImplicitSuccess = response && response.success === undefined && !response.error && !response.message;
+
+      if (isSuccess || isImplicitSuccess) {
+        setSuccessMessage(isEditMode ? "Product updated successfully!" : "Product created successfully!");
+        setSuccessModalOpen(true);
+      } else {
+        toast.error(response?.data?.message || response?.message || `Failed to ${isEditMode ? "update" : "create"} product.`);
+      }
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      toast.error(err?.response?.data?.message || err?.message || `Failed to ${isEditMode ? "update" : "create"} product.`);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  /* ── Shared Component: Form Row ── */
-  const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
-    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
-      <label className="text-sm font-medium text-base-content/80 pt-2.5">
-        {label} {required && <span className="text-error">*</span>}
-      </label>
-      <div className="w-full">
-        {children}
-        {error && <p className="text-error text-xs mt-1">{error}</p>}
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
@@ -189,13 +328,13 @@ export default function NewProduct() {
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Add Product</h1>
+          <h1 className="text-2xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit Product" : "Add Product"}</h1>
           <div className="text-sm text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
               <li>Products</li>
-              <li className="font-semibold text-primary">Add Product</li>
+              <li className="font-semibold text-primary">{isEditMode ? "Edit Product" : "Add Product"}</li>
             </ul>
           </div>
         </div>
@@ -360,6 +499,7 @@ export default function NewProduct() {
                     <option value="Sony">Sony</option>
                     <option value="Samsung">Samsung</option>
                     <option value="Apple">Apple</option>
+                    {customBrands.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
                   <button type="button" onClick={() => (document.getElementById('add_brand_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                 </div>
@@ -371,6 +511,7 @@ export default function NewProduct() {
                     <option value="">-Select Category-</option>
                     <option value="Audio">Audio</option>
                     <option value="Laptops">Laptops</option>
+                    {customCategories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                   <button type="button" onClick={() => (document.getElementById('add_category_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                 </div>
@@ -435,6 +576,8 @@ export default function NewProduct() {
             <div className="collapse-content pt-5">
               <div 
                 onClick={() => fileInputRef.current?.click()}
+        onDragOver={handleImageDragOver}
+        onDrop={handleImageDrop}
                 className="border-2 border-dashed border-base-300 rounded-xl p-8 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
               >
                 <MdAttachment className="mx-auto text-base-content/40 mb-2" size={32} />
@@ -584,7 +727,7 @@ export default function NewProduct() {
 
             <div className="mt-6 pt-4 border-t border-base-200 space-y-2">
               <button type="submit" disabled={isSubmitting} className="btn btn-primary w-full shadow-sm">
-                {isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : "Save Product"}
+                {isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : (isEditMode ? "Update Product" : "Save Product")}
               </button>
               <button type="button" onClick={() => reset()} className="btn btn-outline w-full shadow-sm">
                 Reset
@@ -598,12 +741,12 @@ export default function NewProduct() {
       <dialog id="add_brand_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Quick Add Brand</h3>
-          <input type="text" className="input input-bordered w-full mt-4" placeholder="Enter Brand Name" />
-          <div className="modal-action">
-            <form method="dialog" className="flex gap-2">
-              <button className="btn btn-ghost">Cancel</button>
-              <button className="btn btn-primary">Save Brand</button>
+          <input type="text" value={newBrandInput} onChange={(e) => setNewBrandInput(e.target.value)} className="input input-bordered w-full mt-4" placeholder="Enter Brand Name" />
+          <div className="modal-action flex gap-2">
+            <form method="dialog">
+              <button className="btn btn-ghost" onClick={() => setNewBrandInput("")}>Cancel</button>
             </form>
+            <button type="button" className="btn btn-primary" onClick={handleAddBrand}>Save Brand</button>
           </div>
         </div>
       </dialog>
@@ -611,12 +754,23 @@ export default function NewProduct() {
       <dialog id="add_category_modal" className="modal">
         <div className="modal-box">
           <h3 className="font-bold text-lg">Quick Add Category</h3>
-          <input type="text" className="input input-bordered w-full mt-4" placeholder="Enter Category Name" />
-          <div className="modal-action">
-            <form method="dialog" className="flex gap-2">
-              <button className="btn btn-ghost">Cancel</button>
-              <button className="btn btn-primary">Save Category</button>
+          <input type="text" value={newCategoryInput} onChange={(e) => setNewCategoryInput(e.target.value)} className="input input-bordered w-full mt-4" placeholder="Enter Category Name" />
+          <div className="modal-action flex gap-2">
+            <form method="dialog">
+              <button className="btn btn-ghost" onClick={() => setNewCategoryInput("")}>Cancel</button>
             </form>
+            <button type="button" className="btn btn-primary" onClick={handleAddCategory}>Save Category</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => { setSuccessModalOpen(false); navigate("/sales/products"); }}>Close</button>
           </div>
         </div>
       </dialog>

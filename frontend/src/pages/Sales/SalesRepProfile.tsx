@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { getSalesRepById } from "@/services/salesRepServices";
+import { useAuth } from "@/auth/AuthContext";
 import {
   MdEdit,
   MdPictureAsPdf,
@@ -129,19 +132,44 @@ const InfoItem = ({ label, value }: { label: string; value: string | React.React
 
 /* ─────────────────────────── Main Component ─────────────────────────── */
 export default function SalesRepProfile() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { auth } = useAuth();
+
+  const { data: response, isLoading } = useQuery({
+    queryKey: ["salesRep", id, auth?.slug],
+    queryFn: () => getSalesRepById(id!, auth?.slug || "default-tenant"),
+    enabled: !!id && !!auth?.slug,
+  });
 
   const [activeTab, setActiveTab] = useState("Overview");
-  const [isLoading, setIsLoading] = useState(true);
 
-  const rep = MOCK_REP;
-
-  useEffect(() => {
-    // Simulate API fetch
-    const timer = setTimeout(() => setIsLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, [id]);
+  const repData = response?.data;
+  const rep = repData ? {
+    ...MOCK_REP,
+    ...repData,
+    id: repData.id || repData._id || MOCK_REP.id,
+    firstName: repData.fullName?.split(" ")[0] || repData.firstName || MOCK_REP.firstName,
+    lastName: repData.fullName?.split(" ").slice(1).join(" ") || repData.lastName || MOCK_REP.lastName,
+    phone: repData.phone || repData.mobileNumber || MOCK_REP.phone,
+    email: repData.email || MOCK_REP.email,
+    employeeCode: repData.employeeCode || repData.employeeId || MOCK_REP.employeeCode,
+    designation: repData.designation || MOCK_REP.designation,
+    team: repData.team || MOCK_REP.team,
+    territory: repData.territory || repData.salesTerritory || MOCK_REP.territory,
+    status: repData.status || repData.employmentStatus || MOCK_REP.status,
+    avatarUrl: repData.avatarUrl || MOCK_REP.avatarUrl,
+    monthlyTarget: repData.monthlyTarget || MOCK_REP.monthlyTarget,
+    monthlyAchievement: repData.achievement || repData.monthlyAchievement || MOCK_REP.monthlyAchievement,
+    revenueThisMonth: repData.revenueGenerated || MOCK_REP.revenueThisMonth,
+    gender: repData.gender || MOCK_REP.gender,
+    addressLine1: repData.addressLine1 || MOCK_REP.addressLine1,
+    addressLine2: repData.addressLine2 || MOCK_REP.addressLine2,
+    city: repData.city || MOCK_REP.city,
+    state: repData.state || MOCK_REP.state,
+    country: repData.country || MOCK_REP.country,
+    postalCode: repData.postalCode || MOCK_REP.postalCode,
+  } : MOCK_REP;
 
   const TABS = ["Overview", "Customers", "Leads", "Orders", "Performance", "Documents", "Activity Log"];
 
@@ -178,7 +206,7 @@ export default function SalesRepProfile() {
           </div>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button className="btn btn-outline btn-sm gap-1"><MdEdit size={16} /> Edit</button>
+          <button className="btn btn-outline btn-sm gap-1" onClick={() => navigate(`/sales/representatives/edit/${rep.id}`)}><MdEdit size={16} /> Edit</button>
           <button className="btn btn-outline btn-sm gap-1" onClick={() => (document.getElementById('modal_assign_customer') as HTMLDialogElement)?.showModal()}><MdPeople size={16} /> Customers</button>
           <button className="btn btn-outline btn-sm gap-1" onClick={() => (document.getElementById('modal_assign_lead') as HTMLDialogElement)?.showModal()}><MdOutlineAssignmentTurnedIn size={16} /> Leads</button>
           
@@ -250,14 +278,14 @@ export default function SalesRepProfile() {
           
           {/* Top Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <StatCard title="Monthly Target" value={`$${rep.monthlyTarget.toLocaleString()}`} />
-            <StatCard title="Monthly Achievement" value={`$${rep.monthlyAchievement.toLocaleString()}`} />
+            <StatCard title="Monthly Target" value={`₹${rep.monthlyTarget.toLocaleString()}`} />
+            <StatCard title="Monthly Achievement" value={`₹${rep.monthlyAchievement.toLocaleString()}`} />
             <StatCard title="Target Completion" value={`${((rep.monthlyAchievement/rep.monthlyTarget)*100).toFixed(1)}%`} progress={true} progressValue={(rep.monthlyAchievement/rep.monthlyTarget)*100} />
             <StatCard title="Orders This Month" value={rep.ordersThisMonth} />
             <StatCard title="Total Customers" value={rep.totalCustomers} />
             <StatCard title="Total Leads" value={rep.totalLeads} />
             <StatCard title="Conversion Rate" value={`${rep.conversionRate}%`} />
-            <StatCard title="Revenue This Month" value={`$${rep.revenueThisMonth.toLocaleString()}`} />
+            <StatCard title="Revenue This Month" value={`₹${rep.revenueThisMonth.toLocaleString()}`} />
           </div>
 
           {/* Tabs Section */}
@@ -362,7 +390,7 @@ export default function SalesRepProfile() {
                           <td>{c.phone}</td>
                           <td>{c.email}</td>
                           <td>{c.territory}</td>
-                          <td className="text-right font-medium text-success">${c.revenue.toLocaleString()}</td>
+                          <td className="text-right font-medium text-success">₹{c.revenue.toLocaleString()}</td>
                           <td><span className={`badge badge-sm ${c.status === 'Active' ? 'badge-success text-white' : 'badge-ghost'}`}>{c.status}</span></td>
                           <td className="text-right">
                             <button className="btn btn-ghost btn-xs text-primary">View</button>
@@ -399,7 +427,7 @@ export default function SalesRepProfile() {
                           <td>{l.company}</td>
                           <td>{l.source}</td>
                           <td><span className="badge badge-sm badge-info">{l.status}</span></td>
-                          <td className="text-right font-medium">${l.expectedValue.toLocaleString()}</td>
+                          <td className="text-right font-medium">₹{l.expectedValue.toLocaleString()}</td>
                           <td>{l.date}</td>
                           <td className="text-right">
                             <button className="btn btn-ghost btn-xs text-primary">View</button>
@@ -434,7 +462,7 @@ export default function SalesRepProfile() {
                           <td className="font-mono font-bold text-primary">{o.orderNo}</td>
                           <td className="font-semibold">{o.customer}</td>
                           <td>{o.date}</td>
-                          <td className="text-right font-bold text-success">${o.amount.toLocaleString()}</td>
+                          <td className="text-right font-bold text-success">₹{o.amount.toLocaleString()}</td>
                           <td><span className={`badge badge-sm ${o.status === 'Delivered' ? 'badge-success text-white' : 'badge-warning'}`}>{o.status}</span></td>
                           <td className="text-right">
                             <button className="btn btn-ghost btn-xs text-primary">View</button>
@@ -455,9 +483,9 @@ export default function SalesRepProfile() {
                   <section>
                     <h3 className="text-base font-bold border-b border-base-200 pb-2 mb-4 text-primary">Sales Metrics</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <StatCard title="Total Revenue" value={`$${rep.totalRevenue.toLocaleString()}`} />
+                      <StatCard title="Total Revenue" value={`₹${rep.totalRevenue.toLocaleString()}`} />
                       <StatCard title="Total Orders" value={rep.totalOrders} />
-                      <StatCard title="Avg Order Value" value={`$${rep.averageOrderValue.toLocaleString()}`} />
+                      <StatCard title="Avg Order Value" value={`₹${rep.averageOrderValue.toLocaleString()}`} />
                       <StatCard title="Closed Deals" value={rep.closedDeals} />
                       <StatCard title="Open Leads" value={rep.openLeads} />
                       <StatCard title="Lost Leads" value={rep.lostLeads} />
@@ -598,7 +626,7 @@ export default function SalesRepProfile() {
         <div className="modal-box">
           <h3 className="font-bold text-lg border-b pb-2 mb-4">Update Monthly Target</h3>
           <div className="form-control mb-4">
-            <label className="label"><span className="label-text font-medium">New Target Amount ($)</span></label>
+            <label className="label"><span className="label-text font-medium">New Target Amount (₹)</span></label>
             <input type="number" className="input input-bordered w-full" defaultValue={rep.monthlyTarget} />
           </div>
           <div className="form-control">

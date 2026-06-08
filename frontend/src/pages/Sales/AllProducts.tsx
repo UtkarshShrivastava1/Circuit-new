@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   useReactTable,
@@ -25,7 +25,30 @@ import {
   MdArchive,
   MdDelete,
   MdInventory,
+  MdCheckCircle,
+  MdWarning,
 } from "react-icons/md";
+import { getAllProducts, deleteProduct, updateProduct, createProduct } from "@/services/productServices";
+import { useAuth } from "@/auth/AuthContext";
+import { toast } from "react-toastify";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
+
+const productColumns: ColumnConfig[] = [
+  { key: "productName", label: "Product Name", required: true, type: "string" },
+  { key: "productCode", label: "Product Code", required: true, type: "string" },
+  { key: "sku", label: "SKU", type: "string" },
+  { key: "barcode", label: "Barcode", type: "string" },
+  { key: "productGroup", label: "Product Group", required: true, type: "string" },
+  { key: "category", label: "Category", type: "string" },
+  { key: "brand", label: "Brand", type: "string" },
+  { key: "unitPrice", label: "Unit Price", type: "number" },
+  { key: "costPrice", label: "Cost Price", type: "number" },
+  { key: "stockQuantity", label: "Stock Quantity", type: "number" },
+  { key: "reorderLevel", label: "Reorder Level", type: "number" },
+  { key: "stockStatus", label: "Stock Status", type: "string" },
+  { key: "status", label: "Status", type: "string" },
+];
 
 /* ─────────────────────────── types ─────────────────────────── */
 export interface Product {
@@ -49,6 +72,9 @@ export interface Product {
   warehouse?: string;
   uom?: string;
   availableForSale?: boolean;
+  sellingPrice?: number;
+  updatedAt?: string;
+  images?: (string | File)[];
 }
 
 interface AllProductsProps {
@@ -58,98 +84,100 @@ interface AllProductsProps {
 }
 
 /* ─────────────────────────── sample data ───────────────────── */
-const SAMPLE: Product[] = [
-  {
-    id: "PRD-1001",
-    productName: "Wireless Headphones Pro",
-    productCode: "WHP-2024-001",
-    sku: "WHP-BLK-01",
-    productGroup: "Electronics",
-    category: "Audio",
-    brand: "Sony",
-    unitPrice: 4999.99,
-    costPrice: 2500.00,
-    stockQuantity: 145,
-    reorderLevel: 50,
-    stockStatus: "In Stock",
-    status: "Active",
-    lastUpdated: "2026-05-28",
-    description: "Premium noise-cancelling wireless headphones.",
-    uom: "Piece",
-    warehouse: "Main Warehouse",
-    availableForSale: true,
-  },
-  {
-    id: "PRD-1002",
-    productName: "ERP Suite License",
-    productCode: "ERP-LIC-2024",
-    sku: "ERP-ENT-ANNUAL",
-    productGroup: "Software",
-    category: "Enterprise",
-    brand: "Circuit ERP",
-    unitPrice: 24999.0,
-    costPrice: 5000.00,
-    stockQuantity: 9999,
-    reorderLevel: 0,
-    stockStatus: "In Stock",
-    status: "Active",
-    lastUpdated: "2026-06-01",
-    description: "Annual enterprise software license.",
-    uom: "License",
-    warehouse: "Digital",
-    availableForSale: true,
-  },
-  {
-    id: "PRD-1003",
-    productName: "USB-C Hub 7-in-1",
-    productCode: "USB-HUB-001",
-    sku: "HUB-7IN1-SLV",
-    productGroup: "Accessories",
-    category: "Computer Peripherals",
-    brand: "Anker",
-    unitPrice: 1299.0,
-    costPrice: 600.00,
-    stockQuantity: 12,
-    reorderLevel: 20,
-    stockStatus: "Low Stock",
-    status: "Active",
-    lastUpdated: "2026-05-15",
-    description: "Multi-port USB-C hub with HDMI and SD card.",
-    uom: "Piece",
-    warehouse: "Main Warehouse",
-    availableForSale: true,
-  },
-  {
-    id: "PRD-1004",
-    productName: "Mechanical Keyboard",
-    productCode: "MK-87-RGB",
-    sku: "MK-87-RED",
-    productGroup: "Hardware",
-    category: "Input Devices",
-    brand: "Logitech",
-    unitPrice: 3499.0,
-    costPrice: 2000.00,
-    stockQuantity: 0,
-    reorderLevel: 15,
-    stockStatus: "Out Of Stock",
-    status: "Inactive",
-    lastUpdated: "2026-04-10",
-    description: "87-key mechanical keyboard with red switches.",
-    uom: "Piece",
-    warehouse: "Secondary Depot",
-    availableForSale: false,
-  },
-];
+// const SAMPLE: Product[] = [
+//   {
+//     id: "PRD-1001",
+//     productName: "Wireless Headphones Pro",
+//     productCode: "WHP-2024-001",
+//     sku: "WHP-BLK-01",
+//     productGroup: "Electronics",
+//     category: "Audio",
+//     brand: "Sony",
+//     unitPrice: 4999.99,
+//     costPrice: 2500.00,
+//     stockQuantity: 145,
+//     reorderLevel: 50,
+//     stockStatus: "In Stock",
+//     status: "Active",
+//     lastUpdated: "2026-05-28",
+//     description: "Premium noise-cancelling wireless headphones.",
+//     uom: "Piece",
+//     warehouse: "Main Warehouse",
+//     availableForSale: true,
+//   },
+//   {
+//     id: "PRD-1002",
+//     productName: "ERP Suite License",
+//     productCode: "ERP-LIC-2024",
+//     sku: "ERP-ENT-ANNUAL",
+//     productGroup: "Software",
+//     category: "Enterprise",
+//     brand: "Circuit ERP",
+//     unitPrice: 24999.0,
+//     costPrice: 5000.00,
+//     stockQuantity: 9999,
+//     reorderLevel: 0,
+//     stockStatus: "In Stock",
+//     status: "Active",
+//     lastUpdated: "2026-06-01",
+//     description: "Annual enterprise software license.",
+//     uom: "License",
+//     warehouse: "Digital",
+//     availableForSale: true,
+//   },
+//   {
+//     id: "PRD-1003",
+//     productName: "USB-C Hub 7-in-1",
+//     productCode: "USB-HUB-001",
+//     sku: "HUB-7IN1-SLV",
+//     productGroup: "Accessories",
+//     category: "Computer Peripherals",
+//     brand: "Anker",
+//     unitPrice: 1299.0,
+//     costPrice: 600.00,
+//     stockQuantity: 12,
+//     reorderLevel: 20,
+//     stockStatus: "Low Stock",
+//     status: "Active",
+//     lastUpdated: "2026-05-15",
+//     description: "Multi-port USB-C hub with HDMI and SD card.",
+//     uom: "Piece",
+//     warehouse: "Main Warehouse",
+//     availableForSale: true,
+//   },
+//   {
+//     id: "PRD-1004",
+//     productName: "Mechanical Keyboard",
+//     productCode: "MK-87-RGB",
+//     sku: "MK-87-RED",
+//     productGroup: "Hardware",
+//     category: "Input Devices",
+//     brand: "Logitech",
+//     unitPrice: 3499.0,
+//     costPrice: 2000.00,
+//     stockQuantity: 0,
+//     reorderLevel: 15,
+//     stockStatus: "Out Of Stock",
+//     status: "Inactive",
+//     lastUpdated: "2026-04-10",
+//     description: "87-key mechanical keyboard with red switches.",
+//     uom: "Piece",
+//     warehouse: "Secondary Depot",
+//     availableForSale: false,
+//   },
+// ];
+
+
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function AllProducts({
   products: propProducts,
   onAddProduct,
 }: AllProductsProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   // State
-  const [products] = useState<Product[]>(propProducts ?? SAMPLE);
+  const [products, setProducts] = useState<Product[]>([]);
   const [view, setView] = useState<"table" | "card">("table");
   const [showFilters, setShowFilters] = useState(false);
   const [search, setSearch] = useState("");
@@ -160,6 +188,199 @@ export default function AllProducts({
   // Quick Stock Modal State
   const [stockModalOpen, setStockModalOpen] = useState(false);
   const [stockUpdateProduct, setStockUpdateProduct] = useState<Product | null>(null);
+  const [stockAdjustmentType, setStockAdjustmentType] = useState("Add Stock");
+  const [stockAdjustmentQuantity, setStockAdjustmentQuantity] = useState<number | "">("");
+
+  // Edit Modal State
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+
+  // Delete Modal State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+
+  // Success Modal State
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Bulk Action Modal State
+  const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
+  const [bulkCategoryModalOpen, setBulkCategoryModalOpen] = useState(false);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState("Active");
+  const [newCategory, setNewCategory] = useState("");
+
+  const { auth } = useAuth();
+  const [refreshFlag, setRefreshFlag] = useState(0);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await getAllProducts(auth.slug || "default-tenant");
+        
+        if (response?.success && response?.data) {
+          const mappedProducts = response.data.map((p: Product & { _id?: string; openingStock?: number }) => ({
+            ...p,
+            id: p._id || p.id, // Map MongoDB _id to the frontend id
+            unitPrice: p.sellingPrice || p.unitPrice || 0, // Map backend 'sellingPrice' to 'unitPrice'
+            lastUpdated: p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : p.lastUpdated, // Map 'updatedAt' to 'lastUpdated'
+            stockQuantity: p.stockQuantity ?? p.openingStock ?? 0, // Ensure stock fallback
+            imageUrl: p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : URL.createObjectURL(p.images[0] as Blob)) : p.imageUrl // Map the first image
+          }));
+          console.log("Mapped Products:", mappedProducts);
+          setProducts(mappedProducts);
+        }
+      } catch (error: unknown) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    
+    if (!propProducts) {
+      fetchProducts();
+    }
+  }, [propProducts, stockModalOpen, auth.slug, refreshFlag]);
+
+  const initiateDelete = useCallback((id: string) => {
+    setProductToDelete(id);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (!productToDelete) return;
+    try {
+      await deleteProduct(productToDelete, auth.slug || "default-tenant");
+      setProducts((prev) => prev.filter((p) => p.id !== productToDelete));
+      setDeleteModalOpen(false);
+      if (selectedProduct?.id === productToDelete) {
+        setSelectedProduct(null);
+      }
+      setProductToDelete(null);
+      setSuccessMessage("Product deleted successfully!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      toast.error(err?.response?.data?.message || err?.message || "Failed to delete product.");
+    }
+  };
+
+  const handleStockUpdate = async () => {
+    if (!stockUpdateProduct) return;
+    try {
+      let newStock = stockUpdateProduct.stockQuantity;
+      const qty = Number(stockAdjustmentQuantity);
+      if (stockAdjustmentType === "Add Stock") newStock += qty;
+      else if (stockAdjustmentType === "Remove Stock") newStock -= qty;
+      else newStock = qty;
+
+      const updatedProduct = { ...stockUpdateProduct, stockQuantity: newStock };
+      await updateProduct(stockUpdateProduct.id, updatedProduct, auth.slug || "default-tenant");
+      
+      setProducts(prev => prev.map(p => p.id === stockUpdateProduct.id ? updatedProduct : p));
+      setStockModalOpen(false);
+      if (selectedProduct?.id === stockUpdateProduct.id) {
+        setSelectedProduct(updatedProduct);
+      }
+      setStockAdjustmentQuantity("");
+      setStockAdjustmentType("Add Stock");
+      setSuccessMessage("Stock updated successfully!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to update stock.");
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!productToEdit) return;
+    try {
+      await updateProduct(productToEdit.id, productToEdit, auth.slug || "default-tenant");
+      setProducts(prev => prev.map(p => p.id === productToEdit.id ? productToEdit : p));
+      setEditModalOpen(false);
+      if (selectedProduct?.id === productToEdit.id) {
+         setSelectedProduct(productToEdit);
+      }
+      setSuccessMessage("Product updated successfully!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to update product.",error);
+    }
+  };
+
+  const handleArchive = async (product: Product) => {
+    try {
+      const updatedProduct = { ...product, status: "Inactive" as const };
+      await updateProduct(product.id, updatedProduct, auth.slug || "default-tenant");
+      setProducts(prev => prev.map(p => p.id === product.id ? updatedProduct : p));
+      if (selectedProduct?.id === product.id) {
+         setSelectedProduct(updatedProduct);
+      }
+      setSuccessMessage("Product archived successfully!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to archive product.");
+    }
+  };
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    await Promise.all(validRows.map(row => {
+      const formData = new FormData();
+      Object.entries(row).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") formData.append(key, String(value));
+      });
+      return createProduct(formData as any, auth.slug || "default-tenant");
+    }));
+    setRefreshFlag(prev => prev + 1);
+  };
+
+  const getSelectedProducts = () => {
+    const selectedIndices = Object.keys(rowSelection).map(Number);
+    return selectedIndices.map(index => filteredProducts[index]);
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    const selected = getSelectedProducts();
+    try {
+      await Promise.all(selected.map(p => updateProduct(p.id, { ...p, status: newStatus as any }, auth.slug || "default-tenant")));
+      setProducts(prev => prev.map(p => selected.find(sp => sp.id === p.id) ? { ...p, status: newStatus as any } : p));
+      setBulkStatusModalOpen(false);
+      setRowSelection({});
+      setSuccessMessage("Status updated for selected products!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to update status for some products.",error);
+    }
+  };
+
+  const handleBulkCategoryUpdate = async () => {
+    const selected = getSelectedProducts();
+    try {
+      await Promise.all(selected.map(p => updateProduct(p.id, { ...p, category: newCategory }, auth.slug || "default-tenant")));
+      setProducts(prev => prev.map(p => selected.find(sp => sp.id === p.id) ? { ...p, category: newCategory } : p));
+      setBulkCategoryModalOpen(false);
+      setRowSelection({});
+      setSuccessMessage("Category updated for selected products!");
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to update category for some products.",error);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const selected = getSelectedProducts();
+    try {
+      await Promise.all(selected.map(p => deleteProduct(p.id, auth.slug || "default-tenant")));
+      setProducts(prev => prev.filter(p => !selected.find(sp => sp.id === p.id)));
+      setBulkDeleteModalOpen(false);
+      setRowSelection({});
+      if (selectedProduct && selected.find(sp => sp.id === selectedProduct.id)) {
+        setSelectedProduct(null);
+      }
+      setSuccessMessage(`${selected.length} products deleted successfully!`);
+      setSuccessModalOpen(true);
+    } catch (error: unknown) {
+      toast.error("Failed to delete some products.",error);
+    }
+  };
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -244,13 +465,13 @@ export default function AllProducts({
       header: "Unit Price",
       cell: (info) => (
         <span className="font-semibold text-success">
-          ₹{info.getValue().toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          ₹{info.getValue()?.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
         </span>
       ),
     }),
     columnHelper.accessor("stockQuantity", {
       header: "Stock",
-      cell: (info) => <span className="font-medium">{info.getValue().toLocaleString()}</span>,
+      cell: (info) => <span className="font-medium">{info.getValue()?.toLocaleString()}</span>,
     }),
     columnHelper.accessor("stockStatus", {
       header: "Stock Status",
@@ -280,21 +501,21 @@ export default function AllProducts({
           </button>
           <ul tabIndex={0} className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-44 border border-base-200">
             <li><a onClick={() => setSelectedProduct(row.original)}><MdViewList /> View Details</a></li>
-            <li><a><MdEdit /> Edit Product</a></li>
+            <li><a onClick={() => { setProductToEdit(row.original); setEditModalOpen(true); }}><MdEdit /> Edit Product</a></li>
             <li>
               <a onClick={() => { setStockUpdateProduct(row.original); setStockModalOpen(true); }}>
                 <MdInventory /> Quick Stock Update
               </a>
             </li>
-            <li><a><MdContentCopy /> Duplicate</a></li>
-            <li><a><MdArchive /> Archive</a></li>
+            <li><a onClick={() => navigate("/sales/products/new", { state: { duplicateProduct: row.original } })}><MdContentCopy /> Duplicate</a></li>
+            <li><a onClick={() => handleArchive(row.original)}><MdArchive /> Archive</a></li>
             <div className="divider my-1"></div>
-            <li><a className="text-error"><MdDelete /> Delete</a></li>
+            <li><a className="text-error" onClick={() => initiateDelete(row.original.id)}><MdDelete /> Delete</a></li>
           </ul>
         </div>
       ),
     }),
-  ], []);
+  ], [navigate, initiateDelete]);
 
   const filteredProducts = useMemo(() => {
     return products.filter(p => 
@@ -332,20 +553,14 @@ export default function AllProducts({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2">
-            <MdUpload size={16} /> Import
-          </button>
-          <div className="dropdown dropdown-end">
-            <button tabIndex={0} className="btn btn-outline btn-sm gap-2">
-              <MdDownload size={16} /> Export
-            </button>
-            <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-40 mt-1 border border-base-200">
-              <li><a>Export CSV</a></li>
-              <li><a>Export Excel</a></li>
-              <li><a>Export PDF</a></li>
-            </ul>
-          </div>
-          <button className="btn btn-outline btn-sm btn-square">
+          <ImportExportActions
+            moduleName="Products"
+            columns={productColumns}
+            data={filteredProducts}
+            selectedData={getSelectedProducts()}
+            onImportSubmit={handleImportSubmit}
+          />
+          <button onClick={() => setRefreshFlag(prev => prev + 1)} className="btn btn-outline btn-sm btn-square">
             <MdRefresh size={16} />
           </button>
           <button onClick={() => onAddProduct ? onAddProduct() : navigate("/sales/products/new")} className="btn btn-primary btn-sm gap-2 shadow-sm">
@@ -436,10 +651,10 @@ export default function AllProducts({
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
           <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} products selected</span>
           <div className="flex gap-2">
-            <button className="btn btn-xs btn-primary">Change Status</button>
-            <button className="btn btn-xs btn-outline">Assign Category</button>
-            <button className="btn btn-xs btn-outline">Export Selected</button>
-            <button className="btn btn-xs btn-error btn-outline">Delete</button>
+            <button onClick={() => setBulkStatusModalOpen(true)} className="btn btn-xs btn-primary">Change Status</button>
+            <button onClick={() => setBulkCategoryModalOpen(true)} className="btn btn-xs btn-outline bg-base-100">Assign Category</button>
+            <button className="btn btn-xs btn-outline bg-base-100">Export Selected</button>
+            <button onClick={() => setBulkDeleteModalOpen(true)} className="btn btn-xs btn-error btn-outline">Delete</button>
           </div>
         </div>
       )}
@@ -518,7 +733,7 @@ export default function AllProducts({
                       <span className="text-xs text-base-content/70">{product.brand}</span>
                     </div>
                     <div className="mt-4 flex items-end justify-between">
-                      <span className="text-lg font-bold text-success">₹{product.unitPrice.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-success">₹{product.unitPrice?.toLocaleString()}</span>
                       <span className="text-xs font-medium text-base-content/60">Stock: {product.stockQuantity}</span>
                     </div>
                   </div>
@@ -582,9 +797,9 @@ export default function AllProducts({
             
             {/* Quick Actions */}
             <div className="flex gap-2 pb-6 border-b border-base-200">
-              <button className="btn btn-sm btn-primary flex-1 gap-2"><MdEdit /> Edit</button>
-              <button className="btn btn-sm btn-outline flex-1 gap-2"><MdInventory /> Adjust Stock</button>
-              <button className="btn btn-sm btn-outline btn-error flex-none px-3"><MdDelete /></button>
+              <button onClick={() => { setProductToEdit(selectedProduct); setEditModalOpen(true); }} className="btn btn-sm btn-primary flex-1 gap-2"><MdEdit /> Edit</button>
+              <button onClick={() => { setStockUpdateProduct(selectedProduct); setStockModalOpen(true); }} className="btn btn-sm btn-outline bg-base-100 flex-1 gap-2"><MdInventory /> Adjust Stock</button>
+              <button onClick={() => { if(selectedProduct) { initiateDelete(selectedProduct.id); } }} className="btn btn-sm btn-outline btn-error flex-none px-3"><MdDelete /></button>
             </div>
 
             {/* Basic Info */}
@@ -601,12 +816,13 @@ export default function AllProducts({
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Pricing</h3>
               <div className="bg-base-200/50 p-4 rounded-xl border border-base-200 grid grid-cols-2 gap-4 text-sm">
-                <div><p className="text-base-content/50 mb-1">Selling Price</p><p className="font-bold text-success text-lg">₹{selectedProduct?.unitPrice.toLocaleString()}</p></div>
-                <div><p className="text-base-content/50 mb-1">Cost Price</p><p className="font-medium text-base-content/70">₹{selectedProduct?.costPrice.toLocaleString()}</p></div>
+                <div><p className="text-base-content/50 mb-1">Selling Price</p><p className="font-bold text-success text-lg">₹{selectedProduct?.
+sellingPrice?.toLocaleString()}</p></div>
+                <div><p className="text-base-content/50 mb-1">Cost Price</p><p className="font-medium text-base-content/70">₹{selectedProduct?.costPrice?.toLocaleString()}</p></div>
                 <div className="col-span-2 divider my-0"></div>
                 <div>
                   <p className="text-base-content/50 mb-1">Est. Profit Margin</p>
-                  <p className="font-bold text-primary">₹{((selectedProduct?.unitPrice || 0) - (selectedProduct?.costPrice || 0)).toLocaleString()}</p>
+                  <p className="font-bold text-primary">₹{((selectedProduct?.sellingPrice || 0) - (selectedProduct?.costPrice || 0))?.toLocaleString()}</p>
                 </div>
                 <div><p className="text-base-content/50 mb-1">Tax</p><p className="font-medium">{selectedProduct?.tax || 18}%</p></div>
               </div>
@@ -656,27 +872,192 @@ export default function AllProducts({
 
       {/* ── Quick Stock Modal ── */}
       <dialog id="stock_update_modal" className={`modal ${stockModalOpen ? "modal-open" : ""}`}>
-        <div className="modal-box">
+        <div className="modal-box ">
           <h3 className="font-bold text-lg">Quick Stock Update</h3>
-          <p className="py-2 text-sm text-base-content/70">Adjust inventory for <span className="font-bold">{stockUpdateProduct?.productName}</span>.</p>
+          <p className="py-2 text-sm text-base-content/70 ">Adjust inventory for <span className="font-bold">{stockUpdateProduct?.productName}</span>.</p>
           
           <div className="form-control w-full mt-4">
-            <label className="label"><span className="label-text font-semibold">Adjustment Type</span></label>
-            <select className="select select-bordered">
-              <option>Add Stock</option>
-              <option>Remove Stock</option>
-              <option>Set Absolute Quantity</option>
+            <label className="label "><span className="label-text font-semibold">Adjustment Type</span></label>
+            <select className="select select-bordered ml-2" value={stockAdjustmentType} onChange={(e) => setStockAdjustmentType(e.target.value)}>
+              <option value="Add Stock">Add Stock</option>
+              <option value="Remove Stock">Remove Stock</option>
+              <option value="Set Absolute Quantity">Set Absolute Quantity</option>
             </select>
           </div>
 
           <div className="form-control w-full mt-4">
             <label className="label"><span className="label-text font-semibold">Quantity</span></label>
-            <input type="number" className="input input-bordered" placeholder="Enter quantity" />
+            <input type="number" className="input input-bordered ml-17" placeholder="Enter quantity" value={stockAdjustmentQuantity} onChange={(e) => setStockAdjustmentQuantity(e.target.value ? Number(e.target.value) : "")} />
           </div>
           
           <div className="modal-action">
             <button className="btn btn-ghost" onClick={() => setStockModalOpen(false)}>Cancel</button>
-            <button className="btn btn-primary" onClick={() => setStockModalOpen(false)}>Update Stock</button>
+            <button className="btn btn-primary" onClick={handleStockUpdate}>Update Stock</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Delete Confirmation Modal */}
+      <dialog className={`modal ${deleteModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-error flex items-center gap-2"><MdWarning /> Confirm Delete</h3>
+          <p className="py-4 text-base-content/80">Are you sure you want to delete this product? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
+            <button className="btn btn-error text-white" onClick={confirmDelete}>Yes, Delete</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Success Modal */}
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => setSuccessModalOpen(false)}>Close</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Edit Modal */}
+      <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box max-w-2xl">
+          <h3 className="font-bold text-lg mb-4">Edit Product</h3>
+          {productToEdit && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Product Name</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.productName} onChange={(e) => setProductToEdit({...productToEdit, productName: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Product Code</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.productCode} onChange={(e) => setProductToEdit({...productToEdit, productCode: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">SKU</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.sku || ""} onChange={(e) => setProductToEdit({...productToEdit, sku: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Barcode</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.barcode || ""} onChange={(e) => setProductToEdit({...productToEdit, barcode: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Product Group</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.productGroup || ""} onChange={(e) => setProductToEdit({...productToEdit, productGroup: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Category</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.category || ""} onChange={(e) => setProductToEdit({...productToEdit, category: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Brand</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.brand || ""} onChange={(e) => setProductToEdit({...productToEdit, brand: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Unit Price (₹)</span></label>
+                  <input type="number" className="input input-bordered w-full" value={productToEdit.unitPrice || productToEdit.sellingPrice || 0} onChange={(e) => setProductToEdit({...productToEdit, unitPrice: Number(e.target.value), sellingPrice: Number(e.target.value)})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Cost Price (₹)</span></label>
+                  <input type="number" className="input input-bordered w-full" value={productToEdit.costPrice || 0} onChange={(e) => setProductToEdit({...productToEdit, costPrice: Number(e.target.value)})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Stock Quantity</span></label>
+                  <input type="number" className="input input-bordered w-full" value={productToEdit.stockQuantity || 0} onChange={(e) => setProductToEdit({...productToEdit, stockQuantity: Number(e.target.value)})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Reorder Level</span></label>
+                  <input type="number" className="input input-bordered w-full" value={productToEdit.reorderLevel || 0} onChange={(e) => setProductToEdit({...productToEdit, reorderLevel: Number(e.target.value)})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Stock Status</span></label>
+                  <select className="select select-bordered w-full" value={productToEdit.stockStatus} onChange={(e) => setProductToEdit({...productToEdit, stockStatus: e.target.value as any})}>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out Of Stock">Out Of Stock</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Status</span></label>
+                  <select className="select select-bordered w-full" value={productToEdit.status} onChange={(e) => setProductToEdit({...productToEdit, status: e.target.value as any})}>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="Discontinued">Discontinued</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Warehouse</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.warehouse || ""} onChange={(e) => setProductToEdit({...productToEdit, warehouse: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Unit of Measure (UoM)</span></label>
+                  <input type="text" className="input input-bordered w-full" value={productToEdit.uom || ""} onChange={(e) => setProductToEdit({...productToEdit, uom: e.target.value})} />
+                </div>
+                <div className="form-control flex flex-row items-center gap-4 mt-8">
+                  <label className="label cursor-pointer gap-2 p-0">
+                    <input type="checkbox" className="checkbox checkbox-primary" checked={productToEdit.availableForSale ?? true} onChange={(e) => setProductToEdit({...productToEdit, availableForSale: e.target.checked})} />
+                    <span className="label-text font-medium">Available for Sale</span>
+                  </label>
+                </div>
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text">Description</span></label>
+                  <textarea className="textarea textarea-bordered w-full" value={productToEdit.description || ""} onChange={(e) => setProductToEdit({...productToEdit, description: e.target.value})}></textarea>
+                </div>
+              </div>
+              <div className="modal-action">
+                <button type="button" className="btn btn-ghost" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          )}
+        </div>
+      </dialog>
+
+      {/* Bulk Status Modal */}
+      <dialog className={`modal ${bulkStatusModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Update Status for Selected Products</h3>
+          <div className="form-control w-full">
+            <label className="label"><span className="label-text font-semibold">New Status</span></label>
+            <select className="select select-bordered ml-3" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Discontinued">Discontinued</option>
+            </select>
+          </div>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setBulkStatusModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleBulkStatusUpdate}>Update Status</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Bulk Category Modal */}
+      <dialog className={`modal ${bulkCategoryModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Assign Category to Selected Products</h3>
+          <div className="form-control w-full">
+            <label className="label"><span className="label-text font-semibold">New Category</span></label>
+            <input type="text" className="input input-bordered w-full" placeholder="Enter category name" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} />
+          </div>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setBulkCategoryModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleBulkCategoryUpdate}>Update Category</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <dialog className={`modal ${bulkDeleteModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-error flex items-center gap-2"><MdWarning /> Confirm Bulk Delete</h3>
+          <p className="py-4 text-base-content/80">Are you sure you want to delete {Object.keys(rowSelection).length} selected products? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setBulkDeleteModalOpen(false)}>Cancel</button>
+            <button className="btn btn-error text-white" onClick={handleBulkDelete}>Yes, Delete All</button>
           </div>
         </div>
       </dialog>

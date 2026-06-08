@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { MdSave, MdPerson } from "react-icons/md";
 import { toast } from "react-toastify";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const contactSchema = z.object({
@@ -61,6 +64,8 @@ const DEFAULT_COUNTRIES = [
 export default function NewContact() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { auth } = useAuth();
+  const [repSearch, setRepSearch] = useState("");
 
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
@@ -70,6 +75,15 @@ export default function NewContact() {
     }
   });
 
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth?.slug],
+    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
   // Live Watches
   const wFirstName = watch("firstName");
   const wLastName = watch("lastName");
@@ -77,6 +91,11 @@ export default function NewContact() {
   const wEmail = watch("email");
   const wStatus = watch("status");
   const wAssignedRep = watch("assignedRep");
+
+  const filteredReps = useMemo(() => {
+    if (!repSearch) return salesReps;
+    return salesReps.filter(rep => rep.toLowerCase().includes(repSearch.toLowerCase()));
+  }, [salesReps, repSearch]);
 
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
@@ -225,11 +244,27 @@ export default function NewContact() {
                   </select>
                 </FormRow>
                 <FormRow label="Assigned Rep" required error={errors.assignedRep?.message}>
-                  <select {...register("assignedRep")} className={`select select-bordered w-full ${errors.assignedRep ? 'select-error' : ''}`}>
-                    <option value="">-Select Owner-</option>
-                    <option value="V VINAY Kumar">V VINAY Kumar</option>
-                    <option value="Riya Sharma">Riya Sharma</option>
-                  </select>
+                  <div className="dropdown w-full">
+                    <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedRep ? "border-error" : "border-base-300"}`}>
+                      {wAssignedRep || "-Select Rep-"}
+                    </label>
+                    <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                      <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        className="input input-sm input-bordered w-full mb-2"
+                        value={repSearch}
+                        onChange={e => setRepSearch(e.target.value)}
+                      />
+                      <ul className="max-h-60 overflow-y-auto">
+                        {filteredReps.map((rep) => (
+                          <li key={rep}>
+                            <a onClick={() => { setValue("assignedRep", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </FormRow>
                 <FormRow label="Status">
                   <select {...register("status")} className="select select-bordered w-full">

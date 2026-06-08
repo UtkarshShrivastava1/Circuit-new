@@ -19,6 +19,14 @@ const activityRoutes = require("./routes/activity.routes.js");
 const notificationRoutes = require("./routes/notification.routes.js");
 const message = require("./routes/message.routes.js")
 const workUpdateRoutes = require("./routes/workUpdate.routes.js");
+
+const productRoutes = require("./routes/product.routes.js");
+const orderRoutes = require("./routes/order.routes.js");
+const leadRoutes = require("./routes/lead.routes.js");
+const salesRepRoutes = require("./routes/salesRep.routes.js");
+const salesTaskRoutes = require("./routes/salesTask.routes.js");
+const caseRoutes = require("./routes/case.routes.js");
+
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -53,6 +61,7 @@ app.use(cookieParser());
 // ------------------------------------------------------------
 app.use("/", routes);
 app.use("/api/auth", authRoutes);
+//It routes
 app.use("/api", memberRoutes);
 app.use("/api", leavesRoutes);
 app.use("/api", leavepolicyRoutes);
@@ -67,6 +76,17 @@ app.use("/api/activity", activityRoutes);
 app.use("/api", notificationRoutes);
 app.use('/api/messages',message);
 app.use("/api", workUpdateRoutes);
+
+//sales routes
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/leads', leadRoutes);
+app.use('/api/reps', salesRepRoutes);
+app.use('/api/cases', caseRoutes);
+app.use('/api/tasks', salesTaskRoutes);
+
+
+
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({
 //   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined

@@ -174,13 +174,19 @@ const salesOrdersSubMenu: MenuItem[] = [
     path: "/sales/orders/pending",
     icon: <MdShoppingCart size={18} />,
   },
+  {
+    id: "sales-orders-new",
+    label: "New Order",
+    path: "/sales/orders/new",
+    icon: <MdShoppingCart size={18} />,
+  },
 ];
 
 const salesRepsSubMenu: MenuItem[] = [
   {
     id: "sales-reps-all",
     label: "All Reps",
-    path: "/sales/representatives",
+    path: "/sales/representatives/all",
     icon: <MdPeople size={18} />,
   },
   {

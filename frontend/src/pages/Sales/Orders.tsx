@@ -4,10 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { 
   MdSave, MdSend, MdContentCopy, MdAdd, MdDelete, 
-  MdAttachment, MdWarning, MdCalculate 
+  MdAttachment, MdWarning, MdCalculate,
+  MdCheckCircle 
 } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
+import { createOrder, getOrderById, updateOrder } from "@/services/orderServices";
+import { getSalesReps } from "@/services/salesRepServices";
+import { useQuery } from "@tanstack/react-query";
 
 /* ─────────────────────────── Mock Data ─────────────────────────── */
 const MOCK_CUSTOMERS = [
@@ -114,14 +119,33 @@ type OrderFormValues = z.infer<typeof orderSchema>;
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function NewOrderForm() {
   const navigate = useNavigate();
+  const { id: orderId } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const { auth } = useAuth();
   const [attachments, setAttachments] = useState<File[]>([]);
+  const [ownerSearch, setOwnerSearch] = useState("");
 
-  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<OrderFormValues>({
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth?.slug],
+    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
+  const filteredOwners = useMemo(() => {
+    if (!ownerSearch) return salesReps;
+    return salesReps.filter(rep => rep.toLowerCase().includes(ownerSearch.toLowerCase()));
+  }, [salesReps, ownerSearch]);
+
+  const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
       orderNumber: `SO-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(5, '0')}`,
-      salesOwner: "V VINAY Kumar",
+      salesOwner: "",
       orderDate: new Date().toISOString().split("T")[0],
       status: "Draft",
       priority: "Medium",
@@ -145,6 +169,7 @@ export default function NewOrderForm() {
   const wCustomer = watch("customerId");
   const wSameAsBilling = watch("sameAsBilling");
   const wBilling = watch("billingAddress");
+  const wSalesOwner = watch("salesOwner");
 
   // Summary Calculations
   const calculatedSubtotal = useMemo(() => {
@@ -178,6 +203,69 @@ export default function NewOrderForm() {
     const interval = setInterval(() => console.log("Order Draft saved..."), 30000);
     return () => clearInterval(interval);
   }, []);
+  
+  // Fetch data if editing
+  useEffect(() => {
+    if (orderId && auth.slug) {
+      const fetchOrder = async () => {
+        try {
+          const res = await getOrderById(orderId, auth.slug as string);
+          if (res.success && res.data) {
+            const o = res.data;
+            const matchedCustomer = MOCK_CUSTOMERS.find(c => c.name === o.customerName);
+            reset({
+              orderNumber: o.orderNumber,
+              salesOwner: o.salesRep || "V VINAY Kumar",
+              orderDate: o.orderDate ? new Date(o.orderDate).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+              deliveryDate: o.deliveryDate ? new Date(o.deliveryDate).toISOString().split("T")[0] : "",
+              status: o.orderStatus,
+              priority: o.priority,
+              customerId: matchedCustomer?.id || "",
+              contactPerson: o.contactPerson || "",
+              phone: o.phone || "",
+              email: o.email || "",
+              billingAddress: o.billingAddress || "",
+              shippingAddress: o.shippingAddress || "",
+              sameAsBilling: o.billingAddress === o.shippingAddress,
+              items: o.products?.map(p => ({
+                productId: p.productId,
+                sku: p.sku || "",
+                stock: MOCK_PRODUCTS.find(mp => mp.id === p.productId)?.stock || 999,
+                retailPrice: p.price,
+                costPrice: p.price * 0.8,
+                sellingPrice: p.price,
+                quantity: p.quantity || (p as any).qty || 1,
+                discountPct: p.discount || 0,
+                taxPct: p.tax || 0,
+                lineTotal: p.total
+              })) || [],
+              subtotal: o.orderValue || 0,
+              summaryDiscount: 0,
+              summaryTax: 0,
+              shippingCharges: 0,
+              adjustment: 0,
+              grandTotal: o.orderValue || 0,
+              paymentTerms: o.paymentTerms || "Immediate",
+              paymentMethod: "Bank Transfer",
+              advancePayment: 0,
+              deliveryMethod: "Courier",
+              deliveryInstructions: "",
+              trackingNumber: "",
+              expectedDeliveryDate: "",
+              internalNotes: o.notes?.internal || "",
+              customerNotes: o.notes?.customer || "",
+              requiresApproval: false,
+              approver: "",
+              approvalStatus: "Pending"
+            });
+          }
+        } catch (err) {
+          toast.error("Failed to load order details.");
+        }
+      };
+      fetchOrder();
+    }
+  }, [orderId, auth.slug, reset]);
 
   /* ── Handlers ── */
   const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -212,6 +300,17 @@ export default function NewOrderForm() {
     if (e.target.files) setAttachments([...attachments, ...Array.from(e.target.files)]);
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      setAttachments(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
+    }
+  };
+
   const loadTemplate = (type: string) => {
     if (type === "Retail") {
       setValue("paymentTerms", "Immediate");
@@ -222,12 +321,41 @@ export default function NewOrderForm() {
   const onSubmit = async (data: OrderFormValues) => {
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Order Payload:", data);
-      toast.success("Sales Order created successfully!");
-      navigate("/sales/orders");
-    } catch (err) {
-      toast.error("Failed to create order.");
+      const payload = {
+        ...data,
+        customerName: MOCK_CUSTOMERS.find(c => c.id === data.customerId)?.name || "Unknown Customer",
+        products: data.items.map(item => {
+           const sp = item.sellingPrice || 0;
+           const qty = item.quantity || 0;
+           const base = sp * qty;
+           const afterDisc = base - (base * (item.discountPct || 0) / 100);
+           const lineTotal = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
+           return {
+             productId: item.productId,
+             productName: MOCK_PRODUCTS.find(p => p.id === item.productId)?.name || "Unknown",
+             sku: item.sku,
+             price: item.sellingPrice,
+             quantity: item.quantity,
+             discount: item.discountPct,
+             tax: item.taxPct,
+             total: lineTotal
+           }
+        }),
+        orderValue: data.grandTotal,
+        orderStatus: data.status,
+        notes: { internal: data.internalNotes, customer: data.customerNotes }
+      };
+
+      if (orderId) {
+        await updateOrder(orderId, payload as any, auth.slug || "default-tenant");
+        setSuccessMessage("Sales Order updated successfully!");
+      } else {
+        await createOrder(auth.slug || "default-tenant", payload as any);
+        setSuccessMessage("Sales Order created successfully!");
+      }
+      setSuccessModalOpen(true);
+    } catch (err: unknown) {
+      toast.error(`Failed to ${orderId ? 'update' : 'create'} order.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -252,13 +380,13 @@ export default function NewOrderForm() {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Create Sales Order</h1>
+          <h1 className="text-2xl font-bold text-base-content tracking-tight">{orderId ? "Edit Sales Order" : "Create Sales Order"}</h1>
           <div className="text-sm text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
               <li>Orders</li>
-              <li className="font-semibold text-primary">Create Order</li>
+              <li className="font-semibold text-primary">{orderId ? "Edit Order" : "Create Order"}</li>
             </ul>
           </div>
         </div>
@@ -289,10 +417,27 @@ export default function NewOrderForm() {
                 <input {...register("orderNumber")} className="input input-bordered w-full bg-base-200 font-mono font-bold text-primary" readOnly />
               </FormRow>
               <FormRow label="Sales Owner" required error={errors.salesOwner?.message}>
-                <select {...register("salesOwner")} className="select select-bordered w-full">
-                  <option value="V VINAY Kumar">V VINAY Kumar</option>
-                  <option value="Admin">Admin</option>
-                </select>
+                <div className="dropdown w-full">
+                  <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.salesOwner ? "border-error" : "border-base-300"}`}>
+                    {wSalesOwner || "-Select Owner-"}
+                  </label>
+                  <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                    <input 
+                      type="text" 
+                      placeholder="Search..." 
+                      className="input input-sm input-bordered w-full mb-2"
+                      value={ownerSearch}
+                      onChange={e => setOwnerSearch(e.target.value)}
+                    />
+                    <ul className="max-h-60 overflow-y-auto">
+                      {filteredOwners.map((rep) => (
+                        <li key={rep}>
+                          <a onClick={() => { setValue("salesOwner", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
               </FormRow>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Order Date" required error={errors.orderDate?.message}>
@@ -698,6 +843,17 @@ export default function NewOrderForm() {
               <button className="btn btn-ghost">Cancel</button>
               <button className="btn btn-primary">Save Product</button>
             </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => { setSuccessModalOpen(false); navigate("/sales/orders"); }}>Close</button>
           </div>
         </div>
       </dialog>

@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef ,useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { MdSave, MdContentCopy, MdAdd, MdDelete, MdCloudUpload, MdPersonAdd } from "react-icons/md";
+import { MdSave, MdContentCopy, MdAdd, MdDelete, MdCloudUpload, MdPersonAdd, MdCheckCircle } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/auth/AuthContext";
+import { createSalesRep, getSalesRepById, getSalesReps, updateSalesRep } from "@/services/salesRepServices";
+import { useQuery } from "@tanstack/react-query";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const salesRepSchema = z.object({
@@ -69,7 +72,13 @@ type SalesRepFormValues = z.infer<typeof salesRepSchema>;
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function AddSalesRep() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = !!id;
+  const { auth } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [managerSearch, setManagerSearch] = useState("");
   
   // File Upload States
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -89,11 +98,37 @@ export default function AddSalesRep() {
     }
   });
 
-  // Generate ID on mount
+  // Generate ID on mount or load data if edit mode
   useEffect(() => {
-    const id = `SR-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-    setValue("employeeId", id);
-  }, [setValue]);
+    if (isEditMode && id && auth?.slug) {
+      const fetchRep = async () => {
+        try {
+          const res = await getSalesRepById(id, auth.slug as string);
+          if (res.success && res.data) {
+            const data = res.data;
+            reset({
+              ...data,
+              employeeId: data.employeeCode,
+              mobileNumber: data.phone,
+              salesTerritory: data.territory,
+              employmentStatus: data.status,
+            });
+            if (data.avatarUrl) {
+              setImagePreview(data.avatarUrl);
+            }
+          }
+        } catch (err) {
+          toast.error("Failed to load representative details.");
+        }
+      };
+      fetchRep();
+    } else {
+      if (!isEditMode) {
+        const newId = `SR-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+        setValue("employeeId", newId);
+      }
+    }
+  }, [isEditMode, id, auth?.slug, reset, setValue]);
 
   // Live Watches for Summary Card and Conditional Rendering
   const wEmpId = watch("employeeId");
@@ -106,6 +141,23 @@ export default function AddSalesRep() {
   
   const wSalesTargetEnabled = watch("salesTargetEnabled");
   const wLoginAccessEnabled = watch("loginAccessEnabled");
+  const wReportingManager = watch("reportingManager");
+
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth?.slug],
+    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
+  const filteredManagers = useMemo(() => {
+    if (!managerSearch) return salesReps;
+    return salesReps.filter((rep: string) => 
+      rep.toLowerCase().includes(managerSearch.toLowerCase())
+    );
+  }, [salesReps, managerSearch]);
 
   /* ── File Handlers ── */
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,14 +189,24 @@ export default function AddSalesRep() {
   const onSubmit = async (data: SalesRepFormValues) => {
     setIsSubmitting(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // MOCK API
-      console.log("Sales Rep Payload:", data);
-      console.log("Profile Image:", profileImage);
-      console.log("Documents:", documents);
-      toast.success("Sales Representative created successfully!");
-      navigate("/sales/representatives");
+      const payload = {
+        ...data,
+        employeeCode: data.employeeId,
+        phone: data.mobileNumber,
+        territory: data.salesTerritory,
+        status: data.employmentStatus
+      };
+
+      if (isEditMode && id) {
+        await updateSalesRep(id, payload, auth.slug || "default-tenant");
+        setSuccessMessage("Sales Representative updated successfully!");
+      } else {
+        await createSalesRep(auth.slug || "default-tenant", payload);
+        setSuccessMessage("Sales Representative created successfully!");
+      }
+      setSuccessModalOpen(true);
     } catch (err) {
-      toast.error("Failed to add representative.");
+      toast.error(`Failed to ${isEditMode ? "update" : "add"} representative.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -169,13 +231,13 @@ export default function AddSalesRep() {
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Add Sales Representative</h1>
+          <h1 className="text-2xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit" : "Add"} Sales Representative</h1>
           <div className="text-sm text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
               <li>Representatives</li>
-              <li className="font-semibold text-primary">Add Representative</li>
+              <li className="font-semibold text-primary">{isEditMode ? "Edit" : "Add"} Representative</li>
             </ul>
           </div>
         </div>
@@ -236,16 +298,30 @@ export default function AddSalesRep() {
                   </select>
                 </FormRow>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <FormRow label="Department">
                   <input value="Sales" className="input input-bordered w-full bg-base-200" readOnly />
                 </FormRow>
                 <FormRow label="Reporting Manager">
-                  <select {...register("reportingManager")} className="select select-bordered w-full">
-                    <option value="">-Select Manager-</option>
-                    <option>V VINAY Kumar</option>
-                    <option>Admin User</option>
-                  </select>
+                  <div className="dropdown w-full">
+                    <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">
+                      {wReportingManager || "-Select Manager-"}
+                    </label>
+                    <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                      <input 
+                        type="text" 
+                        placeholder="Search..." 
+                        className="input input-sm input-bordered w-full mb-2"
+                        value={managerSearch}
+                        onChange={e => setManagerSearch(e.target.value)}
+                      />
+                      <ul className="max-h-60 overflow-y-auto">
+                        {filteredManagers.map((rep) => (
+                          <li key={rep}><a onClick={() => { setValue("reportingManager", rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
                 </FormRow>
               </div>
             </div>
@@ -605,6 +681,17 @@ export default function AddSalesRep() {
               <button className="btn btn-ghost">Cancel</button>
               <button className="btn btn-primary">Confirm Selection</button>
             </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => { setSuccessModalOpen(false); navigate("/sales/representatives/all"); }}>Close</button>
           </div>
         </div>
       </dialog>

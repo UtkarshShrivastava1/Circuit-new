@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   useReactTable,
   getCoreRowModel,
@@ -25,149 +26,210 @@ import {
   MdLocalShipping,
   MdPayment,
   MdEdit,
+  MdDelete,
 } from "react-icons/md";
+import { toast } from "react-toastify";
+import { useAuth } from "@/auth/AuthContext";
+import { getOrders, updateOrder, deleteOrder, emailCustomerOrder, createOrder, type Order } from "@/services/orderServices";
+import { getSalesReps } from "@/services/salesRepServices";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
 
-/* ─────────────────────────── Types ─────────────────────────── */
-export interface PendingOrder {
-  id: string;
-  orderNumber: string;
-  customer: string;
-  salesOwner: string;
-  orderDate: string;
-  deliveryDate: string;
-  totalItems: number;
-  totalQuantity: number;
-  orderValue: number;
-  paymentStatus: "Unpaid" | "Partially Paid" | "Paid";
-  approvalStatus: "Pending" | "Approved" | "Rejected" | "N/A";
-  status: "Draft" | "Pending Approval" | "Approved" | "Processing" | "Awaiting Payment" | "Awaiting Dispatch";
-  priority: "Low" | "Medium" | "High" | "Urgent";
-  daysPending: number;
-  // Drawer Details
-  products: { name: string; sku: string; price: number; qty: number; tax: number; total: number }[];
-  paymentTerms: string;
-  shippingAddress: string;
-}
-
-/* ─────────────────────────── Mock Data ─────────────────────────── */
-const MOCK_ORDERS: PendingOrder[] = [
-  {
-    id: "PO-001",
-    orderNumber: "SO-2026-00105",
-    customer: "Zager Digital Services",
-    salesOwner: "V VINAY Kumar",
-    orderDate: "2026-05-20",
-    deliveryDate: "2026-05-25", // Overdue
-    totalItems: 3,
-    totalQuantity: 15,
-    orderValue: 45000,
-    paymentStatus: "Unpaid",
-    approvalStatus: "Approved",
-    status: "Awaiting Payment",
-    priority: "High",
-    daysPending: 12,
-    products: [
-      { name: "ERP Suite License", sku: "ERP-ENT-ANNUAL", price: 24999, qty: 1, tax: 18, total: 29498.82 },
-      { name: "Support Package", sku: "SUP-PREMIUM", price: 5000, qty: 1, tax: 18, total: 5900 },
-    ],
-    paymentTerms: "Net 15",
-    shippingAddress: "123 Tech Park, Bangalore",
-  },
-  {
-    id: "PO-002",
-    orderNumber: "SO-2026-00112",
-    customer: "Acme Corp",
-    salesOwner: "Riya Sharma",
-    orderDate: "2026-05-28",
-    deliveryDate: "2026-06-05",
-    totalItems: 1,
-    totalQuantity: 50,
-    orderValue: 125000,
-    paymentStatus: "Paid",
-    approvalStatus: "Pending",
-    status: "Pending Approval",
-    priority: "Urgent",
-    daysPending: 4,
-    products: [
-      { name: "Wireless Headphones Pro", sku: "WHP-BLK-01", price: 2500, qty: 50, tax: 18, total: 147500 },
-    ],
-    paymentTerms: "Immediate",
-    shippingAddress: "456 Corporate Blvd, NY",
-  },
-  {
-    id: "PO-003",
-    orderNumber: "SO-2026-00118",
-    customer: "Global Tech",
-    salesOwner: "Arjun Mehta",
-    orderDate: "2026-06-01",
-    deliveryDate: new Date().toISOString().split("T")[0], // Due Today
-    totalItems: 5,
-    totalQuantity: 120,
-    orderValue: 85500,
-    paymentStatus: "Partially Paid",
-    approvalStatus: "Approved",
-    status: "Awaiting Dispatch",
-    priority: "Medium",
-    daysPending: 1,
-    products: [
-      { name: "USB-C Hub 7-in-1", sku: "HUB-7IN1-SLV", price: 1299, qty: 20, tax: 18, total: 30656.4 },
-    ],
-    paymentTerms: "Net 30",
-    shippingAddress: "789 Enterprise Way, London",
-  },
-  {
-    id: "PO-004",
-    orderNumber: "SO-2026-00122",
-    customer: "Stark Industries",
-    salesOwner: "V VINAY Kumar",
-    orderDate: "2026-06-01",
-    deliveryDate: "2026-06-15",
-    totalItems: 2,
-    totalQuantity: 10,
-    orderValue: 15000,
-    paymentStatus: "Unpaid",
-    approvalStatus: "N/A",
-    status: "Draft",
-    priority: "Low",
-    daysPending: 1,
-    products: [
-      { name: "Mechanical Keyboard", sku: "MK-87-RED", price: 3499, qty: 10, tax: 18, total: 41288.2 },
-    ],
-    paymentTerms: "Net 45",
-    shippingAddress: "100 Tower St, LA",
-  },
+const orderColumns: ColumnConfig[] = [
+  { key: "orderNumber", label: "Order Number", required: true, type: "string" },
+  { key: "customerName", label: "Customer Name", required: true, type: "string" },
+  { key: "salesRep", label: "Sales Rep", type: "string" },
+  { key: "orderDate", label: "Order Date", type: "date" },
+  { key: "deliveryDate", label: "Delivery Date", type: "date" },
+  { key: "orderValue", label: "Order Value", type: "number" },
+  { key: "paymentStatus", label: "Payment Status", type: "string" },
+  { key: "orderStatus", label: "Order Status", type: "string" },
+  { key: "priority", label: "Priority", type: "string" },
 ];
 
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function PendingOrders() {
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const queryClient = useQueryClient();
 
   // State
-  const [orders, setOrders] = useState<PendingOrder[]>(MOCK_ORDERS);
   const [view, setView] = useState<"table" | "kanban" | "calendar">("table");
   const [showFilters, setShowFilters] = useState(false);
   const [search, setSearch] = useState("");
-  const [selectedOrder, setSelectedOrder] = useState<PendingOrder | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // Modals State
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Filters State
+  const [filterStatus, setFilterStatus] = useState("All Statuses");
+  const [filterSalesRep, setFilterSalesRep] = useState("All Reps");
+  const [filterPriority, setFilterPriority] = useState("All");
+  const [filterOverdue, setFilterOverdue] = useState(false);
+  const [filterDueToday, setFilterDueToday] = useState(false);
+
+  // Data Fetching
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["orders", auth.slug],
+    queryFn: () => getOrders(auth.slug || "default-tenant"),
+  });
+
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth.slug],
+    queryFn: () => getSalesReps(auth.slug || "default-tenant"),
+    enabled: editModalOpen,
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+  
+  const orders = useMemo(() => {
+    const allOrders = data?.data || [];
+    return allOrders.filter(o => !["Completed", "Delivered", "Cancelled"].includes(o.orderStatus));
+  }, [data]);
+
+  // Mutations
+  const updateMutation = useMutation({
+    mutationFn: (vars: { id: string; payload: Partial<Order> }) => updateOrder(vars.id, vars.payload, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteOrder(id, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
+  });
+  
+  const emailMutation = useMutation({
+    mutationFn: (id: string) => emailCustomerOrder(id, auth.slug || "default-tenant"),
+    onSuccess: (data) => {
+      setSuccessMessage(data.message || "Email sent to customer successfully!");
+      setSuccessModalOpen(true);
+    },
+    onError: () => toast.error("Failed to send email.")
+  });
+
+  const initiateDelete = useCallback((id: string) => {
+    setOrderToDelete(id);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const confirmDelete = async () => {
+    if (!orderToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(orderToDelete);
+      setDeleteModalOpen(false);
+      setOrderToDelete(null);
+      if (selectedOrder?.id === orderToDelete) setSelectedOrder(null);
+      setSuccessMessage("Order deleted successfully!");
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to delete order.");
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderToEdit) return;
+    try {
+      await updateMutation.mutateAsync({ id: orderToEdit.id, payload: orderToEdit });
+      setEditModalOpen(false);
+      if (selectedOrder?.id === orderToEdit.id) {
+         setSelectedOrder(orderToEdit);
+      }
+      setSuccessMessage("Order updated successfully!");
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to update order.");
+    }
+  };
+
+  const handleStatusChange = async (orderId: string, newStatus: Order["orderStatus"]) => {
+    try {
+      await updateMutation.mutateAsync({ id: orderId, payload: { orderStatus: newStatus } });
+      setSuccessMessage(`Order marked as ${newStatus}`);
+      setSuccessModalOpen(true);
+      if (selectedOrder?.id === orderId) {
+         setSelectedOrder(prev => prev ? { ...prev, orderStatus: newStatus } : null);
+      }
+    } catch (e: unknown) {
+      toast.error("Failed to update status");
+      console.error("Error updating order status:", e);
+    }
+  };
+
+  const handleSendEmail = (e: React.MouseEvent, id: string) => {
+    if (e) e.stopPropagation();
+    toast.info("Sending email...");
+    emailMutation.mutate(id);
+  };
+
+  const getSelectedOrders = () => {
+    const selectedIndices = Object.keys(rowSelection).map(Number);
+    return selectedIndices.map(index => filteredOrders[index]);
+  };
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    await Promise.all(validRows.map(row => createOrder(auth.slug || "default-tenant", row as Partial<Order>)));
+    queryClient.invalidateQueries({ queryKey: ["orders"] });
+  };
+
+  const handleBulkApprove = async () => {
+    const selected = getSelectedOrders();
+    try {
+      await Promise.all(selected.map(o => updateMutation.mutateAsync({ id: o.id, payload: { orderStatus: "Approved" } })));
+      setRowSelection({});
+      setSuccessMessage(`Approved ${selected.length} order(s) successfully!`);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to approve some orders.");
+    }
+  };
+
+  const confirmBulkDelete = async () => {
+    const selected = getSelectedOrders();
+    try {
+      await Promise.all(selected.map(o => deleteMutation.mutateAsync(o.id)));
+      setRowSelection({});
+      if (selectedOrder && selected.some(so => so.id === selectedOrder.id)) {
+        setSelectedOrder(null);
+      }
+      setSuccessMessage(`Deleted ${selected.length} order(s) successfully!`);
+      setSuccessModalOpen(true);
+      setBulkDeleteModalOpen(false);
+    } catch (error) {
+      toast.error("Failed to delete some orders.");
+    }
+  };
+
   // Stats & Alerts Calculation
-  const today = new Date().toISOString().split("T")[0];
   const stats = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
     return {
       total: orders.length,
       value: orders.reduce((sum, o) => sum + o.orderValue, 0),
-      dueToday: orders.filter(o => o.deliveryDate === today).length,
-      overdue: orders.filter(o => o.deliveryDate < today).length,
-      awaitingApproval: orders.filter(o => o.status === "Pending Approval").length,
-      awaitingPayment: orders.filter(o => o.status === "Awaiting Payment").length,
-      awaitingDispatch: orders.filter(o => o.status === "Awaiting Dispatch").length,
+      dueToday: orders.filter(o => o.deliveryDate?.startsWith(today)).length,
+      overdue: orders.filter(o => o.deliveryDate && o.deliveryDate < today).length,
+      awaitingApproval: orders.filter(o => o.orderStatus === "Pending").length,
+      awaitingPayment: orders.filter(o => o.paymentStatus === "Unpaid" || o.paymentStatus === "Partially Paid").length,
+      awaitingDispatch: orders.filter(o => o.orderStatus === "Approved" || o.orderStatus === "Processing").length,
       highPriority: orders.filter(o => o.priority === "High" || o.priority === "Urgent").length,
     };
-  }, [orders, today]);
+  }, [orders]);
+
+  const uniqueSalesReps = useMemo(() => Array.from(new Set(orders.map(o => o.salesRep).filter(Boolean))), [orders]);
 
   // TanStack Table Setup
-  const columnHelper = createColumnHelper<PendingOrder>();
+  const columnHelper = createColumnHelper<Order>();
   const columns = useMemo(() => [
     columnHelper.display({
       id: "select",
@@ -186,11 +248,11 @@ export default function PendingOrders() {
         </span>
       ),
     }),
-    columnHelper.accessor("customer", {
+    columnHelper.accessor("customerName", {
       header: "Customer",
       cell: (info) => <span className="font-semibold">{info.getValue()}</span>,
     }),
-    columnHelper.accessor("salesOwner", {
+    columnHelper.accessor("salesRep", {
       header: "Sales Owner",
       cell: (info) => (
         <div className="flex items-center gap-2">
@@ -205,14 +267,15 @@ export default function PendingOrders() {
     }),
     columnHelper.accessor("orderDate", {
       header: "Order Date",
-      cell: (info) => <span className="text-base-content/70">{info.getValue()}</span>,
+      cell: (info) => <span className="text-base-content/70">{info.getValue() ? new Date(info.getValue()).toLocaleDateString() : ""}</span>,
     }),
     columnHelper.accessor("deliveryDate", {
       header: "Delivery Date",
       cell: (info) => {
-        const date = info.getValue();
-        const isOverdue = date < today;
-        const isToday = date === today;
+        const date = info.getValue() ? new Date(info.getValue()).toLocaleDateString() : "";
+        const today = new Date().toISOString().split("T")[0];
+        const isOverdue = info.getValue() && info.getValue() < today;
+        const isToday = info.getValue() && info.getValue().startsWith(today);
         return (
           <span className={`font-semibold ${isOverdue ? 'text-error' : isToday ? 'text-warning' : ''}`}>
             {date}
@@ -233,15 +296,17 @@ export default function PendingOrders() {
         return <span className={`badge badge-sm border-none ${color}`}>{val}</span>;
       },
     }),
-    columnHelper.accessor("approvalStatus", {
+    columnHelper.accessor((row) => row as any, {
+      id: "approvalStatus",
       header: "Approval",
       cell: (info) => {
-        const val = info.getValue();
-        const color = val === "Approved" ? "text-success" : val === "Rejected" ? "text-error" : val === "Pending" ? "text-warning" : "text-base-content/40";
-        return <span className={`font-medium text-xs uppercase ${color}`}>{val}</span>;
+        const val = info.row.original.orderStatus;
+        const mappedVal = val === "Approved" ? "Approved" : val === "Pending" ? "Pending" : "N/A";
+        const color = mappedVal === "Approved" ? "text-success" : mappedVal === "Pending" ? "text-warning" : "text-base-content/40";
+        return <span className={`font-medium text-xs uppercase ${color}`}>{mappedVal}</span>;
       },
     }),
-    columnHelper.accessor("status", {
+    columnHelper.accessor("orderStatus", {
       header: "Order Status",
       cell: (info) => {
         const val = info.getValue();
@@ -274,24 +339,54 @@ export default function PendingOrders() {
           </button>
           <ul tabIndex={0} className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-48 border border-base-200">
             <li><a onClick={() => setSelectedOrder(row.original)}><MdViewList /> View Details</a></li>
-            <li><a><MdEdit /> Edit Order</a></li>
+            <li><a onClick={(e) => { e.stopPropagation(); setOrderToEdit(row.original); setEditModalOpen(true); }}><MdEdit /> Edit Order</a></li>
             <div className="divider my-1"></div>
-            {row.original.status === "Pending Approval" && <li><a className="text-success"><MdCheckCircle /> Approve Order</a></li>}
-            {row.original.status === "Awaiting Dispatch" && <li><a className="text-primary"><MdLocalShipping /> Mark Dispatched</a></li>}
-            <li><a className="text-error">Cancel Order</a></li>
+            {row.original.orderStatus === "Pending" && <li><a className="text-success" onClick={() => handleStatusChange(row.original.id, "Approved")}><MdCheckCircle /> Approve Order</a></li>}
+            {row.original.orderStatus === "Approved" && <li><a className="text-primary" onClick={() => handleStatusChange(row.original.id, "Shipped")}><MdLocalShipping /> Mark Dispatched</a></li>}
+            <li><a className="text-error" onClick={() => handleStatusChange(row.original.id, "Cancelled")}>Cancel Order</a></li>
+            <li><a className="text-error hover:bg-error/10" onClick={(e) => { e.stopPropagation(); initiateDelete(row.original.id); }}><MdDelete /> Delete Order</a></li>
           </ul>
         </div>
       ),
     }),
-  ], [today]);
+  ], [handleStatusChange, navigate]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(o => 
-      o.orderNumber.toLowerCase().includes(search.toLowerCase()) || 
-      o.customer.toLowerCase().includes(search.toLowerCase()) ||
-      o.salesOwner.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [orders, search]);
+    let result = orders;
+    
+    if (search) {
+      const lowerSearch = search.toLowerCase();
+      result = result.filter(o => 
+        o.orderNumber.toLowerCase().includes(lowerSearch) || 
+        o.customerName?.toLowerCase().includes(lowerSearch) ||
+        o.salesRep?.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    if (filterStatus !== "All Statuses") {
+      result = result.filter(o => o.orderStatus === filterStatus);
+    }
+
+    if (filterSalesRep !== "All Reps") {
+      result = result.filter(o => o.salesRep === filterSalesRep);
+    }
+
+    if (filterPriority !== "All") {
+      result = result.filter(o => o.priority === filterPriority);
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    
+    if (filterOverdue) {
+      result = result.filter(o => o.deliveryDate && o.deliveryDate < today);
+    }
+    
+    if (filterDueToday) {
+      result = result.filter(o => o.deliveryDate && o.deliveryDate.startsWith(today));
+    }
+
+    return result;
+  }, [orders, search, filterStatus, filterSalesRep, filterPriority, filterOverdue, filterDueToday]);
 
   const table = useReactTable({
     data: filteredOrders,
@@ -305,9 +400,11 @@ export default function PendingOrders() {
   });
 
   // Kanban Handlers
-  const handleDrop = (e: React.DragEvent, status: PendingOrder["status"]) => {
+  const handleDrop = (e: React.DragEvent, status: Order["orderStatus"]) => {
     const orderId = e.dataTransfer.getData("orderId");
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+    if (orderId) {
+      handleStatusChange(orderId, status);
+    }
   };
 
   const handleDragStart = (e: React.DragEvent, orderId: string) => {
@@ -331,10 +428,14 @@ export default function PendingOrders() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2">
-            <MdDownload size={16} /> Export
-          </button>
-          <button className="btn btn-outline btn-sm btn-square">
+          <ImportExportActions
+            moduleName="Pending Orders"
+            columns={orderColumns}
+            data={filteredOrders}
+            selectedData={getSelectedOrders()}
+            onImportSubmit={handleImportSubmit}
+          />
+          <button onClick={() => refetch()} className="btn btn-outline btn-sm btn-square">
             <MdRefresh size={16} />
           </button>
           <button onClick={() => navigate("/sales/orders")} className="btn btn-primary btn-sm gap-2">
@@ -416,26 +517,48 @@ export default function PendingOrders() {
         <div className="bg-base-100 border border-base-300 rounded-xl p-5 mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 shadow-sm animate-fade-in-down">
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Order Status</label>
-            <select className="select select-sm select-bordered w-full"><option>All Statuses</option><option>Pending Approval</option><option>Awaiting Payment</option></select>
+            <select className="select select-sm select-bordered w-full" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <option value="All Statuses">All Statuses</option>
+              <option value="Draft">Draft</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Sales Owner</label>
-            <select className="select select-sm select-bordered w-full"><option>All Reps</option><option>V VINAY Kumar</option></select>
+            <select className="select select-sm select-bordered w-full" value={filterSalesRep} onChange={(e) => setFilterSalesRep(e.target.value)}>
+              <option value="All Reps">All Reps</option>
+              {uniqueSalesReps.map(rep => <option key={rep} value={rep}>{rep}</option>)}
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Priority</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>Urgent</option><option>High</option></select>
+            <select className="select select-sm select-bordered w-full" value={filterPriority} onChange={(e) => setFilterPriority(e.target.value)}>
+              <option value="All">All</option>
+              <option value="Urgent">Urgent</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Quick Toggles</label>
             <div className="flex gap-4 items-center h-8">
-              <label className="cursor-pointer label gap-2 p-0"><input type="checkbox" className="checkbox checkbox-xs" /><span className="label-text text-xs">Overdue</span></label>
-              <label className="cursor-pointer label gap-2 p-0"><input type="checkbox" className="checkbox checkbox-xs" /><span className="label-text text-xs">Due Today</span></label>
+              <label className="cursor-pointer label gap-2 p-0"><input type="checkbox" className="checkbox checkbox-xs" checked={filterOverdue} onChange={(e) => setFilterOverdue(e.target.checked)} /><span className="label-text text-xs">Overdue</span></label>
+              <label className="cursor-pointer label gap-2 p-0"><input type="checkbox" className="checkbox checkbox-xs" checked={filterDueToday} onChange={(e) => setFilterDueToday(e.target.checked)} /><span className="label-text text-xs">Due Today</span></label>
             </div>
           </div>
           <div className="col-span-1 md:col-span-3 lg:col-span-4 flex justify-end gap-2 mt-2 border-t border-base-200 pt-4">
-            <button className="btn btn-sm btn-ghost">Reset Filters</button>
-            <button className="btn btn-sm btn-primary">Apply Filters</button>
+            <button className="btn btn-sm btn-ghost" onClick={() => {
+              setFilterStatus("All Statuses");
+              setFilterSalesRep("All Reps");
+              setFilterPriority("All");
+              setFilterOverdue(false);
+              setFilterDueToday(false);
+            }}>Reset Filters</button>
+            <button className="btn btn-sm btn-primary" onClick={() => setShowFilters(false)}>Apply Filters</button>
           </div>
         </div>
       )}
@@ -445,14 +568,19 @@ export default function PendingOrders() {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
           <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} order(s) selected</span>
           <div className="flex gap-2">
-            <button className="btn btn-xs btn-primary">Approve Selected</button>
-            <button className="btn btn-xs btn-outline">Update Status</button>
-            <button className="btn btn-xs btn-error btn-outline">Delete</button>
+            <button className="btn btn-xs btn-primary" onClick={handleBulkApprove}>Approve Selected</button>
+            <button className="btn btn-xs btn-error btn-outline" onClick={() => setBulkDeleteModalOpen(true)}>Delete</button>
           </div>
         </div>
       )}
 
       {/* ── Main Content Area ── */}
+      {isLoading ? (
+        <div className="flex-1 flex flex-col justify-center items-center h-full space-y-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p>Loading Pending Orders...</p>
+        </div>
+      ) : (
       <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
         
         {/* View 1: Table */}
@@ -502,20 +630,20 @@ export default function PendingOrders() {
         {/* View 2: Kanban Board */}
         {view === "kanban" && (
           <div className="flex-1 flex overflow-x-auto p-4 gap-4 bg-base-200/30">
-            {(["Draft", "Pending Approval", "Approved", "Processing", "Awaiting Payment", "Awaiting Dispatch"] as const).map(status => (
+            {(["Draft", "Pending", "Approved", "Processing", "Shipped"] as const).map(status => (
               <div 
                 key={status} 
                 className="flex-1 min-w-[280px] bg-base-100 rounded-xl border border-base-300 flex flex-col shadow-sm"
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, status)}
+                onDrop={(e) => handleDrop(e, status as Order["orderStatus"])}
               >
                 <div className="p-3 border-b border-base-200 font-bold text-sm flex justify-between items-center bg-base-200/50 rounded-t-xl">
                   {status}
-                  <span className="badge badge-sm">{orders.filter(o => o.status === status).length}</span>
+                  <span className="badge badge-sm">{orders.filter(o => o.orderStatus === status).length}</span>
                 </div>
                 <div className="p-3 flex-1 overflow-y-auto space-y-3">
-                  {filteredOrders.filter(o => o.status === status).map(order => {
-                    const isOverdue = order.deliveryDate < today;
+                  {filteredOrders.filter(o => o.orderStatus === status).map(order => {
+                    const isOverdue = order.deliveryDate ? new Date(order.deliveryDate) < new Date() : false;
                     return (
                       <div 
                         key={order.id} 
@@ -530,16 +658,16 @@ export default function PendingOrders() {
                             {order.priority}
                           </span>
                         </div>
-                        <h4 className="font-semibold text-sm mb-1 leading-tight">{order.customer}</h4>
+                        <h4 className="font-semibold text-sm mb-1 leading-tight">{order.customerName}</h4>
                         <p className="text-xs font-bold text-success mt-2 mb-3">₹{order.orderValue.toLocaleString()}</p>
                         <div className="flex justify-between items-center mt-2 border-t border-base-200 pt-2">
                           <div className="avatar placeholder">
                             <div className="bg-neutral text-neutral-content rounded-full w-6">
-                              <span className="text-[10px]">{order.salesOwner.charAt(0)}</span>
+                              <span className="text-[10px]">{order.salesRep?.charAt(0) || "U"}</span>
                             </div>
                           </div>
                           <span className={`text-[10px] font-semibold ${isOverdue ? 'text-error' : 'text-base-content/60'}`}>
-                            Due: {order.deliveryDate}
+                            Due: {order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString() : ""}
                           </span>
                         </div>
                       </div>
@@ -587,6 +715,7 @@ export default function PendingOrders() {
           </div>
         )}
       </div>
+      )}
 
       {/* ── Order Details Drawer ── */}
       <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity ${selectedOrder ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
@@ -597,11 +726,11 @@ export default function PendingOrders() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="font-mono text-sm font-bold text-primary">{selectedOrder?.orderNumber}</span>
-                <span className={`badge badge-sm badge-outline ${selectedOrder?.status === 'Approved' ? 'badge-success' : 'badge-warning'}`}>
-                  {selectedOrder?.status}
+                <span className={`badge badge-sm badge-outline ${selectedOrder?.orderStatus === 'Approved' ? 'badge-success' : 'badge-warning'}`}>
+                  {selectedOrder?.orderStatus}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-base-content leading-tight">{selectedOrder?.customer}</h2>
+              <h2 className="text-xl font-bold text-base-content leading-tight">{selectedOrder?.customerName}</h2>
             </div>
             <div className="flex gap-2">
               <button className="btn btn-outline btn-sm gap-2"><MdDownload /> PDF</button>
@@ -616,37 +745,38 @@ export default function PendingOrders() {
             
             {/* Quick Actions Toolbar */}
             <div className="flex flex-wrap gap-2 pb-6 border-b border-base-200">
-              {selectedOrder?.status === "Pending Approval" && (
+              {selectedOrder?.orderStatus === "Pending" && (
                 <>
-                  <button className="btn btn-sm btn-success text-white gap-2"><MdCheckCircle /> Approve</button>
-                  <button className="btn btn-sm btn-error text-white gap-2"><MdClose /> Reject</button>
+                  <button className="btn btn-sm btn-success text-white gap-2" onClick={() => {if(selectedOrder) handleStatusChange(selectedOrder.id, "Approved");}}><MdCheckCircle /> Approve</button>
+                  <button className="btn btn-sm btn-error text-white gap-2" onClick={() => {if(selectedOrder) handleStatusChange(selectedOrder.id, "Cancelled");}}><MdClose /> Reject</button>
                 </>
               )}
-              {selectedOrder?.status === "Approved" && (
-                <button className="btn btn-sm btn-info text-white gap-2">Mark Processing</button>
+              {selectedOrder?.orderStatus === "Approved" && (
+                <button className="btn btn-sm btn-info text-white gap-2" onClick={() => {if(selectedOrder) handleStatusChange(selectedOrder.id, "Processing");}}>Mark Processing</button>
               )}
-              {selectedOrder?.status === "Awaiting Dispatch" && (
-                <button className="btn btn-sm btn-primary gap-2"><MdLocalShipping /> Mark Dispatched</button>
+              {(selectedOrder?.orderStatus === "Processing" || selectedOrder?.orderStatus === "Approved") && (
+                <button className="btn btn-sm btn-primary gap-2" onClick={() => {if(selectedOrder) handleStatusChange(selectedOrder.id, "Shipped");}}><MdLocalShipping /> Mark Dispatched</button>
               )}
-              {selectedOrder?.status === "Awaiting Payment" && (
-                <button className="btn btn-sm btn-outline btn-warning gap-2"><MdPayment /> Send Reminder</button>
+              {selectedOrder?.paymentStatus === "Unpaid" && (
+                <button className="btn btn-sm btn-outline btn-warning gap-2" onClick={(e) => { if (selectedOrder) handleSendEmail(e, selectedOrder.id); }}><MdPayment /> Send Reminder</button>
               )}
-              <button className="btn btn-sm btn-outline"><MdEdit /> Edit Order</button>
+              <button className="btn btn-sm btn-outline" onClick={(e) => { e.stopPropagation(); if (selectedOrder) { setOrderToEdit(selectedOrder); setEditModalOpen(true); } }}><MdEdit /> Edit Order</button>
+              <button className="btn btn-sm btn-outline btn-error ml-auto" onClick={(e) => { e.stopPropagation(); if(selectedOrder) initiateDelete(selectedOrder.id); }}><MdDelete /> Delete Order</button>
             </div>
 
             {/* Basic Info */}
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Order Information</h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                <div><p className="text-base-content/50 mb-1">Sales Owner</p><p className="font-semibold">{selectedOrder?.salesOwner}</p></div>
+                <div><p className="text-base-content/50 mb-1">Sales Owner</p><p className="font-semibold">{selectedOrder?.salesRep}</p></div>
                 <div><p className="text-base-content/50 mb-1">Priority</p>
                   <span className={`badge badge-sm ${selectedOrder?.priority === 'Urgent' ? 'badge-error' : 'badge-ghost'}`}>{selectedOrder?.priority}</span>
                 </div>
-                <div><p className="text-base-content/50 mb-1">Order Date</p><p className="font-medium">{selectedOrder?.orderDate}</p></div>
+                <div><p className="text-base-content/50 mb-1">Order Date</p><p className="font-medium">{selectedOrder?.orderDate ? new Date(selectedOrder.orderDate).toLocaleDateString() : ""}</p></div>
                 <div>
                   <p className="text-base-content/50 mb-1">Delivery Date</p>
-                  <p className={`font-bold ${selectedOrder && selectedOrder.deliveryDate < today ? 'text-error' : 'text-base-content'}`}>
-                    {selectedOrder?.deliveryDate} {selectedOrder && selectedOrder.deliveryDate < today && '(Overdue)'}
+                  <p className={`font-bold ${selectedOrder && selectedOrder.deliveryDate && new Date(selectedOrder.deliveryDate) < new Date() ? 'text-error' : 'text-base-content'}`}>
+                    {selectedOrder?.deliveryDate ? new Date(selectedOrder.deliveryDate).toLocaleDateString() : ""} {selectedOrder && selectedOrder.deliveryDate && new Date(selectedOrder.deliveryDate) < new Date() && '(Overdue)'}
                   </p>
                 </div>
               </div>
@@ -654,7 +784,7 @@ export default function PendingOrders() {
 
             {/* Products Table */}
             <section>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Order Items ({selectedOrder?.totalItems})</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Order Items ({selectedOrder?.products?.length || 0})</h3>
               <div className="overflow-x-auto border border-base-200 rounded-lg">
                 <table className="table table-sm w-full">
                   <thead className="bg-base-200">
@@ -666,13 +796,13 @@ export default function PendingOrders() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedOrder?.products.map((p, idx) => (
+                    {selectedOrder?.products?.map((p, idx) => (
                       <tr key={idx}>
                         <td>
-                          <div className="font-semibold">{p.name}</div>
+                          <div className="font-semibold">{p.productName}</div>
                           <div className="text-[10px] font-mono text-base-content/60">{p.sku}</div>
                         </td>
-                        <td>{p.qty}</td>
+                        <td>{p.quantity}</td>
                         <td>₹{p.price.toLocaleString()}</td>
                         <td className="text-right font-bold text-success">₹{p.total.toLocaleString()}</td>
                       </tr>
@@ -681,7 +811,7 @@ export default function PendingOrders() {
                   <tfoot>
                     <tr className="bg-base-100 font-bold text-base">
                       <td colSpan={3} className="text-right">Grand Total:</td>
-                      <td className="text-right text-success">₹{selectedOrder?.orderValue.toLocaleString()}</td>
+                      <td className="text-right text-success">₹{selectedOrder?.orderValue?.toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -714,8 +844,8 @@ export default function PendingOrders() {
                   <hr className="bg-primary" />
                   <div className="timeline-middle text-primary"><MdCheckCircle /></div>
                   <div className="timeline-end timeline-box border-none shadow-none bg-transparent px-2 py-1">
-                    <div className="text-xs text-base-content/50">Today 10:30 AM</div>
-                    <div className="text-sm font-medium">Status changed to {selectedOrder?.status}</div>
+                    <div className="text-xs text-base-content/50">Recent Update</div>
+                    <div className="text-sm font-medium">Status changed to {selectedOrder?.orderStatus}</div>
                   </div>
                   <hr className="bg-base-300" />
                 </li>
@@ -723,8 +853,8 @@ export default function PendingOrders() {
                   <hr className="bg-base-300" />
                   <div className="timeline-middle text-base-300"><MdCheckCircle /></div>
                   <div className="timeline-end timeline-box border-none shadow-none bg-transparent px-2 py-1">
-                    <div className="text-xs text-base-content/50">{selectedOrder?.orderDate}</div>
-                    <div className="text-sm font-medium">Order Created by {selectedOrder?.salesOwner}</div>
+                    <div className="text-xs text-base-content/50">{selectedOrder?.orderDate ? new Date(selectedOrder.orderDate).toLocaleString() : ""}</div>
+                    <div className="text-sm font-medium">Order Created by {selectedOrder?.salesRep}</div>
                   </div>
                 </li>
               </ul>
@@ -733,6 +863,153 @@ export default function PendingOrders() {
           </div>
         </div>
       </div>
+
+      {/* ── Modals ── */}
+      <dialog className={`modal ${deleteModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-error flex items-center gap-2"><MdWarning /> Confirm Deletion</h3>
+          <p className="py-4 text-base-content/80">Are you sure you want to delete this order? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setDeleteModalOpen(false)}>Cancel</button>
+            <button className="btn btn-error text-white" onClick={confirmDelete}>Yes, Delete</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${bulkDeleteModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg text-error flex items-center gap-2"><MdWarning /> Confirm Bulk Delete</h3>
+          <p className="py-4 text-base-content/80">Are you sure you want to delete {Object.keys(rowSelection).length} selected order(s)? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setBulkDeleteModalOpen(false)}>Cancel</button>
+            <button className="btn btn-error text-white" onClick={confirmBulkDelete}>Yes, Delete All</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box max-w-3xl">
+          <h3 className="font-bold text-lg mb-4">Edit Order</h3>
+          {orderToEdit && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Order Number</span></label>
+                  <input type="text" className="input input-bordered w-full bg-base-200" value={orderToEdit.orderNumber} readOnly />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Customer Name</span></label>
+                  <input type="text" className="input input-bordered w-full" value={orderToEdit.customerName} onChange={(e) => setOrderToEdit({...orderToEdit, customerName: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Contact Person</span></label>
+                  <input type="text" className="input input-bordered w-full" value={orderToEdit.contactPerson || ""} onChange={(e) => setOrderToEdit({...orderToEdit, contactPerson: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Email</span></label>
+                  <input type="email" className="input input-bordered w-full" value={orderToEdit.email || ""} onChange={(e) => setOrderToEdit({...orderToEdit, email: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Phone</span></label>
+                  <input type="text" className="input input-bordered w-full" value={orderToEdit.phone || ""} onChange={(e) => setOrderToEdit({...orderToEdit, phone: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Sales Rep</span></label>
+                  <div className="dropdown w-full">
+                    <input 
+                      type="text" 
+                      className="input input-bordered w-full" 
+                      value={orderToEdit.salesRep || ""} 
+                      onChange={(e) => setOrderToEdit({...orderToEdit, salesRep: e.target.value})} 
+                      placeholder="-Select Rep-"
+                      tabIndex={0}
+                    />
+                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-50 border border-base-300">
+                      {salesReps.map(rep => (
+                        <li key={rep}><a onClick={() => { setOrderToEdit({...orderToEdit, salesRep: rep}); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Order Date</span></label>
+                  <input type="date" className="input input-bordered w-full" value={orderToEdit.orderDate ? new Date(orderToEdit.orderDate).toISOString().split('T')[0] : ""} onChange={(e) => setOrderToEdit({...orderToEdit, orderDate: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Delivery Date</span></label>
+                  <input type="date" className="input input-bordered w-full" value={orderToEdit.deliveryDate ? new Date(orderToEdit.deliveryDate).toISOString().split('T')[0] : ""} onChange={(e) => setOrderToEdit({...orderToEdit, deliveryDate: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Order Status</span></label>
+                  <select className="select select-bordered w-full" value={orderToEdit.orderStatus} onChange={(e) => setOrderToEdit({...orderToEdit, orderStatus: e.target.value as any})}>
+                    <option value="Draft">Draft</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Payment Status</span></label>
+                  <select className="select select-bordered w-full" value={orderToEdit.paymentStatus} onChange={(e) => setOrderToEdit({...orderToEdit, paymentStatus: e.target.value as any})}>
+                    <option value="Unpaid">Unpaid</option>
+                    <option value="Partially Paid">Partially Paid</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Refunded">Refunded</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Priority</span></label>
+                  <select className="select select-bordered w-full" value={orderToEdit.priority} onChange={(e) => setOrderToEdit({...orderToEdit, priority: e.target.value as any})}>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Urgent">Urgent</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Order Value (₹)</span></label>
+                  <input type="number" className="input input-bordered w-full" value={orderToEdit.orderValue || 0} onChange={(e) => setOrderToEdit({...orderToEdit, orderValue: Number(e.target.value)})} required />
+                </div>
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text font-semibold">Billing Address</span></label>
+                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.billingAddress || ""} onChange={(e) => setOrderToEdit({...orderToEdit, billingAddress: e.target.value})}></textarea>
+                </div>
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text font-semibold">Shipping Address</span></label>
+                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.shippingAddress || ""} onChange={(e) => setOrderToEdit({...orderToEdit, shippingAddress: e.target.value})}></textarea>
+                </div>
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text font-semibold">Internal Notes</span></label>
+                  <textarea className="textarea textarea-bordered w-full bg-warning/5" value={orderToEdit.notes?.internal || ""} onChange={(e) => setOrderToEdit({...orderToEdit, notes: {...(orderToEdit.notes || {internal: "", customer: ""}), internal: e.target.value}} as Order)}></textarea>
+                </div>
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text font-semibold">Customer Notes</span></label>
+                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.notes?.customer || ""} onChange={(e) => setOrderToEdit({...orderToEdit, notes: {...(orderToEdit.notes || {internal: "", customer: ""}), customer: e.target.value}} as Order)}></textarea>
+                </div>
+              </div>
+              <div className="modal-action mt-6">
+                <button type="button" className="btn btn-ghost" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          )}
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => setSuccessModalOpen(false)}>Close</button>
+          </div>
+        </div>
+      </dialog>
 
     </div>
   );

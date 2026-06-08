@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "react-toastify";
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,7 +23,33 @@ import {
   MdMoreVert,
   MdClose,
   MdOutlineCheckCircle,
+  MdEdit,
+  MdDelete,
+  MdAssignmentInd,
+  MdEvent,
+  MdCheckCircle,
 } from "react-icons/md";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesTasks, updateSalesTask, deleteSalesTask, createSalesTask } from "@/services/salesTaskServices";
+import { getSalesReps } from "@/services/salesRepServices";
+import ImportExportActions from "@/components/import-export/ImportExportActions";
+import type { ColumnConfig } from "@/type/importExport.types";
+
+const taskColumns: ColumnConfig[] = [
+  { key: "id", label: "Task ID", type: "string" },
+  { key: "title", label: "Task Title", required: true, type: "string" },
+  { key: "customer", label: "Customer", required: true, type: "string" },
+  { key: "assignedTo", label: "Assigned To", type: "string" },
+  { key: "type", label: "Task Type", type: "string" },
+  { key: "priority", label: "Priority", type: "string" },
+  { key: "status", label: "Status", type: "string" },
+  { key: "dealValue", label: "Deal Value", type: "number" },
+  { key: "stage", label: "Stage", type: "string" },
+  { key: "startDate", label: "Start Date", type: "date" },
+  { key: "dueDate", label: "Due Date", type: "date" },
+  { key: "followUpDate", label: "Follow-up Date", type: "date" },
+  { key: "progress", label: "Progress", type: "number" },
+];
 
 /* ─────────────────────────── Types ─────────────────────────── */
 export interface SalesTask {
@@ -38,84 +66,94 @@ export interface SalesTask {
   dueDate: string;
   followUpDate: string;
   progress: number;
+  createdAt?: string;
+  updatedAt?: string;
+  completionNotes?: string;
 }
-
-/* ─────────────────────────── Mock Data ─────────────────────────── */
-const MOCK_TASKS: SalesTask[] = [
-  {
-    id: "TSK-1001",
-    title: "Follow up on ERP Proposal",
-    customer: "Zager Digital Services",
-    assignedTo: "V VINAY Kumar",
-    type: "Proposal Submission",
-    priority: "High",
-    status: "In Progress",
-    dealValue: 45000,
-    stage: "Proposal Sent",
-    startDate: "2026-05-28",
-    dueDate: "2026-06-05",
-    followUpDate: "2026-06-02",
-    progress: 60,
-  },
-  {
-    id: "TSK-1002",
-    title: "Initial Client Meeting",
-    customer: "Acme Corp",
-    assignedTo: "Riya Sharma",
-    type: "Client Meeting",
-    priority: "Medium",
-    status: "Pending",
-    dealValue: 12000,
-    stage: "New Lead",
-    startDate: "2026-06-01",
-    dueDate: "2026-06-10",
-    followUpDate: "2026-06-03",
-    progress: 10,
-  },
-  {
-    id: "TSK-1003",
-    title: "Contract Negotiation Call",
-    customer: "Global Tech",
-    assignedTo: "Arjun Mehta",
-    type: "Contract Negotiation",
-    priority: "Urgent",
-    status: "On Hold",
-    dealValue: 120000,
-    stage: "Negotiation",
-    startDate: "2026-05-15",
-    dueDate: "2026-05-30",
-    followUpDate: "2026-06-01",
-    progress: 85,
-  },
-  {
-    id: "TSK-1004",
-    title: "Payment Collection Q2",
-    customer: "Stark Industries",
-    assignedTo: "V VINAY Kumar",
-    type: "Payment Collection",
-    priority: "High",
-    status: "Completed",
-    dealValue: 8500,
-    stage: "Won",
-    startDate: "2026-05-10",
-    dueDate: "2026-05-20",
-    followUpDate: "2026-05-20",
-    progress: 100,
-  },
-];
 
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function SalesTasksList() {
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const queryClient = useQueryClient();
   
   // State
-  const [tasks, setTasks] = useState<SalesTask[]>(MOCK_TASKS);
   const [view, setView] = useState<"table" | "kanban" | "calendar">("table");
   const [showFilters, setShowFilters] = useState(false);
   const [search, setSearch] = useState("");
   const [selectedTask, setSelectedTask] = useState<SalesTask | null>(null);
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [newComment, setNewComment] = useState("");
+
+  // Modal States
+  const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState<SalesTask["status"]>("Pending");
+  const [bulkAssignModalOpen, setBulkAssignModalOpen] = useState(false);
+  const [newAssignee, setNewAssignee] = useState("");
+  const [assigneeSearch, setAssigneeSearch] = useState("");
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<SalesTask | null>(null);
+  const [followUpModalOpen, setFollowUpModalOpen] = useState(false);
+  const [newFollowUpDate, setNewFollowUpDate] = useState("");
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  // Data Fetching
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["salesTasks", auth.slug],
+    queryFn: () => getSalesTasks(auth.slug || "default-tenant"),
+  });
+
+  const { data: repsData } = useQuery({
+    queryKey: ["salesReps", auth.slug],
+    queryFn: () => getSalesReps(auth.slug || "default-tenant"),
+    enabled: bulkAssignModalOpen || editModalOpen,
+  });
+
+  const salesReps = useMemo(() => {
+    return repsData?.data?.map((r: any) => r.fullName) || [];
+  }, [repsData]);
+
+  const filteredReps = useMemo(() => {
+    if (!assigneeSearch) return salesReps;
+    return salesReps.filter(rep => 
+      rep.toLowerCase().includes(assigneeSearch.toLowerCase())
+    );
+  }, [salesReps, assigneeSearch]);
+
+  const tasks = useMemo(() => {
+    return (data?.data || []).map((t: any) => ({
+      id: t._id || t.id,
+      title: t.title,
+      customer: t.customer || "Unknown",
+      assignedTo: t.assignedTo || "Unassigned",
+      type: t.type || "Other",
+      priority: t.priority || "Medium",
+      status: t.status || "Pending",
+      dealValue: t.expectedDealValue || 0,
+      stage: t.opportunityStage || "N/A",
+      startDate: t.startDate ? new Date(t.startDate).toISOString().split("T")[0] : "",
+      dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
+      followUpDate: t.followUpDate ? new Date(t.followUpDate).toISOString().split("T")[0] : "",
+      progress: t.progress || 0,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+      completionNotes: t.completionNotes,
+    }));
+  }, [data]);
+
+  // Mutations
+  const updateMutation = useMutation({
+    mutationFn: (vars: { id: string; payload: Partial<any> }) => updateSalesTask(vars.id, vars.payload, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["salesTasks"] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteSalesTask(id, auth.slug || "default-tenant"),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["salesTasks"] }),
+  });
 
   // Stats Calculation
   const stats = useMemo(() => {
@@ -221,13 +259,21 @@ export default function SalesTasksList() {
     columnHelper.display({
       id: "actions",
       header: "Actions",
-      cell: () => (
-        <button className="btn btn-ghost btn-xs btn-square" onClick={(e) => e.stopPropagation()}>
-          <MdMoreVert size={16} />
-        </button>
+      cell: ({ row }) => (
+        <div className="dropdown dropdown-end" onClick={(e) => e.stopPropagation()}>
+          <button tabIndex={0} className="btn btn-ghost btn-xs btn-square">
+            <MdMoreVert size={16} />
+          </button>
+          <ul tabIndex={0} className="dropdown-content z-50 menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-200">
+            <li><a onClick={() => setSelectedTask(row.original)}><MdViewList size={16} /> View Details</a></li>
+            <li><a onClick={(e) => { e.stopPropagation(); setTaskToEdit(row.original); setEditModalOpen(true); }}><MdEdit size={16} /> Edit Task</a></li>
+            <div className="divider my-1"></div>
+            <li><a className="text-error hover:bg-error/10" onClick={(e) => handleDelete(e, row.original.id)}><MdDelete size={16} /> Delete</a></li>
+          </ul>
+        </div>
       ),
-    }),
-  ], []);
+    })
+  ], [navigate]);
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(t => 
@@ -247,14 +293,156 @@ export default function SalesTasksList() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  // Kanban Handlers
-  const handleDrop = (e: React.DragEvent, status: SalesTask["status"]) => {
+  // Action Handlers
+  const getSelectedTasks = () => {
+    const selectedIndices = Object.keys(rowSelection).map(Number);
+    return selectedIndices.map(index => filteredTasks[index]);
+  };
+
+  const handleBulkStatusUpdate = async () => {
+    const selected = getSelectedTasks();
+    try {
+      await Promise.all(selected.map(t => updateMutation.mutateAsync({ id: t.id, payload: { status: newStatus } })));
+      setBulkStatusModalOpen(false);
+      setRowSelection({});
+      setSuccessMessage(`Status updated for ${selected.length} tasks!`);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to update status for some tasks.");
+    }
+  };
+
+  const handleBulkAssign = async () => {
+    const selected = getSelectedTasks();
+    if (!newAssignee) return;
+    try {
+      await Promise.all(selected.map(t => updateMutation.mutateAsync({ id: t.id, payload: { assignedTo: newAssignee } })));
+      setBulkAssignModalOpen(false);
+      setRowSelection({});
+      setSuccessMessage(`Assigned ${selected.length} tasks to ${newAssignee}!`);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to assign tasks.");
+      console.error(error);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const selected = getSelectedTasks();
+    if (window.confirm(`Are you sure you want to delete ${selected.length} selected tasks?`)) {
+      try {
+        await Promise.all(selected.map(t => deleteMutation.mutateAsync(t.id)));
+        setBulkDeleteModalOpen(false);
+        setRowSelection({});
+        setSuccessMessage(`Deleted ${selected.length} tasks successfully!`);
+        setSuccessModalOpen(true);
+      } catch (error) {
+        toast.error("Failed to delete some tasks.");
+      }
+    }
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!taskToEdit) return;
+    
+    const payload = {
+      title: taskToEdit.title,
+      customer: taskToEdit.customer,
+      assignedTo: taskToEdit.assignedTo,
+      type: taskToEdit.type,
+      priority: taskToEdit.priority,
+      status: taskToEdit.status,
+      expectedDealValue: taskToEdit.dealValue,
+      opportunityStage: taskToEdit.stage,
+      startDate: taskToEdit.startDate,
+      dueDate: taskToEdit.dueDate,
+      followUpDate: taskToEdit.followUpDate,
+      progress: taskToEdit.progress,
+    };
+
+    await updateMutation.mutateAsync({ id: taskToEdit.id, payload });
+    setEditModalOpen(false);
+    setSuccessMessage("Task updated successfully!");
+    setSuccessModalOpen(true);
+  };
+
+  const handleImportSubmit = async (validRows: any[]) => {
+    await Promise.all(validRows.map(row => createSalesTask(auth.slug || "default-tenant", row as Partial<SalesTask>)));
+    queryClient.invalidateQueries({ queryKey: ["salesTasks"] });
+  };
+
+  const handleDrop = async (e: React.DragEvent, status: SalesTask["status"]) => {
     const taskId = e.dataTransfer.getData("taskId");
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status } : t));
+    if (taskId) {
+      try {
+        await updateMutation.mutateAsync({ id: taskId, payload: { status } });
+        setSuccessMessage("Task status updated!");
+        setSuccessModalOpen(true);
+      } catch (error) {
+        toast.error("Failed to update task status.");
+      }
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: SalesTask["status"]) => {
+    try {
+      await updateMutation.mutateAsync({ id, payload: { status } });
+      if (selectedTask?.id === id) {
+        setSelectedTask({ ...selectedTask, status });
+      }
+      setSuccessMessage(`Task marked as ${status}`);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      toast.error("Failed to update task status.");
+    }
+  };
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      try {
+        await deleteMutation.mutateAsync(id);
+        setSuccessMessage("Task deleted successfully!");
+        setSuccessModalOpen(true);
+        if (selectedTask?.id === id) setSelectedTask(null);
+      } catch (err) {
+        toast.error("Failed to delete task.");
+      }
+    }
   };
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
+  };
+
+  const handleFollowUpSubmit = async () => {
+    if (!selectedTask || !newFollowUpDate) return;
+    try {
+      await updateMutation.mutateAsync({ id: selectedTask.id, payload: { followUpDate: newFollowUpDate } });
+      setFollowUpModalOpen(false);
+      setSuccessMessage("Follow-up date updated!");
+      setSuccessModalOpen(true);
+      if (selectedTask) {
+        setSelectedTask({ ...selectedTask, followUpDate: newFollowUpDate });
+      }
+    } catch (error) {
+      toast.error("Failed to update follow-up date.");
+    }
+  };
+
+  const handlePostComment = async () => {
+    if (!selectedTask || !newComment.trim()) return;
+    try {
+      const updatedNotes = selectedTask.completionNotes ? `${selectedTask.completionNotes}\n- ${newComment}` : `- ${newComment}`;
+      await updateMutation.mutateAsync({ id: selectedTask.id, payload: { completionNotes: updatedNotes } });
+      setSelectedTask({ ...selectedTask, completionNotes: updatedNotes });
+      setNewComment("");
+      setSuccessMessage("Note added!");
+      setSuccessModalOpen(true);
+    } catch (err) {
+      toast.error("Failed to add note.");
+    }
   };
 
   return (
@@ -273,10 +461,14 @@ export default function SalesTasksList() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-outline btn-sm gap-2">
-            <MdDownload size={16} /> Export
-          </button>
-          <button className="btn btn-outline btn-sm btn-square">
+          <ImportExportActions
+            moduleName="Sales Tasks"
+            columns={taskColumns}
+            data={filteredTasks}
+            selectedData={getSelectedTasks()}
+            onImportSubmit={handleImportSubmit}
+          />
+          <button className="btn btn-outline btn-sm btn-square" onClick={() => refetch()}>
             <MdRefresh size={16} />
           </button>
           <button onClick={() => navigate("/sales/tasks/new")} className="btn btn-primary btn-sm gap-2">
@@ -295,7 +487,7 @@ export default function SalesTasksList() {
           { label: "Overdue", value: stats.overdue, color: "text-error" },
           { label: "Today's Follow-ups", value: stats.todayFollowUps, color: "text-warning" },
           { label: "High Priority", value: stats.highPriority, color: "text-error" },
-          { label: "Deal Value", value: `$${stats.dealValue.toLocaleString()}`, color: "text-success" },
+          { label: "Deal Value", value: `₹${stats.dealValue.toLocaleString()}`, color: "text-success" },
         ].map((stat, idx) => (
           <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow">
             <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>
@@ -358,7 +550,7 @@ export default function SalesTasksList() {
       )}
 
       {/* ── Bulk Actions (Visible when rows selected) ── */}
-      {Object.keys(rowSelection).length > 0 && view === "table" && (
+      {/* {Object.keys(rowSelection).length > 0 && view === "table" && (
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
           <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} tasks selected</span>
           <div className="flex gap-2">
@@ -367,9 +559,27 @@ export default function SalesTasksList() {
             <button className="btn btn-xs btn-error btn-outline">Delete</button>
           </div>
         </div>
+      )} */}
+
+      {/* ── Bulk Actions Bar ── */}
+      {Object.keys(rowSelection).length > 0 && view === "table" && (
+        <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
+          <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} tasks selected</span>
+          <div className="flex gap-2">
+            <button className="btn btn-xs btn-outline bg-base-100" onClick={() => setBulkAssignModalOpen(true)}><MdAssignmentInd /> Assign Employee</button>
+            <button className="btn btn-xs btn-primary" onClick={() => setBulkStatusModalOpen(true)}>Change Status</button>
+            <button className="btn btn-xs btn-error text-white" onClick={() => setBulkDeleteModalOpen(true)}><MdDelete /> Delete</button>
+          </div>
+        </div>
       )}
 
       {/* ── Main Content Area ── */}
+      {isLoading ? (
+        <div className="flex-1 flex flex-col justify-center items-center h-full space-y-4">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+          <p>Loading Sales Tasks...</p>
+        </div>
+      ) : (
       <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
         
         {/* View 1: Table */}
@@ -499,6 +709,7 @@ export default function SalesTasksList() {
           </div>
         )}
       </div>
+      )}
 
       {/* ── Task Details Drawer ── */}
       <div className={`fixed inset-0 bg-black/40 z-50 transition-opacity ${selectedTask ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}>
@@ -525,9 +736,9 @@ export default function SalesTasksList() {
             
             {/* Quick Actions */}
             <div className="flex gap-2 pb-6 border-b border-base-200">
-              <button className="btn btn-sm btn-success text-white flex-1 gap-2"><MdOutlineCheckCircle /> Mark Complete</button>
-              <button className="btn btn-sm btn-outline flex-1">Reassign</button>
-              <button className="btn btn-sm btn-outline flex-1">Follow-up</button>
+              <button className="btn btn-sm btn-success text-white flex-1 gap-2" onClick={() => selectedTask && handleStatusChange(selectedTask.id, "Completed")}><MdOutlineCheckCircle /> Mark Complete</button>
+              <button className="btn btn-sm btn-outline flex-1" onClick={() => setBulkAssignModalOpen(true)}>Reassign</button>
+              <button className="btn btn-sm btn-outline flex-1" onClick={() => { setNewFollowUpDate(selectedTask?.followUpDate || ""); setFollowUpModalOpen(true); }}><MdEvent /> Follow-up</button>
             </div>
 
             {/* Basic Info */}
@@ -547,7 +758,7 @@ export default function SalesTasksList() {
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Sales & Schedule</h3>
               <div className="bg-base-200/50 p-4 rounded-xl border border-base-200 grid grid-cols-2 gap-4 text-sm">
-                <div><p className="text-base-content/50 mb-1">Deal Value</p><p className="font-bold text-success text-lg">${selectedTask?.dealValue.toLocaleString()}</p></div>
+                <div><p className="text-base-content/50 mb-1">Deal Value</p><p className="font-bold text-success text-lg">₹{selectedTask?.dealValue.toLocaleString()}</p></div>
                 <div><p className="text-base-content/50 mb-1">Stage</p><p className="font-semibold">{selectedTask?.stage}</p></div>
                 <div className="col-span-2 divider my-0"></div>
                 <div><p className="text-base-content/50 mb-1">Start Date</p><p className="font-medium">{selectedTask?.startDate}</p></div>
@@ -567,34 +778,241 @@ export default function SalesTasksList() {
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Activity & Comments</h3>
               <ul className="timeline timeline-vertical timeline-compact">
+                {selectedTask?.updatedAt && selectedTask.updatedAt !== selectedTask.createdAt && (
+                  <li>
+                    <hr className="bg-primary" />
+                    <div className="timeline-middle text-primary"><MdOutlineCheckCircle /></div>
+                    <div className="timeline-end timeline-box border-none shadow-none bg-transparent px-2 py-1">
+                      <div className="text-xs text-base-content/50">{new Date(selectedTask.updatedAt).toLocaleString()}</div>
+                      <div className="text-sm font-medium">Task Updated</div>
+                    </div>
+                    <hr className="bg-base-300" />
+                  </li>
+                )}
                 <li>
-                  <hr className="bg-primary" />
-                  <div className="timeline-middle text-primary"><MdOutlineCheckCircle /></div>
-                  <div className="timeline-end timeline-box border-none shadow-none bg-transparent px-2 py-1">
-                    <div className="text-xs text-base-content/50">Today 10:30 AM</div>
-                    <div className="text-sm font-medium">Task Assigned to {selectedTask?.assignedTo}</div>
-                  </div>
-                  <hr className="bg-base-300" />
-                </li>
-                <li>
-                  <hr className="bg-base-300" />
+                  <hr className={selectedTask?.updatedAt !== selectedTask?.createdAt ? "bg-base-300" : "bg-primary"} />
                   <div className="timeline-middle text-base-300"><MdOutlineCheckCircle /></div>
                   <div className="timeline-end timeline-box border-none shadow-none bg-transparent px-2 py-1">
-                    <div className="text-xs text-base-content/50">Yesterday 02:15 PM</div>
-                    <div className="text-sm font-medium">Task Created by Admin</div>
+                    <div className="text-xs text-base-content/50">{selectedTask?.createdAt ? new Date(selectedTask.createdAt).toLocaleString() : "N/A"}</div>
+                    <div className="text-sm font-medium">Task Created</div>
                   </div>
                 </li>
               </ul>
               
+              {selectedTask?.completionNotes && (
+                <div className="mt-4 p-3 bg-base-200 rounded-lg text-sm whitespace-pre-wrap">
+                  <span className="font-semibold block mb-1">Notes:</span>
+                  {selectedTask.completionNotes}
+                </div>
+              )}
+
               <div className="mt-4 flex gap-2">
-                <input type="text" className="input input-sm input-bordered w-full" placeholder="Add a comment..." />
-                <button className="btn btn-sm btn-primary">Post</button>
+                <input type="text" className="input input-sm input-bordered w-full" placeholder="Add a note..." value={newComment} onChange={e => setNewComment(e.target.value)} onKeyDown={e => e.key === 'Enter' && handlePostComment()} />
+                <button className="btn btn-sm btn-primary" onClick={handlePostComment} disabled={!newComment.trim()}>Post</button>
               </div>
             </section>
 
           </div>
         </div>
       </div>
+
+      {/* ── Modals ── */}
+      <dialog className={`modal ${bulkStatusModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Update Status for Selected Tasks</h3>
+          <select className="select select-bordered w-full" value={newStatus} onChange={(e) => setNewStatus(e.target.value as SalesTask["status"])}>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <div className="modal-action mt-6">
+            <button className="btn btn-ghost" onClick={() => setBulkStatusModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleBulkStatusUpdate}>Update Status</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${bulkAssignModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Assign Employee</h3>
+          <div className="dropdown w-full">
+            <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">
+              {newAssignee || "-Select Employee-"}
+            </label>
+            <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+              <input 
+                type="text" 
+                placeholder="Search..." 
+                className="input input-sm input-bordered w-full mb-2"
+                value={assigneeSearch}
+                onChange={e => setAssigneeSearch(e.target.value)}
+              />
+              <ul className="max-h-60 overflow-y-auto">
+                {filteredReps.map(rep => (
+                  <li key={rep}>
+                    <a onClick={() => { setNewAssignee(rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="modal-action mt-6">
+            <button className="btn btn-ghost" onClick={() => { setBulkAssignModalOpen(false); setNewAssignee(""); setAssigneeSearch(""); }}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleBulkAssign} disabled={!newAssignee}>Assign</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${bulkDeleteModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Confirm Bulk Delete</h3>
+          <p className="py-4">Are you sure you want to delete {Object.keys(rowSelection).length} selected tasks? This action cannot be undone.</p>
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={() => setBulkDeleteModalOpen(false)}>Cancel</button>
+            <button className="btn btn-error" onClick={handleBulkDelete}>Delete</button>
+          </div>
+        </div>
+      </dialog> 
+
+      <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box max-w-4xl">
+          <h3 className="font-bold text-lg mb-4">Edit Task</h3>
+          {taskToEdit && (
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Task Title</span></label>
+                  <input type="text" className="input input-bordered w-full" value={taskToEdit.title} onChange={(e) => setTaskToEdit({...taskToEdit, title: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Customer</span></label>
+                  <input type="text" className="input input-bordered w-full" value={taskToEdit.customer} onChange={(e) => setTaskToEdit({...taskToEdit, customer: e.target.value})} required />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Assigned To</span></label>
+                  <div className="dropdown w-full">
+                    <input 
+                      type="text" 
+                      className="input input-bordered w-full" 
+                      value={taskToEdit.assignedTo} 
+                      onChange={(e) => setTaskToEdit({...taskToEdit, assignedTo: e.target.value})} 
+                      placeholder="-Select Employee-"
+                      tabIndex={0}
+                    />
+                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-50 border border-base-300">
+                      {salesReps.map(rep => (
+                        <li key={rep}>
+                          <a onClick={() => { setTaskToEdit({...taskToEdit, assignedTo: rep}); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Task Type</span></label>
+                  <select className="select select-bordered w-full" value={taskToEdit.type} onChange={(e) => setTaskToEdit({...taskToEdit, type: e.target.value})}>
+                    <option value="Lead Follow-up">Lead Follow-up</option>
+                    <option value="Client Meeting">Client Meeting</option>
+                    <option value="Demo">Demo</option>
+                    <option value="Quotation">Quotation</option>
+                    <option value="Proposal Submission">Proposal Submission</option>
+                    <option value="Contract Negotiation">Contract Negotiation</option>
+                    <option value="Payment Collection">Payment Collection</option>
+                    <option value="Upselling">Upselling</option>
+                    <option value="Customer Visit">Customer Visit</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Status</span></label>
+                  <select className="select select-bordered w-full" value={taskToEdit.status} onChange={(e) => setTaskToEdit({...taskToEdit, status: e.target.value as any})}>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Opportunity Stage</span></label>
+                  <select className="select select-bordered w-full" value={taskToEdit.stage} onChange={(e) => setTaskToEdit({...taskToEdit, stage: e.target.value})}>
+                    <option value="N/A">N/A</option>
+                    <option value="New Lead">New Lead</option>
+                    <option value="Qualified">Qualified</option>
+                    <option value="Proposal Sent">Proposal Sent</option>
+                    <option value="Negotiation">Negotiation</option>
+                    <option value="Won">Won</option>
+                    <option value="Lost">Lost</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Start Date</span></label>
+                  <input type="date" className="input input-bordered w-full" value={taskToEdit.startDate} onChange={(e) => setTaskToEdit({...taskToEdit, startDate: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Due Date</span></label>
+                  <input type="date" className="input input-bordered w-full" value={taskToEdit.dueDate} onChange={(e) => setTaskToEdit({...taskToEdit, dueDate: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Follow-up Date</span></label>
+                  <input type="date" className="input input-bordered w-full" value={taskToEdit.followUpDate} onChange={(e) => setTaskToEdit({...taskToEdit, followUpDate: e.target.value})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Priority</span></label>
+                  <select className="select select-bordered w-full" value={taskToEdit.priority} onChange={(e) => setTaskToEdit({...taskToEdit, priority: e.target.value as any})}>
+                    <option>Low</option><option>Medium</option><option>High</option><option>Urgent</option>
+                  </select>
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Deal Value (₹)</span></label>
+                  <input type="number" className="input input-bordered w-full" value={taskToEdit.dealValue} onChange={(e) => setTaskToEdit({...taskToEdit, dealValue: Number(e.target.value)})} />
+                </div>
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Progress (%)</span></label>
+                  <input type="number" min="0" max="100" className="input input-bordered w-full" value={taskToEdit.progress} onChange={(e) => setTaskToEdit({...taskToEdit, progress: Number(e.target.value)})} />
+                </div>
+              </div>
+              <div className="modal-action mt-6">
+                <button type="button" className="btn btn-ghost" onClick={() => setEditModalOpen(false)}>Cancel</button>
+                <button type="submit" className="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          )}
+        </div>
+      </dialog>
+
+      <dialog className={`modal ${followUpModalOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg mb-4">Set Follow-up Date</h3>
+          <div className="form-control w-full">
+            <label className="label"><span className="label-text font-medium">Follow-up Date</span></label>
+            <input 
+              type="date" 
+              className="input input-bordered w-full" 
+              value={newFollowUpDate} 
+              onChange={(e) => setNewFollowUpDate(e.target.value)} 
+            />
+          </div>
+          <div className="modal-action mt-6">
+            <button className="btn btn-ghost" onClick={() => setFollowUpModalOpen(false)}>Cancel</button>
+            <button className="btn btn-primary" onClick={handleFollowUpSubmit} disabled={!newFollowUpDate}>Set Date</button>
+          </div>
+        </div>
+      </dialog>
+
+      {/* Success Modal */}
+      <dialog className={`modal ${successModalOpen ? "modal-open" : ""}`}>
+        <div className="modal-box flex flex-col items-center justify-center p-8">
+          <MdCheckCircle className="text-success w-16 h-16 mb-4" />
+          <h3 className="font-bold text-xl text-center mb-2">Success!</h3>
+          <p className="text-base-content/80 text-center">{successMessage}</p>
+          <div className="modal-action mt-6 w-full justify-center">
+            <button className="btn btn-primary px-8" onClick={() => setSuccessModalOpen(false)}>Close</button>
+          </div>
+        </div>
+      </dialog>
 
     </div>
   );
