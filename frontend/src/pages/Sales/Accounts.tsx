@@ -200,7 +200,7 @@ export default function AccountsDashboard() {
     }),
     columnHelper.accessor("revenue", {
       header: "Revenue Generated",
-      cell: (info) => <span className="font-bold text-success text-sm">${info.getValue().toLocaleString()}</span>,
+      cell: (info) => <span className="font-bold text-success text-sm">₹{info.getValue().toLocaleString()}</span>,
     }),
     columnHelper.accessor("accountOwner", {
       header: "Account Owner",
@@ -288,7 +288,7 @@ export default function AccountsDashboard() {
           { label: "Total Accounts", value: stats.total, color: "text-base-content" },
           { label: "Active & VIP", value: stats.active, color: "text-primary" },
           { label: "New Prospects", value: stats.prospects, color: "text-info" },
-          { label: "Total Revenue", value: `$${stats.revenue.toLocaleString()}`, color: "text-success" },
+          { label: "Total Revenue", value: `₹${stats.revenue.toLocaleString()}`, color: "text-success" },
         ].map((stat, idx) => (
           <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>

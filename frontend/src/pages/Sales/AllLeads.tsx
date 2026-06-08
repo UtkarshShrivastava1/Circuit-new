@@ -278,7 +278,7 @@ export default function AllLeads() {
           { label: "Total Leads", value: stats.total, color: "text-base-content" },
           { label: "New Leads", value: stats.new, color: "text-info" },
           { label: "Qualified", value: stats.qualified, color: "text-secondary" },
-          { label: "Pipeline Value", value: `$${stats.totalValue.toLocaleString()}`, color: "text-success" },
+          { label: "Pipeline Value", value: `₹${stats.totalValue.toLocaleString()}`, color: "text-success" },
         ].map((stat, idx) => (
           <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>

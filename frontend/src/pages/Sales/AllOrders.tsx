@@ -389,13 +389,13 @@ export default function AllOrders() {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-4">
         {[
           { label: "Total Orders", value: stats.total, color: "text-base-content" },
-          { label: "Revenue", value: `$${(stats.revenue/1000).toFixed(1)}k`, color: "text-success" },
+          { label: "Revenue", value: `₹${(stats.revenue/1000).toFixed(1)}k`, color: "text-success" },
           { label: "Draft", value: stats.draft, color: "text-base-content/50" },
           { label: "Pending", value: stats.pending, color: "text-warning" },
           { label: "Processing", value: stats.processing, color: "text-info" },
           { label: "Delivered", value: stats.delivered, color: "text-primary" },
           { label: "Cancelled", value: stats.cancelled, color: "text-error" },
-          { label: "Avg Value", value: `$${stats.aov.toFixed(0)}`, color: "text-base-content" },
+          { label: "Avg Value", value: `₹${stats.aov.toFixed(0)}`, color: "text-base-content" },
         ].map((stat, idx) => (
           <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm">
             <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>

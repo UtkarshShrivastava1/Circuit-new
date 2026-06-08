@@ -151,25 +151,30 @@ export default function App() {
             <Route path="/sales/products" element={<AllProducts />} />
             <Route path="/sales/products/new" element={<NewProduct />} />
 
-            <Route path="/sales/leads/new" element={<Leads />} />
             <Route path="/sales/leads" element={<AllLeads />} />
+            <Route path="/sales/leads/new" element={<Leads />} />
             <Route path="/sales/employee-leads" element={<Leads />} />
             
             <Route path="/sales/profile/:id" element={<SalesMemberProfile />} />
             <Route path="/sales/contacts" element={<AllContacts />} />
             <Route path="/sales/contacts/:id" element={<ContactDetails />} />
             <Route path="/sales/contacts/new" element={<NewContact />} />
+
             <Route path="/sales/representatives/all" element={<AllSalesReps />} />
             <Route path="/sales/representatives/new" element={<AddSalesRep />} />
             <Route path="/sales/representatives/edit/:id" element={<AddSalesRep />} />
             <Route path="/sales/representatives/:id" element={<SalesRepAdminProfile />} />
+
             <Route path="/sales/orders" element={<AllOrders />} />
             <Route path="/sales/orders/pending" element={<PendingOrders />} />
             <Route path="/sales/orders/new" element={<NewOrderForm />} />
+
             <Route path="/sales/accounts" element={<AllAccountDetails />} />
             <Route path="/sales/accounts/new" element={<NewAccounts />} />
+
             <Route path="/sales/tasks/new" element={<NewTask />} />
             <Route path="/sales/tasks" element={<SalesTasksList />} />
+
             <Route path="/sales/cases" element={<AllCase />} />
             <Route path="/sales/cases/new" element={<AddCases/>} />
 
