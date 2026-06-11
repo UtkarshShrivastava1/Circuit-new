@@ -122,14 +122,14 @@ export default function AccountDetails() {
   const [isLoading, setIsLoading] = useState(true);
 
   const acc = MOCK_ACCOUNT;
-
+ 
   const TABS = ["Overview", "Contacts", "Orders", "Transactions", "Notes", "Documents", "Activity Timeline", "Assigned Team"];
 
   useEffect(() => {
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, [id]);
-
+ 
   if (isLoading) {
     return (
       <div className="flex flex-col lg:flex-row gap-6 p-6 min-h-screen bg-base-200 animate-pulse">

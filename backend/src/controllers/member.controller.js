@@ -643,3 +643,24 @@ exports.getEmployees = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+exports.getSalesEmployees = async (req, res) => {
+  try {
+    const organizationId = req.organization._id;
+
+    const salesEmployees = await User.find({
+      organizationId,
+      department: "sales", // 👈 IMPORTANT CHANGE
+    })
+
+    return res.status(200).json({
+      message: "Sales employees fetched successfully",
+      data: salesEmployees,
+    });
+  } catch (error) {
+    console.error("Get Sales Employees Error:", error);
+    return res.status(500).json({
+      message: "Server error while fetching sales employees",
+    });
+  }
+};

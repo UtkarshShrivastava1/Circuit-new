@@ -161,6 +161,9 @@ export default function App() {
             <Route path="/sales/contacts/new" element={<NewContact />} />
 
             <Route path="/sales/representatives/all" element={<AllSalesReps />} />
+            <Route path="/sales/contacts/contactDetails" element={<ContactDetails />} />
+            <Route path="/sales/contacts/new" element={<NewContact />} />
+            <Route path="/sales/representatives" element={<SalesRepAdminProfile />} />
             <Route path="/sales/representatives/new" element={<AddSalesRep />} />
             <Route path="/sales/representatives/edit/:id" element={<AddSalesRep />} />
             <Route path="/sales/representatives/:id" element={<SalesRepAdminProfile />} />

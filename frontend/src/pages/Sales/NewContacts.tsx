@@ -1,46 +1,94 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { MdSave, MdPerson } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useQuery } from "@tanstack/react-query";
+import { getSalesEmployees } from "@/services/memberService";
+import { createContact } from "@/services/salesService";
 import { useAuth } from "@/auth/AuthContext";
-import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
+// const contactSchema = z.object({
+//   // Personal Info
+//   firstName: z.string().min(1, "First Name is required"),
+//   lastName: z.string().min(1, "Last Name is required"),
+//   gender: z.string().optional(),
+//   dob: z.string().optional(),
+
+//   // Contact Info
+//   email: z.string().email("Valid email is required"),
+//   altEmail: z.string().email("Valid email").or(z.literal("")).optional(),
+//   phoneCountry: z.string().default("+1"),
+//   phoneNumber: z.string().min(5, "Valid phone number is required"),
+//   altPhoneNumber: z.string().optional(),
+
+//   // Professional Info
+//   company: z.string().optional(),
+//   department: z.string().optional(),
+//   designation: z.string().optional(),
+//   leadSource: z.string().optional(),
+//   assignedRep: z.string().min(1, "Assigned Rep is required"),
+//   status: z.enum(["Active", "Inactive", "Prospect", "Customer", "VIP", "Blocked"]).default("Active"),
+
+//   // Address Info
+//   addressLine1: z.string().optional(),
+//   addressLine2: z.string().optional(),
+//   city: z.string().optional(),
+//   state: z.string().optional(),
+//   postalCode: z.string().optional(),
+//   country: z.string().optional(),
+// });
+
+
 const contactSchema = z.object({
-  // Personal Info
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),
+
   gender: z.string().optional(),
   dob: z.string().optional(),
 
-  // Contact Info
   email: z.string().email("Valid email is required"),
-  altEmail: z.string().email("Valid email").or(z.literal("")).optional(),
-  phoneCountry: z.string().default("+1"),
-  phoneNumber: z.string().min(5, "Valid phone number is required"),
+  altEmail: z.string().email().optional().or(z.literal("")),
+
+  phone: z.object({
+    countryCode: z.string().default("+91"),
+    number: z.string().min(5, "Valid phone number is required"),
+  }),
+
   altPhoneNumber: z.string().optional(),
 
-  // Professional Info
-  company: z.string().optional(),
+  account: z.string().optional(),
+
   department: z.string().optional(),
   designation: z.string().optional(),
+
   leadSource: z.string().optional(),
+
   assignedRep: z.string().min(1, "Assigned Rep is required"),
-  status: z.enum(["Active", "Inactive", "Prospect", "Customer", "VIP", "Blocked"]).default("Active"),
 
-  // Address Info
-  addressLine1: z.string().optional(),
-  addressLine2: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
+  status: z.enum([
+    "Active",
+    "Inactive",
+    "Prospect",
+    "Customer",
+    "VIP",
+    "Blocked",
+  ]),
+
+  address: z.object({
+    addressLine1: z.string().optional(),
+    addressLine2: z.string().optional(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    postalCode: z.string().optional(),
+
+    country: z.string().optional(),
+
+    countryOther: z.string().optional(),
+  }),
 });
-
 type ContactFormValues = z.infer<typeof contactSchema>;
 
 /* ─────────────────────────── static data ───────────────────── */
@@ -64,52 +112,117 @@ const DEFAULT_COUNTRIES = [
 export default function NewContact() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { auth } = useAuth();
-  const [repSearch, setRepSearch] = useState("");
-
+ const [owners, setOwners] = useState([]);
   const { register, handleSubmit, watch, reset, formState: { errors } } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
-      phoneCountry: "+1",
+     
+      phone: {
+        countryCode: "+1",
+        number: "",
+      },
       status: "Active",
     }
   });
 
-  const { data: repsData } = useQuery({
-    queryKey: ["salesReps", auth?.slug],
-    queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
-  });
-
-  const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
-  }, [repsData]);
-
   // Live Watches
   const wFirstName = watch("firstName");
   const wLastName = watch("lastName");
-  const wCompany = watch("company");
+  const wAccount = watch("account");
   const wEmail = watch("email");
   const wStatus = watch("status");
   const wAssignedRep = watch("assignedRep");
+  const {auth}=useAuth();
+  const slug=auth?.slug;
+    if (!slug) {
+    return null;
+  }
+ console.log("🚀 SLUG in NewContact:", slug) ;
+ useEffect(() => {
+     const fetchOwners = async () => {
+       try {
+         const res = await getSalesEmployees(slug);
+         setOwners(res.data.data);
+       } catch (err) {
+         console.log(err);
+       }
+     };
+ 
+     fetchOwners();
+   }, []);
+   const selectedOwner = owners.find((o: any) => o._id === wAssignedRep);
+ const onSubmit = async (data: ContactFormValues) => {
+  setIsSubmitting(true);
 
-  const filteredReps = useMemo(() => {
-    if (!repSearch) return salesReps;
-    return salesReps.filter(rep => rep.toLowerCase().includes(repSearch.toLowerCase()));
-  }, [salesReps, repSearch]);
+  try {
+    const payload = {
+      assignedRep: data.assignedRep,
 
-  const onSubmit = async (data: ContactFormValues) => {
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // MOCK API
-      console.log("Contact Payload:", data);
-      toast.success("Contact created successfully!");
-      navigate("/sales/contacts");
-    } catch (err) {
-      toast.error("Failed to create contact.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      firstName: data.firstName,
+      lastName: data.lastName,
+      gender:
+    data.gender && data.gender !== "-Select-"
+      ? data.gender
+      : undefined,
+
+      dob: data.dob,
+
+      email: data.email,
+      altEmail: data.altEmail,
+
+      phone: {
+        countryCode: data.phone.countryCode,
+        number: data.phone.number,
+      },
+
+      altPhoneNumber: data.altPhoneNumber,
+
+      account: data.account,
+      department: data.department,
+      designation: data.designation,
+
+      leadSource: data.leadSource && data.leadSource !== "-Select Source-"
+    ? data.leadSource
+    : undefined,
+      status: data.status,
+
+      address: {
+        addressLine1: data.address.addressLine1,
+        addressLine2: data.address.addressLine2,
+        city: data.address.city,
+        state: data.address.state,
+        postalCode: data.address.postalCode,
+        country: data.address.country && data.address.country !== "-Select-"
+          ? data.address.country
+          : undefined,
+      },
+    };
+
+   
+
+    const response = await createContact(
+      slug,
+      payload
+    );
+
+    toast.success(
+      response?.data?.message ||
+      "Contact created successfully"
+    );
+
+    
+
+  } catch (error) {
+    console.error(error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      "Failed to create contact"
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   /* ── Shared Component: Form Row ── */
   const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
@@ -203,14 +316,14 @@ export default function NewContact() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormRow label="Phone Number" required error={errors.phoneNumber?.message}>
-                  <div className={`flex border rounded-lg overflow-hidden ${errors.phoneNumber ? 'border-error' : 'border-base-300'} focus-within:border-primary transition-colors bg-base-100`}>
-                    <select {...register("phoneCountry")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent">
+                <FormRow label="Phone Number" required error={errors.phone?.number?.message}>
+                  <div className={`flex border rounded-lg overflow-hidden ${errors.phone?.number ? 'border-error' : 'border-base-300'} focus-within:border-primary transition-colors bg-base-100`}>
+                    <select {...register("phone.countryCode")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent">
                       {PHONE_CODES.map((p) => (
                         <option key={p.code} value={p.code}>{p.flag} {p.code}</option>
                       ))}
                     </select>
-                    <input type="tel" {...register("phoneNumber")} className="input input-sm border-none w-full focus:outline-none" placeholder="12345 67890" />
+                    <input type="tel" {...register("phone.number")} className="input input-sm border-none w-full focus:outline-none" placeholder="12345 67890" />
                   </div>
                 </FormRow>
                 <FormRow label="Alt. Phone Number">
@@ -229,7 +342,7 @@ export default function NewContact() {
             <div className="collapse-content pt-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Company/Account">
-                  <input {...register("company")} className="input input-bordered w-full" placeholder="Company Inc." />
+                  <input {...register("account")} className="input input-bordered w-full" placeholder="Company Inc." />
                 </FormRow>
                 <FormRow label="Department">
                   <input {...register("department")} className="input input-bordered w-full" placeholder="Sales, IT, etc." />
@@ -244,27 +357,12 @@ export default function NewContact() {
                   </select>
                 </FormRow>
                 <FormRow label="Assigned Rep" required error={errors.assignedRep?.message}>
-                  <div className="dropdown w-full">
-                    <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedRep ? "border-error" : "border-base-300"}`}>
-                      {wAssignedRep || "-Select Rep-"}
-                    </label>
-                    <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
-                      <input 
-                        type="text" 
-                        placeholder="Search..." 
-                        className="input input-sm input-bordered w-full mb-2"
-                        value={repSearch}
-                        onChange={e => setRepSearch(e.target.value)}
-                      />
-                      <ul className="max-h-60 overflow-y-auto">
-                        {filteredReps.map((rep) => (
-                          <li key={rep}>
-                            <a onClick={() => { setValue("assignedRep", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  <select {...register("assignedRep")} className={`select select-bordered w-full ${errors.assignedRep ? 'select-error' : ''}`}>
+                    <option value="">-Select Owner-</option>
+                   {owners.map((o: any) => (
+                    <option key={o._id} value={o._id}>{o.name}</option>
+                   ))}
+                   </select>
                 </FormRow>
                 <FormRow label="Status">
                   <select {...register("status")} className="select select-bordered w-full">
@@ -287,15 +385,15 @@ export default function NewContact() {
               4. Address Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
-              <FormRow label="Address Line 1"><input {...register("addressLine1")} className="input input-bordered w-full" placeholder="Street address" /></FormRow>
-              <FormRow label="Address Line 2"><input {...register("addressLine2")} className="input input-bordered w-full" placeholder="Apt, Suite, etc." /></FormRow>
-              
+              <FormRow label="Address Line 1"><input {...register("address.addressLine1")} className="input input-bordered w-full" placeholder="Street address" /></FormRow>
+              <FormRow label="Address Line 2"><input {...register("address.addressLine2")} className="input input-bordered w-full" placeholder="Apt, Suite, etc." /></FormRow>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormRow label="City"><input {...register("city")} className="input input-bordered w-full" /></FormRow>
-                <FormRow label="State"><input {...register("state")} className="input input-bordered w-full" /></FormRow>
-                <FormRow label="Postal Code"><input {...register("postalCode")} className="input input-bordered w-full" /></FormRow>
+                <FormRow label="City"><input {...register("address.city")} className="input input-bordered w-full" /></FormRow>
+                <FormRow label="State"><input {...register("address.state")} className="input input-bordered w-full" /></FormRow>
+                <FormRow label="Postal Code"><input {...register("address.postalCode")} className="input input-bordered w-full" /></FormRow>
                 <FormRow label="Country">
-                  <select {...register("country")} className="select select-bordered w-full">
+                  <select {...register("address.country")} className="select select-bordered w-full">
                     <option value="">-Select-</option>
                     {DEFAULT_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -328,7 +426,7 @@ export default function NewContact() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Company</span>
-                <p className="font-medium mt-1 truncate">{wCompany || "—"}</p>
+                <p className="font-medium mt-1 truncate">{wAccount || "—"}</p>
               </div>
               
               <div>
@@ -338,7 +436,7 @@ export default function NewContact() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Assigned Rep</span>
-                <p className="font-medium mt-1 truncate">{wAssignedRep || "Unassigned"}</p>
+                <p className="font-medium mt-1 truncate">{wAssignedRep ? selectedOwner?.name || "Unassigned" : "Unassigned"}</p>
               </div>
             </div>
 

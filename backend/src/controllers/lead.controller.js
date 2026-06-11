@@ -1,83 +1,229 @@
-const Lead = require('../models/lead.model');
+const LeadModel = require("../models/Lead.model");
 
-exports.createLead = async (req, res) => {
-  try {
-    const tenantId = req.tenantId;
-    const leadData = { ...req.body, tenantId };
-    
-    const lead = new Lead(leadData);
-    await lead.save();
-    
-    res.status(201).json({ success: true, data: lead, message: 'Lead created successfully' });
-  } catch (error) {
-    console.error('Error creating lead:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to create lead' });
-  }
-};
 
-exports.getAllLeads = async (req, res) => {
+const createLead = async (req, res) => {
+  const organizationId = req.organization._id;
   try {
-    const tenantId = req.tenantId;
-    const leads = await Lead.find({ tenantId }).sort({ createdAt: -1 });
-    
-    const mappedLeads = leads.map(lead => {
-        const leadObj = lead.toObject();
-        leadObj.id = leadObj._id;
-        leadObj.createdDate = leadObj.createdAt;
-        return leadObj;
+    const {
+      organization = organizationId,
+      leadOwner,
+      leadSource,
+      customLeadSource,
+      industry,
+      customIndustry,
+      leadStatus,
+      priority,
+      firstName,
+      lastName,
+      email,
+      gender,
+      countryCode,
+      customCountryCode,
+      phoneNumber,
+      companyName,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country,
+      customCountry,
+      description,
+    } = req.body;
+
+    // Check required fields
+    if (
+      !leadOwner ||
+      !firstName ||
+      !email ||
+      !phoneNumber ||
+      !companyName
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields",
+      });
+    }
+
+    // Duplicate email check
+   const existingLead = await LeadModel.findOne({
+  organizationId,
+  email,
+});
+
+    if (existingLead) {
+      return res.status(409).json({
+        success: false,
+        message: "Lead already exists with this email",
+      });
+    }
+
+    const lead = await LeadModel.create({
+        organization,
+      leadOwner,
+      leadSource,
+      customLeadSource,
+      industry,
+      customIndustry,
+      leadStatus,
+      priority,
+      firstName,
+      lastName,
+      email,
+      gender,
+      countryCode,
+      customCountryCode,
+      phoneNumber,
+      companyName,
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country,
+      customCountry,
+      description,
     });
 
-    res.status(200).json({ success: true, data: mappedLeads });
+    return res.status(201).json({
+      success: true,
+      message: "Lead created successfully",
+      data: lead,
+    });
   } catch (error) {
-    console.error('Error fetching leads:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch leads' });
+    console.error("Create Lead Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
-exports.getLeadById = async (req, res) => {
+
+const getAllLeads = async (req, res) => {
+  const organizationId = req.organization._id;
   try {
-    const tenantId = req.tenantId;
-    const lead = await Lead.findOne({ _id: req.params.id, tenantId });
-    
+    const leads = await LeadModel.find({ organization: organizationId }).populate("leadOwner", "name email");
+
+    return res.status(200).json({
+      success: true,
+      message: "Leads retrieved successfully",
+      data: leads,
+    });
+  } catch (error) {
+    console.error("Get Leads Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const updateLead = async (req, res) => {
+  try {
+    const { leadId } = req.params;
+    const organizationId = req.organization._id;
+
+    const lead = await LeadModel.findOne({
+      _id: leadId,
+      organizationId,
+    });
+
     if (!lead) {
-      return res.status(404).json({ success: false, message: 'Lead not found' });
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
     }
-    
-    const leadObj = lead.toObject();
-    leadObj.id = leadObj._id;
-    leadObj.createdDate = leadObj.createdAt;
-    
-    res.status(200).json({ success: true, data: leadObj });
-  } catch (error) {
-    console.error('Error fetching lead:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch lead' });
-  }
-};
 
-exports.updateLead = async (req, res) => {
-  try {
-    const tenantId = req.tenantId;
-    const lead = await Lead.findOneAndUpdate(
-      { _id: req.params.id, tenantId },
-      req.body,
-      { new: true, runValidators: true }
+    // Email duplicate check (if email is being updated)
+    if (req.body.email) {
+      const existingLead = await LeadModel.findOne({
+        email: req.body.email,
+        organizationId,
+        _id: { $ne: leadId },
+      });
+
+      if (existingLead) {
+        return res.status(409).json({
+          success: false,
+          message: "Lead already exists with this email",
+        });
+      }
+    }
+
+    const updatedLead = await LeadModel.findByIdAndUpdate(
+      leadId,
+      {
+        ...req.body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
     );
-    if (!lead) return res.status(404).json({ success: false, message: 'Lead not found' });
-    const leadObj = lead.toObject();
-    leadObj.id = leadObj._id;
-    res.status(200).json({ success: true, data: leadObj, message: 'Lead updated successfully' });
+
+    return res.status(200).json({
+      success: true,
+      message: "Lead updated successfully",
+      data: updatedLead,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message || 'Failed to update lead' });
+    console.error("Update Lead Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
 };
 
-exports.deleteLead = async (req, res) => {
+
+const deleteLead = async (req, res) => {
   try {
-    const tenantId = req.tenantId;
-    const lead = await Lead.findOneAndDelete({ _id: req.params.id, tenantId });
-    if (!lead) return res.status(404).json({ success: false, message: 'Lead not found' });
-    res.status(200).json({ success: true, message: 'Lead deleted successfully' });
+    const { leadId } = req.params;
+    const organizationId = req.organization._id;
+
+    const lead = await LeadModel.findOne({
+      _id: leadId,
+      organizationId,
+    });
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    await LeadModel.findByIdAndDelete(leadId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Lead deleted successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to delete lead' });
+    console.error("Delete Lead Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
   }
+};
+
+
+module.exports = {
+  createLead,
+  getAllLeads,
+  updateLead,
+  deleteLead,
 };
