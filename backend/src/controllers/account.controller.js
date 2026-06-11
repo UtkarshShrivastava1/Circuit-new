@@ -6,7 +6,7 @@ const createAccount = async (req, res) => {
   try {
    const organizationId = req.organization._id;
   
-
+ console.log("Create Account Request:", { organizationId, body: req.body });
     const {
       accountName,
       accountOwner,
@@ -21,8 +21,21 @@ const createAccount = async (req, res) => {
       panNumber,
       paymentTerms,
       description,
-      notes,
+    
     } = req.body;
+    const finalShippingAddress =
+  shippingAddress?.sameAsBilling
+    ? {
+        sameAsBilling: true,
+        addressLine1: billingAddress.addressLine1,
+        addressLine2: billingAddress.addressLine2,
+        city: billingAddress.city,
+        state: billingAddress.state,
+        postalCode: billingAddress.postalCode,
+        country: billingAddress.country,
+        countryOther: billingAddress.countryOther,
+      }
+    : shippingAddress;
 
       const formattedPhone = {
       countryCode: primaryContact.phone.countryCode || "+91",
@@ -46,13 +59,13 @@ const createAccount = async (req, res) => {
       },
 
       billingAddress,
-      shippingAddress,
+      shippingAddress: finalShippingAddress,
 
       gstNumber,
       panNumber,
       paymentTerms,
       description,
-      notes,
+     
     });
 
     return res.status(201).json({
@@ -71,7 +84,7 @@ const createAccount = async (req, res) => {
 const getAllAccounts = async (req, res) => {
   const organizationId = req.organization._id;
   try {
-    const accounts = await AccountModel.find({ organization: organizationId });
+    const accounts = await AccountModel.find({ organization: organizationId }).populate("accountOwner", "name email");
     return res.status(200).json({
       message: "Accounts retrieved successfully",
       data: accounts,

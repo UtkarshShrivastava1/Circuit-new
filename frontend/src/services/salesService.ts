@@ -29,3 +29,20 @@ export const updateAccount = (slug:string, accountId:string , data:any) => {
 export const deleteAccount = (slug:string, accountId:string) => {
   return API.delete(`/accounts/${slug}/delete/${accountId}`);
 };
+
+
+export const createContact = (slug:string, data:any ) => {
+  return API.post(`/contacts/${slug}/create`, data);
+}
+
+export const getAllContacts = (slug:string) => {
+  return API.get(`/contacts/${slug}/get`);
+}
+
+export const updateContact = (slug:string, contactId:string , data:any) => {
+  return API.put(`/contacts/${slug}/update/${contactId}`, data);
+}
+
+export const deleteContact = (slug:string, contactId:string) => {
+  return API.delete(`/contacts/${slug}/delete/${contactId}`);
+}

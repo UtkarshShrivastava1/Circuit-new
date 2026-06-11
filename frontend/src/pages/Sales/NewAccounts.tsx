@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
 import { MdSave, MdBusiness, MdDelete } from "react-icons/md";
 import { toast } from "react-toastify";
+import { createAccount } from "@/services/salesService";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesEmployees } from "@/services/memberService";
 
 const COUNTRIES = [
   "India", "United States", "United Kingdom", "Canada", "Australia",
@@ -20,7 +23,7 @@ const accountSchema = z.object({
   accountType: z.enum(["Individual", "Business", "Enterprise", "Distributor", "Retailer", "Partner"]).default("Business"),
   industry: z.string().optional(),
   website: z.string().url("Valid URL required").or(z.literal("")).optional(),
-  revenue: z.coerce.number().min(0).optional(),
+  annualRevenue: z.coerce.number().min(0).optional(),
   employeeCount: z.coerce.number().min(0).optional(),
   
   // Primary Contact
@@ -38,6 +41,8 @@ const accountSchema = z.object({
   billingState: z.string().min(1, "State is required"),
   billingPostal: z.string().min(1, "Postal code is required"),
   billingCountry: z.string().min(1, "Country is required"),
+  billingCountryOther: z.string().optional(),
+shippingCountryOther: z.string().optional(),
 
   // Shipping Address
   sameAsBilling: z.boolean().default(true),
@@ -63,7 +68,9 @@ type AccountFormValues = z.infer<typeof accountSchema>;
 export default function NewAccountForm() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+ const [owners, setOwners] = useState([]);
+ 
+   
   const { register, handleSubmit, watch, reset, setValue, formState: { errors } } = useForm<AccountFormValues>({
     resolver: zodResolver(accountSchema),
     defaultValues: {
@@ -81,21 +88,92 @@ export default function NewAccountForm() {
   const wIndustry = watch("industry");
   const wOwner = watch("accountOwner");
   const wSameAsBilling = watch("sameAsBilling");
-
+ const {auth}=useAuth();
+  const slug=auth?.slug;
+  if (!slug) {
+    return null;
+  }
+ 
+   useEffect(() => {
+     const fetchOwners = async () => {
+       try {
+         const res = await getSalesEmployees(slug);
+         setOwners(res.data.data);
+       } catch (err) {
+         console.log(err);
+       }
+     };
+ 
+     fetchOwners();
+   }, []);
+   console.log(owners)
   const onSubmit = async (data: AccountFormValues) => {
-    setIsSubmitting(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // MOCK API
-      console.log("Account Payload:", data);
-      toast.success("Account created successfully!");
-      navigate("/sales/accounts");
-    } catch (err) {
-      toast.error("Failed to create account.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  setIsSubmitting(true);
+const payload = {
+  accountOwner: data.accountOwner,
+  accountName: data.accountName,
+  accountType: data.accountType,
+  industry: data.industry,
+  website: data.website,
+  annualRevenue: data.annualRevenue,
 
+  primaryContact: {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    designation: data.designation,
+    phone: {
+      countryCode: data.phoneCountry,
+      number: data.phoneNumber,
+    },
+  },
+
+  billingAddress: {
+    addressLine1: data.billingAddress1,
+    addressLine2: data.billingAddress2,
+    city: data.billingCity,
+    state: data.billingState,
+    postalCode: data.billingPostal,
+    country: data.billingCountry,
+    countryOther: data.billingCountryOther,
+  },
+
+  shippingAddress: {
+    sameAsBilling: data.sameAsBilling,
+    addressLine1: data.shippingAddress1,
+    addressLine2: data.shippingAddress2,
+    city: data.shippingCity,
+    state: data.shippingState,
+    postalCode: data.shippingPostal,
+    country: data.shippingCountry,
+    countryOther: data.shippingCountryOther,
+  },
+
+  gstNumber: data.gstNumber,
+  panNumber: data.panNumber,
+  paymentTerms: data.paymentTerms,
+  description: data.description,
+};
+  try {
+   
+
+    const response = await createAccount(slug, payload);
+    
+    console.log("Account Created:", response.data);
+
+    toast.success("Account created successfully!");
+    navigate("/sales/accounts");
+  } catch (error: any) {
+    console.error(error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      "Failed to create account."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
   /* ── Shared Component: Form Row ── */
   const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
     <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
@@ -147,8 +225,9 @@ export default function NewAccountForm() {
               <FormRow label="Account Owner" required error={errors.accountOwner?.message}>
                 <select {...register("accountOwner")} className={`select select-bordered w-full ${errors.accountOwner ? "select-error" : ""}`}>
                   <option value="">-Select Owner-</option>
-                  <option value="V VINAY Kumar">V VINAY Kumar</option>
-                  <option value="Riya Sharma">Riya Sharma</option>
+                  {owners.map((o: any) => (
+                    <option key={o._id} value={o._id}>{o.name}</option>
+                  ))}
                 </select>
               </FormRow>
               
@@ -182,7 +261,7 @@ export default function NewAccountForm() {
                 <FormRow label="Annual Revenue">
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-base-content/50">$</span>
-                    <input type="number" {...register("revenue")} className="input input-bordered w-full pl-8" placeholder="0.00" />
+                    <input type="number" {...register("annualRevenue")} className="input input-bordered w-full pl-8" placeholder="0.00" />
                   </div>
                 </FormRow>
               </div>

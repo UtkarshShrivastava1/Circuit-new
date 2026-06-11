@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const accountSchema = new mongoose.Schema(
-
   {
     organization: {
       type: mongoose.Schema.Types.ObjectId,
@@ -11,7 +10,7 @@ const accountSchema = new mongoose.Schema(
     // 🏢 1. Organization Details
     accountOwner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
 
@@ -21,18 +20,30 @@ const accountSchema = new mongoose.Schema(
       trim: true,
     },
 
- 
-
     accountType: {
       type: String,
-      enum: ["Individual", "Partner", "Business", "Retailer", "Distributor", "Enterprise"],
+      enum: [
+        "Individual",
+        "Partner",
+        "Business",
+        "Retailer",
+        "Distributor",
+        "Enterprise",
+      ],
       default: "Individual",
     },
 
     industry: {
       type: String,
-      enum: ["Technology", "Finance", "Healthcare", "Education", "Manufacturing", "Retail", "Other"],
-      
+      enum: [
+        "Technology",
+        "Finance",
+        "Healthcare",
+        "Education",
+        "Manufacturing",
+        "Retail",
+        "Other",
+      ],
     },
 
     website: {
@@ -45,7 +56,7 @@ const accountSchema = new mongoose.Schema(
       default: 0,
     },
 
-    // 👤 2. Primary Contact Person
+    // 2. Primary Contact Person
     primaryContact: {
       firstName: {
         type: String,
@@ -65,19 +76,19 @@ const accountSchema = new mongoose.Schema(
         type: String,
         trim: true,
       },
-     phone: {
-  countryCode: {
-    type: String,
-    default: "+91"
-  },
-  number: {
-    type: String,
-    required: true
-  }
-}
+      phone: {
+        countryCode: {
+          type: String,
+          default: "+91",
+        },
+        number: {
+          type: String,
+          required: true,
+        },
+      },
     },
 
-    // 📍 3. Address Information
+    //  3. Address Information
     billingAddress: {
       addressLine1: {
         type: String,
@@ -98,10 +109,21 @@ const accountSchema = new mongoose.Schema(
       },
       country: {
         type: String,
-        enum: ["USA", "Canada", "UK", "Australia", "India", "Germany", "France", "Other"],
+        enum: [
+          "United States",
+          "Canada",
+          "United Kingdom",
+          "Australia",
+          "India",
+          "Germany",
+          "France",
+          "Singapore",
+          "UAE",
+          "Other",
+        ],
         required: true,
       },
-      countryOther: String, 
+      countryOther: String,
     },
 
     shippingAddress: {
@@ -131,7 +153,14 @@ const accountSchema = new mongoose.Schema(
 
     paymentTerms: {
       type: String,
-      enum: ["Immediate", "Net 15", "Net 30", "Net 45", "Net 60", "Installments"],
+      enum: [
+        "Immediate",
+        "Net 15",
+        "Net 30",
+        "Net 45",
+        "Net 60",
+        "Installments",
+      ],
       default: "Net 30",
     },
 
@@ -139,15 +168,10 @@ const accountSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-
-    notes: {
-      type: String,
-      trim: true,
-    },
   },
   {
     timestamps: true, // createdAt + updatedAt
-  }
+  },
 );
 
 module.exports = mongoose.model("Account", accountSchema);
