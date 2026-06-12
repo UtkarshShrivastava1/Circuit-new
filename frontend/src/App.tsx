@@ -32,6 +32,7 @@ import ContactDetails from "./pages/Sales/ContactDetails";
 import AllSalesReps from "./pages/Sales/AllSalesReps";
 import AllCase from "./pages/Sales/AllCase";
 import AddCases from "./pages/Sales/AddCases";
+import MyTasks from "./pages/Sales/MyTasks";
 
 /* Pages (lazy) */
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
@@ -177,6 +178,7 @@ export default function App() {
 
             <Route path="/sales/tasks/new" element={<NewTask />} />
             <Route path="/sales/tasks" element={<SalesTasksList />} />
+            <Route path="/sales/employee/tasks" element={<MyTasks />} />
 
             <Route path="/sales/cases" element={<AllCase />} />
             <Route path="/sales/cases/new" element={<AddCases/>} />

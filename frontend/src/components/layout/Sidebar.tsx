@@ -1072,18 +1072,14 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       <MdPeople size={20} />
                       {!collapsed && <span>My Profile</span>}
                     </NavLink>
-                    <NavLink to="/sales/products" onClick={onClose} className={linkClass}>
-                      <MdStorefront size={20} />
-                      {!collapsed && <span>Products</span>}
-                    </NavLink>
-                    <NavLink to="/sales/orders" onClick={onClose} className={linkClass}>
-                      <MdShoppingCart size={20} />
-                      {!collapsed && <span>Orders</span>}
-                    </NavLink>
                     <NavLink to="/sales/contacts" onClick={onClose} className={linkClass}>
                       <MdContactPage size={20} />
                       {!collapsed && <span>Contacts</span>}
                     </NavLink>
+                  <NavLink to="/sales/employee/tasks" onClick={onClose} className={linkClass}>
+                    <MdTask size={20} />
+                    {!collapsed && <span>Tasks</span>}
+                  </NavLink>
                   </div>
                 </div>
               )}

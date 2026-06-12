@@ -286,7 +286,7 @@ export default function AllOrders() {
     }),
     columnHelper.accessor("orderValue", {
       header: "Total",
-      cell: (info) => <span className="font-semibold text-success">${info.getValue()?.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>,
+      cell: (info) => <span className="font-semibold text-success">₹{info.getValue()?.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>,
     }),
     columnHelper.accessor("paymentStatus", {
       header: "Payment",
@@ -500,7 +500,7 @@ export default function AllOrders() {
                     <img src={order.salesRepAvatar || `https://ui-avatars.com/api/?name=${order.salesRep}`} alt="rep" className="w-6 h-6 rounded-full" />
                     <span className="text-xs font-medium">{order.salesRep}</span>
                   </div>
-                  <span className="font-bold text-success">${order.orderValue.toLocaleString()}</span>
+                  <span className="font-bold text-success">₹{order.orderValue.toLocaleString()}</span>
                 </div>
               </div>
             ))}
@@ -537,7 +537,7 @@ export default function AllOrders() {
                       <p className="text-sm font-semibold truncate">{order.customerName}</p>
                       <div className="mt-3 flex justify-between items-center text-xs text-base-content/60">
                         <span>{new Date(order.orderDate).toLocaleDateString()}</span>
-                        <span className="font-bold text-success">${order.orderValue.toLocaleString()}</span>
+                        <span className="font-bold text-success">₹{order.orderValue.toLocaleString()}</span>
                       </div>
                     </div>
                   ))}
@@ -643,16 +643,16 @@ export default function AllOrders() {
                           <p className="font-semibold">{p.productName || (p as any).name}</p>
                           <p className="text-[10px] text-base-content/50 font-mono">{p.sku}</p>
                         </td>
-                        <td>${p.price?.toLocaleString()}</td>
+                        <td>₹{p.price?.toLocaleString()}</td>
                         <td>{p.quantity || (p as any).qty}</td>
-                        <td className="text-right font-medium">${p.total?.toLocaleString()}</td>
+                        <td className="text-right font-medium">₹{p.total?.toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="bg-base-200/30">
                       <td colSpan={3} className="text-right font-bold text-base-content/70">Grand Total</td>
-                      <td className="text-right font-bold text-lg text-success">${selectedOrder?.orderValue?.toLocaleString()}</td>
+                      <td className="text-right font-bold text-lg text-success">₹{selectedOrder?.orderValue?.toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>

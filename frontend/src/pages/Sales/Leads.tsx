@@ -83,6 +83,30 @@ const DEFAULT_COUNTRIES = [
   "Other",
 ];
 
+/* ── Shared Component: Form Row ── */
+const FormRow = ({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+    <label className="text-sm font-medium text-base-content/80 pt-2.5">
+      {label}
+      {required && <span className="text-error ml-0.5">*</span>}
+    </label>
+    <div className="w-full">
+      {children}
+      {error && <p className="text-error text-xs mt-1">{error}</p>}
+    </div>
+  </div>
+);
+
 /* ─────────────────────────── component ─────────────────────── */
 export default function Leads() {
   const navigate = useNavigate();
@@ -163,29 +187,6 @@ export default function Leads() {
     }
   };
 
-  /* ── Shared Component: Form Row ── */
-  const FormRow = ({
-    label,
-    required,
-    error,
-    children,
-  }: {
-    label: string;
-    required?: boolean;
-    error?: string;
-    children: React.ReactNode;
-  }) => (
-    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
-      <label className="text-sm font-medium text-base-content/80 pt-2.5">
-        {label}
-        {required && <span className="text-error ml-0.5">*</span>}
-      </label>
-      <div className="w-full">
-        {children}
-        {error && <p className="text-error text-xs mt-1">{error}</p>}
-      </div>
-    </div>
-  );
 const selectedOwner = owners.find((o: any) => o._id === wOwner);
 console.log(selectedOwner);
   return (

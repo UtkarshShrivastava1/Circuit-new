@@ -158,7 +158,6 @@ const AddMember = () => {
         imageUrl: imgUrl,
       };
 
-      console.log(slug , finalData);
 
       await createMember(slug, finalData);
 

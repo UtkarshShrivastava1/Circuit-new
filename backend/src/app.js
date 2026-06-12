@@ -23,7 +23,6 @@ const workUpdateRoutes = require("./routes/workUpdate.routes.js");
 
 const productRoutes = require("./routes/product.routes.js");
 const orderRoutes = require("./routes/order.routes.js");
-const leadRoutes = require("./routes/lead.routes.js");
 const salesRepRoutes = require("./routes/salesRep.routes.js");
 const salesTaskRoutes = require("./routes/salesTask.routes.js");
 const caseRoutes = require("./routes/case.routes.js");

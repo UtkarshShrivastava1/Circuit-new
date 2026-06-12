@@ -64,6 +64,19 @@ shippingCountryOther: z.string().optional(),
 
 type AccountFormValues = z.infer<typeof accountSchema>;
 
+/* ── Shared Component: Form Row ── */
+const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
+  <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+    <label className="text-sm font-medium text-base-content/80 pt-2.5">
+      {label} {required && <span className="text-error ml-0.5">*</span>}
+    </label>
+    <div className="w-full">
+      {children}
+      {error && <p className="text-error text-xs mt-1">{error}</p>}
+    </div>
+  </div>
+);
+
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function NewAccountForm() {
   const navigate = useNavigate();
@@ -174,19 +187,6 @@ const payload = {
     setIsSubmitting(false);
   }
 };
-  /* ── Shared Component: Form Row ── */
-  const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
-    <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
-      <label className="text-sm font-medium text-base-content/80 pt-2.5">
-        {label} {required && <span className="text-error ml-0.5">*</span>}
-      </label>
-      <div className="w-full">
-        {children}
-        {error && <p className="text-error text-xs mt-1">{error}</p>}
-      </div>
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
       
