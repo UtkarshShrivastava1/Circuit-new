@@ -26,7 +26,7 @@ exports.createSalesRep = async (req, res) => {
 exports.getAllSalesReps = async (req, res) => {
   try {
     const tenantId = req.tenantId || req.params.slug;
-    const salesReps = await SalesRep.find({ tenantId }).sort({ createdAt: -1 });
+    const salesReps = await SalesRep.find({ tenantId }).populate("memberId","_id name phone email joiningDate").sort({ createdAt: -1 });
     
     // Map data fields to exactly match what the frontend `SalesRep` interface expects
     const mappedReps = salesReps.map(rep => {
@@ -34,11 +34,11 @@ exports.getAllSalesReps = async (req, res) => {
         return {
             ...repObj,
             id: repObj._id,
-            employeeCode: repObj.employeeId,
-            phone: repObj.mobileNumber,
+            // employeeCode: repObj.employeeId,
+            // phone: repObj.mobileNumber,
             status: repObj.employmentStatus,
             territory: repObj.salesTerritory,
-            avatarUrl: repObj.profileImage,
+            // avatarUrl: repObj.profileImage,
             // Compute a top performer badge if needed (e.g., achievement > target)
             isTopPerformer: (repObj.achievement > 0 && repObj.achievement >= repObj.monthlyTarget)
         };

@@ -84,9 +84,12 @@ export default function NewTask() {
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
 
+  // const salesReps = useMemo(() => {
+  //   return repsData?.data?.map((r: any) => r.memberId.name) || [];
+  // }, [repsData]);
   const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
-  }, [repsData]);
+  return repsData?.data || [];
+}, [repsData]);
 
   const mutation = useMutation({
     mutationFn: (newData: Partial<SalesTask>) => createSalesTask(auth.slug || "default-tenant", newData as Partial<SalesTask>),
@@ -121,7 +124,7 @@ export default function NewTask() {
       visibility: "Private"
     },
   });
-
+const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
   const watchedMeetingMode = watch("meetingMode");
   const watchedStatus = watch("status");
   const watchedDueDate = watch("dueDate");
@@ -136,8 +139,11 @@ export default function NewTask() {
 
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
-    return salesReps.filter(rep => 
-      rep.toLowerCase().includes(assigneeSearch.toLowerCase()));
+   return salesReps.filter((rep: any) =>
+    rep.memberId.name
+      .toLowerCase()
+      .includes(assigneeSearch.toLowerCase())
+  );
   }, [salesReps, assigneeSearch]);
 
   // Check for Delay Display
@@ -318,7 +324,7 @@ export default function NewTask() {
                   <label className="label py-1"><span className="label-text font-medium">Assigned To *</span></label>
                   <div className="dropdown w-full">
                     <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedTo ? "border-error" : "border-base-300"}`}>
-                      {wAssignedTo || "-Select Employee-"}
+                     {selectedEmployeeName || "-Select Employee-"}
                     </label>
                     <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input 
@@ -330,9 +336,21 @@ export default function NewTask() {
                       />
                       <ul className="max-h-60 overflow-y-auto">
                         {filteredReps.map((rep) => (
-                          <li key={rep}>
-                            <a onClick={() => { setValue("assignedTo", rep, { shouldValidate: true }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
-                          </li>
+                          <li key={rep.memberId._id}>
+    <a
+      onClick={() => {
+        setValue(
+          "assignedTo",
+          rep.memberId._id,
+          { shouldValidate: true }
+        );
+setSelectedEmployeeName(rep.memberId.name);
+        (document.activeElement as HTMLElement)?.blur();
+      }}
+    >
+      {rep.memberId.name}
+    </a>
+  </li>
                         ))}
                       </ul>
                     </div>

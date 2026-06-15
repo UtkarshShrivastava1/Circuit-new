@@ -8,7 +8,7 @@ const salesTaskSchema = new mongoose.Schema({
   category: { type: String },
   priority: { type: String, enum: ["Low", "Medium", "High", "Urgent"], default: "Medium" },
   status: { type: String, enum: ["Pending", "In Progress", "Completed", "On Hold", "Cancelled"], default: "Pending" },
-  assignedTo: { type: String, required: true }, 
+  assignedTo: { type: mongoose.Schema.Types.ObjectId,ref:"User", required: true }, 
   team: { type: String },
   customer: { type: String, required: true },
   lead: { type: String },

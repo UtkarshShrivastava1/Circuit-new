@@ -8,30 +8,32 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import { createSalesRep, getSalesRepById, getSalesReps, updateSalesRep } from "@/services/salesRepServices";
 import { useQuery } from "@tanstack/react-query";
+import { getSalesEmployees } from "@/services/memberService";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const salesRepSchema = z.object({
   // 1. Basic Info
-  employeeId: z.string(),
-  fullName: z.string().min(1, "Full Name is required"),
-  displayName: z.string().optional(),
-  gender: z.string().optional(),
-  dob: z.string().optional(),
-  joiningDate: z.string().min(1, "Joining Date is required"),
+  // employeeId: z.string(),
+  // fullName: z.string().min(1, "Full Name is required"),
+  // displayName: z.string().optional(),
+  // gender: z.string().optional(),
+  // dob: z.string().optional(),
+  // joiningDate: z.string().min(1, "Joining Date is required"),
+  memberId: z.string().min(1, "Member is required"),
   designation: z.string().min(1, "Designation is required"),
-  reportingManager: z.string().optional(),
+  // reportingManager: z.string().optional(),
   
   // 2. Contact Info
-  mobileNumber: z.string().min(1, "Mobile Number is required"),
-  altMobileNumber: z.string().optional(),
-  email: z.string().email("Valid email is required"),
-  altEmail: z.string().email("Valid email format").or(z.literal("")).optional(),
-  addressLine1: z.string().optional(),
-  addressLine2: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  postalCode: z.string().optional(),
+  // mobileNumber: z.string().min(1, "Mobile Number is required"),
+  // altMobileNumber: z.string().optional(),
+  // email: z.string().email("Valid email is required"),
+  // altEmail: z.string().email("Valid email format").or(z.literal("")).optional(),
+  // addressLine1: z.string().optional(),
+  // addressLine2: z.string().optional(),
+  // city: z.string().optional(),
+  // state: z.string().optional(),
+  // country: z.string().optional(),
+  // postalCode: z.string().optional(),
 
   // 3. Employment Info
   employeeType: z.string().optional(),
@@ -44,10 +46,10 @@ const salesRepSchema = z.object({
   annualTarget: z.coerce.number().min(0).optional(),
 
   // 4. Banking Info
-  bankName: z.string().optional(),
-  accountNumber: z.string().optional(),
-  ifscCode: z.string().optional(),
-  upiId: z.string().optional(),
+  // bankName: z.string().optional(),
+  // accountNumber: z.string().optional(),
+  // ifscCode: z.string().optional(),
+  // upiId: z.string().optional(),
 
   // 7. Performance Settings
   salesTargetEnabled: z.boolean().default(false),
@@ -57,10 +59,10 @@ const salesRepSchema = z.object({
   incentiveScheme: z.string().optional(),
 
   // 8. Login & Access
-  loginAccessEnabled: z.boolean().default(false),
-  username: z.string().optional(),
-  userRole: z.string().optional(),
-  permissions: z.array(z.string()).optional(),
+  // loginAccessEnabled: z.boolean().default(false),
+  // username: z.string().optional(),
+  // userRole: z.string().optional(),
+  // permissions: z.array(z.string()).optional(),
 
   // 9. Notes
   internalNotes: z.string().optional(),
@@ -92,7 +94,7 @@ export default function AddSalesRep() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [managerSearch, setManagerSearch] = useState("");
-  
+   const [owners, setOwners] = useState([]);
   // File Upload States
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [profileImage, setProfileImage] = useState<File | null>(null);
@@ -111,6 +113,21 @@ export default function AddSalesRep() {
     }
   });
 
+
+
+   useEffect(() => {
+       const fetchOwners = async () => {
+         try {
+           const res = await getSalesEmployees(auth?.slug);
+           setOwners(res.data.data);
+         } catch (err) {
+           console.log(err);
+         }
+       };
+   
+       fetchOwners();
+     }, []);
+     
   // Generate ID on mount or load data if edit mode
   useEffect(() => {
     if (isEditMode && id && auth?.slug) {
@@ -121,8 +138,8 @@ export default function AddSalesRep() {
             const data = res.data;
             reset({
               ...data,
-              employeeId: data.employeeCode,
-              mobileNumber: data.phone,
+              // employeeId: data.employeeCode,
+              // mobileNumber: data.phone,
               salesTerritory: data.territory,
               employmentStatus: data.status,
             });
@@ -136,16 +153,16 @@ export default function AddSalesRep() {
       };
       fetchRep();
     } else {
-      if (!isEditMode) {
-        const newId = `SR-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-        setValue("employeeId", newId);
-      }
+      // if (!isEditMode) {
+      //   const newId = `SR-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      //   setValue("employeeId", newId);
+      // }
     }
   }, [isEditMode, id, auth?.slug, reset, setValue]);
 
   // Live Watches for Summary Card and Conditional Rendering
-  const wEmpId = watch("employeeId");
-  const wFullName = watch("fullName");
+  // const wEmpId = watch("employeeId");
+  // const wFullName = watch("fullName");
   const wDesignation = watch("designation");
   const wTeam = watch("team");
   const wTerritory = watch("salesTerritory");
@@ -153,8 +170,8 @@ export default function AddSalesRep() {
   const wStatus = watch("employmentStatus");
   
   const wSalesTargetEnabled = watch("salesTargetEnabled");
-  const wLoginAccessEnabled = watch("loginAccessEnabled");
-  const wReportingManager = watch("reportingManager");
+  // const wLoginAccessEnabled = watch("loginAccessEnabled");
+  // const wReportingManager = watch("reportingManager");
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth?.slug],
@@ -185,18 +202,18 @@ export default function AddSalesRep() {
     }
   };
 
-  const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const validDocs = Array.from(e.target.files).filter(f => 
-        ["application/pdf", "image/jpeg", "image/png"].includes(f.type)
-      );
-      setDocuments([...documents, ...validDocs]);
-    }
-  };
+  // const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files) {
+  //     const validDocs = Array.from(e.target.files).filter(f => 
+  //       ["application/pdf", "image/jpeg", "image/png"].includes(f.type)
+  //     );
+  //     setDocuments([...documents, ...validDocs]);
+  //   }
+  // };
 
-  const removeDoc = (index: number) => {
-    setDocuments(documents.filter((_, i) => i !== index));
-  };
+  // const removeDoc = (index: number) => {
+  //   setDocuments(documents.filter((_, i) => i !== index));
+  // };
 
   /* ── Submit Handler ── */
   const onSubmit = async (data: SalesRepFormValues) => {
@@ -204,8 +221,8 @@ export default function AddSalesRep() {
     try {
       const payload = {
         ...data,
-        employeeCode: data.employeeId,
-        phone: data.mobileNumber,
+        // employeeCode: data.employeeId,
+        // phone: data.mobileNumber,
         territory: data.salesTerritory,
         status: data.employmentStatus
       };
@@ -258,7 +275,7 @@ export default function AddSalesRep() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* 1. Basic Information */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               1. Basic Information
@@ -325,10 +342,10 @@ export default function AddSalesRep() {
                 </FormRow>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 2. Contact Information */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+         {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               2. Contact Information
@@ -365,17 +382,41 @@ export default function AddSalesRep() {
                 </FormRow>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 3. Employment Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
-              3. Employment Information
+              1. Employment Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormRow label="Employee Type">
+
+                  <FormRow label="Member" required>
+  <select
+    {...register("memberId")}
+    className="select select-bordered w-full"
+  >
+    <option value="">- Select Member -</option>
+    {owners?.map((member) => (
+      <option key={member._id} value={member._id}>
+        {member.name} 
+      </option>
+    ))}
+  </select>
+</FormRow>
+
+                                <FormRow label="Designation" required error={errors.designation?.message}>
+                  <select {...register("designation")} className={`select select-bordered w-full ${errors.designation ? 'select-error' : ''}`}>
+                    <option value="">-Select-</option>
+                    <option>Sales Executive</option>
+                    <option>Senior Sales Executive</option>
+                    <option>Team Lead</option>
+                    <option>Sales Manager</option>
+                  </select>
+                </FormRow>
+                {/* <FormRow label="Employee Type">
                   <select {...register("employeeType")} className="select select-bordered w-full">
                     <option value="">-Select-</option>
                     <option>Full Time</option><option>Part Time</option><option>Contract</option><option>Freelancer</option>
@@ -385,7 +426,7 @@ export default function AddSalesRep() {
                   <select {...register("employmentStatus")} className="select select-bordered w-full">
                     <option>Active</option><option>On Leave</option><option>Resigned</option><option>Terminated</option>
                   </select>
-                </FormRow>
+                </FormRow> */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Sales Territory">
@@ -426,7 +467,7 @@ export default function AddSalesRep() {
           </div>
 
           {/* 4. Banking Information */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               4. Banking Information
@@ -439,11 +480,11 @@ export default function AddSalesRep() {
                 <FormRow label="UPI ID"><input {...register("upiId")} className="input input-bordered w-full" /></FormRow>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 5. Documents & 6. Profile Photo (Side by side wrapper) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* 5. Documents */}
+          {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
             <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
               <input type="checkbox" defaultChecked />
               <div className="collapse-title text-lg font-semibold border-b border-base-200">5. Documents</div>
@@ -469,7 +510,6 @@ export default function AddSalesRep() {
               </div>
             </div>
 
-            {/* 6. Profile Photo */}
             <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
               <input type="checkbox" defaultChecked />
               <div className="collapse-title text-lg font-semibold border-b border-base-200">6. Profile Photo</div>
@@ -491,13 +531,13 @@ export default function AddSalesRep() {
                 <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" ref={fileInputRef} onChange={handleProfileImageChange} />
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 7. Performance Settings */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
-              7. Performance Settings
+              2. Performance Settings
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Sales Target Enabled">
@@ -534,7 +574,7 @@ export default function AddSalesRep() {
           </div>
 
           {/* 8. Login & Access */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               8. Login & Access
@@ -567,13 +607,13 @@ export default function AddSalesRep() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* 9. Notes */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
-              9. Notes
+              3. Notes
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Internal Notes">
@@ -602,15 +642,15 @@ export default function AddSalesRep() {
                 </div>
               </div>
 
-              <div>
+              {/* <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Employee ID</span>
                 <p className="font-mono text-primary font-bold mt-1">{wEmpId || "Pending..."}</p>
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Name</span>
                 <p className="font-medium text-base-content mt-1 truncate">{wFullName || "—"}</p>
-              </div>
+              </div> */}
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Designation</span>
