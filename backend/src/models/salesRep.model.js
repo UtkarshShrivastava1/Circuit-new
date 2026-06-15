@@ -5,7 +5,7 @@ const salesRepSchema = new mongoose.Schema({
     type: String, 
     required: true,
     index: true
-  },
+  }, 
   
   // 1. Basic Info
   employeeId: { type: String, required: true }, // Maps to employeeCode on frontend
