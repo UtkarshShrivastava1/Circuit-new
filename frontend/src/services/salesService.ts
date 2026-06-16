@@ -46,3 +46,8 @@ export const updateContact = (slug:string, contactId:string , data:any) => {
 export const deleteContact = (slug:string, contactId:string) => {
   return API.delete(`/contacts/${slug}/delete/${contactId}`);
 }
+
+// Inside f:\Projects\REACT_PROJECT\Circuit-new\frontend\src\services\salesService.ts
+export const getSalesDashboardData =  (slug: string) => {
+  return  API.get(`sales/${slug}/dashboard`);
+};

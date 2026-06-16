@@ -30,6 +30,7 @@ const caseRoutes = require("./routes/case.routes.js");
 const leadRoutes = require("./routes/lead.routes.js");
 const accountRoutes = require("./routes/account.routes.js");
 const contactRoutes = require("./routes/contact.routes.js");
+const salesDashboard = require("./routes/salesRoutes.js")
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -87,6 +88,7 @@ app.use('/api/leads', leadRoutes);
 app.use('/api/reps', salesRepRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/tasks', salesTaskRoutes);
+app.use('/api/sales/' ,salesDashboard )
 
 
 

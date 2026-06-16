@@ -11,7 +11,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { MdRefresh, MdBarChart, MdShare, MdSort } from "react-icons/md";
+import { MdRefresh, MdBarChart, MdShare, MdSort, MdError } from "react-icons/md";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/auth/AuthContext";
+import { getSalesDashboardData } from "@/services/salesService";
 
 /* ─────────────────────────── types ─────────────────────────── */
 interface StatCard {
@@ -218,14 +221,52 @@ function SalesChartCard({
 
 /* ─────────────────────────── main component ────────────────── */
 export default function SalesDashboard({
-  stats = defaultStats,
-  salesByProduct,
-  salesByEmployee,
-  salesByRegion,
-  weeklySales,
-  detailedForecast,
-  briefForecast,
+  stats: propStats,
+  salesByProduct: propSalesByProduct,
+  salesByEmployee: propSalesByEmployee,
+  salesByRegion: propSalesByRegion,
+  weeklySales: propWeeklySales,
+  detailedForecast: propDetailedForecast,
+  briefForecast: propBriefForecast,
 }: SalesDashboardProps) {
+  const { auth } = useAuth();
+  const slug = auth?.slug;
+
+  const { data: response, isLoading, isError, refetch } = useQuery({
+    queryKey: ["salesDashboard", slug],
+    queryFn: () => getSalesDashboardData(slug!),
+    enabled: !!slug,
+  });
+
+  const dashboardData = response?.data?.data || response?.data || {};
+
+  const stats = propStats || dashboardData.stats || defaultStats;
+  const salesByProduct = propSalesByProduct || dashboardData.salesByProduct;
+  const salesByEmployee = propSalesByEmployee || dashboardData.salesByEmployee;
+  const salesByRegion = propSalesByRegion || dashboardData.salesByRegion;
+  const weeklySales = propWeeklySales || dashboardData.weeklySales;
+  const detailedForecast = propDetailedForecast || dashboardData.detailedForecast;
+  const briefForecast = propBriefForecast || dashboardData.briefForecast;
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-100px)] bg-base-200">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-base-content/60 font-medium">Loading Dashboard Data...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-[calc(100vh-100px)] bg-base-200">
+        <MdError size={48} className="text-error mb-4" />
+        <p className="text-base-content/60 font-medium">Failed to load dashboard data.</p>
+        <button onClick={() => refetch()} className="btn btn-outline btn-sm mt-4">Try Again</button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-base-200">
       {/* ── top padding spacer (topbar is fixed in your layout) ── */}
