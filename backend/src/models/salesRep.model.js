@@ -8,30 +8,35 @@ const salesRepSchema = new mongoose.Schema({
   }, 
   
   // 1. Basic Info
-  employeeId: { type: String, required: true }, // Maps to employeeCode on frontend
-  fullName: { type: String, required: true },
-  displayName: { type: String },
-  gender: { type: String },
-  dob: { type: Date },
-  joiningDate: { type: Date, required: true },
+  // employeeId: { type: String, required: true }, // Maps to employeeCode on frontend
+  // fullName: { type: String, required: true },
+  // displayName: { type: String },
+  // gender: { type: String },
+  // dob: { type: Date },
+  // joiningDate: { type: Date, required: true },
+  memberId:{
+ type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  required: true,
+  },
   designation: { type: String, required: true },
-  reportingManager: { type: String },
+  // reportingManager: { type: String },
   
   // 2. Contact Info
-  mobileNumber: { type: String, required: true }, // Maps to phone on frontend
-  altMobileNumber: { type: String },
-  email: { type: String, required: true },
-  altEmail: { type: String },
-  addressLine1: { type: String },
-  addressLine2: { type: String },
-  city: { type: String },
-  state: { type: String },
-  country: { type: String },
-  postalCode: { type: String },
+  // mobileNumber: { type: String, required: true }, // Maps to phone on frontend
+  // altMobileNumber: { type: String },
+  // email: { type: String, required: true },
+  // altEmail: { type: String },
+  // addressLine1: { type: String },
+  // addressLine2: { type: String },
+  // city: { type: String },
+  // state: { type: String },
+  // country: { type: String },
+  // postalCode: { type: String },
 
   // 3. Employment Info
-  employeeType: { type: String },
-  employmentStatus: { type: String, default: "Active" }, // Maps to status on frontend
+  // employeeType: { type: String },
+  // employmentStatus: { type: String, default: "Active" }, 
   salesTerritory: { type: String }, // Maps to territory on frontend
   team: { type: String },
   commissionPercentage: { type: Number, default: 0 },
@@ -47,10 +52,10 @@ const salesRepSchema = new mongoose.Schema({
   revenueGenerated: { type: Number, default: 0 },
 
   // 4. Banking Info
-  bankName: { type: String },
-  accountNumber: { type: String },
-  ifscCode: { type: String },
-  upiId: { type: String },
+  // bankName: { type: String },
+  // accountNumber: { type: String },
+  // ifscCode: { type: String },
+  // upiId: { type: String },
 
   // 5. Performance Settings
   salesTargetEnabled: { type: Boolean, default: false },
@@ -60,18 +65,18 @@ const salesRepSchema = new mongoose.Schema({
   incentiveScheme: { type: String },
 
   // 6. Login & Access
-  loginAccessEnabled: { type: Boolean, default: false },
-  username: { type: String },
-  userRole: { type: String },
-  permissions: [{ type: String }],
+  // loginAccessEnabled: { type: Boolean, default: false },
+  // username: { type: String },
+  // userRole: { type: String },
+  // permissions: [{ type: String }],
 
   // 7. Notes
   internalNotes: { type: String },
   remarks: { type: String },
 
   // 8. Uploads
-  profileImage: { type: String }, // Maps to avatarUrl on frontend
-  documents: [{ type: String }],
+  // profileImage: { type: String }, // Maps to avatarUrl on frontend
+  // documents: [{ type: String }],
 
 }, { timestamps: true });
 

@@ -57,11 +57,18 @@ export const getSalesTaskById = async (id: string, slug: string) => {
 };
 
 export const updateSalesTask = async (id: string, payload: Partial<SalesTask>, slug: string) => {
-  const response = await API.put(`/tasks/${slug}/sales-tasks/${id}`, payload);
+  const response = await API.put(`/tasks/${slug}/${id}`, payload);
   return response.data;
 };
 
 export const deleteSalesTask = async (id: string, slug: string) => {
   const response = await API.delete(`/tasks/${slug}/sales-tasks/${id}`);
+  return response.data;
+};
+
+export const getSalesTaskByEmpId = async(slug:string,params:any) => {
+  const response=await API.get(`/tasks/${slug}/get-task-by-empId`, {
+    params,
+  });
   return response.data;
 };

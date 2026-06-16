@@ -82,3 +82,77 @@ exports.deleteSalesTask = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete sales task" });
   }
 };
+
+// exports.getSalesTaskByEmpId=async(req,res)=>{
+//   try{
+//    const tenantId=req.organization._id;
+//    const userId=req.user._id;
+//    const task=SalesTask.find({ assignedTo:userId,organization:tenantId});
+//    res.status(200).json({
+//     success:true,
+//     task
+//    })
+
+//   }catch(error){
+//        res.status(500).json({
+//         success:false
+//        })
+//   }
+// }
+
+
+exports.getSalesTaskByEmpId = async (req, res) => {
+
+  console.log("USER:", req.user);
+console.log("ORG:", req.organization);
+console.log("SLUG:", req.params.slug);
+  try {
+   const tenantId = req.user.tenantId;
+    const userId = req.user._id;
+    console.log(tenantId,userId);
+    const { status, priority, filter } = req.query;
+
+    let query = {
+      assignedTo: userId,
+      organization: tenantId,
+    };
+
+    // Pending filter
+    if (status) {
+      query.status = status;
+    }
+
+    // High Priority filter
+    if (priority) {
+      query.priority = priority;
+    }
+
+    // Today filter
+    if (filter === "today") {
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+
+      query.dueDate = {
+        $gte: startOfDay,
+        $lte: endOfDay,
+      };
+    }
+
+    const tasks = await SalesTask.find(query).sort({ dueDate: 1 });
+
+    res.status(200).json({
+      success: true,
+      tasks,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};

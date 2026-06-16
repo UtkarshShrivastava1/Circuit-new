@@ -55,7 +55,7 @@ import type { ColumnConfig } from "@/type/importExport.types";
 
 const salesRepColumns: ColumnConfig[] = [
   { key: "employeeCode", label: "Employee Code", required: true, type: "string" },
-  { key: "fullName", label: "Full Name", required: true, type: "string" },
+  { key: "name", label: "Full Name", required: true, type: "string" },
   { key: "email", label: "Email", required: true, type: "email" },
   { key: "phone", label: "Phone", required: true, type: "string" },
   { key: "designation", label: "Designation", type: "string" },
@@ -101,11 +101,15 @@ export default function AllSalesReps() {
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
-  
+  console.log(data)
   const reps = useMemo(() => {
     return (data?.data || []).map((r: any) => ({
       ...r,
       id: r._id || r.id,
+      name:r.memberId?.name,
+      email:r.memberId?.email,
+      phone:r.memberId?.phone,
+      joiningDate:r.memberId?.joiningDate,
       status: r.status || r.employmentStatus || "Active",
       achievement: r.achievement || r.monthlyAchievement || 0,
       monthlyTarget: r.monthlyTarget || 0,
@@ -247,17 +251,24 @@ export default function AllSalesReps() {
         <input type="checkbox" className="checkbox checkbox-sm checkbox-primary" checked={row.getIsSelected()} onChange={row.getToggleSelectedHandler()} onClick={(e) => e.stopPropagation()} />
       ),
     }),
-    columnHelper.accessor("fullName", {
+    columnHelper.accessor("name", {
       header: "Representative",
       cell: (info) => (
         <div className="flex items-center gap-3">
           <div className="avatar placeholder">
             <div className="bg-primary text-primary-content rounded-full w-10 h-10 border border-primary/20 flex items-center justify-center font-bold">
+            
               {info.row.original.avatarUrl ? (
-                <img src={info.row.original.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span>{info.getValue().charAt(0)}</span>
-              )}
+    <img
+      src={info.row.original.avatarUrl}
+      alt="Avatar"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span>
+      {info.row.original.name?.charAt(0).toUpperCase()}
+    </span>
+  )}
             </div>
           </div>
           <div>
@@ -270,10 +281,10 @@ export default function AllSalesReps() {
         </div>
       ),
     }),
-    columnHelper.accessor("employeeCode", {
-      header: "Code",
-      cell: (info) => <span className="font-mono text-xs font-semibold">{info.getValue()}</span>,
-    }),
+    // columnHelper.accessor("employeeCode", {
+    //   header: "Code",
+    //   cell: (info) => <span className="font-mono text-xs font-semibold">{info.getValue()}</span>,
+    // }),
     columnHelper.accessor("designation", {
       header: "Role",
       cell: (info) => <span className="badge badge-sm badge-ghost font-medium">{info.getValue()}</span>,
@@ -638,12 +649,12 @@ export default function AllSalesReps() {
               <div className="flex items-center gap-4">
                 <div className="avatar placeholder">
                   <div className="bg-primary text-primary-content rounded-full w-14 h-14 text-xl font-bold shadow-sm">
-                    {selectedRep?.avatarUrl ? <img src={selectedRep.avatarUrl} alt="Profile" /> : <span className="flex items-center justify-center mt-2.5">{selectedRep?.fullName?.[0]}</span>}
+                    {selectedRep?.avatarUrl ? <img src={selectedRep.avatarUrl} alt="Profile" /> : <span className="flex items-center justify-center mt-2.5">{selectedRep?.name?.[0]}</span>}
                   </div>
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-base-content leading-tight flex items-center gap-2">
-                    {selectedRep?.fullName}
+                    {selectedRep?.name}
                     {selectedRep?.isTopPerformer && <MdCheckCircle className="text-success" title="Top Performer" />}
                   </h2>
                   <p className="text-sm font-medium text-base-content/60 mt-0.5">{selectedRep?.designation} • {selectedRep?.team}</p>
@@ -687,10 +698,10 @@ export default function AllSalesReps() {
             <section>
               <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-4 flex items-center gap-2"><MdAssignmentInd /> Employee Information</h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                <div><p className="text-base-content/50 mb-1">Employee Code</p><span className="font-mono font-semibold text-primary">{selectedRep?.employeeCode}</span></div>
+                {/* <div><p className="text-base-content/50 mb-1">Employee Code</p><span className="font-mono font-semibold text-primary">{selectedRep?.employeeCode}</span></div> */}
                 <div><p className="text-base-content/50 mb-1">Status</p><span className="badge badge-sm badge-success text-white font-medium">{selectedRep?.status}</span></div>
                 <div><p className="text-base-content/50 mb-1">Territory</p><p className="font-medium">{selectedRep?.territory}</p></div>
-                <div><p className="text-base-content/50 mb-1">Manager</p><p className="font-medium">{selectedRep?.reportingManager}</p></div>
+                {/* <div><p className="text-base-content/50 mb-1">Manager</p><p className="font-medium">{selectedRep?.reportingManager}</p></div> */}
                 <div><p className="text-base-content/50 mb-1">Joined Date</p><p className="font-medium">{selectedRep?.joiningDate ? selectedRep.joiningDate.split('T')[0] : "—"}</p></div>
               </div>
             </section>
