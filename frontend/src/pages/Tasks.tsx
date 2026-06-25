@@ -158,28 +158,28 @@ export default function TaskDashboard() {
         <StatCard
           title="Total Tasks"
           value={tasks.length}
-          icon={<MdAssignment size={22} />}
+          icon={<MdAssignment size={20} />}
         />
 
         <StatCard
           title="Pending"
           value={tasks.filter((t) => t.status === "pending").length}
           variant="warning"
-          icon={<MdHourglassEmpty size={22} />}
+          icon={<MdHourglassEmpty size={20} />}
         />
 
         <StatCard
           title="In Progress"
           value={tasks.filter((t) => t.status === "in-progress").length}
           variant="info"
-          icon={<MdAutorenew size={22} />}
+          icon={<MdAutorenew size={20} />}
         />
 
         <StatCard
           title="Completed"
           value={tasks.filter((t) => t.status === "completed").length}
           variant="success"
-          icon={<MdCheckCircle size={22} />}
+          icon={<MdCheckCircle size={20} />}
         />
 
         <StatCard
@@ -191,7 +191,7 @@ export default function TaskDashboard() {
             }).length
           }
           variant="error"
-          icon={<MdErrorOutline size={22} />}
+          icon={<MdErrorOutline size={20} />}
         />
       </section>
 
@@ -234,7 +234,7 @@ export default function TaskDashboard() {
 
       {/* ================= FILTER + VIEW ================= */}
 
-<section className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+<section className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
   <TaskFilters value={activeFilter} onChange={setActiveFilter} />
 
   <div className="flex flex-wrap gap-2 w-full lg:w-auto">
@@ -257,7 +257,7 @@ export default function TaskDashboard() {
         className={`${active === "table" ? "text-white" : "text-base-content border-base-content"}`}
         onClick={() => setActive("table")}
       >
-        <MdViewList size={18} className="mr-1" />
+        <MdViewList size={15} className="mr-1" />
         Table
       </Button>
 
@@ -267,7 +267,7 @@ export default function TaskDashboard() {
         className={`${active === "kanban" ? "text-white" : "text-base-content border-base-content"}`}
         onClick={() => setActive("kanban")}
       >
-        <MdDashboard size={18} className="mr-1" />
+        <MdDashboard size={15} className="mr-1" />
         Kanban
       </Button>
     </div>
@@ -277,7 +277,7 @@ export default function TaskDashboard() {
 
       {/* ================= CONTENT ================= */}
 
-      <section className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-5">
+      <section className="bg-base-100 border border-base-300 rounded-xl p-2 sm:p-4">
         {filteredTasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <EmptyState

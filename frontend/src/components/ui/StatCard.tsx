@@ -140,7 +140,7 @@ export default function StatCard({
         border
         ${variantClass}
         rounded-xl
-        p-3 sm:p-4
+        p-1 sm:p-2
         shadow-sm
         hover:shadow-md
         transition-all
@@ -148,7 +148,7 @@ export default function StatCard({
       `}
     >
       {/* TOP */}
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between ">
         <p className="text-xs sm:text-sm font-bold text-black tracking-wide break-words">
           {title}
         </p>
@@ -157,7 +157,7 @@ export default function StatCard({
           <div
             className="
               shrink-0
-              p-2
+              p-1
               rounded-lg
               bg-primary/50
               text-white
@@ -173,7 +173,7 @@ export default function StatCard({
       {/* VALUE */}
       <p
         className={`
-          text-lg text-black sm:text-2xl
+          text-lg text-black sm:text-xl
           font-semibold
           mt-2 sm:mt-3
           break-words

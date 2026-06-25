@@ -353,8 +353,8 @@ export default function AllOrders() {
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">All Orders</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">All Orders</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -397,7 +397,7 @@ export default function AllOrders() {
           { label: "Cancelled", value: stats.cancelled, color: "text-error" },
           { label: "Avg Value", value: `₹${stats.aov.toFixed(0)}`, color: "text-base-content" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm">
+          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-3 flex flex-col justify-center items-center shadow-sm">
             <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>
             <span className="text-xs text-base-content/60 mt-1 text-center font-medium uppercase">{stat.label}</span>
           </div>
@@ -455,7 +455,7 @@ export default function AllOrders() {
         {/* View 1: Table */}
         {view === "table" && (
           <div className="flex-1 overflow-auto">
-            <table className="table table-pin-rows table-pin-cols w-full text-sm">
+            <table className="table table-sm table-pin-rows table-pin-cols w-full text-sm">
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">

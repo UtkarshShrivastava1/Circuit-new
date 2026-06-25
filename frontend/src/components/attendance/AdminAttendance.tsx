@@ -376,46 +376,46 @@ const AdminAttendance = () => {
       <>
         {/* TABS */}
         <div className="mb-5 mt-4">
-          <div className="bg-base-200 p-1 rounded-lg hidden md:inline-flex gap-1">
+          <div className="bg-base-200 p-0.5 rounded-lg hidden md:inline-flex gap-1">
             {/* MARK */}
             <button
               onClick={() => setActiveTab("mark")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "mark"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
             >
-              <Clock size={16} />
+              <Clock size={14} />
               Mark Attendance
             </button>
 
             {/* RECORDS */}
             <button
               onClick={() => setActiveTab("records")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "records"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
             >
-              <NotepadText size={16} />
+              <NotepadText size={14} />
               Records
             </button>
 
             {/* SUMMARY */}
             <button
               onClick={() => setActiveTab("summary")}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "summary"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
             >
-              <Clock size={16} />
+              <Clock size={14} />
               Attendance Summary
             </button>
           </div>
@@ -460,8 +460,8 @@ const AdminAttendance = () => {
                 </div>
               </div>
             </div> */}
-            <div className="hidden md:flex flex-col gap-3  border border-primary/20 shadow-sm rounded-xl p-3 bg-primary/10">
-              <h3 className="text-sm font-semibold text-base-content/60 uppercase tracking-wide">
+            <div className="hidden md:flex flex-col gap-2  border border-primary/20 shadow-sm rounded-xl p-2.5 bg-primary/10">
+              <h3 className="text-xs font-semibold text-base-content/60 uppercase tracking-wide">
                 Filter Records
               </h3>
 
@@ -514,10 +514,10 @@ const AdminAttendance = () => {
             {/* 🔽 SUMMARY CARDS */}
             <AttendanceSummaryCards summary={monthlySummary} />
             {/* 🔽 FILTER BAR */}
-            <div className="flex flex-wrap gap-3 items-end bg-primary/70 border border-base-300 p-4 rounded-xl text-base-content">
+            <div className="flex flex-wrap gap-2 items-end bg-primary/70 border border-base-300 p-1.5 rounded-md text-base-content">
               {/* Month */}
               <select
-                className="select select-bordered border-2 border-base-300"
+                className="select select-sm select-bordered border-2 border-base-300"
                 value={summaryFilters.month}
                 onChange={(e) =>
                   setSummaryFilters((prev) => ({
@@ -548,7 +548,7 @@ const AdminAttendance = () => {
 
               {/* Year */}
               <select
-                className="select select-bordered border-2 border-base-300"
+                className="select select-sm select-bordered border-2 border-base-300"
                 value={summaryFilters.year}
                 onChange={(e) =>
                   setSummaryFilters((prev) => ({
@@ -575,7 +575,7 @@ const AdminAttendance = () => {
                     name: e.target.value,
                   }))
                 }
-                className="input input-bordered border-2 border-base-300 flex-1"
+                className="input input-sm input-bordered border-2 border-base-300 flex-1"
               />
             </div>
 
@@ -589,7 +589,7 @@ const AdminAttendance = () => {
           </div>
         )}
         {activeTab === "mark" && (
-          <div className="mt-4">
+          <div className="mt-3">
             <AttendanceTable
               records={todayRecords}
               role={role}

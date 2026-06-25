@@ -386,7 +386,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   /* ── nav link class helper ── */
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+      "group flex items-center gap-3 rounded-md px-2.5 py-1.5 text-xs transition-all",
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content",
@@ -430,7 +430,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
   /* ── shared submenu button styles ── */
   const dropdownBtnClass = (isActive: boolean) =>
-    `relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
+    `relative flex items-center gap-3 w-full px-2.5 py-1.5 rounded-md text-xs transition-all ${
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content"
@@ -486,7 +486,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           fixed lg:static top-0 left-0 z-50
           h-screen bg-primary border-r border-base-300 flex flex-col
           transition-all duration-300 ease-in-out overflow-hidden
-          ${collapsed ? "w-20" : "w-64"}
+          ${collapsed ? "w-20" : "w-56"}
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}

@@ -433,10 +433,10 @@ const handleRowClick = (row: any) => {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">
             Contacts Management
           </h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -445,7 +445,7 @@ const handleRowClick = (row: any) => {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2 bg-base-100">
+          <button className="btn btn-outline btn-sm gap-1 bg-base-100">
             <MdDownload size={16} /> Export CSV
           </button>
           <button className="btn btn-outline btn-sm btn-square bg-base-100">
@@ -453,7 +453,7 @@ const handleRowClick = (row: any) => {
           </button>
           <button
             onClick={() => navigate("/sales/contacts/new")}
-            className="btn btn-primary btn-sm gap-2 shadow-sm"
+            className="btn btn-primary btn-sm gap-1 shadow-sm"
           >
             <MdAdd size={16} /> Add Contact
           </button>
@@ -482,13 +482,13 @@ const handleRowClick = (row: any) => {
         ].map((stat, idx) => (
           <div
             key={idx}
-            className="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+            className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>
             <span className="text-xs text-base-content/60 font-bold uppercase tracking-wider">
               {stat.label}
             </span>
-            <span className={`text-3xl font-black mt-1 ${stat.color}`}>
+            <span className={`text-2xl font-black mt-1 ${stat.color}`}>
               {stat.value}
             </span>
           </div>
@@ -588,7 +588,7 @@ const handleRowClick = (row: any) => {
       {/* ── Main Content Area ── */}
       <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
         <div className="flex-1 overflow-auto">
-          <table className="table table-pin-rows w-full text-sm">
+          <table className="table table-sm table-pin-rows w-full text-sm">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr

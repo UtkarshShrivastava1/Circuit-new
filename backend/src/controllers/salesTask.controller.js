@@ -17,6 +17,7 @@ exports.createSalesTask = async (req, res) => {
   }
 };
 
+
 exports.getSalesTasks = async (req, res) => {
   try {
     const tenantId = req.organization._id;
@@ -27,6 +28,7 @@ exports.getSalesTasks = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch sales tasks" });
   }
 };
+
 
 exports.getSalesTaskById = async (req, res) => {
   try {
@@ -44,6 +46,7 @@ exports.getSalesTaskById = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 exports.updateSalesTask = async (req, res) => {
   try {
@@ -66,6 +69,7 @@ exports.updateSalesTask = async (req, res) => {
   }
 };
 
+
 exports.deleteSalesTask = async (req, res) => {
   try {
     const tenantId = req.organization._id;
@@ -83,6 +87,7 @@ exports.deleteSalesTask = async (req, res) => {
   }
 };
 
+
 // exports.getSalesTaskByEmpId=async(req,res)=>{
 //   try{
 //    const tenantId=req.organization._id;
@@ -99,6 +104,7 @@ exports.deleteSalesTask = async (req, res) => {
 //        })
 //   }
 // }
+
 
 
 exports.getSalesTaskByEmpId = async (req, res) => {

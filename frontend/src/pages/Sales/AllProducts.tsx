@@ -541,10 +541,10 @@ export default function AllProducts({
     <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Products</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Products</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>

@@ -241,7 +241,7 @@ const isSales =
     <>
     {/* <header className="navbar bg-primary/95 backdrop-blur-md border-b border-base-300 px-4 sm:px-6 lg:pr-8 py-2 sm:py-3 sticky top-0 z-40 transition-colors"> */}
     <header className="navbar bg-primary/95 backdrop-blur-md border-b border-base-300 
-px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
+px-1 sm:px-3  sticky top-0 z-40 flex items-center justify-between">
 
       {/* ================= LEFT ================= */}
       <div className="flex items-center gap-3 min-w-0 shrink-0 lg:hidden">
@@ -254,12 +254,12 @@ px-3 sm:px-5 lg:px-8 py-2 sticky top-0 z-40 flex items-center justify-between">
             </button>
 
         {/* Logo */}
-        <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-base-100 text-primary flex items-center justify-center font-bold shrink-0 shadow-sm">
+        <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-base-100 text-primary flex items-center justify-center font-bold shrink-0 shadow-sm">
           C
         </div>
 
         {/* Hide text on very small screens */}
-        <span className="hidden sm:block text-lg font-semibold truncate text-primary-content tracking-tight">
+        <span className="hidden sm:block text-md font-semibold truncate text-primary-content tracking-tight">
           Circuit 
         </span>
       </div>

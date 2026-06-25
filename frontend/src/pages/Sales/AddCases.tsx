@@ -100,8 +100,8 @@ export default function AddCases() {
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Create Case</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Create Case</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -119,40 +119,40 @@ export default function AddCases() {
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* Left Column */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-3">
           
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">1. Case Information</div>
-            <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">1. Case Information</div>
+            <div className="collapse-content pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Case Number</span></label>
-                  <input type="text" className="input input-bordered w-full bg-base-200 font-mono font-bold text-primary" placeholder="Auto-generated" readOnly />
+                  <input type="text" className="input input-sm input-bordered w-full bg-base-200 font-mono font-bold text-primary" placeholder="Auto-generated" readOnly />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Subject *</span></label>
-                  <input {...register("subject")} className={`input input-bordered w-full ${errors.subject ? "input-error" : ""}`} placeholder="Brief summary of the issue..." />
+                  <input {...register("subject")} className={`input input-sm input-bordered w-full ${errors.subject ? "input-error" : ""}`} placeholder="Brief summary of the issue..." />
                   {errors.subject && <span className="text-error text-xs">{errors.subject.message}</span>}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Description *</span></label>
-                  <textarea {...register("description")} className={`textarea textarea-bordered w-full text-base ${errors.description ? "textarea-error" : ""}`} rows={5} placeholder="Provide detailed information about the case..."></textarea>
+                  <textarea {...register("description")} className={`textarea textarea-sm textarea-bordered w-full  ${errors.description ? "textarea-error" : ""}`} rows={5} placeholder="Provide detailed information about the case..."></textarea>
                   {errors.description && <span className="text-error text-xs">{errors.description.message}</span>}
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Case Type *</span></label>
-                  <select {...register("type")} className="select select-bordered w-full">
+                  <select {...register("type")} className="select select-sm select-bordered w-full">
                     <option value="Complaint">Complaint</option><option value="Support Request">Support Request</option><option value="Product Issue">Product Issue</option><option value="Refund Request">Refund Request</option><option value="Warranty Claim">Warranty Claim</option><option value="Escalation">Escalation</option><option value="Service Request">Service Request</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Priority *</span></label>
-                  <select {...register("priority")} className="select select-bordered w-full font-medium">
+                  <select {...register("priority")} className="select select-sm select-bordered w-full font-medium">
                     <option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option><option value="Critical">Critical</option>
                   </select>
                 </div>
@@ -162,30 +162,30 @@ export default function AddCases() {
 
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">2. Customer & Product Details</div>
-            <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">2. Customer & Product Details</div>
+            <div className="collapse-content pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Customer *</span></label>
-                  <input {...register("customer")} type="text" className={`input input-bordered w-full ${errors.customer ? "input-error" : ""}`} placeholder="Search customer..." />
+                  <input {...register("customer")} type="text" className={`input input-sm input-bordered w-full ${errors.customer ? "input-error" : ""}`} placeholder="Search customer..." />
                   {errors.customer && <span className="text-error text-xs">{errors.customer.message}</span>}
                 </div>
-                <div><label className="label py-1"><span className="label-text font-medium">Contact Person</span></label><input {...register("contactPerson")} type="text" className="input input-bordered w-full" placeholder="e.g. John Doe" /></div>
-                <div><label className="label py-1"><span className="label-text font-medium">Related Product</span></label><input {...register("product")} type="text" className="input input-bordered w-full" placeholder="Search product..." /></div>
-                <div><label className="label py-1"><span className="label-text font-medium">Related Order</span></label><input {...register("relatedOrder")} type="text" className="input input-bordered w-full" placeholder="e.g. SO-2026-..." /></div>
+                <div><label className="label py-1"><span className="label-text font-medium">Contact Person</span></label><input {...register("contactPerson")} type="text" className="input input-sm input-bordered w-full" placeholder="e.g. John Doe" /></div>
+                <div><label className="label py-1"><span className="label-text font-medium">Related Product</span></label><input {...register("product")} type="text" className="input input-sm input-bordered w-full" placeholder="Search product..." /></div>
+                <div><label className="label py-1"><span className="label-text font-medium">Related Order</span></label><input {...register("relatedOrder")} type="text" className="input input-sm input-bordered w-full" placeholder="e.g. SO-2026-..." /></div>
               </div>
             </div>
           </div>
 
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">3. Assignment & Resolution</div>
-            <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">3. Assignment & Resolution</div>
+            <div className="collapse-content pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned Representative</span></label>
                   <div className="dropdown w-full">
-                    <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">{wAssignee || "-Select Representative-"}</label>
+                    <label tabIndex={0} className="btn btn-sm btn-outline bg-base-100 justify-start font-normal w-full border-base-300">{wAssignee || "-Select Representative-"}</label>
                     <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input type="text" placeholder="Search..." className="input input-sm input-bordered w-full mb-2" value={assigneeSearch} onChange={e => setAssigneeSearch(e.target.value)} />
                       <ul className="max-h-60 overflow-y-auto">
@@ -194,15 +194,15 @@ export default function AddCases() {
                     </div>
                   </div>
                 </div>
-                <div><label className="label py-1"><span className="label-text font-medium">Due Date</span></label><input {...register("dueDate")} type="date" className="input input-bordered w-full" /></div>
-                <div className="md:col-span-2"><label className="label py-1"><span className="label-text font-medium">Initial Resolution Notes</span></label><textarea {...register("resolutionNotes")} className="textarea textarea-bordered w-full" rows={3} placeholder="Initial thoughts or proposed resolution..."></textarea></div>
+                <div><label className="label py-1"><span className="label-text font-medium">Due Date</span></label><input {...register("dueDate")} type="date" className="input input-sm input-bordered w-full" /></div>
+                <div className="md:col-span-2"><label className="label py-1"><span className="label-text font-medium">Initial Resolution Notes</span></label><textarea {...register("resolutionNotes")} className="textarea textarea-sm textarea-bordered w-full" rows={3} placeholder="Initial thoughts or proposed resolution..."></textarea></div>
               </div>
             </div>
           </div>
 
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">4. Attachments</div>
+            <div className="collapse-title text-md font-semibold border-b border-base-200">4. Attachments</div>
             <div className="collapse-content pt-5">
           <div 
             className="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
@@ -210,7 +210,7 @@ export default function AddCases() {
             onDrop={handleDrop}
             onClick={() => document.getElementById("file-upload")?.click()}
           >
-                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={32} />
+                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={30} />
                 <p className="text-sm text-base-content/70">Drag & drop files or click to upload</p>
                 <p className="text-xs text-base-content/50 mt-1">Allowed: PDF, DOCX, JPG, PNG.</p>
                 <input type="file" multiple className="hidden" id="file-upload" onChange={handleFileChange} accept=".pdf,.docx,.jpg,.png" />
@@ -233,14 +233,14 @@ export default function AddCases() {
         {/* Right Column Summary */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200">Case Summary</h3>
+            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">Case Summary</h3>
             <div className="space-y-4 text-sm">
-              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Priority</span><div className="mt-1"><div className={`badge ${wPriority === 'Critical' ? 'badge-error text-white' : wPriority === 'High' ? 'badge-warning' : 'badge-info text-white'} badge-lg font-bold`}>{wPriority || "Medium"}</div></div></div>
-              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Case Type</span><p className="font-medium text-base-content mt-1">{wType || "Support Request"}</p></div>
+              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Priority</span><div className="mt-1"><div className={`badge ${wPriority === 'Critical' ? 'badge-error text-white' : wPriority === 'High' ? 'badge-warning' : 'badge-info text-white'} badge-sm font-bold`}>{wPriority || "Medium"}</div></div></div>
+              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Case Type</span><p className="font-medium  text-base-content mt-1">{wType || "Support Request"}</p></div>
               <div><span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span><p className="font-medium text-base-content mt-1">{wCustomer || "Not specified"}</p></div>
               <div><span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span><p className="font-medium text-base-content mt-1">{wAssignee || "Unassigned"}</p></div>
             </div>
-            <div className="mt-6 pt-4 border-t border-base-200"><button type="submit" disabled={isSubmitting} className="btn btn-primary w-full shadow-md">{isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : <><MdSave size={18} /> Create Case</>}</button></div>
+            <div className="mt-6 pt-3 border-t border-base-200"><button type="submit" disabled={isSubmitting} className="btn btn-primary w-full shadow-md">{isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : <><MdSave size={18} /> Create Case</>}</button></div>
           </div>
         </div>
       </form>

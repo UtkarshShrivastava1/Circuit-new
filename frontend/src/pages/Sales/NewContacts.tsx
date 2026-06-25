@@ -244,8 +244,8 @@ export default function NewContact() {
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Create New Contact</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Create New Contact</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -264,36 +264,36 @@ export default function NewContact() {
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* ── Left Column (Form Sections) ── */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-3">
           
           {/* 1. Personal Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               1. Personal Information
             </div>
-            <div className="collapse-content pt-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+            <div className="collapse-content pt-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-3">
                 <label className="text-sm font-medium text-base-content/80 pt-2.5">Name <span className="text-error">*</span></label>
                 <div className="flex gap-3">
                   <div className="flex-1">
-                    <input {...register("firstName")} className={`input input-bordered w-full ${errors.firstName ? 'input-error' : ''}`} placeholder="First Name" />
+                    <input {...register("firstName")} className={`input input-sm input-bordered w-full ${errors.firstName ? 'input-error' : ''}`} placeholder="First Name" />
                     {errors.firstName && <p className="text-xs text-error mt-1">{errors.firstName.message}</p>}
                   </div>
                   <div className="flex-1">
-                    <input {...register("lastName")} className={`input input-bordered w-full ${errors.lastName ? 'input-error' : ''}`} placeholder="Last Name" />
+                    <input {...register("lastName")} className={`input input-sm input-bordered w-full ${errors.lastName ? 'input-error' : ''}`} placeholder="Last Name" />
                     {errors.lastName && <p className="text-xs text-error mt-1">{errors.lastName.message}</p>}
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormRow label="Gender">
-                  <select {...register("gender")} className="select select-bordered w-full">
+                  <select {...register("gender")} className="select select-sm select-bordered w-full">
                     <option value="">-Select-</option><option>Male</option><option>Female</option><option>Other</option>
                   </select>
                 </FormRow>
                 <FormRow label="Date of Birth">
-                  <input type="date" {...register("dob")} className="input input-bordered w-full" />
+                  <input type="date" {...register("dob")} className="input input-sm input-bordered w-full" />
                 </FormRow>
               </div>
             </div>
@@ -302,20 +302,20 @@ export default function NewContact() {
           {/* 2. Contact Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               2. Contact Details
             </div>
-            <div className="collapse-content pt-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="collapse-content pt-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormRow label="Email Address" required error={errors.email?.message}>
-                  <input type="email" {...register("email")} className={`input input-bordered w-full ${errors.email ? 'input-error' : ''}`} placeholder="john@company.com" />
+                  <input type="email" {...register("email")} className={`input input-sm  input-bordered w-full ${errors.email ? 'input-error' : ''}`} placeholder="john@company.com" />
                 </FormRow>
                 <FormRow label="Alternate Email" error={errors.altEmail?.message}>
-                  <input type="email" {...register("altEmail")} className={`input input-bordered w-full ${errors.altEmail ? 'input-error' : ''}`} placeholder="alt@domain.com" />
+                  <input type="email" {...register("altEmail")} className={`input input-sm  input-bordered w-full ${errors.altEmail ? 'input-error' : ''}`} placeholder="alt@domain.com" />
                 </FormRow>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormRow label="Phone Number" required error={errors.phone?.number?.message}>
                   <div className={`flex border rounded-lg overflow-hidden ${errors.phone?.number ? 'border-error' : 'border-base-300'} focus-within:border-primary transition-colors bg-base-100`}>
                     <select {...register("phone.countryCode")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent">
@@ -327,7 +327,7 @@ export default function NewContact() {
                   </div>
                 </FormRow>
                 <FormRow label="Alt. Phone Number">
-                  <input type="tel" {...register("altPhoneNumber")} className="input input-bordered w-full" placeholder="Alternate Phone" />
+                  <input type="tel" {...register("altPhoneNumber")} className="input input-sm  input-bordered w-full" placeholder="Alternate Phone" />
                 </FormRow>
               </div>
             </div>
@@ -336,28 +336,28 @@ export default function NewContact() {
           {/* 3. Professional Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               3. Professional Information
             </div>
-            <div className="collapse-content pt-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="collapse-content pt-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <FormRow label="Company/Account">
-                  <input {...register("account")} className="input input-bordered w-full" placeholder="Company Inc." />
+                  <input {...register("account")} className="input input-sm  input-bordered w-full" placeholder="Company Inc." />
                 </FormRow>
                 <FormRow label="Department">
-                  <input {...register("department")} className="input input-bordered w-full" placeholder="Sales, IT, etc." />
+                  <input {...register("department")} className="input input-sm input-bordered w-full" placeholder="Sales, IT, etc." />
                 </FormRow>
                 <FormRow label="Designation">
-                  <input {...register("designation")} className="input input-bordered w-full" placeholder="Manager, CEO..." />
+                  <input {...register("designation")} className="input input-sm input-bordered w-full" placeholder="Manager, CEO..." />
                 </FormRow>
                 <FormRow label="Lead Source">
-                  <select {...register("leadSource")} className="select select-bordered w-full">
+                  <select {...register("leadSource")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Source-</option>
                     <option>Website</option><option>Referral</option><option>Cold Call</option>
                   </select>
                 </FormRow>
                 <FormRow label="Assigned Rep" required error={errors.assignedRep?.message}>
-                  <select {...register("assignedRep")} className={`select select-bordered w-full ${errors.assignedRep ? 'select-error' : ''}`}>
+                  <select {...register("assignedRep")} className={`select select-sm select-bordered w-full ${errors.assignedRep ? 'select-error' : ''}`}>
                     <option value="">-Select Owner-</option>
                    {owners.map((o: any) => (
                     <option key={o._id} value={o._id}>{o.name}</option>
@@ -365,7 +365,7 @@ export default function NewContact() {
                    </select>
                 </FormRow>
                 <FormRow label="Status">
-                  <select {...register("status")} className="select select-bordered w-full">
+                  <select {...register("status")} className="select select-sm select-bordered w-full">
                     <option value="Active">Active</option>
                     <option value="Inactive">Inactive</option>
                     <option value="Prospect">Prospect</option>
@@ -381,19 +381,19 @@ export default function NewContact() {
           {/* 4. Address Details */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               4. Address Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
-              <FormRow label="Address Line 1"><input {...register("address.addressLine1")} className="input input-bordered w-full" placeholder="Street address" /></FormRow>
-              <FormRow label="Address Line 2"><input {...register("address.addressLine2")} className="input input-bordered w-full" placeholder="Apt, Suite, etc." /></FormRow>
+              <FormRow label="Address Line 1"><input {...register("address.addressLine1")} className="input input-sm  input-bordered w-full" placeholder="Street address" /></FormRow>
+              <FormRow label="Address Line 2"><input {...register("address.addressLine2")} className="input input-sm  input-bordered w-full" placeholder="Apt, Suite, etc." /></FormRow>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormRow label="City"><input {...register("address.city")} className="input input-bordered w-full" /></FormRow>
-                <FormRow label="State"><input {...register("address.state")} className="input input-bordered w-full" /></FormRow>
-                <FormRow label="Postal Code"><input {...register("address.postalCode")} className="input input-bordered w-full" /></FormRow>
+                <FormRow label="City"><input {...register("address.city")} className="input input-sm  input-bordered w-full" /></FormRow>
+                <FormRow label="State"><input {...register("address.state")} className="input input-sm input-bordered w-full" /></FormRow>
+                <FormRow label="Postal Code"><input {...register("address.postalCode")} className="input input-sm input-bordered w-full" /></FormRow>
                 <FormRow label="Country">
-                  <select {...register("address.country")} className="select select-bordered w-full">
+                  <select {...register("address.country")} className="select select-sm select-bordered w-full">
                     <option value="">-Select-</option>
                     {DEFAULT_COUNTRIES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -405,9 +405,9 @@ export default function NewContact() {
         </div>
 
         {/* ── Right Column (Sidebar Summary Card) ── */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200 flex items-center gap-2"><MdPerson /> Summary</h3>
+        <div className="lg:col-span-1 space-y-3">
+          <div className="bg-base-100 border border-base-300 rounded-xl p-4 sticky top-24 shadow-sm">
+            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200 flex items-center gap-2"><MdPerson /> Summary</h3>
             
             <div className="space-y-4 text-sm">
               <div>
@@ -420,7 +420,7 @@ export default function NewContact() {
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Status</span>
                 <div className="mt-1">
-                  <div className="badge badge-primary font-bold">{wStatus || "Active"}</div>
+                  <div className="badge badge-sm badge-primary font-bold">{wStatus || "Active"}</div>
                 </div>
               </div>
 

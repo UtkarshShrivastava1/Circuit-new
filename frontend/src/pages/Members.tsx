@@ -152,10 +152,10 @@ toast.success("Member deleted successfully");
     placeholder="Search members..."
     value={search}
     onChange={(e) => setSearch(e.target.value)}
-    className="w-full max-w-sm px-4 py-2 border border-primary/40 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 mt-3"
+    className="w-full text-sm max-w-sm px-3 py-1 border border-primary/40 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 mt-3"
   />
 </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
         {paginatedMembers.map((member) => (
           <MemberCard key={member._id} member={member} isAdmin={true} onDelete={handleDelete} />
         ))}

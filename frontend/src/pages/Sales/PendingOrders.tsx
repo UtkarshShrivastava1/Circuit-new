@@ -415,10 +415,10 @@ export default function PendingOrders() {
     <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
       
       {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Pending Orders</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Pending Orders</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -474,7 +474,7 @@ export default function PendingOrders() {
           { label: "To Dispatch", value: stats.awaitingDispatch, color: "text-secondary" },
           { label: "High Priority", value: stats.highPriority, color: "text-error" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow">
+          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-3 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow">
             <span className={`text-xl font-bold ${stat.color}`}>{stat.value}</span>
             <span className="text-[10px] text-base-content/60 mt-1 text-center font-medium uppercase tracking-wider leading-tight">{stat.label}</span>
           </div>

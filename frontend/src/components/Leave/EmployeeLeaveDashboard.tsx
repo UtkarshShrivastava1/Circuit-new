@@ -272,13 +272,13 @@ if (!confirmDelete.isConfirmed) return;
    
 
 <div className="hidden md:flex mb-5 mt-2">
-  <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1 flex-wrap">
+  <div className="tab tab-sm bg-base-200 p-1 rounded-lg inline-flex gap-1 flex-wrap">
 
     {/* OVERVIEW */}
     <button
       onClick={() => setActive("overview")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "overview"
@@ -287,7 +287,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdDashboard size={16} />
+      <MdDashboard size={15} />
       Overview
     </button>
 
@@ -295,7 +295,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("my-leaves")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "my-leaves"
@@ -304,7 +304,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={15} />
       My Leaves
     </button>
 
@@ -312,7 +312,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("balance")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px]  font-medium
         transition-all duration-200
         ${
           active === "balance"
@@ -321,7 +321,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdAccountBalanceWallet size={16} />
+      <MdAccountBalanceWallet size={15} />
       Leave Balance
     </button>
 
@@ -329,7 +329,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("calendar")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "calendar"
@@ -338,7 +338,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdCalendarMonth size={16} />
+      <MdCalendarMonth size={15} />
       Leave Calendar
     </button>
 
@@ -346,7 +346,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("policy")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "policy"
@@ -355,7 +355,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdMenuBook size={16} />
+      <MdMenuBook size={15} />
       Leave Policy
     </button>
 

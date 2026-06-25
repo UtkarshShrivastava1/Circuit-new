@@ -204,62 +204,62 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
       {/* <LeaveFilters /> */}
 
       {/* TABS */}
-      <div className="hidden md:block mb-5 mt-4">
+      <div className="hidden md:block mb-4 mt-3">
   <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1">
 
     {/* REQUESTS */}
     <button
       onClick={() => setActiveTab("requests")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "requests"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={14} />
       Leave Requests
     </button>
 
     {/* HISTORY */}
     <button
       onClick={() => setActiveTab("history")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px]  font-medium transition-all duration-200
         ${
           activeTab === "history"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={14} />
       Leave History
     </button>
 
     {/* CALENDAR */}
     <button
       onClick={() => setActiveTab("calendar")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "calendar"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdCalendarMonth size={16} />
+      <MdCalendarMonth size={14} />
       Calendar
     </button>
 
     {/* POLICY */}
     <button
       onClick={() => setActiveTab("policy")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "policy"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdMenuBook size={16} />
+      <MdMenuBook size={14} />
       Policy Configuration
     </button>
 

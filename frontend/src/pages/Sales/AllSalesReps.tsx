@@ -369,8 +369,8 @@ export default function AllSalesReps() {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Sales Representatives</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Sales Representatives</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -402,7 +402,7 @@ export default function AllSalesReps() {
           { label: "Avg Conversion", value: `${stats.avgConv.toFixed(1)}%`, color: "text-secondary" },
           { label: "Total Revenue", value: `₹${(stats.totalRevenue/1000).toFixed(1)}k`, color: "text-success" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-3 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <span className={`text-xl font-black mt-1 ${stat.color}`}>{stat.value}</span>
             <span className="text-[10px] text-base-content/60 font-bold uppercase tracking-wider text-center mt-1">{stat.label}</span>
           </div>
@@ -487,7 +487,7 @@ export default function AllSalesReps() {
         {view === "table" && (
           <>
             <div className="flex-1 overflow-auto">
-              <table className="table table-pin-rows w-full text-sm">
+              <table className="table table-sm  table-pin-rows w-full text-sm">
                 <thead>
                   {table.getHeaderGroups().map(headerGroup => (
                     <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">

@@ -213,8 +213,8 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Add Sales Task</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Add Sales Task</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -238,31 +238,31 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
       <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
         {/* ── Left Column (Form Sections) ── */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-3">
           
           {/* 1. Basic Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               1. Basic Task Information
             </div>
-            <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="collapse-content pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Task Title *</span></label>
-                  <input {...register("title")} className={`input input-bordered w-full ${errors.title ? "input-error" : ""}`} placeholder="Enter task title" />
+                  <input {...register("title")} className={`input input-sm input-bordered w-full ${errors.title ? "input-error" : ""}`} placeholder="Enter task title" />
                   {errors.title && <span className="text-error text-xs">{errors.title.message}</span>}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Task Description *</span></label>
-                  <textarea {...register("description")} className={`textarea textarea-bordered w-full text-base ${errors.description ? "textarea-error" : ""}`} rows={3} placeholder="Provide task details..."></textarea>
+                  <textarea {...register("description")} className={`textarea textarea-sm textarea-bordered w-full  ${errors.description ? "textarea-error" : ""}`} rows={3} placeholder="Provide task details..."></textarea>
                   {errors.description && <span className="text-error text-xs">{errors.description.message}</span>}
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Task Type *</span></label>
-                  <select {...register("type")} className={`select select-bordered w-full ${errors.type ? "select-error" : ""}`}>
+                  <select {...register("type")} className={`select select-sm select-bordered w-full ${errors.type ? "select-error" : ""}`}>
                     <option value="">-Select Type-</option>
                     <option value="Lead Follow-up">Lead Follow-up</option>
                     <option value="Client Meeting">Client Meeting</option>
@@ -280,7 +280,7 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Task Category</span></label>
-                  <select {...register("category")} className="select select-bordered w-full">
+                  <select {...register("category")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Category-</option>
                     <option value="Pre-Sales">Pre-Sales</option>
                     <option value="Post-Sales">Post-Sales</option>
@@ -290,7 +290,7 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Priority *</span></label>
-                  <select {...register("priority")} className="select select-bordered w-full font-medium">
+                  <select {...register("priority")} className="select select-sm select-bordered w-full font-medium">
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -300,7 +300,7 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Status *</span></label>
-                  <select {...register("status")} className="select select-bordered w-full">
+                  <select {...register("status")} className="select select-sm select-bordered w-full">
                     <option value="Pending">Pending</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
@@ -315,7 +315,7 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
           {/* 2. Assignment Details */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               2. Assignment Details
             </div>
             <div className="collapse-content pt-5">
@@ -360,12 +360,12 @@ setSelectedEmployeeName(rep.memberId.name);
                 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned By</span></label>
-                  <input type="text" className="input input-bordered w-full bg-base-200" value="Current Admin User" readOnly />
+                  <input type="text" className="input input-sm  input-bordered w-full bg-base-200" value="Current Admin User" readOnly />
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Department</span></label>
-                  <input type="text" className="input input-bordered w-full bg-base-200" value="Sales" readOnly />
+                  <input type="text" className="input input-sm  input-bordered w-full bg-base-200" value="Sales" readOnly />
                 </div>
 
                 <div>
@@ -384,14 +384,14 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 3. Customer & Lead Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               3. Customer & Lead Information
             </div>
             <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Customer / Client *</span></label>
-                  <select {...register("customer")} className={`select select-bordered w-full ${errors.customer ? "select-error" : ""}`}>
+                  <select {...register("customer")} className={`select select-sm select-bordered w-full ${errors.customer ? "select-error" : ""}`}>
                     <option value="">-Search Customer-</option>
                     <option value="Zager Digital Services">Zager Digital Services</option>
                     <option value="Acme Corp">Acme Corp</option>
@@ -401,7 +401,7 @@ setSelectedEmployeeName(rep.memberId.name);
                 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Lead / Opportunity</span></label>
-                  <select {...register("lead")} className="select select-bordered w-full">
+                  <select {...register("lead")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Lead-</option>
                     <option value="ERP System Revamp">ERP System Revamp</option>
                     <option value="Bulk Order Q3">Bulk Order Q3</option>
@@ -410,18 +410,18 @@ setSelectedEmployeeName(rep.memberId.name);
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Contact Person</span></label>
-                  <input {...register("contactPerson")} type="text" className="input input-bordered w-full" placeholder="John Doe" />
+                  <input {...register("contactPerson")} type="text" className="input input-sm  input-bordered w-full" placeholder="John Doe" />
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Phone Number</span></label>
-                  <input {...register("phone")} type="tel" className={`input input-bordered w-full ${errors.phone ? "input-error" : ""}`} placeholder="+1 234 567 8900" />
+                  <input {...register("phone")} type="tel" className={`input input-sm  input-bordered w-full ${errors.phone ? "input-error" : ""}`} placeholder="+1 234 567 8900" />
                   {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Email Address</span></label>
-                  <input {...register("email")} type="email" className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`} placeholder="john@example.com" />
+                  <input {...register("email")} type="email" className={`input input-sm  input-bordered w-full ${errors.email ? "input-error" : ""}`} placeholder="john@example.com" />
                   {errors.email && <span className="text-error text-xs">{errors.email.message}</span>}
                 </div>
               </div>
@@ -431,41 +431,41 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 4. Scheduling */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               4. Scheduling
             </div>
             <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Task Creation Date</span></label>
-                  <input type="text" className="input input-bordered w-full bg-base-200" value={new Date().toLocaleDateString()} readOnly />
+                  <input type="text" className="input input-sm  input-bordered w-full bg-base-200" value={new Date().toLocaleDateString()} readOnly />
                 </div>
                 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Start Date *</span></label>
-                  <input {...register("startDate")} type="date" className={`input input-bordered w-full ${errors.startDate ? "input-error" : ""}`} />
+                  <input {...register("startDate")} type="date" className={`input input-sm  input-bordered w-full ${errors.startDate ? "input-error" : ""}`} />
                   {errors.startDate && <span className="text-error text-xs">{errors.startDate.message}</span>}
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Due Date *</span></label>
-                  <input {...register("dueDate")} type="date" className={`input input-bordered w-full ${errors.dueDate ? "input-error" : ""}`} />
+                  <input {...register("dueDate")} type="date" className={`input input-sm  input-bordered w-full ${errors.dueDate ? "input-error" : ""}`} />
                   {errors.dueDate && <span className="text-error text-xs">{errors.dueDate.message}</span>}
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Due Time</span></label>
-                  <input {...register("dueTime")} type="time" className="input input-bordered w-full" />
+                  <input {...register("dueTime")} type="time" className="input input-sm  input-bordered w-full" />
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Reminder Date & Time</span></label>
-                  <input {...register("reminderDateTime")} type="datetime-local" className="input input-bordered w-full" />
+                  <input {...register("reminderDateTime")} type="datetime-local" className="input input-sm  input-bordered w-full" />
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Follow-up Date</span></label>
-                  <input {...register("followUpDate")} type="date" className="input input-bordered w-full" />
+                  <input {...register("followUpDate")} type="date" className="input input-sm  input-bordered w-full" />
                 </div>
               </div>
             </div>
@@ -474,7 +474,7 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 5. Sales Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               5. Sales Information
             </div>
             <div className="collapse-content pt-5">
@@ -483,14 +483,14 @@ setSelectedEmployeeName(rep.memberId.name);
                   <label className="label py-1"><span className="label-text font-medium">Expected Deal Value</span></label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-base-content/50">₹</span>
-                    <input {...register("expectedDealValue")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.expectedDealValue ? "input-error" : ""}`} placeholder="0.00" />
+                    <input {...register("expectedDealValue")} type="number" step="0.01" className={`input input-sm input-bordered w-full  ${errors.expectedDealValue ? "input-error" : ""}`} placeholder="0.00" />
                   </div>
                   {errors.expectedDealValue && <span className="text-error text-xs">{errors.expectedDealValue.message}</span>}
                 </div>
                 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Opportunity Stage</span></label>
-                  <select {...register("opportunityStage")} className="select select-bordered w-full">
+                  <select {...register("opportunityStage")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Stage-</option>
                     <option value="New Lead">New Lead</option>
                     <option value="Qualified">Qualified</option>
@@ -503,18 +503,18 @@ setSelectedEmployeeName(rep.memberId.name);
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Probability (%)</span></label>
-                  <input {...register("probability")} type="number" min="0" max="100" className={`input input-bordered w-full ${errors.probability ? "input-error" : ""}`} placeholder="50" />
+                  <input {...register("probability")} type="number" min="0" max="100" className={`input input-sm  input-bordered w-full ${errors.probability ? "input-error" : ""}`} placeholder="50" />
                   {errors.probability && <span className="text-error text-xs">{errors.probability.message}</span>}
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Expected Closing Date</span></label>
-                  <input {...register("closingDate")} type="date" className="input input-bordered w-full" />
+                  <input {...register("closingDate")} type="date" className="input input-sm  input-bordered w-full" />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Sales Territory / Region</span></label>
-                  <select {...register("region")} className="select select-bordered w-full">
+                  <select {...register("region")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Region-</option>
                     <option value="North America">North America</option>
                     <option value="EMEA">EMEA</option>
@@ -529,14 +529,14 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 6. Communication Tracking */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               6. Communication Tracking
             </div>
             <div className="collapse-content pt-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Communication Type</span></label>
-                  <select {...register("communicationType")} className="select select-bordered w-full">
+                  <select {...register("communicationType")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Type-</option>
                     <option value="Call">Call</option>
                     <option value="Email">Email</option>
@@ -548,7 +548,7 @@ setSelectedEmployeeName(rep.memberId.name);
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Meeting Mode</span></label>
-                  <select {...register("meetingMode")} className="select select-bordered w-full">
+                  <select {...register("meetingMode")} className="select select-sm select-bordered w-full">
                     <option value="">-None-</option>
                     <option value="Online">Online</option>
                     <option value="Offline">Offline</option>
@@ -576,33 +576,33 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 7. Progress Tracking */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               7. Progress Tracking
             </div>
             <div className="collapse-content pt-5">
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <label className="font-medium text-sm">Progress Percentage: {watchedProgress}%</label>
                   </div>
-                  <input {...register("progress")} type="range" min="0" max="100" className="range range-primary" />
+                  <input {...register("progress")} type="range" min="0" max="100" className="range range-sm range-primary" />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="label py-1"><span className="label-text font-medium">Completion Notes</span></label>
-                    <textarea {...register("completionNotes")} className="textarea textarea-bordered w-full text-base" rows={3} placeholder="Add notes..."></textarea>
+                    <textarea {...register("completionNotes")} className="textarea textarea-sm textarea-bordered w-full " rows={3} placeholder="Add notes..."></textarea>
                   </div>
                   <div>
                     <label className="label py-1"><span className="label-text font-medium">Outcome / Result</span></label>
-                    <textarea {...register("outcome")} className="textarea textarea-bordered w-full text-base" rows={3} placeholder="Task result..."></textarea>
+                    <textarea {...register("outcome")} className="textarea textarea-bordered w-full textarea-sm" rows={3} placeholder="Task result..."></textarea>
                   </div>
                 </div>
 
                 {showDelayReason && (
                   <div>
                     <label className="label py-1"><span className="label-text font-medium text-warning">Reason For Delay</span></label>
-                    <textarea {...register("reasonForDelay")} className="textarea textarea-warning w-full text-base bg-warning/5" rows={2} placeholder="Explain why the task is on hold or delayed..."></textarea>
+                    <textarea {...register("reasonForDelay")} className="textarea textarea-warning w-full textarea-sm bg-warning/5" rows={2} placeholder="Explain why the task is on hold or delayed..."></textarea>
                   </div>
                 )}
               </div>
@@ -612,17 +612,17 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 8. Attachments */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               8. Attachments
             </div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content pt-4">
           <div 
-            className="border-2 border-dashed border-base-300 rounded-xl p-6 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
+            className="border-2 border-dashed border-base-300 rounded-xl p-5 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => document.getElementById("file-upload")?.click()}
           >
-                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={32} />
+                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={30} />
             <p className="text-sm font-medium">Drag & Drop files or click to upload</p>
             <p className="text-xs text-base-content/50 mt-1">PDF, DOCX, XLSX, JPG, PNG.</p>
                 <input type="file" multiple className="hidden" id="file-upload" onChange={handleFileChange} accept=".pdf,.docx,.xlsx,.jpg,.png" />
@@ -647,18 +647,18 @@ setSelectedEmployeeName(rep.memberId.name);
           {/* 9. Comments & Activity (Simulated Timeline) */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               9. Comments & Activity
             </div>
             <div className="collapse-content pt-5">
               {/* Timeline mockup */}
-              <ul className="timeline timeline-vertical timeline-compact mb-6">
+              <ul className="timeline  timeline-vertical timeline-compact mb-6">
                 <li>
                   <hr className="bg-primary" />
                   <div className="timeline-middle">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-primary"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
                   </div>
-                  <div className="timeline-end timeline-box">Task Created by Admin - Just now</div>
+                  <div className="timeline-end text-xs timeline-box">Task Created by Admin - Just now</div>
                   <hr />
                 </li>
                 {comments.map((c, i) => (
@@ -678,9 +678,9 @@ setSelectedEmployeeName(rep.memberId.name);
               <div className="flex gap-2 items-end">
                 <div className="flex-1">
                   <label className="label py-1"><span className="label-text font-medium">Add Comment</span></label>
-                  <textarea className="textarea textarea-bordered w-full text-sm h-12" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Type your comment..."></textarea>
+                  <textarea className="textarea textarea-sm textarea-bordered w-full  h-12" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Type your comment..."></textarea>
                 </div>
-                <button type="button" onClick={addComment} className="btn btn-primary mb-1">
+                <button type="button" onClick={addComment} className="btn btn-sm btn-primary mb-1">
                   <MdSend />
                 </button>
               </div>
@@ -693,13 +693,13 @@ setSelectedEmployeeName(rep.memberId.name);
         <div className="lg:col-span-1 space-y-4">
           
           <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200">Task Summary</h3>
+            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">Task Summary</h3>
             
             <div className="space-y-4">
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Priority</span>
                 <div className="mt-1">
-                  <div className={`badge ${wPriority === 'Urgent' ? 'badge-error' : wPriority === 'High' ? 'badge-warning' : wPriority === 'Medium' ? 'badge-info' : 'badge-success'} badge-lg font-bold`}>
+                  <div className={`badge ${wPriority === 'Urgent' ? 'badge-error' : wPriority === 'High' ? 'badge-warning' : wPriority === 'Medium' ? 'badge-info' : 'badge-success'} badge-sm font-bold`}>
                     {wPriority || "Medium"}
                   </div>
                 </div>
@@ -708,7 +708,7 @@ setSelectedEmployeeName(rep.memberId.name);
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Status</span>
                 <div className="mt-1">
-                  <div className={`badge badge-outline badge-lg font-bold`}>
+                  <div className={`badge badge-sm badge-outline  font-bold`}>
                     {watchedStatus || "Pending"}
                   </div>
                 </div>
@@ -716,17 +716,17 @@ setSelectedEmployeeName(rep.memberId.name);
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span>
-                <p className="font-medium text-base-content mt-1">{wAssignee || "Unassigned"}</p>
+                <p className="font-medium text-sm text-base-content mt-1">{wAssignee || "Unassigned"}</p>
               </div>
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span>
-                <p className="font-medium text-base-content mt-1">{wCustomer || "N/A"}</p>
+                <p className="font-medium text-sm text-base-content mt-1">{wCustomer || "N/A"}</p>
               </div>
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Expected Value</span>
-                <p className="font-medium text-success text-lg mt-1">₹{wValue ? Number(wValue).toLocaleString() : "0.00"}</p>
+                <p className="font-medium text-success text-md mt-1">₹{wValue ? Number(wValue).toLocaleString() : "0.00"}</p>
               </div>
 
               <div>

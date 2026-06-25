@@ -37,10 +37,10 @@ export default function ImportExportActions({ moduleName, columns, data, selecte
   return (
     <>
       <div className="flex gap-2">
-        <button onClick={() => setIsImportOpen(true)} className="btn btn-outline btn-sm gap-2 bg-base-100">
+        <button onClick={() => setIsImportOpen(true)} className="btn btn-outline btn-sm gap-1 bg-base-100">
           <MdFileUpload size={16} /> Import {moduleName}
         </button>
-        <button onClick={() => setIsExportOpen(true)} className="btn btn-outline btn-sm gap-2 bg-base-100">
+        <button onClick={() => setIsExportOpen(true)} className="btn btn-outline btn-sm gap-1 bg-base-100">
           <MdFileDownload size={16} /> Export
         </button>
       </div>
