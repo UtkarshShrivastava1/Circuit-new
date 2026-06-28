@@ -24,6 +24,7 @@ import {
   MdDelete,
   MdAssignmentInd,
   MdPeople,
+  MdChevronRight,
 } from "react-icons/md";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -477,13 +478,16 @@ export default function AccountsDashboard() {
           <h1 className="text-xl font-bold text-base-content tracking-tight">
             Accounts Management
           </h1>
-          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li className="text-primary">Accounts</li>
-            </ul>
-          </div>
+           <div className="mt-1 text-[13px] text-base-content/60 flex flex-wrap items-center gap-y-1">
+                                              <span>Dashboard</span>
+                                              <MdChevronRight className="mx-1 text-base-content/50" />
+                                  
+                                              <span>Sales</span>
+                                              <MdChevronRight className="mx-1 text-base-content/50" />
+                                  
+                                              
+                                                <span className="font-semibold text-primary">Accounts</span>
+                                            </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <button className="btn btn-outline btn-sm gap-1 bg-base-100">
@@ -502,7 +506,7 @@ export default function AccountsDashboard() {
       </div>
 
       {/* ── Dashboard Stats ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
           {
             label: "Total Accounts",
@@ -529,13 +533,49 @@ export default function AccountsDashboard() {
             <span className="text-xs text-base-content/60 font-bold uppercase tracking-wider">
               {stat.label}
             </span>
-            <span className={`text-2xl font-black mt-1 ${stat.color}`}>
+            <span className={`text-xl font-black mt-1 ${stat.color}`}>
               {stat.value}
             </span>
           </div>
         ))}
-      </div>
+      </div> */}
+{/* ── Dashboard Stats ── */}
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
 
+  {[
+    {
+      label: "Total Accounts",
+      value: stats.total,
+      color: "text-base-content",
+    },
+    {
+      label: "New Prospects",
+      value: stats.prospects,
+      color: "text-info",
+    },
+    {
+      label: "Total Revenue",
+      value: `$${stats.annualRevenue.toLocaleString()}`,
+      color: "text-success",
+    },
+  ].map((stat, idx) => (
+    <div
+      key={idx}
+      className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-4 flex flex-col justify-center items-center  shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+    >
+      <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>
+
+      <span className="text-[10px] sm:text-xs text-base-content/60 font-bold uppercase tracking-wider">
+        {stat.label}
+      </span>
+
+      <span className={`text-lg sm:text-xl font-black mt-1 ${stat.color}`}>
+        {stat.value}
+      </span>
+    </div>
+  ))}
+
+</div>
       {/* ── Toolbar ── */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -709,7 +749,7 @@ export default function AccountsDashboard() {
         </div>
 
         {/* Table Pagination Footer */}
-        <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
+        {/* <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
           <span className="text-base-content/60 font-medium">
             Showing {table.getRowModel().rows.length} of{" "}
             {filteredAccounts.length} accounts
@@ -746,7 +786,63 @@ export default function AccountsDashboard() {
               </button>
             </div>
           </div>
-        </div>
+        </div> */}
+
+        <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+
+  {/* Left */}
+  <span className="text-base-content/60 font-medium text-center sm:text-left">
+    Showing {table.getRowModel().rows.length} of{" "}
+    {filteredAccounts.length} accounts
+  </span>
+
+  {/* Right */}
+  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+
+    <select
+      className="select select-sm select-bordered bg-base-200 w-full sm:w-auto"
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => table.setPageSize(Number(e.target.value))}
+    >
+      {[10, 25, 50].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize}
+        </option>
+      ))}
+    </select>
+
+    <div className="join w-full sm:w-auto">
+
+      <button
+        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        «
+      </button>
+
+      <button className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none">
+        <span className="hidden sm:inline">
+          Page {table.getState().pagination.pageIndex + 1}
+        </span>
+        <span className="sm:hidden">
+          {table.getState().pagination.pageIndex + 1}
+        </span>
+      </button>
+
+      <button
+        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        »
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
       </div>
       <EntityDrawer
         open={drawerOpen}

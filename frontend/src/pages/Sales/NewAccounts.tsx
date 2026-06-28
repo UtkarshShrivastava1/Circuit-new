@@ -194,14 +194,24 @@ const payload = {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-base-content tracking-tight">Create New Account</h1>
-          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li>Accounts</li>
-              <li className="text-primary">Create Account</li>
-            </ul>
-          </div>
+       <div className="text-[13px] text-base-content/60 mt-1 font-medium min-w-0">
+  <ul className="flex flex-wrap items-center min-w-0">
+
+    <li className="whitespace-normal">Dashboard</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Sales</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Accounts</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="text-primary font-semibold break-words whitespace-normal">
+      Create Account
+    </li>
+
+  </ul>
+</div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button type="button" className="btn btn-outline btn-sm gap-2 bg-base-100" onClick={() => navigate(-1)}>

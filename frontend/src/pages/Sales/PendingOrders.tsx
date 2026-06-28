@@ -27,6 +27,7 @@ import {
   MdPayment,
   MdEdit,
   MdDelete,
+  MdChevronRight,
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useAuth } from "@/auth/AuthContext";
@@ -418,30 +419,60 @@ export default function PendingOrders() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-base-content tracking-tight">Pending Orders</h1>
-          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
+          {/* <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
               <li>Orders</li>
               <li className="font-semibold text-primary">Pending Orders</li>
             </ul>
-          </div>
+          </div> */}
+              <div className="mt-1 text-[13px] text-base-content/60 flex flex-wrap items-center gap-y-1">
+                               <span>Dashboard</span>
+                               <MdChevronRight className="mx-1 text-base-content/50" />
+                   
+                               <span>Sales</span>
+                               <MdChevronRight className="mx-1 text-base-content/50" />
+                   
+                               <span>Orders</span>
+                               <MdChevronRight className="mx-1 text-base-content/50" />
+                   
+                                 <span className="font-semibold text-primary">Pending Orders</span>
+                             </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
+      
+        {/* Import / Export */}
+        <div className="w-full lg:w-auto">
           <ImportExportActions
-            moduleName="Pending Orders"
+            moduleName="Orders"
             columns={orderColumns}
             data={filteredOrders}
             selectedData={getSelectedOrders()}
             onImportSubmit={handleImportSubmit}
           />
-          <button onClick={() => refetch()} className="btn btn-outline btn-sm btn-square">
+        </div>
+      
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+      
+          <button
+            className="btn btn-outline btn-sm w-full sm:w-auto "
+            onClick={() => refetch()}
+          >
             <MdRefresh size={16} />
           </button>
-          <button onClick={() => navigate("/sales/orders")} className="btn btn-primary btn-sm gap-2">
-            <MdAdd size={16} /> Create New Order
+      
+          <button
+            onClick={() => navigate("/sales/orders/new")}
+            className="btn btn-primary btn-sm gap-2 w-full sm:w-auto whitespace-nowrap"
+          >
+            <MdAdd size={16} />
+            <span>Create Order</span>
           </button>
+      
         </div>
+      </div>
       </div>
 
       {/* ── Active Alerts ── */}
@@ -482,7 +513,7 @@ export default function PendingOrders() {
       </div>
 
       {/* ── Toolbar ── */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
+      {/* <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative w-full md:w-72">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50" size={18} />
@@ -510,7 +541,72 @@ export default function PendingOrders() {
             <MdCalendarMonth size={18} /> Calendar
           </button>
         </div>
-      </div>
+      </div> */}
+      <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
+
+  {/* Left: Search + Filter */}
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+
+    {/* Search */}
+    <div className="relative w-full sm:w-72">
+      <MdSearch
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
+        size={18}
+      />
+      <input
+        type="text"
+        placeholder="Search orders, customers..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="input input-sm input-bordered w-full pl-9 focus:outline-none focus:border-primary"
+      />
+    </div>
+
+    {/* Filter */}
+    <button
+      onClick={() => setShowFilters(!showFilters)}
+      className={`btn btn-sm w-full sm:w-auto ${
+        showFilters ? "btn-primary" : "btn-outline"
+      } gap-2`}
+    >
+      <MdFilterList size={16} /> Filters
+    </button>
+
+  </div>
+
+  {/* Right: View Switch */}
+  <div className="flex bg-base-200 p-1 rounded-lg border justify-center items-center border-base-300 w-full lg:w-auto overflow-x-auto">
+
+    <button
+      onClick={() => setView("table")}
+      className={`btn btn-sm btn-ghost px-3 whitespace-nowrap ${
+        view === "table" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewList size={18} /> Table
+    </button>
+
+    <button
+      onClick={() => setView("kanban")}
+      className={`btn btn-sm btn-ghost px-3 whitespace-nowrap ${
+        view === "kanban" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewKanban size={18} /> Kanban
+    </button>
+
+    <button
+      onClick={() => setView("calendar")}
+      className={`btn btn-sm btn-ghost px-3 whitespace-nowrap ${
+        view === "calendar" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdCalendarMonth size={18} /> Calendar
+    </button>
+
+  </div>
+
+</div>
 
       {/* ── Advanced Filters Panel ── */}
       {showFilters && (
@@ -692,27 +788,81 @@ export default function PendingOrders() {
 
         {/* Table Pagination Footer */}
         {view === "table" && filteredOrders.length > 0 && (
-          <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
-            <span className="text-base-content/60">
-              Showing {table.getRowModel().rows.length} of {filteredOrders.length} pending orders
-            </span>
-            <div className="flex items-center gap-2">
-              <select 
-                className="select select-sm select-bordered"
-                value={table.getState().pagination.pageSize}
-                onChange={e => table.setPageSize(Number(e.target.value))}
-              >
-                {[10, 25, 50, 100].map(pageSize => (
-                  <option key={pageSize} value={pageSize}>Show {pageSize}</option>
-                ))}
-              </select>
-              <div className="join">
-                <button className="join-item btn btn-sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>«</button>
-                <button className="join-item btn btn-sm">Page {table.getState().pagination.pageIndex + 1}</button>
-                <button className="join-item btn btn-sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
-              </div>
-            </div>
-          </div>
+          // <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
+          //   <span className="text-base-content/60">
+          //     Showing {table.getRowModel().rows.length} of {filteredOrders.length} pending orders
+          //   </span>
+          //   <div className="flex items-center gap-2">
+          //     <select 
+          //       className="select select-sm select-bordered"
+          //       value={table.getState().pagination.pageSize}
+          //       onChange={e => table.setPageSize(Number(e.target.value))}
+          //     >
+          //       {[10, 25, 50, 100].map(pageSize => (
+          //         <option key={pageSize} value={pageSize}>Show {pageSize}</option>
+          //       ))}
+          //     </select>
+          //     <div className="join">
+          //       <button className="join-item btn btn-sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>«</button>
+          //       <button className="join-item btn btn-sm">Page {table.getState().pagination.pageIndex + 1}</button>
+          //       <button className="join-item btn btn-sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
+          //     </div>
+          //   </div>
+          // </div>
+
+          
+          <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+
+  {/* Left */}
+  <span className="text-base-content/60 text-center sm:text-left">
+    Showing {table.getRowModel().rows.length} of {filteredOrders.length} orders
+  </span>
+
+  {/* Right */}
+  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+
+    <select
+      className="select select-sm select-bordered w-full sm:w-auto"
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => table.setPageSize(Number(e.target.value))}
+    >
+      {[10, 25, 50, 100].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize}
+        </option>
+      ))}
+    </select>
+
+    <div className="join w-full sm:w-auto">
+      <button
+        className="join-item btn btn-sm flex-1 sm:flex-none"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        «
+      </button>
+
+      <button className="join-item btn btn-sm flex-1 sm:flex-none">
+        <span className="hidden sm:inline">
+          Page {table.getState().pagination.pageIndex + 1}
+        </span>
+        <span className="sm:hidden">
+          {table.getState().pagination.pageIndex + 1}
+        </span>
+      </button>
+
+      <button
+        className="join-item btn btn-sm flex-1 sm:flex-none"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        »
+      </button>
+    </div>
+
+  </div>
+
+</div>
         )}
       </div>
       )}

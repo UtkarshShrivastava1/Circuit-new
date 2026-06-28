@@ -62,11 +62,25 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>;
 
 /* ── Shared Component: Form Row ── */
-const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
-  <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
-    <label className="text-sm font-medium text-base-content/80 pt-2.5">
+// const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
+//   <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+//     <label className="text-sm font-medium text-base-content/80 pt-2.5">
+//       {label} {required && <span className="text-error">*</span>}
+//     </label>
+//     <div className="w-full">
+//       {children}
+//       {error && <p className="text-error text-xs mt-1">{error}</p>}
+//     </div>
+//   </div>
+// );
+
+const FormRow = ({ label, required, error, children }: any) => (
+  // <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-[180px_1fr] gap-2 lg:gap-4 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-1 sm:gap-2 lg:gap-4 items-start">
+    <label className="text-sm font-medium text-base-content/80 lg:pt-2">
       {label} {required && <span className="text-error">*</span>}
     </label>
+
     <div className="w-full">
       {children}
       {error && <p className="text-error text-xs mt-1">{error}</p>}
@@ -323,12 +337,14 @@ export default function NewProduct() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
+    // <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-base-200 p-3 sm:p-4 md:p-6 lg:p-8 font-sans">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit Product" : "Add Product"}</h1>
+          {/* <div className="text-[13px] text-base-content/60 breadcrumbs mt-1"> */}
           <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
@@ -338,7 +354,8 @@ export default function NewProduct() {
             </ul>
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        {/* <div className="flex gap-2 flex-wrap"> */}
+        <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
           <button type="button" className="btn btn-outline btn-sm gap-1" onClick={() => loadTemplate("Electronics")}>
             <MdContentCopy size={16} /> Load Template
           </button>
@@ -349,10 +366,10 @@ export default function NewProduct() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-6">
         
         {/* ── Left Column (Form Sections) ── */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 w-full">
           
           {/* 1. Basic Product Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
@@ -594,9 +611,11 @@ export default function NewProduct() {
               </div>
 
               {imagePreviews.length > 0 && (
-                <div className="flex flex-wrap gap-4 mt-4">
+                // <div className="flex flex-wrap gap-4 mt-4">
+                <div className="flex flex-wrap gap-3 sm:gap-4 mt-4">
                   {imagePreviews.map((src, idx) => (
-                    <div key={idx} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-base-300 shadow-sm">
+                    <div key={idx} className="relative group w-20 h-20
+                    sm:w-24 sm:h-24 rounded-lg overflow-hidden border border-base-300 shadow-sm">
                       <img src={src} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         type="button" 
@@ -686,7 +705,7 @@ export default function NewProduct() {
 
         {/* ── Right Column (Sidebar Summary Card) ── */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
+          <div className="bg-base-100 border border-base-300 rounded-xl p-5 lg:sticky lg:top-24 top-24 shadow-sm">
             <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">Product Summary</h3>
             
             <div className="space-y-4">
@@ -711,7 +730,7 @@ export default function NewProduct() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Selling Price</span>
-                <p className="font-medium text-success text-lg mt-1">${wSellingPrice.toLocaleString()}</p>
+<p className="font-medium text-success text-base sm:text-lg mt-1">${wSellingPrice.toLocaleString()}</p>
               </div>
 
               <div>
@@ -742,7 +761,8 @@ export default function NewProduct() {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Quick Add Brand</h3>
           <input type="text" value={newBrandInput} onChange={(e) => setNewBrandInput(e.target.value)} className="input input-bordered w-full mt-4" placeholder="Enter Brand Name" />
-          <div className="modal-action flex gap-2">
+          {/* <div className="modal-action flex gap-2"> */}
+          <div className="modal-action flex flex-col sm:flex-row gap-2">
             <form method="dialog">
               <button className="btn btn-ghost" onClick={() => setNewBrandInput("")}>Cancel</button>
             </form>

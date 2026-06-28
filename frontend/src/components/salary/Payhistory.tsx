@@ -146,7 +146,7 @@ export default function Payhistory() {
 
 
 return (
-  <div className="space-y-4 sm:space-y-6 text-base-content  sm:p-4">
+  <div className="space-y-4 sm:space-y-6 text-base-content p-4 ">
     
     {/* HEADER */}
   <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">

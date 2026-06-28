@@ -197,14 +197,24 @@ console.log(selectedOwner);
           <h1 className="text-xl font-bold text-base-content tracking-tight">
             Create New Lead
           </h1>
-          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li>Leads</li>
-              <li className="text-primary">Create Lead</li>
-            </ul>
-          </div>
+         <div className="text-[13px] text-base-content/60 mt-1 font-medium min-w-0">
+  <ul className="flex flex-wrap items-center min-w-0">
+
+    <li className="whitespace-normal">Dashboard</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Sales</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Leads</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="text-primary font-semibold break-words whitespace-normal">
+      Create Lead
+    </li>
+
+  </ul>
+</div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button

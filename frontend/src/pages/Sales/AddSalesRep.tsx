@@ -249,14 +249,27 @@ export default function AddSalesRep() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm">
         <div>
           <h1 className="text-xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit" : "Add"} Sales Representative</h1>
-          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li>Representatives</li>
-              <li className="font-semibold text-primary">{isEditMode ? "Edit" : "Add"} Representative</li>
-            </ul>
-          </div>
+          <div className="text-[13px] text-base-content/60 mt-1 min-w-0">
+      <ul className="flex flex-wrap items-center min-w-0 break-words">
+        
+        <li className="whitespace-normal">Dashboard</li>
+
+        <span className="mx-2 text-base-content/40">›</span>
+
+        <li className="whitespace-normal">Sales</li>
+
+        <span className="mx-2 text-base-content/40">›</span>
+
+        <li className="whitespace-normal">Representatives</li>
+
+        <span className="mx-2 text-base-content/40">›</span>
+
+        <li className="font-semibold text-primary break-words whitespace-normal">
+          {isEditMode ? "Edit" : "Add"} Representative
+        </li>
+
+      </ul>
+    </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button type="button" className="btn btn-outline btn-sm gap-2">
