@@ -241,7 +241,7 @@ export default function AccountsDashboard() {
     const fetchAccount = async () => {
       try {
         const response = await getAllAccounts(slug!);
-        console.log("Fetched Accounts:", response.data);
+        // console.log("Fetched Accounts:", response.data);
         setAccounts(response.data.data);
       } catch (error) {
         console.error(error);
@@ -338,7 +338,7 @@ export default function AccountsDashboard() {
         header: "Revenue Generated",
         cell: (info) => (
           <span className="font-bold text-success text-sm">
-            ${info.getValue()}
+            ₹{info.getValue()}
           </span>
         ),
       }),
@@ -421,7 +421,7 @@ export default function AccountsDashboard() {
 
   const filteredAccounts = useMemo(() => {
     const searchText = search.toLowerCase();
-    console.log("Search =", searchText);
+    // console.log("Search =", searchText);
 
     return accounts.filter((a) => {
       console.log(
@@ -517,7 +517,7 @@ export default function AccountsDashboard() {
           },
           {
             label: "Total Revenue",
-            value: `$${stats.annualRevenue.toLocaleString()}`,
+            value: `₹${stats.annualRevenue.toLocaleString()}`,
             color: "text-success",
           },
         ].map((stat, idx) => (
@@ -763,11 +763,6 @@ export default function AccountsDashboard() {
           );
 
           setSelectedAccount(updated);
-           setAccounts(prev =>
-    prev.map(acc =>
-      acc._id === updated._id ? updated : acc
-    )
-  );
         }}
       />
     </div>

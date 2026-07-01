@@ -31,6 +31,12 @@ const leadRoutes = require("./routes/lead.routes.js");
 const accountRoutes = require("./routes/account.routes.js");
 const contactRoutes = require("./routes/contact.routes.js");
 const salesDashboard = require("./routes/salesRoutes.js")
+const forecastRoutes = require("./routes/forecastRoutes.js")
+// Add this to the top where you require other routes
+const salesNotificationRoutes = require('./routes/salesNotification.routes');
+
+
+
 const cookieParser = require("cookie-parser");
 
 const app = express();
@@ -89,12 +95,15 @@ app.use('/api/reps', salesRepRoutes);
 app.use('/api/cases', caseRoutes);
 app.use('/api/tasks', salesTaskRoutes);
 app.use('/api/sales/' ,salesDashboard )
+app.use('/api/forecast' ,forecastRoutes )
 
 
 
 app.use("/api/leads", leadRoutes);
 app.use("/api/accounts",accountRoutes);
 app.use("/api/contacts",contactRoutes);
+// Add this where you declare app.use('/api', ...) middlewares
+app.use('/api/notification', salesNotificationRoutes); 
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({
 //   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined

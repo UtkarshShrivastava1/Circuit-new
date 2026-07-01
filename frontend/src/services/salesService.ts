@@ -51,3 +51,4 @@ export const deleteContact = (slug:string, contactId:string) => {
 export const getSalesDashboardData =  (slug: string) => {
   return  API.get(`sales/${slug}/dashboard`);
 };
+

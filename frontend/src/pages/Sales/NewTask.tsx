@@ -73,8 +73,6 @@ export default function NewTask() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
-  const [comments, setComments] = useState<{ user: string, text: string, time: string }[]>([]);
-  const [newComment, setNewComment] = useState("");
   const [assigneeSearch, setAssigneeSearch] = useState("");
   const { auth } = useAuth();
   const queryClient = useQueryClient();
@@ -84,9 +82,6 @@ export default function NewTask() {
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
 
-  // const salesReps = useMemo(() => {
-  //   return repsData?.data?.map((r: any) => r.memberId.name) || [];
-  // }, [repsData]);
   const salesReps = useMemo(() => {
   return repsData?.data || [];
 }, [repsData]);
@@ -124,7 +119,6 @@ export default function NewTask() {
       visibility: "Private"
     },
   });
-const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
   const watchedMeetingMode = watch("meetingMode");
   const watchedStatus = watch("status");
   const watchedDueDate = watch("dueDate");
@@ -178,33 +172,17 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => e.preventDefault();
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      setAttachments(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
-    }
-  };
-
-  const addComment = () => {
-    if (!newComment.trim()) return;
-    setComments([...comments, { user: "Current User", text: newComment, time: new Date().toLocaleString() }]);
-    setNewComment("");
+    if (e.dataTransfer.files) setAttachments(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
   };
 
   const onSubmit = async (data: TaskFormValues) => {
     setIsSubmitting(true);
-    const completionNotes = comments.map(c => `${c.user} (${c.time}): ${c.text}`).join('\n');
-    const payload = {
-        ...data,
-        completionNotes: data.completionNotes ? `${data.completionNotes}\n${completionNotes}` : completionNotes
-    };
     // Note: File attachments are not sent as the backend endpoint does not currently support multipart/form-data.
     // The 'attachments' field in the model expects URLs.
-    mutation.mutate(payload);
+    mutation.mutate(data);
   };
 
   return (
@@ -324,7 +302,7 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
                   <label className="label py-1"><span className="label-text font-medium">Assigned To *</span></label>
                   <div className="dropdown w-full">
                     <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedTo ? "border-error" : "border-base-300"}`}>
-                     {selectedEmployeeName || "-Select Employee-"}
+                     {salesReps.find((rep: any) => rep.memberId._id === wAssignedTo)?.memberId.name || "-Select Employee-"}
                     </label>
                     <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input 
@@ -344,7 +322,6 @@ const [selectedEmployeeName, setSelectedEmployeeName] = useState("");
           rep.memberId._id,
           { shouldValidate: true }
         );
-setSelectedEmployeeName(rep.memberId.name);
         (document.activeElement as HTMLElement)?.blur();
       }}
     >
@@ -644,49 +621,6 @@ setSelectedEmployeeName(rep.memberId.name);
             </div>
           </div>
 
-          {/* 9. Comments & Activity (Simulated Timeline) */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
-            <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
-              9. Comments & Activity
-            </div>
-            <div className="collapse-content pt-5">
-              {/* Timeline mockup */}
-              <ul className="timeline timeline-vertical timeline-compact mb-6">
-                <li>
-                  <hr className="bg-primary" />
-                  <div className="timeline-middle">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-primary"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
-                  </div>
-                  <div className="timeline-end timeline-box">Task Created by Admin - Just now</div>
-                  <hr />
-                </li>
-                {comments.map((c, i) => (
-                  <li key={i}>
-                    <hr />
-                    <div className="timeline-middle text-primary">💬</div>
-                    <div className="timeline-end timeline-box flex flex-col">
-                      <span className="text-xs text-base-content/50">{c.user} - {c.time}</span>
-                      <span className="font-medium mt-1">{c.text}</span>
-                    </div>
-                    <hr />
-                  </li>
-                ))}
-              </ul>
-
-              {/* Add Comment */}
-              <div className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <label className="label py-1"><span className="label-text font-medium">Add Comment</span></label>
-                  <textarea className="textarea textarea-bordered w-full text-sm h-12" value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Type your comment..."></textarea>
-                </div>
-                <button type="button" onClick={addComment} className="btn btn-primary mb-1">
-                  <MdSend />
-                </button>
-              </div>
-            </div>
-          </div>
-
         </div>
 
         {/* ── Right Column (Summary Sidebar) ── */}
@@ -716,7 +650,9 @@ setSelectedEmployeeName(rep.memberId.name);
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span>
-                <p className="font-medium text-base-content mt-1">{wAssignee || "Unassigned"}</p>
+                <p className="font-medium text-base-content mt-1">
+                  {salesReps.find((rep: any) => rep.memberId._id === wAssignee)?.memberId.name || wAssignee || "Unassigned"}
+                </p>
               </div>
 
               <div>

@@ -90,7 +90,7 @@ export default function PendingOrders() {
   });
 
   const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
+    return repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [];
   }, [repsData]);
   
   const orders = useMemo(() => {

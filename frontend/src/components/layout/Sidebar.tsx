@@ -1025,7 +1025,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     </div>
                   </div>
 
-                  {/* SETTINGS */}
+                  {/* SETTINGS 
                   <div>
                     {!collapsed && (
                       <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
@@ -1049,7 +1049,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       </button>
                       {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
                     </div>
-                  </div>
+                  </div>*/}
                 </>
               ) : (
                 /* EMPLOYEE SALES MENU */

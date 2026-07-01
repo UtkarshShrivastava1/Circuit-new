@@ -100,7 +100,7 @@ export default function AllCase() {
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
 
-  const salesReps = useMemo(() => repsData?.data?.map((r: any) => r.fullName) || [], [repsData]);
+  const salesReps = useMemo(() => repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [], [repsData]);
   const cases: Case[] = useMemo(() => {
     return (data?.data || []).map((c: any) => ({
       ...c,
@@ -141,7 +141,7 @@ export default function AllCase() {
       setSuccessMessage(`Status updated to ${newStatus} for selected cases!`);
       setSuccessModalOpen(true);
     } catch (err) { toast.error("Failed to update status."); 
-      console.log(err);
+      console.error(err);
     }
 
   };
@@ -156,7 +156,7 @@ export default function AllCase() {
       setSuccessMessage(`Assigned ${selected.length} cases to ${newAssignee}!`);
       setSuccessModalOpen(true);
     } catch (err) { toast.error("Failed to assign cases."); 
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -171,7 +171,7 @@ export default function AllCase() {
         setSelectedCase({ ...selectedCase, status: "Escalated" });
       }
     } catch (err) { toast.error("Failed to escalate cases."); 
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -186,7 +186,7 @@ export default function AllCase() {
       if (selectedCase && selected.some(c => c.id === selectedCase.id)) setSelectedCase(null);
     } catch (err) {
       toast.error("Failed to delete some cases.");
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -203,6 +203,7 @@ export default function AllCase() {
       setSuccessModalOpen(true);
     } catch (error) {
       toast.error("Failed to delete case.");
+      console.error(error);
     }
   };
 

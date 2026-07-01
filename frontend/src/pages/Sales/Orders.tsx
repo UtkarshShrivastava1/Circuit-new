@@ -12,19 +12,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import { createOrder, getOrderById, updateOrder } from "@/services/orderServices";
 import { getSalesReps } from "@/services/salesRepServices";
+import { getAllProducts } from "@/services/productServices";
+import { getAllAccounts } from "@/services/salesService";
 import { useQuery } from "@tanstack/react-query";
 
-/* ─────────────────────────── Mock Data ─────────────────────────── */
-const MOCK_CUSTOMERS = [
-  { id: "CUST-001", name: "Zager Digital Services", contact: "Alice Johnson", phone: "+91 9876543210", email: "alice@zager.com", billing: "123 Tech Park, Bangalore", shipping: "123 Tech Park, Bangalore" },
-  { id: "CUST-002", name: "Acme Corp", contact: "Bob Smith", phone: "+1 555-0198", email: "bob@acme.com", billing: "456 Corporate Blvd, NY", shipping: "789 Warehouse St, NY" },
-];
-
-const MOCK_PRODUCTS = [
-  { id: "PRD-101", name: "Wireless Headphones Pro", sku: "WHP-BLK-01", retail: 4999, cost: 2500, stock: 145 },
-  { id: "PRD-102", name: "ERP Suite License", sku: "ERP-ENT-ANNUAL", retail: 24999, cost: 5000, stock: 9999 },
-  { id: "PRD-103", name: "USB-C Hub 7-in-1", sku: "HUB-7IN1-SLV", retail: 1299, cost: 600, stock: 12 },
-];
+// const productsData = [
+//   { id: "PRD-101", name: "Wireless Headphones Pro", sku: "WHP-BLK-01", retail: 4999, cost: 2500, stock: 145 },
+//   { id: "PRD-102", name: "ERP Suite License", sku: "ERP-ENT-ANNUAL", retail: 24999, cost: 5000, stock: 9999 },
+//   { id: "PRD-103", name: "USB-C Hub 7-in-1", sku: "HUB-7IN1-SLV", retail: 1299, cost: 600, stock: 12 },
+// ];
 
 /* ─────────────────────────── Helpers ─────────────────────────── */
 const numberToWords = (num: number): string => {
@@ -139,19 +135,58 @@ export default function NewOrderForm() {
   const { auth } = useAuth();
   const [attachments, setAttachments] = useState<File[]>([]);
   const [ownerSearch, setOwnerSearch] = useState("");
+  const [productsData, setProductsData] = useState<any[]>([]);
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth?.slug],
     queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
   });
 
+  const { data: accountsData } = useQuery({
+    queryKey: ["accounts", auth?.slug],
+    queryFn: () => getAllAccounts(auth?.slug || "default-tenant"),
+  });
+
+  const { data: products } = useQuery({
+    queryKey: ["products", auth?.slug],
+    queryFn: () => getAllProducts(auth?.slug || "default-tenant"),
+  });
+
+  console.log("Product : ", productsData)
+
+  useEffect(() => {
+    if (products?.data) {
+      const mappedProducts = products.data.map((p: any) => ({
+        id: p._id || p.id,
+        name: p.productName || p.name,
+        sku: p.sku || "",
+        stock: p.stockQuantity ?? p.openingStock ?? 0,
+        retail: p.sellingPrice || p.unitPrice || 0,
+        cost: p.costPrice || 0,
+      }));
+      setProductsData(mappedProducts);
+    }
+  }, [products]);
+
+  const customers = useMemo(() => {
+    return accountsData?.data?.data?.map((acc: any) => ({
+      id: acc._id,
+      name: acc.accountName,
+      contact: `${acc.primaryContact?.firstName || ""} ${acc.primaryContact?.lastName || ""}`.trim(),
+      phone: `${acc.primaryContact?.phone?.countryCode || ""} ${acc.primaryContact?.phone?.number || ""}`.trim(),
+      email: acc.primaryContact?.email || "",
+      billing: `${acc.billingAddress?.addressLine1 || ""}, ${acc.billingAddress?.city || ""}`,
+      shipping: `${acc.shippingAddress?.addressLine1 || ""}, ${acc.shippingAddress?.city || ""}`
+    })) || [];
+  }, [accountsData]);
+
   const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
+    return repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [];
   }, [repsData]);
 
   const filteredOwners = useMemo(() => {
     if (!ownerSearch) return salesReps;
-    return salesReps.filter(rep => rep.toLowerCase().includes(ownerSearch.toLowerCase()));
+    return salesReps.filter(rep => rep?.toLowerCase().includes(ownerSearch.toLowerCase()));
   }, [salesReps, ownerSearch]);
 
   const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<OrderFormValues>({
@@ -225,7 +260,7 @@ export default function NewOrderForm() {
           const res = await getOrderById(orderId, auth.slug as string);
           if (res.success && res.data) {
             const o = res.data;
-            const matchedCustomer = MOCK_CUSTOMERS.find(c => c.name === o.customerName);
+            const matchedCustomer = customers.find(c => c.name === o.customerName);
             reset({
               orderNumber: o.orderNumber,
               salesOwner: o.salesRep || "V VINAY Kumar",
@@ -243,7 +278,7 @@ export default function NewOrderForm() {
               items: o.products?.map(p => ({
                 productId: p.productId,
                 sku: p.sku || "",
-                stock: MOCK_PRODUCTS.find(mp => mp.id === p.productId)?.stock || 999,
+                stock: productsData.find(mp => mp.id === p.productId)?.stock || 999,
                 retailPrice: p.price,
                 costPrice: p.price * 0.8,
                 sellingPrice: p.price,
@@ -276,15 +311,15 @@ export default function NewOrderForm() {
           toast.error("Failed to load order details.");
         }
       };
-      fetchOrder();
+      if (customers.length > 0 || accountsData) fetchOrder();
     }
-  }, [orderId, auth.slug, reset]);
+  }, [orderId, auth.slug, reset, customers, accountsData]);
 
   /* ── Handlers ── */
   const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const cid = e.target.value;
     setValue("customerId", cid);
-    const customer = MOCK_CUSTOMERS.find(c => c.id === cid);
+    const customer = customers.find(c => c.id === cid);
     if (customer) {
       setValue("contactPerson", customer.contact);
       setValue("phone", customer.phone);
@@ -298,7 +333,7 @@ export default function NewOrderForm() {
   const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectElement>) => {
     const pid = e.target.value;
     setValue(`items.${index}.productId`, pid);
-    const product = MOCK_PRODUCTS.find(p => p.id === pid);
+    const product = productsData.find(p => p.id === pid);
     if (product) {
       setValue(`items.${index}.sku`, product.sku);
       setValue(`items.${index}.stock`, product.stock);
@@ -336,7 +371,7 @@ export default function NewOrderForm() {
     try {
       const payload = {
         ...data,
-        customerName: MOCK_CUSTOMERS.find(c => c.id === data.customerId)?.name || "Unknown Customer",
+        customerName: customers.find(c => c.id === data.customerId)?.name || "Unknown Customer",
         products: data.items.map(item => {
            const sp = item.sellingPrice || 0;
            const qty = item.quantity || 0;
@@ -345,7 +380,7 @@ export default function NewOrderForm() {
            const lineTotal = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
            return {
              productId: item.productId,
-             productName: MOCK_PRODUCTS.find(p => p.id === item.productId)?.name || "Unknown",
+             productName: productsData.find(p => p.id === item.productId)?.name || "Unknown",
              sku: item.sku,
              price: item.sellingPrice,
              quantity: item.quantity,
@@ -472,7 +507,7 @@ export default function NewOrderForm() {
                 <div className="flex gap-2">
                   <select className={`select select-bordered w-full ${errors.customerId ? 'select-error' : ''}`} onChange={handleCustomerChange} value={wCustomer}>
                     <option value="">-Select Customer-</option>
-                    {MOCK_CUSTOMERS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                   <button type="button" onClick={() => (document.getElementById('add_customer_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                 </div>
@@ -554,9 +589,9 @@ export default function NewOrderForm() {
                         <tr className="hover:bg-base-200/20 border-b border-base-200">
                           <td className="align-top pt-3 font-medium text-base-content/50">{index + 1}</td>
                           <td className="align-top">
-                            <select className="select select-sm select-bordered w-full" value={item.productId} onChange={(e) => handleProductChange(index, e)}>
-                              <option value="">-Select Product-</option>
-                              {MOCK_PRODUCTS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            <select className="select select-sm select-bordered w-full overflow-x-hidden" value={item.productId} onChange={(e) => handleProductChange(index, e)}>
+                              <option value="" className="overflow-x-hidden">-Select Product-</option>
+                              {productsData.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                             </select>
                             {errors.items?.[index]?.productId && <p className="text-xs text-error mt-1">{errors.items[index]?.productId?.message}</p>}
                           </td>
@@ -781,7 +816,7 @@ export default function NewOrderForm() {
               </div>
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span>
-                <p className="font-medium mt-1 truncate">{wCustomer ? MOCK_CUSTOMERS.find(c => c.id === wCustomer)?.name : "—"}</p>
+                <p className="font-medium mt-1 truncate">{wCustomer ? customers.find(c => c.id === wCustomer)?.name : "—"}</p>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>

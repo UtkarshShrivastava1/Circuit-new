@@ -360,7 +360,7 @@ const WorkUpdate = ({
     try {
       setLoading(true);
       const res = await getWorkUpdates(slug, { projectId });
-      console.log(res);
+      // console.log(res);
       const updatesList = res?.data?.data || res?.data || [];
       setUpdates(Array.isArray(updatesList) ? updatesList : []);
     } catch (error) {

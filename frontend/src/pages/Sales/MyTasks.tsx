@@ -254,9 +254,9 @@ const formatDate = (dateStr: string) => {
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined) return "--";
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
     maximumFractionDigits: 0,
   }).format(amount);
 };

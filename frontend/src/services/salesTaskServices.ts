@@ -62,7 +62,7 @@ export const updateSalesTask = async (id: string, payload: Partial<SalesTask>, s
 };
 
 export const deleteSalesTask = async (id: string, slug: string) => {
-  const response = await API.delete(`/tasks/${slug}/sales-tasks/${id}`);
+  const response = await API.delete(`/tasks/${slug}/sales-tasks/${id}`); 
   return response.data;
 };
 

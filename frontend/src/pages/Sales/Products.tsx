@@ -414,14 +414,14 @@ export default function NewProduct() {
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Cost Price" required error={errors.costPrice?.message}>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input {...register("costPrice")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.costPrice ? "input-error" : ""}`} placeholder="0.00" />
                 </div>
               </FormRow>
 
               <FormRow label="Selling Price" required error={errors.sellingPrice?.message}>
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input {...register("sellingPrice")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.sellingPrice ? "input-error" : ""}`} placeholder="0.00" />
                 </div>
               </FormRow>
@@ -436,7 +436,7 @@ export default function NewProduct() {
 
               <FormRow label="Profit Margin">
                 <div className="relative">
-                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input type="number" readOnly value={profitMargin > 0 ? profitMargin : 0} className="input input-bordered w-full max-w-xs pl-8 bg-base-200 text-success font-bold" />
                 </div>
                 <p className="text-xs text-base-content/50 mt-1">Calculated automatically (Selling Price - Cost Price)</p>
@@ -711,7 +711,7 @@ export default function NewProduct() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Selling Price</span>
-                <p className="font-medium text-success text-lg mt-1">${wSellingPrice.toLocaleString()}</p>
+                <p className="font-medium text-success text-lg mt-1">₹{wSellingPrice.toLocaleString()}</p>
               </div>
 
               <div>

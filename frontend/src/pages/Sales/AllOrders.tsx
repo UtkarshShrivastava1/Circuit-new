@@ -81,6 +81,8 @@ export default function AllOrders() {
     queryFn: () => getOrders(auth.slug || "default-tenant"),
   });
 
+  console.log("data : ", data);
+
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
@@ -88,7 +90,7 @@ export default function AllOrders() {
   });
 
   const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
+    return repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [];
   }, [repsData]);
   
   const orders = data?.data || [];
@@ -796,7 +798,7 @@ export default function AllOrders() {
                   </select>
                 </div>
                 <div className="form-control">
-                  <label className="label"><span className="label-text">Order Value ($)</span></label>
+                  <label className="label"><span className="label-text font-semibold">Order Value (₹)</span></label>
                   <input type="number" className="input input-bordered w-full" value={orderToEdit.orderValue || 0} onChange={(e) => setOrderToEdit({...orderToEdit, orderValue: Number(e.target.value)})} required />
                 </div>
                 <div className="form-control col-span-1 md:col-span-2">

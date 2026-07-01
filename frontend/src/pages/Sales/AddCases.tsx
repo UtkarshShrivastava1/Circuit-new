@@ -42,7 +42,7 @@ export default function AddCases() {
     queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
   });
   
-  const salesReps = useMemo(() => repsData?.data?.map((r: any) => r.fullName) || [], [repsData]);
+  const salesReps = useMemo(() => repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [], [repsData]);
 
   const mutation = useMutation({
     mutationFn: (newData: Partial<Case>) => createCase(auth.slug || "default-tenant", newData),

@@ -33,6 +33,11 @@ import AllSalesReps from "./pages/Sales/AllSalesReps";
 import AllCase from "./pages/Sales/AllCase";
 import AddCases from "./pages/Sales/AddCases";
 import MyTasks from "./pages/Sales/MyTasks";
+import SalesForecastDashboard from "./pages/Sales/SalesForecastDashboard";
+import AddSalesForecast from "./pages/Sales/AddSalesForecast";
+import AllNotifications from "./pages/Sales/AllNotifications";
+import AdminNotificationCenter from "./pages/Sales/AdminNotificationCenter";
+import NotificationDetails from "./pages/Sales/NotificaitionDetails";
 
 /* Pages (lazy) */
 const AppLayout = React.lazy(() => import("./components/layout/AppLayout"));
@@ -184,9 +189,16 @@ export default function App() {
             <Route path="/sales/cases/new" element={<AddCases/>} />
 
 
+            <Route path="/sales/forecast" element={<AllNotifications />} />
+            <Route path="/sales/forecast/new" element={<AdminNotificationCenter />} />
+
+            {/* <Route path="/sales/notifications/:id" element={<NotificationDetails />} /> */}
+
+
+
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/projects" element={<Projects />} />
-                <Route path="/work-updates" element={<WorkUpdates />} />
+            <Route path="/work-updates" element={<WorkUpdates />} />
             <Route path="/tasks" element={<TaskDashboard />} />
             <Route path="/leaves" element={<LeaveDashboard />} />
             <Route path="/my-salary" element={<PageContainer title="My Salary"><EmployeePayslip /></PageContainer>} />

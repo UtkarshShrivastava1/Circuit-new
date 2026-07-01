@@ -341,7 +341,7 @@ const STATUS_TABS: { label: string; value: TaskStatus }[] = [
 ];
 
 const MemberTask = ({ memberId }: MemberTaskProps) => {
-  console.log("Rendering MemberTask for memberId:", memberId);
+  // console.log("Rendering MemberTask for memberId:", memberId);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);

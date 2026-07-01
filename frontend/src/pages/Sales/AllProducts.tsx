@@ -227,7 +227,7 @@ export default function AllProducts({
             stockQuantity: p.stockQuantity ?? p.openingStock ?? 0, // Ensure stock fallback
             imageUrl: p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : URL.createObjectURL(p.images[0] as Blob)) : p.imageUrl // Map the first image
           }));
-          console.log("Mapped Products:", mappedProducts);
+          // console.log("Mapped Products:", mappedProducts);
           setProducts(mappedProducts);
         }
       } catch (error: unknown) {

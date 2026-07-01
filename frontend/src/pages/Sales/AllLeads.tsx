@@ -26,7 +26,7 @@ import {
   MdNotes,
   MdPerson,
 } from "react-icons/md";
-import { deleteLead, getAllLeads, updateLead } from "@/services/salesService";
+import { deleteLead, getLeads, updateLead, convertLeadToCustomer } from "@/services/leadServices";
 import { useAuth } from "@/auth/AuthContext";
 import { toast } from "react-toastify";
 
@@ -152,8 +152,9 @@ export default function AllLeads() {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const res = await getAllLeads(slug);
-        setLeads(res.data.data);
+        const res = await getLeads(slug || "");
+        
+        setLeads(res.data);
       } catch (error) {
         console.log(error);
       }
@@ -169,9 +170,11 @@ export default function AllLeads() {
       setEditData(selectedLead);
     }
   }, [selectedLead]);
+
+
   const handleDelete = async (leadId: string) => {
     try {
-      await deleteLead(slug, leadId);
+      await deleteLead(leadId, slug || "");
 
       toast.success("Lead deleted successfully");
 
@@ -187,9 +190,9 @@ export default function AllLeads() {
     try {
       if (!selectedLead?._id) return;
 
-      const res = await updateLead(slug, selectedLead._id, editData);
+      const res = await updateLead(selectedLead._id, editData as any, slug || "");
 
-      const updatedLead = res.data.data;
+      const updatedLead = res.data as unknown as Lead;
 
       setLeads((prev) =>
         prev.map((lead) => (lead._id === updatedLead._id ? updatedLead : lead)),
@@ -204,10 +207,31 @@ export default function AllLeads() {
       toast.error("Failed to update lead");
     }
   };
+
+  const handleConvertToCustomer = async (leadToConvert: Lead | null) => {
+    if (!leadToConvert?._id) return;
+    try {
+      const data = await convertLeadToCustomer(slug || ""  ,leadToConvert._id );
+      if (!data?.success) {
+        throw new Error(data.message || "Failed to convert lead");
+      }
+
+      setLeads((prev) =>
+        prev.map((lead) => (lead._id === leadToConvert._id ? { ...lead, leadStatus: "Won" } : lead))
+      );
+      
+      toast.success("Lead successfully converted to Customer!");
+      setSelectedLead(null);
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to convert lead");
+    }
+  };
+
   // Stats Calculation
   const stats = useMemo(() => {
     return {
-      total: leads.length,
+      total: leads.length || 0,
       new: leads.filter((l) => l.leadStatus === "New").length,
       qualified: leads.filter((l) => l.leadStatus === "Qualified").length,
       won: leads.filter((l) => l.leadStatus === "Won").length,
@@ -248,7 +272,7 @@ export default function AllLeads() {
           <div className="flex items-center gap-3">
             <div className="avatar placeholder">
               <div className="bg-primary text-primary-content rounded-full w-8 h-8">
-                <span className="text-xs">
+                <span className="text-xs items-center flex justify-center p-1.5">
                   {info.row.original.firstName[0]}
                   {info.row.original.lastName[0]}
                 </span>
@@ -457,7 +481,7 @@ export default function AllLeads() {
           },
           {
             label: "Pipeline Value",
-            value: `$${stats.totalValue.toLocaleString()}`,
+            value: `₹${stats.totalValue.toLocaleString()}`,
             color: "text-success",
           },
         ].map((stat, idx) => (
@@ -679,7 +703,7 @@ export default function AllLeads() {
               <div className="flex items-center gap-4">
                 <div className="avatar placeholder">
                   <div className="bg-primary text-primary-content rounded-full w-14 h-14 text-xl font-bold shadow-sm">
-                    <span>
+                    <span className="flex items-center justify-center p-3.5">
                       {selectedLead?.firstName[0]}
                       {selectedLead?.lastName[0]}
                     </span>
@@ -731,7 +755,9 @@ export default function AllLeads() {
 </a>
                   </li>
                   <li>
-                    <a>Convert to Customer</a>
+                <a onClick={() => handleConvertToCustomer(selectedLead)}>
+                  Convert to Customer
+                </a>
                   </li>
                   <div className="divider my-1"></div>
                   <li>
@@ -820,7 +846,7 @@ export default function AllLeads() {
                     {isEditing ? (
                       <input
                         type="text"
-                        className="input input-bordered input-sm w-full"
+                        className="input input-bordered input-sm w-full overflow-hidden"
                         value={editData.companyName || ""}
                         onChange={(e) =>
                           setEditData((prev) => ({

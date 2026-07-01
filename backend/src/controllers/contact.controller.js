@@ -1,4 +1,5 @@
 const ContactModel = require("../models/Contact.model");
+const logger = require("../common/libs/logger");
 
 
 const createContact = async (req, res) => {
@@ -112,11 +113,15 @@ const updateContact = async (req, res) => {
   try {
     const organizationId = req.organization._id;
     const { id } = req.params;
+    logger.info(`Updating contact with ID: ${id}`);
+    logger.info(`Organization ID: ${organizationId}`);
 
     const contact = await ContactModel.findOne({
       _id: id,
       organization: organizationId,
     });
+
+    logger.info(`Found contact: ${contact ? 'Yes' : 'No'}`);
 
     if (!contact) {
       return res.status(404).json({
@@ -125,14 +130,33 @@ const updateContact = async (req, res) => {
       });
     }
 
+    // Map and sanitize frontend fields to prevent validation errors
+    if (req.body.account) {
+      req.body.company = req.body.account;
+      delete req.body.account;
+    }
+    if (req.body.gender === "-Select-") req.body.gender = undefined;
+    if (req.body.leadSource === "-Select Source-") req.body.leadSource = undefined;
+    if (req.body.address && req.body.address.country === "-Select-") {
+      req.body.address.country = undefined;
+    }
+    if (req.body.phone) {
+      req.body.phone = {
+        countryCode: req.body.phone.countryCode || "+91",
+        number: req.body.phone.number,
+      };
+    }
+
     const updatedContact = await ContactModel.findByIdAndUpdate(
       id,
       req.body,
       {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
       }
     );
+
+    logger.info(`Updated contact: ${updatedContact ? 'Yes' : 'No'}`);
 
     return res.status(200).json({
       success: true,

@@ -3,6 +3,9 @@
 
 const mongoose = require("mongoose")
 const Order = require("../models/order.model.js")
+const Lead = require("../models/Lead.model.js")
+const Account = require("../models/Account.model.js")
+const Contact = require("../models/Contact.model.js")
 
 
 /**
@@ -53,13 +56,47 @@ const Order = require("../models/order.model.js")
       { $match: matchTenant },
       { $group: { _id: "$salesOwner", value: { $sum: "$grandTotal" } } },
       { $sort: { value: -1 } },
-      { $limit: 5 }
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      {
+        $lookup: {
+          from: "salesreps",
+          localField: "_id",
+          foreignField: "_id",
+          as: "salesRepDetails"
+        }
+      },
+      {
+        $lookup: {
+          from: "members",
+          localField: "_id",
+          foreignField: "_id",
+          as: "memberDetails"
+        }
+      }
     ]);
 
-    const salesByEmployee = salesByEmployeeAgg.map(emp => ({
-      name: emp._id ? emp._id.toString() : "Unassigned",
-      value: emp.value
-    }));
+    const salesByEmployee = salesByEmployeeAgg.map(emp => {
+      const user = emp.userDetails && emp.userDetails[0];
+      const salesRep = emp.salesRepDetails && emp.salesRepDetails[0];
+      const member = emp.memberDetails && emp.memberDetails[0];
+
+      const employeeName = user?.name || user?.fullName || user?.firstName ||
+                           salesRep?.fullName || salesRep?.name || salesRep?.firstName ||
+                           member?.name || member?.fullName || member?.firstName;
+
+      return {
+        name: employeeName || (emp._id ? emp._id.toString() : "Unassigned"),
+        value: emp.value
+      };
+    });
 
     // 3. Aggregate Weekly Sales
     const weeklySalesAgg = await Order.aggregate([
@@ -118,6 +155,8 @@ const Order = require("../models/order.model.js")
   }
 };
 
+
+
 module.exports = {
- getSalesDashboardData
+ getSalesDashboardData,
 };

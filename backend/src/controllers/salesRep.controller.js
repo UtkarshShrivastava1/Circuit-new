@@ -36,8 +36,8 @@ exports.getAllSalesReps = async (req, res) => {
             id: repObj._id,
             // employeeCode: repObj.employeeId,
             // phone: repObj.mobileNumber,
-            status: repObj.employmentStatus,
-            territory: repObj.salesTerritory,
+            status: repObj.status || repObj.employmentStatus,
+            territory: repObj.territory || repObj.salesTerritory,
             // avatarUrl: repObj.profileImage,
             // Compute a top performer badge if needed (e.g., achievement > target)
             isTopPerformer: (repObj.achievement > 0 && repObj.achievement >= repObj.monthlyTarget)
@@ -65,11 +65,11 @@ exports.getSalesRepById = async (req, res) => {
     const mappedRep = {
         ...repObj,
         id: repObj._id,
-        employeeCode: repObj.employeeId,
-        phone: repObj.mobileNumber,
-        status: repObj.employmentStatus,
-        territory: repObj.salesTerritory,
-        avatarUrl: repObj.profileImage
+        employeeCode: repObj.employeeCode || repObj.employeeId,
+        phone: repObj.phone || repObj.mobileNumber,
+        status: repObj.status || repObj.employmentStatus,
+        territory: repObj.territory || repObj.salesTerritory,
+        avatarUrl: repObj.avatarUrl || repObj.profileImage
     };
     
     res.status(200).json({ success: true, data: mappedRep });
@@ -87,7 +87,7 @@ exports.updateSalesRep = async (req, res) => {
     const rep = await SalesRep.findOneAndUpdate(
       { _id: req.params.id, tenantId },
       req.body,
-      { new: true, runValidators: true }
+      { new: true, runValidators: true, strict: false }
     );
     
     if (!rep) {

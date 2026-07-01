@@ -136,7 +136,7 @@ const [rawContacts, setRawContacts] = useState<any[]>([]);
       setLoading(true);
       const response = await getAllContacts(slug);
       setRawContacts(response.data.data);
-      console.log("Fetched contacts:", response.data.data);
+      // console.log("Fetched contacts:", response.data.data);
       const mapped = response.data.data.map((c: any) => ({
         id: c._id,
 
@@ -706,6 +706,11 @@ const handleRowClick = (row: any) => {
         email: updated.email,
         phoneNumber: updated.phone?.number,
         company: updated.company,
+        designation: updated.designation ?? "",
+        leadSource: updated.leadSource ?? "-",
+        city: updated.address?.city ?? "",
+        status: updated.status ?? "Active",
+        assignedRep: updated.assignedRep?.name ?? updated.assignedRep ?? "",
       } : c))
     );
 

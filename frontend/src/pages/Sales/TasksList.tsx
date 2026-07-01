@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -106,21 +106,29 @@ export default function SalesTasksList() {
     queryFn: () => getSalesTasks(auth.slug || "default-tenant"),
   });
 
+  console.log("data : ",data);
+
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
-    enabled: bulkAssignModalOpen || editModalOpen,
   });
 
   const salesReps = useMemo(() => {
-    return repsData?.data?.map((r: any) => r.fullName) || [];
+    return repsData?.data || [];
   }, [repsData]);
+
+  const getRepName = useCallback((idOrName: string) => {
+    if (!idOrName) return "Unassigned";
+    const rep = salesReps.find((r: any) => r._id === idOrName || r.memberId?._id === idOrName);
+    return rep ? (rep.fullName || rep.memberId?.name || idOrName) : idOrName;
+  }, [salesReps]);
 
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
-    return salesReps.filter(rep => 
-      rep.toLowerCase().includes(assigneeSearch.toLowerCase())
-    );
+    return salesReps.filter((rep: any) => {
+      const name = rep.fullName || rep.memberId?.name || "";
+      return name.toLowerCase().includes(assigneeSearch.toLowerCase());
+    });
   }, [salesReps, assigneeSearch]);
 
   const tasks = useMemo(() => {
@@ -210,16 +218,18 @@ export default function SalesTasksList() {
     }),
     columnHelper.accessor("assignedTo", {
       header: "Assigned To",
-      cell: (info) => (
-        <div className="flex items-center gap-2">
-          <div className="avatar placeholder">
-            <div className="bg-neutral text-neutral-content rounded-full w-6">
-              <span className="text-[10px]">{info.getValue().charAt(0)}</span>
+      cell: (info) => {
+        const name = getRepName(info.getValue());
+        return (
+          <div className="flex items-center gap-2">
+            <div className="avatar placeholder">
+              <div className="bg-neutral text-neutral-content rounded-full w-6">
+                <span className="text-[10px]">{name.charAt(0)}</span>
+              </div>
             </div>
+            <span className="text-sm">{name}</span>
           </div>
-          <span className="text-sm">{info.getValue()}</span>
-        </div>
-      ),
+      )},
     }),
     columnHelper.accessor("priority", {
       header: "Priority",
@@ -381,6 +391,7 @@ export default function SalesTasksList() {
         setSuccessModalOpen(true);
       } catch (error) {
         toast.error("Failed to update task status.");
+        console.error(error);
       }
     }
   };
@@ -394,6 +405,7 @@ export default function SalesTasksList() {
       setSuccessMessage(`Task marked as ${status}`);
       setSuccessModalOpen(true);
     } catch (error) {
+      console.error(error);
       toast.error("Failed to update task status.");
     }
   };
@@ -656,9 +668,9 @@ export default function SalesTasksList() {
                       <h4 className="font-semibold text-sm mb-1 leading-tight">{task.title}</h4>
                       <p className="text-xs text-base-content/70 mb-3">{task.customer}</p>
                       <div className="flex justify-between items-center mt-2 border-t border-base-200 pt-2">
-                        <div className="avatar placeholder">
+                        <div className="avatar placeholder" title={getRepName(task.assignedTo)}>
                           <div className="bg-neutral text-neutral-content rounded-full w-6">
-                            <span className="text-[10px]">{task.assignedTo.charAt(0)}</span>
+                            <span className="text-[10px]">{getRepName(task.assignedTo).charAt(0)}</span>
                           </div>
                         </div>
                         <span className={`text-[10px] font-semibold ${task.dueDate < new Date().toISOString().split("T")[0] ? 'text-error' : 'text-base-content/60'}`}>
@@ -747,7 +759,7 @@ export default function SalesTasksList() {
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
                 <div><p className="text-base-content/50 mb-1">Customer</p><p className="font-semibold">{selectedTask?.customer}</p></div>
                 <div><p className="text-base-content/50 mb-1">Task Type</p><p className="font-semibold">{selectedTask?.type}</p></div>
-                <div><p className="text-base-content/50 mb-1">Assigned To</p><p className="font-semibold">{selectedTask?.assignedTo}</p></div>
+                <div><p className="text-base-content/50 mb-1">Assigned To</p><p className="font-semibold">{getRepName(selectedTask?.assignedTo || "")}</p></div>
                 <div><p className="text-base-content/50 mb-1">Priority</p>
                   <span className={`badge badge-sm font-semibold ${selectedTask?.priority === 'Urgent' ? 'badge-error' : 'badge-warning'}`}>{selectedTask?.priority}</span>
                 </div>
@@ -839,7 +851,7 @@ export default function SalesTasksList() {
           <h3 className="font-bold text-lg mb-4">Assign Employee</h3>
           <div className="dropdown w-full">
             <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">
-              {newAssignee || "-Select Employee-"}
+              {getRepName(newAssignee) || "-Select Employee-"}
             </label>
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
               <input 
@@ -850,11 +862,14 @@ export default function SalesTasksList() {
                 onChange={e => setAssigneeSearch(e.target.value)}
               />
               <ul className="max-h-60 overflow-y-auto">
-                {filteredReps.map(rep => (
-                  <li key={rep}>
-                    <a onClick={() => { setNewAssignee(rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                {filteredReps.map((rep: any) => {
+                  const name = rep.fullName || rep.memberId?.name || "Unknown";
+                  const id = rep.memberId?._id || rep._id;
+                  return (
+                  <li key={id}>
+                    <a onClick={() => { setNewAssignee(id); (document.activeElement as HTMLElement)?.blur(); }}>{name}</a>
                   </li>
-                ))}
+                )})}
               </ul>
             </div>
           </div>
@@ -896,17 +911,20 @@ export default function SalesTasksList() {
                     <input 
                       type="text" 
                       className="input input-bordered w-full" 
-                      value={taskToEdit.assignedTo} 
-                      onChange={(e) => setTaskToEdit({...taskToEdit, assignedTo: e.target.value})} 
+                      value={getRepName(taskToEdit.assignedTo)} 
+                      readOnly
                       placeholder="-Select Employee-"
                       tabIndex={0}
                     />
                     <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-50 border border-base-300">
-                      {salesReps.map(rep => (
-                        <li key={rep}>
-                          <a onClick={() => { setTaskToEdit({...taskToEdit, assignedTo: rep}); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a>
+                      {salesReps.map((rep: any) => {
+                        const name = rep.fullName || rep.memberId?.name || "Unknown";
+                        const id = rep.memberId?._id || rep._id;
+                        return (
+                        <li key={id}>
+                          <a onClick={() => { setTaskToEdit({...taskToEdit, assignedTo: id}); (document.activeElement as HTMLElement)?.blur(); }}>{name}</a>
                         </li>
-                      ))}
+                      )})}
                     </ul>
                   </div>
                 </div>

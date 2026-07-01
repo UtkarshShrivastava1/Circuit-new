@@ -18,21 +18,26 @@ export interface Lead {
 }
 
 export const createLead = async (slug: string, payload: Partial<Lead>): Promise<{ success: boolean; data: Lead; message?: string }> => {
-  const res = await API.post(`/leads/${slug}/create-lead`, payload);
+  const res = await API.post(`/leads/${slug}/create-leads`, payload);
   return res.data;
 };
 
 export const getLeads = async (slug: string): Promise<{ success: boolean; data: Lead[] }> => {
-  const res = await API.get(`/leads/${slug}/get-all-leads`);
+  const res = await API.get(`/leads/${slug}/getAllLeads`);
   return res.data;
 };
 
 export const updateLead = async (leadId: string, payload: Partial<Lead>, slug: string): Promise<{ success: boolean; data: Lead; message?: string }> => {
-  const res = await API.put(`/leads/${slug}/get-leads/${leadId}`, payload);
+  const res = await API.put(`/leads/${slug}/updateLead/${leadId}`, payload);
   return res.data;
 };
 
 export const deleteLead = async (leadId: string, slug: string): Promise<{ success: boolean; message?: string }> => {
-  const res = await API.delete(`/leads/${slug}/get-leads/${leadId}`);
+  const res = await API.delete(`/leads/${slug}/deleteLead/${leadId}`);
   return res.data;
 };
+
+export const convertLeadToCustomer = async (slug: string, leadId: string) => {
+  const res = await API.post(`/leads/${slug}/convertLeadToCustomer/${leadId}`);
+  return res.data;
+}

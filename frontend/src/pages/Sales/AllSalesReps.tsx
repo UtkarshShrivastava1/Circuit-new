@@ -163,19 +163,21 @@ export default function AllSalesReps() {
       setSuccessModalOpen(true);
     } catch (error) {
       toast.error("Failed to delete some representatives.");
+      console.error(error);
     }
   };
 
   const handleBulkStatusUpdate = async () => {
     const selected = getSelectedReps();
     try {
-      await Promise.all(selected.map(r => updateMutation.mutateAsync({ id: r.id, payload: { status: newStatus, employmentStatus: newStatus } })));
+      await Promise.all(selected.map(r => updateMutation.mutateAsync({ id: r.id, payload: { status: newStatus, employmentStatus: newStatus } as any })));
       setBulkStatusModalOpen(false);
       setRowSelection({});
       setSuccessMessage(`Status updated to ${newStatus} for selected reps!`);
       setSuccessModalOpen(true);
     } catch (error) {
       toast.error("Failed to update status.");
+      console.error(error);
     }
   };
 
@@ -195,6 +197,7 @@ export default function AllSalesReps() {
       setSuccessModalOpen(true);
     } catch (error) {
       toast.error("Failed to update team.");
+      console.error(error);
     }
   };
 
@@ -604,7 +607,7 @@ export default function AllSalesReps() {
                     <BarChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="oklch(var(--b3))" />
                       <XAxis dataKey="name" tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} />
-                      <YAxis tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v/1000}k`} />
+                      <YAxis tick={{ fontSize: 12, fill: "oklch(var(--bc)/0.6)" }} axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v/1000}k`} />
                       <Tooltip cursor={{ fill: "transparent" }} contentStyle={{ borderRadius: "8px", border: "none" }} />
                       <Legend wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }} />
                       <Bar dataKey="target" fill="#9ca3af" name="Target" radius={[4, 4, 0, 0]} maxBarSize={40} />
@@ -625,7 +628,7 @@ export default function AllSalesReps() {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip contentStyle={{ borderRadius: "8px", border: "none" }} formatter={(value: number) => `$${value.toLocaleString()}`} />
+                      <Tooltip contentStyle={{ borderRadius: "8px", border: "none" }} formatter={(value: number) => `₹${value.toLocaleString()}`} />
                       <Legend wrapperStyle={{ fontSize: "12px" }} />
                     </PieChart>
                   </ResponsiveContainer>

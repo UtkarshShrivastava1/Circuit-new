@@ -140,7 +140,7 @@ const isSales =
         sendTo: data.sendTo || "all",
       };
 
-      console.log("newNotif : ",newNotif)
+      // console.log("newNotif : ",newNotif)
       
       setNotifications((prev) => [newNotif, ...prev]);
     };

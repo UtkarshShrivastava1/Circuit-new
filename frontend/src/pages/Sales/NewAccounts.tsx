@@ -260,7 +260,7 @@ const payload = {
                 </FormRow>
                 <FormRow label="Annual Revenue">
                   <div className="relative">
-                    <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                    <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                     <input type="number" {...register("annualRevenue")} className="input input-bordered w-full pl-8" placeholder="0.00" />
                   </div>
                 </FormRow>
