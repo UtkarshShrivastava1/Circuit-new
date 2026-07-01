@@ -538,13 +538,13 @@ export default function AllProducts({
   });
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Products</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Products</h1>
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -570,7 +570,7 @@ export default function AllProducts({
       </div>
 
       {/* ── Stats Dashboard ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
+      {/* <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-6">
         {[
           { label: "Total Products", value: stats.total, color: "text-base-content" },
           { label: "Active", value: stats.active, color: "text-primary" },
@@ -586,10 +586,56 @@ export default function AllProducts({
             <span className="text-xs text-base-content/60 mt-1 text-center font-medium uppercase">{stat.label}</span>
           </div>
         ))}
-      </div>
+      </div> */}
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-6">
+
+  {[
+    { label: "Total Products", value: stats.total, color: "text-base-content" },
+    { label: "Active", value: stats.active, color: "text-primary" },
+    { label: "Inactive", value: stats.inactive, color: "text-base-content/50" },
+    { label: "Low Stock", value: stats.lowStock, color: "text-warning" },
+    { label: "Out of Stock", value: stats.outOfStock, color: "text-error" },
+    { label: "Inventory Value", value: `₹${(stats.inventoryValue / 1000).toFixed(1)}k`, color: "text-success" },
+    { label: "Categories", value: stats.categories, color: "text-info" },
+    { label: "Brands", value: stats.brands, color: "text-base-content" },
+  ].map((stat, idx) => (
+
+    <div
+      key={idx}
+      className="
+        bg-base-100 border border-base-300 rounded-xl
+        p-3 sm:p-4
+        flex flex-col items-center justify-center
+        text-center shadow-sm hover:shadow-md transition-shadow
+
+        min-h-[70px] sm:min-h-[85px]
+      "
+    >
+      <span className={`
+        ${stat.color}
+        text-base sm:text-lg md:text-xl font-bold
+        leading-tight
+      `}>
+        {stat.value}
+      </span>
+
+      <span className="
+        text-[10px] sm:text-xs text-base-content/60
+        mt-1 font-medium uppercase leading-tight
+        px-1
+      ">
+        {stat.label}
+      </span>
+
+    </div>
+
+  ))}
+
+</div>
 
       {/* ── Toolbar ── */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
+      {/* <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative w-full md:w-72">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50" size={18} />
@@ -614,7 +660,63 @@ export default function AllProducts({
             <MdViewModule size={18} /> Grid
           </button>
         </div>
-      </div>
+      </div> */}
+      <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
+
+  {/* Left: Search + Filter */}
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+
+    {/* Search */}
+    <div className="relative w-full sm:w-72">
+      <MdSearch
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
+        size={18}
+      />
+      <input
+        type="text"
+        placeholder="Search by name, SKU, code, brand..."
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+        className="input input-sm input-bordered w-full pl-9 focus:outline-none focus:border-primary"
+      />
+    </div>
+
+    {/* Filter button */}
+    <button
+      onClick={() => setShowFilters(!showFilters)}
+      className={`btn btn-sm w-full sm:w-auto ${
+        showFilters ? "btn-primary" : "btn-outline"
+      } gap-2`}
+    >
+      <MdFilterList size={16} /> Filters
+    </button>
+
+  </div>
+
+  {/* Right: View switch */}
+  <div className="flex justify-center items-center bg-base-200 p-1 rounded-lg border border-base-300 w-full lg:w-auto overflow-x-auto">
+
+    <button
+      onClick={() => setView("table")}
+      className={`btn btn-sm btn-ghost px-3 whitespace-nowrap ${
+        view === "table" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewList size={18} /> Table
+    </button>
+
+    <button
+      onClick={() => setView("card")}
+      className={`btn btn-sm btn-ghost px-3 whitespace-nowrap ${
+        view === "card" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewModule size={18} /> Grid
+    </button>
+
+  </div>
+
+</div>
 
       {/* ── Filters Panel ── */}
       {showFilters && (
@@ -660,12 +762,12 @@ export default function AllProducts({
       )}
 
       {/* ── Main Content Area ── */}
-      <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
-        
-        {/* View 1: Table */}
+      {/* <div className="bg-base-100 border border-base-300 rounded-xl  shadow-sm flex flex-col relative"> */}
+         <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
+       
         {view === "table" && (
-          <div className="flex-1 overflow-auto">
-            <table className="table table-pin-rows table-pin-cols w-full text-sm">
+          <div className="w-full max-w-full  overflow-auto">
+            <table className="table table-sm min-w-[900px]  w-full text-sm ">
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">
@@ -745,27 +847,77 @@ export default function AllProducts({
 
         {/* Table Pagination Footer */}
         {view === "table" && (
-          <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
-            <span className="text-base-content/60">
-              Showing {table.getRowModel().rows.length} of {filteredProducts.length} products
-            </span>
-            <div className="flex items-center gap-2">
-              <select 
-                className="select select-sm select-bordered"
-                value={table.getState().pagination.pageSize}
-                onChange={e => table.setPageSize(Number(e.target.value))}
-              >
-                {[10, 25, 50, 100].map(pageSize => (
-                  <option key={pageSize} value={pageSize}>Show {pageSize}</option>
-                ))}
-              </select>
-              <div className="join">
-                <button className="join-item btn btn-sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>«</button>
-                <button className="join-item btn btn-sm">Page {table.getState().pagination.pageIndex + 1}</button>
-                <button className="join-item btn btn-sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
-              </div>
-            </div>
-          </div>
+          // <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
+          //   <span className="text-base-content/60">
+          //     Showing {table.getRowModel().rows.length} of {filteredProducts.length} products
+          //   </span>
+          //   <div className="flex items-center gap-2">
+          //     <select 
+          //       className="select select-sm select-bordered"
+          //       value={table.getState().pagination.pageSize}
+          //       onChange={e => table.setPageSize(Number(e.target.value))}
+          //     >
+          //       {[10, 25, 50, 100].map(pageSize => (
+          //         <option key={pageSize} value={pageSize}>Show {pageSize}</option>
+          //       ))}
+          //     </select>
+          //     <div className="join">
+          //       <button className="join-item btn btn-sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>«</button>
+          //       <button className="join-item btn btn-sm">Page {table.getState().pagination.pageIndex + 1}</button>
+          //       <button className="join-item btn btn-sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
+          //     </div>
+          //   </div>
+          // </div>
+
+          <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+
+  {/* Left text */}
+  <span className="text-base-content/60 text-center sm:text-left">
+    Showing {table.getRowModel().rows.length} of {filteredProducts.length} products
+  </span>
+
+  {/* Right controls */}
+  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+
+    <select
+      className="select select-sm select-bordered w-full sm:w-auto"
+      value={table.getState().pagination.pageSize}
+      onChange={e => table.setPageSize(Number(e.target.value))}
+    >
+      {[10, 25, 50, 100].map(pageSize => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize}
+        </option>
+      ))}
+    </select>
+
+    <div className="join w-full sm:w-auto justify-center sm:justify-start">
+
+      <button
+        className="join-item btn btn-sm flex-1 sm:flex-none"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        «
+      </button>
+
+      <button className="join-item btn btn-sm flex-1 sm:flex-none">
+        Page {table.getState().pagination.pageIndex + 1}
+      </button>
+
+      <button
+        className="join-item btn btn-sm flex-1 sm:flex-none"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        »
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
         )}
       </div>
 
@@ -974,7 +1126,7 @@ sellingPrice?.toLocaleString()}</p></div>
                 </div>
                 <div className="form-control">
                   <label className="label"><span className="label-text">Stock Status</span></label>
-                  <select className="select select-bordered w-full" value={productToEdit.stockStatus} onChange={(e) => setProductToEdit({...productToEdit, stockStatus: e.target.value as any})}>
+                  <select className="select  select-bordered w-full" value={productToEdit.stockStatus} onChange={(e) => setProductToEdit({...productToEdit, stockStatus: e.target.value as any})}>
                     <option value="In Stock">In Stock</option>
                     <option value="Low Stock">Low Stock</option>
                     <option value="Out Of Stock">Out Of Stock</option>

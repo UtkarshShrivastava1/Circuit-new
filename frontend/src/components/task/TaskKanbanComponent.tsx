@@ -61,7 +61,7 @@ export default function TaskKanban({
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4 ">
+      <div className="flex gap-3 overflow-x-auto pb-3 ">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}

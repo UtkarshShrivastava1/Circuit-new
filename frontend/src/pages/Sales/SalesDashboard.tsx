@@ -45,7 +45,7 @@ const defaultStats: StatCard[] = [
 /* ─────────────────────────── sub-components ─────────────────── */
 
 /** Reusable empty-state placeholder for charts */
-function EmptyChart({ height = 220 }: { height?: number }) {
+function EmptyChart({ height = 180 }: { height?: number }) {
   return (
     <div
       className="flex items-center justify-center w-full rounded-md bg-base-200 text-base-content/40 text-sm"
@@ -154,7 +154,7 @@ function SalesChartCard({
   dataKey = "value",
   color = "#a855f7",
   type = "bar",
-  height = 220,
+  height = 180,
 }: {
   title: string;
   data?: { name: string; [key: string]: number | string }[];
@@ -167,10 +167,10 @@ function SalesChartCard({
 
   return (
     <div className="border border-base-300 rounded-xl bg-base-100 overflow-hidden flex flex-col">
-      <div className="px-4 py-3 border-b border-base-300">
+      <div className="px-3 py-2 border-b border-base-300">
         <span className="font-semibold text-sm text-base-content">{title}</span>
       </div>
-      <div className="p-4 flex-1">
+      <div className="p-3 flex-1">
         {hasData ? (
           <ResponsiveContainer width="100%" height={height}>
             {type === "bar" ? (
@@ -270,16 +270,16 @@ export default function SalesDashboard({
   return (
     <div className="min-h-screen bg-base-200">
       {/* ── top padding spacer (topbar is fixed in your layout) ── */}
-      <div className="p-5 space-y-6 max-w-[1600px] mx-auto">
+      <div className="p-3 space-y-4 max-w-[1400px] mx-auto">
 
         {/* ── STAT CARDS ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {stats.map((card) => (
             <div
               key={card.label}
-              className="bg-base-100 border border-base-300 rounded-xl px-4 py-5 flex flex-col items-center gap-1 shadow-sm"
+              className="bg-base-100 border border-base-300 rounded-lg px-3 py-3 flex flex-col items-center gap-1 shadow-sm"
             >
-              <span className="text-2xl font-bold text-primary">{card.value}</span>
+              <span className="text-lg font-bold text-primary">{card.value}</span>
               <span className="text-xs text-base-content/60 text-center leading-tight">
                 {card.label}
               </span>
@@ -288,7 +288,7 @@ export default function SalesDashboard({
         </div>
 
         {/* ── SALES BY PRODUCT / EMPLOYEE / REGION ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
           <SalesChartCard
             title="Sales By Product"
             data={salesByProduct}
@@ -313,7 +313,7 @@ export default function SalesDashboard({
           dataKey="value"
           color="#a855f7"
           type="line"
-          height={260}
+          height={200}
         />
 
         {/* ── FORECAST PANELS ── */}

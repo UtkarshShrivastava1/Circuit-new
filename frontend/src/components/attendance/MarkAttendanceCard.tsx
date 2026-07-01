@@ -250,17 +250,17 @@ const statusStyles: Record<AttendanceStatus, string> = {
 return (
   <div
     className="
-      w-full max-w-3xl
+      w-full max-w-2xl
       bg-white/60 border border-base-300
       rounded-2xl
-      p-4 sm:p-6
+      p-4 sm:p-5
       shadow-sm
     "
   >
     {/* HEADER */}
     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-5">
       <div>
-        <h3 className="text-lg sm:text-xl font-semibold">
+        <h3 className="text-md sm:text-lg font-semibold">
           Mark Attendance
         </h3>
 
@@ -282,7 +282,7 @@ return (
         Check-in time
       </p>
 
-      <p className="text-3xl sm:text-4xl font-bold tracking-wide mt-1">
+      <p className="text-xl sm:text-2xl font-bold tracking-wide mt-1">
         {timeNow}
       </p>
     </div>
@@ -293,7 +293,7 @@ return (
         Attendance Type
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
           { id: "office", label: "Office", icon: <MdBusiness /> },
           { id: "wfh", label: "WFH", icon: <MdHomeWork /> },
@@ -302,10 +302,10 @@ return (
           <button
             key={item.id}
             onClick={() => setMode(item.id as AttendanceMode)}
-            className={`
-              py-3 rounded-xl text-sm font-medium
+            className={` 
+              py-2 rounded-xl text-sm font-medium
               transition-all duration-200 border
-              min-h-[90px]
+              
 
               ${
                 mode === item.id
@@ -315,7 +315,7 @@ return (
             `}
           >
             <div className="flex flex-col items-center justify-center gap-1">
-              <span className="text-lg sm:text-xl">
+              <span className="text-md sm:text-lg">
                 {item.icon}
               </span>
 
@@ -353,7 +353,8 @@ return (
     {/* ACTION */}
     {status === "not-marked" ? (
       <Button
-        className="w-full py-3 text-sm sm:text-base font-medium"
+     
+        className="w-full py-1  sm:text-sm "
         onClick={submitAttendance}
         disabled={loadingStatus}
       >

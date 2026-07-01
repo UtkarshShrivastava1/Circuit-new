@@ -31,6 +31,7 @@ import {
   MdEmail,
   MdPhone,
   MdTimeline,
+  MdChevronRight,
 } from "react-icons/md";
 import {
   BarChart,
@@ -367,21 +368,24 @@ export default function AllSalesReps() {
   });
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
 
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Sales Representatives</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li className="text-primary">Representatives</li>
-            </ul>
-          </div>
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Sales Representatives</h1>
+        <div className="mt-1 text-[13px] text-base-content/60 flex flex-wrap items-center gap-y-1">
+                             <span>Dashboard</span>
+                             <MdChevronRight className="mx-1 text-base-content/50" />
+                 
+                             <span>Sales</span>
+                             <MdChevronRight className="mx-1 text-base-content/50" />
+                 
+                             
+                               <span className="font-semibold text-primary">Representatives</span>
+                           </div>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {/* <div className="flex flex-wrap gap-2">
           <ImportExportActions
             moduleName="Sales Representatives"
             columns={salesRepColumns}
@@ -391,6 +395,34 @@ export default function AllSalesReps() {
           />
           <button onClick={() => refetch()} className="btn btn-outline btn-sm btn-square bg-base-100"><MdRefresh size={16} /></button>
           <button onClick={() => navigate("/sales/representatives/new")} className="btn btn-primary btn-sm gap-2 shadow-sm"><MdAdd size={16} /> Add Rep</button>
+        </div> */}
+
+        <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
+        
+          {/* Import / Export */}
+          <div className="w-full lg:w-auto">
+            <ImportExportActions
+            moduleName="Sales Representatives"
+            columns={salesRepColumns}
+            data={filteredReps}
+            selectedData={getSelectedReps()}
+            onImportSubmit={handleImportSubmit}
+          />
+          </div>
+        
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+        
+            <button
+              className="btn btn-outline btn-sm w-full sm:w-auto "
+              onClick={() => refetch()}
+            >
+              <MdRefresh size={16} />
+            </button>
+        
+          <button onClick={() => navigate("/sales/representatives/new")} className="btn btn-primary btn-sm gap-2 shadow-sm"><MdAdd size={16} /> Add Rep</button>
+        
+          </div>
         </div>
       </div>
 
@@ -405,7 +437,7 @@ export default function AllSalesReps() {
           { label: "Avg Conversion", value: `${stats.avgConv.toFixed(1)}%`, color: "text-secondary" },
           { label: "Total Revenue", value: `₹${(stats.totalRevenue/1000).toFixed(1)}k`, color: "text-success" },
         ].map((stat, idx) => (
-          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+          <div key={idx} className="bg-base-100 border border-base-300 rounded-xl p-3 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
             <span className={`text-xl font-black mt-1 ${stat.color}`}>{stat.value}</span>
             <span className="text-[10px] text-base-content/60 font-bold uppercase tracking-wider text-center mt-1">{stat.label}</span>
           </div>
@@ -413,7 +445,7 @@ export default function AllSalesReps() {
       </div>
 
       {/* ── Toolbar ── */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
+      {/* <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3 w-full md:w-auto">
           <div className="relative w-full md:w-80">
             <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50" size={18} />
@@ -435,8 +467,70 @@ export default function AllSalesReps() {
           <button onClick={() => setView("card")} className={`btn btn-sm btn-ghost px-3 ${view === "card" ? "bg-base-100 shadow-sm" : ""}`}><MdViewModule size={18} /> Cards</button>
           <button onClick={() => setView("analytics")} className={`btn btn-sm btn-ghost px-3 ${view === "analytics" ? "bg-base-100 shadow-sm" : ""}`}><MdBarChart size={18} /> Analytics</button>
         </div>
-      </div>
+      </div> */}
+<div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
 
+  {/* Search + Filter */}
+  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+    <div className="relative flex-1 lg:w-80">
+      <MdSearch
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50"
+        size={18}
+      />
+      <input
+        type="text"
+        placeholder="Search reps by name, code, email..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="input input-sm input-bordered w-full pl-9 focus:outline-none focus:border-primary"
+      />
+    </div>
+
+    <button
+      onClick={() => setShowFilters(!showFilters)}
+      className={`btn btn-sm ${
+        showFilters ? "btn-primary" : "btn-outline bg-base-100"
+      } gap-2 w-full sm:w-auto`}
+    >
+      <MdFilterList size={16} />
+      Filters
+    </button>
+  </div>
+
+  {/* View Buttons */}
+  <div className="flex flex-wrap justify-center sm:flex-nowrap bg-base-200 p-1 rounded-lg border border-base-300 w-full lg:w-auto">
+    <button
+      onClick={() => setView("table")}
+      className={`btn btn-sm btn-ghost flex-1 sm:flex-none px-3 ${
+        view === "table" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewList size={18} />
+      <span className="hidden sm:inline ml-1">Table</span>
+    </button>
+
+    <button
+      onClick={() => setView("card")}
+      className={`btn btn-sm btn-ghost flex-1 sm:flex-none px-3 ${
+        view === "card" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdViewModule size={18} />
+      <span className="hidden sm:inline ml-1">Cards</span>
+    </button>
+
+    <button
+      onClick={() => setView("analytics")}
+      className={`btn btn-sm btn-ghost flex-1 sm:flex-none px-3 ${
+        view === "analytics" ? "bg-base-100 shadow-sm" : ""
+      }`}
+    >
+      <MdBarChart size={18} />
+      <span className="hidden sm:inline ml-1">Analytics</span>
+    </button>
+  </div>
+
+</div>
       {/* ── Filters Panel ── */}
       {showFilters && (
         <div className="bg-base-100 border border-base-300 rounded-xl p-5 mb-4 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 shadow-sm animate-fade-in-down">
@@ -484,13 +578,15 @@ export default function AllSalesReps() {
           <p>Loading Sales Representatives...</p>
         </div>
       ) : (
-      <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
+      // <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
+         <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
         
         {/* View 1: TABLE */}
         {view === "table" && (
           <>
-            <div className="flex-1 overflow-auto">
-              <table className="table table-pin-rows w-full text-sm">
+            {/* <div className="flex-1 overflow-auto"> */}
+             <div className="w-fullmax-w-full overflow-x-auto">
+              <table className="table table-sm  min-w-[900px]  w-full text-sm">
                 <thead>
                   {table.getHeaderGroups().map(headerGroup => (
                     <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">
@@ -532,7 +628,7 @@ export default function AllSalesReps() {
               </table>
             </div>
             {/* Pagination */}
-            <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
+            {/* <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
               <span className="text-base-content/60 font-medium">
                 Showing {table.getRowModel().rows.length} of {filteredReps.length} reps
               </span>
@@ -552,7 +648,59 @@ export default function AllSalesReps() {
                   <button className="join-item btn btn-sm bg-base-200" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
                 </div>
               </div>
-            </div>
+            </div> */}
+            <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+
+  {/* Left */}
+  <span className="text-base-content/60 font-medium text-center sm:text-left">
+    Showing {table.getRowModel().rows.length} of {filteredReps.length} reps
+  </span>
+
+  {/* Right */}
+  <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+
+    <select
+      className="select select-sm select-bordered bg-base-200 w-full sm:w-auto"
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => table.setPageSize(Number(e.target.value))}
+    >
+      {[10, 25, 50].map((pageSize) => (
+        <option key={pageSize} value={pageSize}>
+          Show {pageSize}
+        </option>
+      ))}
+    </select>
+
+    <div className="join grid grid-cols-3 w-full sm:w-auto">
+      <button
+        className="join-item btn btn-sm bg-base-200"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        «
+      </button>
+
+      <button className="join-item btn btn-sm bg-base-200">
+        <span className="hidden sm:inline">
+          Page {table.getState().pagination.pageIndex + 1}
+        </span>
+        <span className="sm:hidden">
+          {table.getState().pagination.pageIndex + 1}
+        </span>
+      </button>
+
+      <button
+        className="join-item btn btn-sm bg-base-200"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        »
+      </button>
+    </div>
+
+  </div>
+
+</div>
           </>
         )}
 
@@ -571,9 +719,9 @@ export default function AllSalesReps() {
                     {rep.isTopPerformer && <div className="absolute top-0 right-0 bg-warning text-warning-content text-[10px] font-bold px-2 py-1 rounded-bl-lg">TOP</div>}
                     <div className="p-5 flex flex-col items-center text-center">
                       <div className="avatar mb-3">
-                        <div className="w-16 h-16 rounded-full border border-base-200 shadow-sm">
+                        {/* <div className="w-16 h-16 rounded-full border border-base-200 shadow-sm">
                           {rep.avatarUrl ? <img src={rep.avatarUrl} alt="avatar" /> : <span className="text-xl bg-primary text-white w-full h-full flex items-center justify-center font-bold">{rep.fullName.charAt(0)}</span>}
-                        </div>
+                        </div> */}
                       </div>
                       <h3 className="font-bold text-base-content">{rep.fullName}</h3>
                       <p className="text-xs text-primary font-mono font-semibold mt-0.5">{rep.employeeCode}</p>
@@ -601,7 +749,7 @@ export default function AllSalesReps() {
               
               {/* Target Achievement */}
               <div className="bg-base-100 border border-base-300 rounded-xl p-5 shadow-sm">
-                <h3 className="font-bold text-base-content mb-4 text-sm uppercase tracking-wider">Top Performers vs Targets</h3>
+                <h3 className="font-semibold text-base-content mb-4 text-sm uppercase tracking-wider">Top Performers vs Targets</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -619,7 +767,7 @@ export default function AllSalesReps() {
 
               {/* Revenue by Team/Territory Mock */}
               <div className="bg-base-100 border border-base-300 rounded-xl p-5 shadow-sm">
-                <h3 className="font-bold text-base-content mb-4 text-sm uppercase tracking-wider">Revenue Contribution</h3>
+                <h3 className="font-semibold text-base-content mb-4 text-sm uppercase tracking-wider">Revenue Contribution</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>

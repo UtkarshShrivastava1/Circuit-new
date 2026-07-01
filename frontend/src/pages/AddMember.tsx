@@ -208,10 +208,10 @@ const AddMember = () => {
 
         {/* Page Header */}
         <div className="flex flex-col gap-1 mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-base-content tracking-tight">
+          <h1 className="text-xl md:text-lg font-bold text-base-content tracking-tight">
             Employee Onboarding
           </h1>
-          <p className="text-base-content/60 text-sm md:text-base">
+          <p className="text-base-content/60 text-sm">
             Register a new team member and set up their profile, employment, and financial details.
           </p>
         </div>
@@ -221,9 +221,9 @@ const AddMember = () => {
           {/* PERSONAL INFORMATION CARD */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="card-body p-5 md:p-7">
-              <h2 className="card-title text-lg font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
+              <h2 className="card-title text-md font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
                 <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                  <FaUser size={16} />
+                  <FaUser size={14} />
                 </div>
                 Personal Information
               </h2>
@@ -326,9 +326,9 @@ const AddMember = () => {
           {/* EMERGENCY CONTACT */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="card-body p-5 md:p-7">
-              <h2 className="card-title text-lg font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
+              <h2 className="card-title text-md font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
                 <div className="p-2 bg-error/10 text-error rounded-lg">
-                  <FaUserFriends size={16} />
+                  <FaUserFriends size={14} />
                 </div>
                 Emergency Contact
               </h2>
@@ -358,9 +358,9 @@ const AddMember = () => {
           {/* IDENTITY & LEGAL DETAILS */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="card-body p-5 md:p-7">
-              <h2 className="card-title text-lg font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
+              <h2 className="card-title text-md font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
                 <div className="p-2 bg-info/10 text-info rounded-lg">
-                  <FaShieldAlt size={16} />
+                  <FaShieldAlt size={14} />
                 </div>
                 Identity & Legal Details
               </h2>
@@ -394,9 +394,9 @@ const AddMember = () => {
           {/* EMPLOYMENT DETAILS */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="card-body p-5 md:p-7">
-              <h2 className="card-title text-lg font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
+              <h2 className="card-title text-md font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
                 <div className="p-2 bg-success/10 text-success rounded-lg">
-                  <FaBriefcase size={16} />
+                  <FaBriefcase size={14} />
                 </div>
                 Employment Details
               </h2>
@@ -464,9 +464,9 @@ const AddMember = () => {
           {/* FINANCIAL DETAILS */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow duration-200">
             <div className="card-body p-5 md:p-7">
-              <h2 className="card-title text-lg font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
+              <h2 className="card-title text-md font-semibold text-base-content mb-4 flex items-center gap-2 border-b border-base-200 pb-3">
                 <div className="p-2 bg-warning/10 text-warning rounded-lg">
-                  <FaUniversity size={16} />
+                  <FaUniversity size={14} />
                 </div>
                 Bank Account Details
               </h2>

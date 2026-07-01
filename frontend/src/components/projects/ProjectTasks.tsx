@@ -542,7 +542,7 @@ const canDelete =
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg">
-            <table className="table min-w-[600px] border border-base-300 rounded-lg">
+            <table className="table table-sm min-w-[600px] border border-base-300 rounded-lg">
               <thead className="bg-primary text-primary-content ">
                 <tr className="divide-x divide-white/20">
                   <th>Task</th>

@@ -435,16 +435,16 @@ const WorkUpdate = ({
         <p className="text-sm text-base-content/60">No updates yet</p>
       ) : (
         <div className="w-full bg-base-200 overflow-x-auto rounded-xl border border-primary/20 shadow-sm">
-          <table className="min-w-[800px] w-full text-sm ">
+          <table className=" min-w-[800px] w-full text-sm ">
             {/* HEADER */}
             <thead>
-              <tr className="bg-primary text-md uppercase text-primary-content">
-                <th className="py-3 px-4 text-left">Project</th>
-                <th className="py-3 px-4 text-left">Description</th>
-                <th className="py-3 px-4 text-left">User</th>
-                <th className="py-3 px-4 text-left">Files</th>
-                <th className="py-3 px-4 text-left">Date</th>
-                <th className="py-3 px-4 text-left">Action</th>
+              <tr className="bg-primary text-[13px] uppercase text-primary-content">
+                <th className="py-2 px-3 text-left">Project</th>
+                <th className="py-2 px-3 text-left">Description</th>
+                <th className="py-2 px-3 text-left">User</th>
+                <th className="py-2 px-3 text-left">Files</th>
+                <th className="py-2 px-3 text-left">Date</th>
+                <th className="py-2 px-3 text-left">Action</th>
               </tr>
             </thead>
 
@@ -453,7 +453,7 @@ const WorkUpdate = ({
               {updates?.map((item) => (
                 <tr
                   key={item._id}
-                  className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content text-sm"
+                  className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content text-[13px]"
                 >
                   {/* Project */}
                   <td className="py-3 px-4 font-medium">

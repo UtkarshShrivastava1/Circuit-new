@@ -194,17 +194,27 @@ console.log(selectedOwner);
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">
             Create New Lead
           </h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li>Leads</li>
-              <li className="text-primary">Create Lead</li>
-            </ul>
-          </div>
+         <div className="text-[13px] text-base-content/60 mt-1 font-medium min-w-0">
+  <ul className="flex flex-wrap items-center min-w-0">
+
+    <li className="whitespace-normal">Dashboard</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Sales</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="whitespace-normal">Leads</li>
+    <span className="mx-2 text-base-content/40">›</span>
+
+    <li className="text-primary font-semibold break-words whitespace-normal">
+      Create Lead
+    </li>
+
+  </ul>
+</div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button
@@ -219,17 +229,17 @@ console.log(selectedOwner);
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 lg:grid-cols-4 gap-5"
       >
         {/* ── Left Column (Form Sections) ── */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-3">
           {/* 1. Lead Ownership & Details */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               1. Lead Ownership & Details
             </div>
-            <div className="collapse-content pt-5 space-y-4">
+            <div className="collapse-content pt-4 space-y-2">
               <FormRow
                 label="Lead Owner"
                 required
@@ -237,7 +247,7 @@ console.log(selectedOwner);
               >
                 <select
                   {...register("leadOwner")}
-                  className="select select-bordered w-full"
+                  className="select select-sm select-bordered w-full"
                 >
                   <option disabled value="">
                     -Select Owner-
@@ -251,11 +261,11 @@ console.log(selectedOwner);
                 </select>
               </FormRow>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormRow label="Lead Source">
                   <select
                     {...register("leadSource")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option disabled value="">
                       -Select Source-
@@ -269,7 +279,7 @@ console.log(selectedOwner);
                   {watchLeadSource === "Other" && (
                     <input
                       {...register("customLeadSource")}
-                      className="input input-bordered w-full mt-2"
+                      className="input input-sm input-bordered w-full mt-2"
                       placeholder="Enter custom source"
                     />
                   )}
@@ -277,7 +287,7 @@ console.log(selectedOwner);
                 <FormRow label="Industry">
                   <select
                     {...register("industry")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option disabled value="">
                       -Select Industry-
@@ -296,18 +306,18 @@ console.log(selectedOwner);
                   {watchIndustry === "Other" && (
                     <input
                       {...register("customIndustry")}
-                      className="input input-bordered w-full mt-2"
+                      className="input input-sm input-bordered w-full mt-2"
                       placeholder="Enter custom industry"
                     />
                   )}
                 </FormRow>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormRow label="Lead Status" required>
                   <select
                     {...register("leadStatus")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
@@ -321,7 +331,7 @@ console.log(selectedOwner);
                 <FormRow label="Priority" required>
                   <select
                     {...register("priority")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -336,11 +346,11 @@ console.log(selectedOwner);
           {/* 2. Contact Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               2. Contact Information
             </div>
-            <div className="collapse-content pt-5 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+            <div className="collapse-content pt-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-2">
                 <label className="text-sm font-medium text-base-content/80 pt-2.5">
                   Name <span className="text-error">*</span>
                 </label>
@@ -348,7 +358,7 @@ console.log(selectedOwner);
                   <div className="flex-1">
                     <input
                       {...register("firstName")}
-                      className={`input input-bordered w-full ${errors.firstName ? "input-error" : ""}`}
+                      className={`input input-sm input-bordered w-full ${errors.firstName ? "input-error" : ""}`}
                       placeholder="First Name"
                     />
                     {errors.firstName && (
@@ -360,7 +370,7 @@ console.log(selectedOwner);
                   <div className="flex-1">
                     <input
                       {...register("lastName")}
-                      className={`input input-bordered w-full ${errors.lastName ? "input-error" : ""}`}
+                      className={`input input-sm input-bordered w-full ${errors.lastName ? "input-error" : ""}`}
                       placeholder="Last Name"
                     />
                     {errors.lastName && (
@@ -372,7 +382,7 @@ console.log(selectedOwner);
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormRow
                   label="Email Address"
                   required
@@ -381,14 +391,14 @@ console.log(selectedOwner);
                   <input
                     type="email"
                     {...register("email")}
-                    className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`}
+                    className={`input input-sm input-bordered w-full ${errors.email ? "input-error" : ""}`}
                     placeholder="john@company.com"
                   />
                 </FormRow>
                 <FormRow label="Gender">
                   <select
                     {...register("gender")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option disabled value="">-Select-</option>
                     <option>Male</option>
@@ -419,7 +429,7 @@ console.log(selectedOwner);
                   {watchCountryCode === "Other" && (
                     <input
                       {...register("customCountryCode")}
-                      className="input input-sm w-32"
+                      className="input  input-sm w-32"
                       placeholder="+999"
                     />
                   )}
@@ -437,10 +447,10 @@ console.log(selectedOwner);
           {/* 3. Company & Address */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               3. Company & Address
             </div>
-            <div className="collapse-content pt-5 space-y-4">
+            <div className="collapse-content pt-4 space-y-3">
               <FormRow
                 label="Company Name"
                 required
@@ -448,7 +458,7 @@ console.log(selectedOwner);
               >
                 <input
                   {...register("companyName")}
-                  className={`input input-bordered w-full ${errors.companyName ? "input-error" : ""}`}
+                  className={`input input-sm input-bordered w-full ${errors.companyName ? "input-error" : ""}`}
                   placeholder="Company Inc."
                 />
               </FormRow>
@@ -456,41 +466,41 @@ console.log(selectedOwner);
               <FormRow label="Address Line 1">
                 <input
                   {...register("addressLine1")}
-                  className="input input-bordered w-full"
+                  className="input input-sm input-bordered w-full"
                   placeholder="Street address"
                 />
               </FormRow>
               <FormRow label="Address Line 2">
                 <input
                   {...register("addressLine2")}
-                  className="input input-bordered w-full"
+                  className="input input-sm input-bordered w-full"
                   placeholder="Apt, Suite, etc."
                 />
               </FormRow>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <FormRow label="City">
                   <input
                     {...register("city")}
-                    className="input input-bordered w-full"
+                    className="input input-sm input-bordered w-full"
                   />
                 </FormRow>
                 <FormRow label="State">
                   <input
                     {...register("state")}
-                    className="input input-bordered w-full"
+                    className="input input-sm input-bordered w-full"
                   />
                 </FormRow>
                 <FormRow label="Postal Code">
                   <input
                     {...register("postalCode")}
-                    className="input input-bordered w-full"
+                    className="input input-sm input-bordered w-full"
                   />
                 </FormRow>
                 <FormRow label="Country">
                   <select
                     {...register("country")}
-                    className="select select-bordered w-full"
+                    className="select select-sm select-bordered w-full"
                   >
                     <option disabled value="">-Select-</option>
                     {DEFAULT_COUNTRIES.map((c) => (
@@ -507,14 +517,14 @@ console.log(selectedOwner);
           {/* 4. Additional Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl shadow-sm">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200 bg-base-200/30">
+            <div className="collapse-title text-md font-semibold border-b border-base-200 bg-base-200/30">
               4. Additional Notes
             </div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content ">
               <FormRow label="Description">
                 <textarea
                   {...register("description")}
-                  className="textarea textarea-bordered w-full bg-warning/5"
+                  className="textarea textarea-sm textarea-bordered w-full bg-warning/5"
                   rows={4}
                   placeholder="Internal notes and lead requirements..."
                 ></textarea>
@@ -526,7 +536,7 @@ console.log(selectedOwner);
         {/* ── Right Column (Sidebar Summary Card) ── */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200">
+            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">
               Lead Summary
             </h3>
 

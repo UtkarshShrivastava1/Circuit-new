@@ -292,18 +292,18 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8 pb-6 border-b border-base-200">
         <div className="flex items-start gap-4">
           <div className="p-3 bg-primary/10 text-primary rounded-2xl shadow-sm border border-primary/20 shrink-0">
-            <MdAssignment size={28} />
+            <MdAssignment size={20} />
           </div>
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-base-content tracking-tight">
+            <h2 className="text-lg  font-bold text-base-content tracking-tight">
               Submit Work Update
             </h2>
-            <p className="text-base-content/60 text-sm sm:text-base mt-1 max-w-xl">
+            <p className="text-base-content/60 text-sm  mt-1 max-w-xl">
               Share your daily progress, completed tasks, blockers, and attach necessary files to keep the team aligned.
             </p>
           </div>
         </div>
-        <div className="badge badge-primary badge-outline py-4 px-4 font-semibold shadow-sm whitespace-nowrap hidden sm:flex">
+        <div className="badge badge-primary badge-outline py-3 px-3 font-semibold shadow-sm whitespace-nowrap hidden sm:flex">
           {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
         </div>
       </div>
@@ -324,7 +324,7 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
                 <select
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="select select-bordered w-full pl-12 h-12 rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all bg-base-100 text-base-content text-base font-medium"
+                  className="select select-bordered w-full   rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all bg-base-100 text-base-content font-medium"
                   required
                 >
                   <option value="" disabled hidden>Select a project</option>
@@ -346,7 +346,7 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="E.g. Completed the authentication API, fixed the header bug, blocked on database access..."
                 rows={6}
-                className="textarea textarea-bordered w-full p-4 min-h-[160px] rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base-content text-base resize-y leading-relaxed"
+                className="textarea textarea-bordered w-full p-4 min-h-[160px] rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-base-content  resize-y leading-relaxed"
                 required
               />
               <div className="text-right mt-2 px-1">
@@ -375,11 +375,11 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
                   className="hidden"
                   id="fileUpload"
                 />
-                <div className="w-16 h-16 bg-base-100 shadow-sm border border-base-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:text-primary group-hover:border-primary/30 transition-transform duration-300">
-                  <MdCloudUpload size={32} className="text-base-content/40 group-hover:text-primary transition-colors"/>
+                <div className="w-14 h-14 bg-base-100 shadow-sm border border-base-200 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:text-primary group-hover:border-primary/30 transition-transform duration-300">
+                  <MdCloudUpload size={30} className="text-base-content/40 group-hover:text-primary transition-colors"/>
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-base-content mb-1">Click or drag files to upload</h3>
-                <p className="text-sm text-base-content/50">Supported formats: PDF, DOCX, XLSX, PNG, JPG</p>
+                <h3 className="text-base sm:text-md font-bold text-base-content mb-1">Click or drag files to upload</h3>
+                <p className="text-xs text-base-content/50">Supported formats: PDF, DOCX, XLSX, PNG, JPG</p>
               </div>
 
               {/* ATTACHMENT PREVIEW CARDS */}
@@ -431,7 +431,7 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
               <button
                 type="submit"
                 disabled={loading || !selectedProjectId || !description.trim()}
-                className="btn btn-primary w-full sm:w-auto min-w-[160px] rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all font-semibold"
+                className="btn  btn-primary w-full sm:w-auto min-w-[160px] rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all font-semibold"
               >
                 {loading && <span className="loading loading-spinner loading-xs"></span>}
                 {loading ? "Submitting..." : "Submit Update"}
@@ -446,7 +446,7 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
           {/* PROGRESS TRACKER */}
           <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-shadow">
             <div className="card-body p-6">
-              <h3 className="font-bold text-base-content mb-4 flex items-center gap-2 text-lg">
+              <h3 className="font-bold text-base-content mb-4 flex items-center gap-2 text-[16px]">
                 <MdCheckCircle className="text-success" size={22} />
                 Completion Status
               </h3>
@@ -476,7 +476,7 @@ const WorkUpdateForm = ({ slug, onSuccess }: WorkUpdateFormProps) => {
           {/* TIPS CARD */}
           <div className="card bg-info/5 border border-info/20 shadow-sm hover:shadow-md transition-shadow">
             <div className="card-body p-6">
-              <h3 className="font-bold text-info flex items-center gap-2 mb-4 text-lg">
+              <h3 className="font-bold text-info flex items-center gap-2 mb-4 text-[16px]">
                 <MdLightbulbOutline size={22} />
                 Writing a Great Update
               </h3>

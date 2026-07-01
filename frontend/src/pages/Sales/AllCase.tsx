@@ -32,7 +32,8 @@ import {
   MdAttachment,
   MdHistory,
   MdBarChart,
-  MdTrendingUp
+  MdTrendingUp,
+  MdChevronRight
 } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useAuth } from "@/auth/AuthContext";
@@ -94,6 +95,7 @@ export default function AllCase() {
     queryKey: ["cases", auth.slug],
     queryFn: () => getCases(auth.slug || "default-tenant"),
   });
+  console.log(data);
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
@@ -383,14 +385,18 @@ export default function AllCase() {
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">Cases Management</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li className="text-primary">Cases</li>
-            </ul>
-          </div>
+          <h1 className="text-xl font-bold text-base-content tracking-tight">Cases Management</h1>
+           <div className="mt-1 text-[13px] text-base-content/60 flex flex-wrap items-center gap-y-1">
+                              <span>Dashboard</span>
+                              <MdChevronRight className="mx-1 text-base-content/50" />
+                  
+                              <span>Sales</span>
+                              <MdChevronRight className="mx-1 text-base-content/50" />
+                  
+                              
+                  
+                                <span className="font-semibold text-primary">Cases</span>
+                            </div>
         </div>
         <div className="flex flex-wrap gap-2">
         <ImportExportActions
@@ -476,8 +482,8 @@ export default function AllCase() {
           {/* VIEW: TABLE */}
           {view === "table" && (
             <div className="flex-1 overflow-auto flex flex-col">
-              <div className="flex-1">
-                <table className="table table-pin-rows w-full text-sm">
+              <div className="flex-1 overflow-x-auto">
+               <table className="table table-pin-rows w-full text-sm min-w-[900px]">
                   <thead>
                     {table.getHeaderGroups().map(hg => (
                       <tr key={hg.id} className="bg-base-200/50 text-base-content/70">
@@ -505,7 +511,7 @@ export default function AllCase() {
                 </table>
               </div>
               {/* Pagination Footer */}
-              <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm mt-auto">
+              {/* <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm mt-auto">
                 <span className="text-base-content/60 font-medium">Showing {table.getRowModel().rows.length} of {filteredCases.length} cases</span>
                 <div className="flex items-center gap-3">
                   <select className="select select-sm select-bordered bg-base-200" value={table.getState().pagination.pageSize} onChange={(e) => table.setPageSize(Number(e.target.value))}>
@@ -517,7 +523,55 @@ export default function AllCase() {
                     <button className="join-item btn btn-sm bg-base-200" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>»</button>
                   </div>
                 </div>
-              </div>
+              </div> */}
+              <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm mt-auto">
+  
+  {/* Left info */}
+  <span className="text-base-content/60 font-medium text-center md:text-left">
+    Showing {table.getRowModel().rows.length} of {filteredCases.length} cases
+  </span>
+
+  {/* Right controls */}
+  <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+    
+    {/* Page size */}
+    <select
+      className="select select-sm select-bordered bg-base-200 w-full sm:w-auto"
+      value={table.getState().pagination.pageSize}
+      onChange={(e) => table.setPageSize(Number(e.target.value))}
+    >
+      {[10, 25, 50, 100].map((sz) => (
+        <option key={sz} value={sz}>
+          Show {sz}
+        </option>
+      ))}
+    </select>
+
+    {/* Pagination */}
+    <div className="join w-full sm:w-auto justify-center">
+      <button
+        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
+        onClick={() => table.previousPage()}
+        disabled={!table.getCanPreviousPage()}
+      >
+        «
+      </button>
+
+      <button className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none">
+        Page {table.getState().pagination.pageIndex + 1}
+      </button>
+
+      <button
+        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
+        onClick={() => table.nextPage()}
+        disabled={!table.getCanNextPage()}
+      >
+        »
+      </button>
+    </div>
+
+  </div>
+</div>
             </div>
           )}
 
@@ -775,11 +829,11 @@ export default function AllCase() {
             <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">{newAssignee || "-Select Representative-"}</label>
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
               <input type="text" placeholder="Search..." className="input input-sm input-bordered w-full mb-2" value={assigneeSearch} onChange={e => setAssigneeSearch(e.target.value)} />
-              <ul className="max-h-60 overflow-y-auto">
+              {/* <ul className="max-h-60 overflow-y-auto">
                 {salesReps.filter((r:string) => r.toLowerCase().includes(assigneeSearch.toLowerCase())).map((rep: string) => (
                   <li key={rep}><a onClick={() => { setNewAssignee(rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
                 ))}
-              </ul>
+              </ul> */}
             </div>
           </div>
           <div className="modal-action mt-6">
@@ -809,11 +863,11 @@ export default function AllCase() {
             <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">{newAssignee || "-Select Representative-"}</label>
             <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
               <input type="text" placeholder="Search..." className="input input-sm input-bordered w-full mb-2" value={assigneeSearch} onChange={e => setAssigneeSearch(e.target.value)} />
-              <ul className="max-h-60 overflow-y-auto">
+              {/* <ul className="max-h-60 overflow-y-auto">
                 {salesReps.filter((r:string) => r.toLowerCase().includes(assigneeSearch.toLowerCase())).map((rep: string) => (
                   <li key={rep}><a onClick={() => { setNewAssignee(rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
                 ))}
-              </ul>
+              </ul> */}
             </div>
           </div>
           <div className="modal-action mt-6">

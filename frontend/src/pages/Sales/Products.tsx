@@ -62,11 +62,25 @@ const productSchema = z.object({
 type ProductFormValues = z.infer<typeof productSchema>;
 
 /* ── Shared Component: Form Row ── */
-const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
-  <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
-    <label className="text-sm font-medium text-base-content/80 pt-2.5">
+// const FormRow = ({ label, required, error, children }: { label: string, required?: boolean, error?: string, children: React.ReactNode }) => (
+//   <div className="grid grid-cols-1 md:grid-cols-[180px_1fr] items-start gap-4">
+//     <label className="text-sm font-medium text-base-content/80 pt-2.5">
+//       {label} {required && <span className="text-error">*</span>}
+//     </label>
+//     <div className="w-full">
+//       {children}
+//       {error && <p className="text-error text-xs mt-1">{error}</p>}
+//     </div>
+//   </div>
+// );
+
+const FormRow = ({ label, required, error, children }: any) => (
+  // <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-[180px_1fr] gap-2 lg:gap-4 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-1 sm:gap-2 lg:gap-4 items-start">
+    <label className="text-sm font-medium text-base-content/80 lg:pt-2">
       {label} {required && <span className="text-error">*</span>}
     </label>
+
     <div className="w-full">
       {children}
       {error && <p className="text-error text-xs mt-1">{error}</p>}
@@ -323,13 +337,15 @@ export default function NewProduct() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
+    // <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-base-200 p-3 sm:p-4 md:p-6 lg:p-8 font-sans ">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit Product" : "Add Product"}</h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+          <h1 className="text-xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit Product" : "Add Product"}</h1>
+          {/* <div className="text-[13px] text-base-content/60 breadcrumbs mt-1"> */}
+          <div className="text-[13px] text-base-content/60 breadcrumbs mt-1">
             <ul>
               <li>Dashboard</li>
               <li>Sales</li>
@@ -338,31 +354,32 @@ export default function NewProduct() {
             </ul>
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button type="button" className="btn btn-outline btn-sm gap-2" onClick={() => loadTemplate("Electronics")}>
+        {/* <div className="flex gap-2 flex-wrap"> */}
+        <div className="flex flex-col sm:flex-row gap-2 flex-wrap">
+          <button type="button" className="btn btn-outline btn-sm gap-1" onClick={() => loadTemplate("Electronics")}>
             <MdContentCopy size={16} /> Load Template
           </button>
-          <button type="button" className="btn btn-outline btn-sm gap-2">
+          <button type="button" className="btn btn-outline btn-sm gap-1">
             <MdSave size={16} /> Save Draft
           </button>
           <button onClick={() => navigate(-1)} type="button" className="btn btn-ghost btn-sm">Cancel</button>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-6">
         
         {/* ── Left Column (Form Sections) ── */}
-        <div className="lg:col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4 w-full">
           
           {/* 1. Basic Product Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               1. Basic Product Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Product Group" required error={errors.productGroup?.message}>
-                <select {...register("productGroup")} className={`select select-bordered w-full ${errors.productGroup ? "select-error" : ""}`}>
+                <select {...register("productGroup")} className={`select select-sm select-bordered w-full ${errors.productGroup ? "select-error" : ""}`}>
                   <option value="">-Select Group-</option>
                   <option value="Electronics">Electronics</option>
                   <option value="Software">Software</option>
@@ -373,26 +390,26 @@ export default function NewProduct() {
               </FormRow>
               
               <FormRow label="Product Name" required error={errors.productName?.message}>
-                <input {...register("productName")} className={`input input-bordered w-full ${errors.productName ? "input-error" : ""}`} placeholder="Enter product name" />
+                <input {...register("productName")} className={`input input-sm input-bordered w-full ${errors.productName ? "input-error" : ""}`} placeholder="Enter product name" />
               </FormRow>
               
               <FormRow label="Product Code" required error={errors.productCode?.message}>
                 <div className="flex gap-2">
-                  <input {...register("productCode")} className={`input input-bordered w-full ${errors.productCode ? "input-error" : ""}`} placeholder="e.g. PRD-001" />
-                  <button type="button" onClick={handleAutoGenerateCode} className="btn btn-outline btn-primary whitespace-nowrap">Auto Generate</button>
+                  <input {...register("productCode")} className={`input input-sm input-bordered w-full ${errors.productCode ? "input-error" : ""}`} placeholder="e.g. PRD-001" />
+                  <button type="button" onClick={handleAutoGenerateCode} className="btn btn-sm btn-outline btn-primary whitespace-nowrap">Auto Generate</button>
                 </div>
               </FormRow>
 
               <FormRow label="Product SKU" error={errors.sku?.message}>
-                <input {...register("sku")} className="input input-bordered w-full" placeholder="Stock Keeping Unit" />
+                <input {...register("sku")} className="input input-sm input-bordered w-full" placeholder="Stock Keeping Unit" />
               </FormRow>
 
               <FormRow label="Barcode" error={errors.barcode?.message}>
-                <input {...register("barcode")} className="input input-bordered w-full" placeholder="Enter barcode / UPC" />
+                <input {...register("barcode")} className="input input-sm  input-bordered w-full" placeholder="Enter barcode / UPC" />
               </FormRow>
 
               <FormRow label="Product Status">
-                <select {...register("status")} className="select select-bordered w-full max-w-xs">
+                <select {...register("status")} className="select select-sm select-bordered w-full max-w-xs">
                   <option value="Active">Active</option>
                   <option value="Inactive">Inactive</option>
                   <option value="Discontinued">Discontinued</option>
@@ -400,7 +417,7 @@ export default function NewProduct() {
               </FormRow>
 
               <FormRow label="Description" error={errors.description?.message}>
-                <textarea {...register("description")} className="textarea textarea-bordered w-full" rows={4} placeholder="Product description..."></textarea>
+                <textarea {...register("description")} className="textarea textarea-sm textarea-bordered w-full" rows={4} placeholder="Product description..."></textarea>
               </FormRow>
             </div>
           </div>
@@ -408,36 +425,51 @@ export default function NewProduct() {
           {/* 2. Pricing Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               2. Pricing Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Cost Price" required error={errors.costPrice?.message}>
                 <div className="relative">
+<<<<<<< HEAD
                   <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input {...register("costPrice")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.costPrice ? "input-error" : ""}`} placeholder="0.00" />
+=======
+                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <input {...register("costPrice")} type="number" step="0.01" className={`input input-sm input-bordered w-full pl-8 ${errors.costPrice ? "input-error" : ""}`} placeholder="0.00" />
+>>>>>>> origin/Ritika
                 </div>
               </FormRow>
 
               <FormRow label="Selling Price" required error={errors.sellingPrice?.message}>
                 <div className="relative">
+<<<<<<< HEAD
                   <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input {...register("sellingPrice")} type="number" step="0.01" className={`input input-bordered w-full pl-8 ${errors.sellingPrice ? "input-error" : ""}`} placeholder="0.00" />
+=======
+                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <input {...register("sellingPrice")} type="number" step="0.01" className={`input input-sm input-bordered w-full pl-8 ${errors.sellingPrice ? "input-error" : ""}`} placeholder="0.00" />
+>>>>>>> origin/Ritika
                 </div>
               </FormRow>
 
               <FormRow label="Tax Percentage (%)" error={errors.tax?.message}>
-                <input {...register("tax")} type="number" className="input input-bordered w-full max-w-xs" placeholder="18" />
+                <input {...register("tax")} type="number" className="input input-sm input-bordered w-full max-w-xs" placeholder="18" />
               </FormRow>
 
               <FormRow label="Discount Percentage (%)" error={errors.discount?.message}>
-                <input {...register("discount")} type="number" className="input input-bordered w-full max-w-xs" placeholder="0" />
+                <input {...register("discount")} type="number" className="input input-sm input-bordered w-full max-w-xs" placeholder="0" />
               </FormRow>
 
               <FormRow label="Profit Margin">
                 <div className="relative">
+<<<<<<< HEAD
                   <span className="absolute left-3 top-3 text-base-content/50">₹</span>
                   <input type="number" readOnly value={profitMargin > 0 ? profitMargin : 0} className="input input-bordered w-full max-w-xs pl-8 bg-base-200 text-success font-bold" />
+=======
+                  <span className="absolute left-3 top-3 text-base-content/50">$</span>
+                  <input type="number" readOnly value={profitMargin > 0 ? profitMargin : 0} className="input input-sm input-bordered w-full max-w-xs pl-8 bg-base-200 text-success font-bold" />
+>>>>>>> origin/Ritika
                 </div>
                 <p className="text-xs text-base-content/50 mt-1">Calculated automatically (Selling Price - Cost Price)</p>
               </FormRow>
@@ -447,24 +479,24 @@ export default function NewProduct() {
           {/* 3. Inventory Info */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               3. Inventory Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Stock Tracking">
-                <input type="checkbox" {...register("stockTracking")} className="toggle toggle-success" />
+                <input type="checkbox" {...register("stockTracking")} className="toggle toggle-sm toggle-success" />
               </FormRow>
 
               <FormRow label="Opening Stock" error={errors.openingStock?.message}>
-                <input {...register("openingStock")} type="number" className="input input-bordered w-full max-w-xs" />
+                <input {...register("openingStock")} type="number" className="input input-sm input-bordered w-full max-w-xs" />
               </FormRow>
 
               <FormRow label="Reorder Level" error={errors.reorderLevel?.message}>
-                <input {...register("reorderLevel")} type="number" className="input input-bordered w-full max-w-xs" />
+                <input {...register("reorderLevel")} type="number" className="input input-sm input-bordered w-full max-w-xs" />
               </FormRow>
 
               <FormRow label="Unit of Measure" error={errors.uom?.message}>
-                <select {...register("uom")} className="select select-bordered w-full max-w-xs">
+                <select {...register("uom")} className="select select-sm select-bordered w-full max-w-xs">
                   <option value="">-Select UOM-</option>
                   <option value="Piece">Piece</option>
                   <option value="Box">Box</option>
@@ -476,7 +508,7 @@ export default function NewProduct() {
               </FormRow>
 
               <FormRow label="Warehouse" error={errors.warehouse?.message}>
-                <select {...register("warehouse")} className="select select-bordered w-full max-w-xs">
+                <select {...register("warehouse")} className="select select-sm select-bordered w-full max-w-xs">
                   <option value="">-Select Warehouse-</option>
                   <option value="Main Warehouse">Main Warehouse</option>
                   <option value="Secondary Depot">Secondary Depot</option>
@@ -494,31 +526,31 @@ export default function NewProduct() {
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Brand" error={errors.brand?.message}>
                 <div className="flex gap-2 max-w-xs">
-                  <select {...register("brand")} className="select select-bordered w-full">
+                  <select {...register("brand")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Brand-</option>
                     <option value="Sony">Sony</option>
                     <option value="Samsung">Samsung</option>
                     <option value="Apple">Apple</option>
                     {customBrands.map(b => <option key={b} value={b}>{b}</option>)}
                   </select>
-                  <button type="button" onClick={() => (document.getElementById('add_brand_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
+                  <button type="button" onClick={() => (document.getElementById('add_brand_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-outline btn-square"><MdAdd size={18} /></button>
                 </div>
               </FormRow>
 
               <FormRow label="Category" error={errors.category?.message}>
                 <div className="flex gap-2 max-w-xs">
-                  <select {...register("category")} className="select select-bordered w-full">
+                  <select {...register("category")} className="select select-sm select-bordered w-full">
                     <option value="">-Select Category-</option>
                     <option value="Audio">Audio</option>
                     <option value="Laptops">Laptops</option>
                     {customCategories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
-                  <button type="button" onClick={() => (document.getElementById('add_category_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
+                  <button type="button" onClick={() => (document.getElementById('add_category_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-outline btn-square"><MdAdd size={18} /></button>
                 </div>
               </FormRow>
 
               <FormRow label="Sub Category" error={errors.subCategory?.message}>
-                <select {...register("subCategory")} className="select select-bordered w-full max-w-xs">
+                <select {...register("subCategory")} className="select select-sm select-bordered w-full max-w-xs">
                   <option value="">-Select Sub Category-</option>
                   <option value="Headphones">Headphones</option>
                   <option value="Gaming Laptops">Gaming Laptops</option>
@@ -526,7 +558,7 @@ export default function NewProduct() {
               </FormRow>
 
               <FormRow label="Tags">
-                <select {...register("tags")} multiple className="select select-bordered w-full h-24">
+                <select {...register("tags")} multiple className="select select-sm select-bordered w-full h-15">
                   <option value="Best Seller">Best Seller</option>
                   <option value="New Arrival">New Arrival</option>
                   <option value="Featured">Featured</option>
@@ -541,28 +573,28 @@ export default function NewProduct() {
           {/* 5. Sales Configuration */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               5. Sales Configuration
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Available For Sale">
-                <input type="checkbox" {...register("availableForSale")} className="toggle toggle-success" />
+                <input type="checkbox" {...register("availableForSale")} className="toggle toggle-sm toggle-success" />
               </FormRow>
 
               <FormRow label="Allow Discount">
-                <input type="checkbox" {...register("allowDiscount")} className="toggle toggle-success" />
+                <input type="checkbox" {...register("allowDiscount")} className="toggle toggle-sm toggle-success" />
               </FormRow>
 
               <FormRow label="Minimum Sale Qty" error={errors.minQty?.message}>
-                <input {...register("minQty")} type="number" className="input input-bordered w-full max-w-xs" />
+                <input {...register("minQty")} type="number" className="input input-sm input-bordered w-full max-w-xs" />
               </FormRow>
 
               <FormRow label="Maximum Sale Qty" error={errors.maxQty?.message}>
-                <input {...register("maxQty")} type="number" className={`input input-bordered w-full max-w-xs ${errors.maxQty ? "input-error" : ""}`} />
+                <input {...register("maxQty")} type="number" className={`input input-sm input-bordered w-full max-w-xs ${errors.maxQty ? "input-error" : ""}`} />
               </FormRow>
 
               <FormRow label="Sales Commission (%)" error={errors.commission?.message}>
-                <input {...register("commission")} type="number" className="input input-bordered w-full max-w-xs" />
+                <input {...register("commission")} type="number" className="input input-sm input-bordered w-full max-w-xs" />
               </FormRow>
             </div>
           </div>
@@ -570,7 +602,7 @@ export default function NewProduct() {
           {/* 6. Product Images */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               6. Product Images
             </div>
             <div className="collapse-content pt-5">
@@ -580,7 +612,7 @@ export default function NewProduct() {
         onDrop={handleImageDrop}
                 className="border-2 border-dashed border-base-300 rounded-xl p-8 text-center hover:bg-base-200/50 transition-colors cursor-pointer"
               >
-                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={32} />
+                <MdAttachment className="mx-auto text-base-content/40 mb-2" size={30} />
                 <p className="text-sm font-medium text-base-content/70">Drag & Drop images or click to upload</p>
                 <p className="text-xs text-base-content/50 mt-1">Allowed: JPG, PNG, WEBP. Max 5 images.</p>
                 <input 
@@ -594,9 +626,11 @@ export default function NewProduct() {
               </div>
 
               {imagePreviews.length > 0 && (
-                <div className="flex flex-wrap gap-4 mt-4">
+                // <div className="flex flex-wrap gap-4 mt-4">
+                <div className="flex flex-wrap gap-3 sm:gap-4 mt-4">
                   {imagePreviews.map((src, idx) => (
-                    <div key={idx} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-base-300 shadow-sm">
+                    <div key={idx} className="relative group w-20 h-20
+                    sm:w-24 sm:h-24 rounded-lg overflow-hidden border border-base-300 shadow-sm">
                       <img src={src} alt="Preview" className="w-full h-full object-cover" />
                       <button 
                         type="button" 
@@ -615,12 +649,12 @@ export default function NewProduct() {
           {/* 7. Documents */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               7. Documents
             </div>
             <div className="collapse-content pt-5">
               <div className="flex items-center gap-4">
-                <button type="button" onClick={() => docInputRef.current?.click()} className="btn btn-outline btn-sm">Upload Documents</button>
+                <button type="button" onClick={() => docInputRef.current?.click()} className="btn  btn-outline btn-sm">Upload Documents</button>
                 <span className="text-xs text-base-content/50">Allow: PDF, DOCX, XLSX</span>
                 <input 
                   type="file" 
@@ -650,18 +684,18 @@ export default function NewProduct() {
           {/* 8. SEO Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               8. SEO Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Meta Title" error={errors.metaTitle?.message}>
-                <input {...register("metaTitle")} className="input input-bordered w-full" placeholder="Enter SEO Title" />
+                <input {...register("metaTitle")} className="input input-sm input-bordered w-full" placeholder="Enter SEO Title" />
               </FormRow>
               <FormRow label="Meta Description" error={errors.metaDescription?.message}>
-                <textarea {...register("metaDescription")} className="textarea textarea-bordered w-full" rows={3} placeholder="SEO description..."></textarea>
+                <textarea {...register("metaDescription")} className="textarea textarea-sm textarea-bordered w-full" rows={3} placeholder="SEO description..."></textarea>
               </FormRow>
               <FormRow label="Keywords" error={errors.keywords?.message}>
-                <input {...register("keywords")} className="input input-bordered w-full" placeholder="Comma separated keywords" />
+                <input {...register("keywords")} className="input input-sm input-bordered w-full" placeholder="Comma separated keywords" />
               </FormRow>
             </div>
           </div>
@@ -669,12 +703,12 @@ export default function NewProduct() {
           {/* 9. Audit Information (Read-only visible if Edit Mode theoretically) */}
           <div className="collapse bg-base-100 border border-base-300 rounded-xl opacity-60">
             <input type="checkbox" />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">
+            <div className="collapse-title text-md font-semibold border-b border-base-200">
               9. Audit Information (Read-Only)
             </div>
             <div className="collapse-content pt-5">
                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div><span className="font-medium">Created By:</span> Admin User</div>
+                  <div><span className=" font-medium">Created By:</span> Admin User</div>
                   <div><span className="font-medium">Created On:</span> {new Date().toLocaleDateString()}</div>
                   <div><span className="font-medium">Updated By:</span> -</div>
                   <div><span className="font-medium">Updated On:</span> -</div>
@@ -686,14 +720,14 @@ export default function NewProduct() {
 
         {/* ── Right Column (Sidebar Summary Card) ── */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200">Product Summary</h3>
+          <div className="bg-base-100 border border-base-300 rounded-xl p-5 lg:sticky lg:top-24 top-24 shadow-sm">
+            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">Product Summary</h3>
             
             <div className="space-y-4">
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Status</span>
                 <div className="mt-1">
-                  <div className={`badge ${wStatus === 'Active' ? 'badge-success text-white' : wStatus === 'Inactive' ? 'badge-warning' : 'badge-error text-white'} badge-lg font-bold`}>
+                  <div className={`badge ${wStatus === 'Active' ? 'badge-success text-white' : wStatus === 'Inactive' ? 'badge-warning' : 'badge-error text-white'} badge-md font-bold`}>
                     {wStatus || "Active"}
                   </div>
                 </div>
@@ -711,7 +745,11 @@ export default function NewProduct() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Selling Price</span>
+<<<<<<< HEAD
                 <p className="font-medium text-success text-lg mt-1">₹{wSellingPrice.toLocaleString()}</p>
+=======
+<p className="font-medium text-success text-base sm:text-lg mt-1">${wSellingPrice.toLocaleString()}</p>
+>>>>>>> origin/Ritika
               </div>
 
               <div>
@@ -742,7 +780,8 @@ export default function NewProduct() {
         <div className="modal-box">
           <h3 className="font-bold text-lg">Quick Add Brand</h3>
           <input type="text" value={newBrandInput} onChange={(e) => setNewBrandInput(e.target.value)} className="input input-bordered w-full mt-4" placeholder="Enter Brand Name" />
-          <div className="modal-action flex gap-2">
+          {/* <div className="modal-action flex gap-2"> */}
+          <div className="modal-action flex flex-col sm:flex-row gap-2">
             <form method="dialog">
               <button className="btn btn-ghost" onClick={() => setNewBrandInput("")}>Cancel</button>
             </form>
