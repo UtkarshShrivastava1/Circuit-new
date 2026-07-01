@@ -307,6 +307,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+   
+  const isActiveRoute = (path: string) => {
+  return location.pathname === path;
+};
 
   // Department state — persisted so page refresh keeps the selection
   const [department, setDepartment] = useState<Department>(() => {
@@ -372,6 +376,35 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
   const location = useLocation();
 
+const isProductsActive =
+  location.pathname === "/sales/products" ||
+  location.pathname === "/sales/products/new";
+
+  const isLeadsActive =
+  location.pathname === "/sales/leads" ||
+  location.pathname === "/sales/leads/new";
+
+
+  const isAccountsActive =
+  location.pathname === "/sales/accounts" ||
+  location.pathname === "/sales/accounts/new";
+
+  const isContactsActive =
+  location.pathname === "/sales/contacts" ||
+  location.pathname === "/sales/contacts/new";
+
+  const isTasksActive =
+  location.pathname === "/sales/tasks" ||
+  location.pathname === "/sales/tasks/new";
+
+
+  const isCasesActive =
+  location.pathname === "/sales/cases" ||
+  location.pathname === "/sales/cases/new";
+
+  const isForecastActive =
+  location.pathname === "/sales/forecast" ||
+  location.pathname === "/sales/forecast/new";
   /* ── enforce department for non-management employees ── */
   useEffect(() => {
     if (user && !isManagement) {
@@ -456,11 +489,19 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           <NavLink
             key={item.id}
             to={item.path}
-            className={(props) => `${linkClass(props)} relative`}
-            onClick={() => {
-              onItemClick?.(item.id);
-              onClose();
-            }}
+            end
+            // className={(props) => `${linkClass(props)} relative`}
+            // onClick={() => {
+            //   onItemClick?.(item.id);
+            //   onClose();
+            // }}
+             className={({ isActive }) =>
+    `${linkClass({ isActive })} relative`
+  }
+   onClick={() => {
+    onItemClick?.(item.id);
+    onClose(); 
+  }}
           >
             {item.icon}
             {!collapsed && <span>{item.label}</span>}
@@ -819,12 +860,22 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     )}
                     <div className="space-y-1">
                       {salesCoreMenu.map((item) => (
-                        <NavLink
-                          key={item.id}
-                          to={item.path}
-                          onClick={onClose}
-                          className={linkClass}
-                        >
+//                         <NavLink
+//                           key={item.id}
+//                           to={item.path}
+//                           onClick={onClose}
+//                           // className={linkClass}
+//                           className={({ isActive }) =>
+//   `${linkClass({ isActive })}`
+// }
+//                         >
+<NavLink
+  key={item.id}
+  to={item.path}
+  end
+  onClick={onClose}
+  className={({ isActive }) => linkClass({ isActive })}
+>
                           {item.icon}
                           {!collapsed && <span>{item.label}</span>}
                         </NavLink>
@@ -843,7 +894,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Products */}
                       <button
                         onClick={() => setSalesProductsOpen(!salesProductsOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
+                        className={dropdownBtnClass(isProductsActive)}
                       >
                         <MdStorefront size={20} />
                         {!collapsed && (
@@ -914,7 +966,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Lead */}
                       <button
                         onClick={() => setSalesLeadOpen(!salesLeadOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
+                        className={dropdownBtnClass(isLeadsActive)}
                       >
                         <Target size={20} />
                         {!collapsed && (
@@ -931,7 +984,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Account */}
                       <button
                         onClick={() => setSalesAccountOpen(!salesAccountOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
+                        className={dropdownBtnClass(isAccountsActive)}
                       >
                         <MdBusiness size={20} />
                         {!collapsed && (
@@ -948,7 +1002,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Contact */}
                       <button
                         onClick={() => setSalesContactOpen(!salesContactOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
+                        className={dropdownBtnClass(isContactsActive)}
                       >
                         <MdContactPage size={20} />
                         {!collapsed && (
@@ -975,7 +1030,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Task */}
                       <button
                         onClick={() => setSalesTaskOpen(!salesTaskOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
+                        className={dropdownBtnClass(isTasksActive)}
                       >
                         <MdTask size={20} />
                         {!collapsed && (
@@ -992,7 +1048,8 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {/* Case */}
                       <button
                         onClick={() => setSalesCaseOpen(!salesCaseOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
+                        className={dropdownBtnClass(isCasesActive)}
                       >
                         <MdSupportAgent size={20} />
                         {!collapsed && (
@@ -1007,9 +1064,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       {renderSubMenu(salesCaseSubMenu, salesCaseOpen)}
 
                       {/* Forecast */}
-                      <button
+                      {/* <button
                         onClick={() => setSalesForecastOpen(!salesForecastOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
+                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
+                        className={dropdownBtnClass(isForecastActive)}
                       >
                         <MdTrendingUp size={20} />
                         {!collapsed && (
@@ -1021,12 +1079,12 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                           </>
                         )}
                       </button>
-                      {renderSubMenu(salesForecastSubMenu, salesForecastOpen)}
+                      {renderSubMenu(salesForecastSubMenu, salesForecastOpen)} */}
                     </div>
                   </div>
 
                   {/* SETTINGS */}
-                  <div>
+                  {/* <div>
                     {!collapsed && (
                       <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
                         Settings
@@ -1049,7 +1107,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       </button>
                       {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
                     </div>
-                  </div>
+                  </div> */}
                 </>
               ) : (
                 /* EMPLOYEE SALES MENU */
@@ -1060,7 +1118,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     </p>
                   )}
                   <div className="space-y-1">
-                    <NavLink to="/sales" onClick={onClose} className={linkClass}>
+                    <NavLink end to="/sales" onClick={onClose} className={linkClass}>
                       <MdDashboard size={20} />
                       {!collapsed && <span>Dashboard</span>}
                     </NavLink>

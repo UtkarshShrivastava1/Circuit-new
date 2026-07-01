@@ -365,7 +365,7 @@ export default function AllSalesReps() {
   });
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
 
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
@@ -575,13 +575,15 @@ export default function AllSalesReps() {
           <p>Loading Sales Representatives...</p>
         </div>
       ) : (
-      <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
+      // <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
+         <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
         
         {/* View 1: TABLE */}
         {view === "table" && (
           <>
-            <div className="flex-1 overflow-auto">
-              <table className="table table-sm  table-pin-rows w-full text-sm">
+            {/* <div className="flex-1 overflow-auto"> */}
+             <div className="w-fullmax-w-full overflow-x-auto">
+              <table className="table table-sm  min-w-[900px]  w-full text-sm">
                 <thead>
                   {table.getHeaderGroups().map(headerGroup => (
                     <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">
@@ -714,9 +716,9 @@ export default function AllSalesReps() {
                     {rep.isTopPerformer && <div className="absolute top-0 right-0 bg-warning text-warning-content text-[10px] font-bold px-2 py-1 rounded-bl-lg">TOP</div>}
                     <div className="p-5 flex flex-col items-center text-center">
                       <div className="avatar mb-3">
-                        <div className="w-16 h-16 rounded-full border border-base-200 shadow-sm">
+                        {/* <div className="w-16 h-16 rounded-full border border-base-200 shadow-sm">
                           {rep.avatarUrl ? <img src={rep.avatarUrl} alt="avatar" /> : <span className="text-xl bg-primary text-white w-full h-full flex items-center justify-center font-bold">{rep.fullName.charAt(0)}</span>}
-                        </div>
+                        </div> */}
                       </div>
                       <h3 className="font-bold text-base-content">{rep.fullName}</h3>
                       <p className="text-xs text-primary font-mono font-semibold mt-0.5">{rep.employeeCode}</p>
@@ -744,7 +746,7 @@ export default function AllSalesReps() {
               
               {/* Target Achievement */}
               <div className="bg-base-100 border border-base-300 rounded-xl p-5 shadow-sm">
-                <h3 className="font-bold text-base-content mb-4 text-sm uppercase tracking-wider">Top Performers vs Targets</h3>
+                <h3 className="font-semibold text-base-content mb-4 text-sm uppercase tracking-wider">Top Performers vs Targets</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={performanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -762,7 +764,7 @@ export default function AllSalesReps() {
 
               {/* Revenue by Team/Territory Mock */}
               <div className="bg-base-100 border border-base-300 rounded-xl p-5 shadow-sm">
-                <h3 className="font-bold text-base-content mb-4 text-sm uppercase tracking-wider">Revenue Contribution</h3>
+                <h3 className="font-semibold text-base-content mb-4 text-sm uppercase tracking-wider">Revenue Contribution</h3>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>

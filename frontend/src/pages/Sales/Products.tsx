@@ -338,7 +338,7 @@ export default function NewProduct() {
 
   return (
     // <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
-    <div className="min-h-screen bg-base-200 p-3 sm:p-4 md:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-base-200 p-3 sm:p-4 md:p-6 lg:p-8 font-sans ">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">

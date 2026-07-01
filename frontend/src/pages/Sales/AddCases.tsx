@@ -60,10 +60,16 @@ export default function AddCases() {
     queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
   });
 
+
+  // const salesReps = useMemo(
+  //   () => repsData?.data?.map((r: any) => r.fullName) || [],
+  //   [repsData],
+  // );
   const salesReps = useMemo(
-    () => repsData?.data?.map((r: any) => r.fullName) || [],
-    [repsData],
-  );
+  () => repsData?.data?.map((r: any) => r.memberId?.name).filter(Boolean) || [],
+  [repsData],
+);
+ console.log("REPS RAW:", repsData);
 
   const mutation = useMutation({
     mutationFn: (newData: Partial<Case>) =>

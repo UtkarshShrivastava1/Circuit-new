@@ -538,7 +538,7 @@ export default function AllProducts({
   });
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
       
       {/* ── Page Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3 bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm">
@@ -762,12 +762,12 @@ export default function AllProducts({
       )}
 
       {/* ── Main Content Area ── */}
-      <div className="bg-base-100 border border-base-300 rounded-xl  shadow-sm flex flex-col relative">
-        
+      {/* <div className="bg-base-100 border border-base-300 rounded-xl  shadow-sm flex flex-col relative"> */}
+         <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
        
         {view === "table" && (
-          <div className="w-full overflow-auto">
-            <table className="table table-pin-rows w-full text-sm min-w-full">
+          <div className="w-full max-w-full  overflow-auto">
+            <table className="table table-sm min-w-[900px]  w-full text-sm ">
               <thead>
                 {table.getHeaderGroups().map(headerGroup => (
                   <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">
@@ -1126,7 +1126,7 @@ sellingPrice?.toLocaleString()}</p></div>
                 </div>
                 <div className="form-control">
                   <label className="label"><span className="label-text">Stock Status</span></label>
-                  <select className="select select-bordered w-full" value={productToEdit.stockStatus} onChange={(e) => setProductToEdit({...productToEdit, stockStatus: e.target.value as any})}>
+                  <select className="select  select-bordered w-full" value={productToEdit.stockStatus} onChange={(e) => setProductToEdit({...productToEdit, stockStatus: e.target.value as any})}>
                     <option value="In Stock">In Stock</option>
                     <option value="Low Stock">Low Stock</option>
                     <option value="Out Of Stock">Out Of Stock</option>

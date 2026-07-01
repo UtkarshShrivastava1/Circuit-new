@@ -408,7 +408,7 @@ export default function AllLeads() {
   };
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
@@ -630,9 +630,11 @@ export default function AllLeads() {
       )}
 
       {/* ── Main Content Area ── */}
-      <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
-        <div className="flex-1 overflow-auto">
-          <table className="table table-sm table-pin-rows w-full text-sm">
+      {/* <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative"> */}
+        <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
+        {/* <div className="flex-1 overflow-auto"> */}
+           <div className="w-full max-w-full overflow-x-auto">
+          <table className="table table-sm min-w-[900px]  w-full text-sm">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
@@ -694,7 +696,8 @@ export default function AllLeads() {
               )}
             </tbody>
           </table>
-        </div>
+          </div>
+        {/* </div> */}
 
         {/* Table Pagination Footer */}
         {/* <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
