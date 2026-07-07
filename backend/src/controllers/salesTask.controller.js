@@ -48,7 +48,7 @@ exports.getSalesTaskById = async (req, res) => {
 };
 
 
-exports.updateSalesTask = async (req, res) => {
+exports.updateSalesTask = async (req, res) => { 
   try {
     const tenantId = req.organization._id;
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {

@@ -5,6 +5,7 @@ const logger = require("../common/libs/logger");
 
 // Enable strictQuery for consistency
 mongoose.set("strictQuery", true);
+console.log(config.mongo.uri);
 
 const connectDB = async () => {
   try {

@@ -11,10 +11,10 @@ import {
   MdCalendarMonth,
   MdClose,
   MdVideoCall,
-  MdLocationOn,
+  // MdLocationOn,
   MdPhone,
   MdEmail,
-  MdArrowForward,
+  // MdArrowForward,
   MdMoreVert,
 } from "react-icons/md";
 import {
@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import {
   getSalesTaskByEmpId,
-  getSalesTaskById,
   updateSalesTask,
 } from "@/services/salesTaskServices";
 import { useAuth } from "@/auth/AuthContext";
@@ -285,7 +284,7 @@ export default function MyTasks() {
 
   // Stats
   const todayTasks = tasks.filter(
-    (t) => new Date(t.dueDate).toDateString() === new Date().toDateString(),
+    (t) => t.dueDate && new Date(t.dueDate).toDateString() === new Date().toDateString(),
   );
   const overdueTasks = tasks.filter(
     (t) => new Date(t.dueDate) < new Date() && t.status !== "Completed",

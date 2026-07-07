@@ -102,7 +102,7 @@ export default function AllSalesReps() {
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
-  console.log(data)
+  // console.log(data)
   const reps = useMemo(() => {
     return (data?.data || []).map((r: any) => ({
       ...r,

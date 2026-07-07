@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           slug: res.data.slug,
         });
       } catch (err) {
+        console.error("Failed to fetch user data:", err);
         setAuth({
           user: null,
           slug: null,

@@ -67,6 +67,13 @@ const taskSchema = z.object({
 
 type TaskFormValues = z.infer<typeof taskSchema>;
 
+interface Comment {
+  user: string;
+  time: string;
+  text: string;
+}
+
+
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function NewTask() {
   const navigate = useNavigate();
@@ -76,6 +83,8 @@ export default function NewTask() {
   const [assigneeSearch, setAssigneeSearch] = useState("");
   const { auth } = useAuth();
   const queryClient = useQueryClient();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
@@ -178,6 +187,11 @@ export default function NewTask() {
     if (e.dataTransfer.files) setAttachments(prev => [...prev, ...Array.from(e.dataTransfer.files!)]);
   };
 
+  const addComment = () => {
+    if (!newComment.trim()) return;
+    setComments(prev => [...prev, { user: "Admin", time: "Just now", text: newComment }]);
+    setNewComment("");
+  };
   const onSubmit = async (data: TaskFormValues) => {
     setIsSubmitting(true);
     // Note: File attachments are not sent as the backend endpoint does not currently support multipart/form-data.
@@ -631,8 +645,6 @@ export default function NewTask() {
             </div>
           </div>
 
-<<<<<<< HEAD
-=======
           {/* 9. Comments & Activity (Simulated Timeline) */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
@@ -676,7 +688,6 @@ export default function NewTask() {
             </div>
           </div>
 
->>>>>>> origin/Ritika
         </div>
 
         {/* ── Right Column (Summary Sidebar) ── */}
@@ -706,13 +717,9 @@ export default function NewTask() {
 
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span>
-<<<<<<< HEAD
-                <p className="font-medium text-base-content mt-1">
-                  {salesReps.find((rep: any) => rep.memberId._id === wAssignee)?.memberId.name || wAssignee || "Unassigned"}
+                <p className="font-medium text-sm text-base-content mt-1">
+                  {salesReps.find((rep: any) => rep.memberId._id === wAssignee)?.memberId.name || "Unassigned"}
                 </p>
-=======
-                <p className="font-medium text-sm text-base-content mt-1">{wAssignee || "Unassigned"}</p>
->>>>>>> origin/Ritika
               </div>
 
               <div>

@@ -15,7 +15,6 @@ import {
   MdSearch,
   MdFilterList,
   MdAdd,
-  MdDownload,
   MdRefresh,
   MdViewList,
   MdViewKanban,
@@ -111,13 +110,9 @@ export default function SalesTasksList() {
     queryKey: ["salesTasks", auth.slug],
     queryFn: () => getSalesTasks(auth.slug || "default-tenant"),
   });
-<<<<<<< HEAD
 
-  console.log("data : ",data);
+  // console.log("data : ",data);
 
-=======
-  console.log(data?.data);
->>>>>>> origin/Ritika
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
@@ -127,23 +122,6 @@ export default function SalesTasksList() {
   //   return repsData?.data?.map((r: any) => r.fullName) || [];
   // }, [repsData]);
   const salesReps = useMemo(() => {
-<<<<<<< HEAD
-    return repsData?.data || [];
-  }, [repsData]);
-
-  const getRepName = useCallback((idOrName: string) => {
-    if (!idOrName) return "Unassigned";
-    const rep = salesReps.find((r: any) => r._id === idOrName || r.memberId?._id === idOrName);
-    return rep ? (rep.fullName || rep.memberId?.name || idOrName) : idOrName;
-  }, [salesReps]);
-
-  const filteredReps = useMemo(() => {
-    if (!assigneeSearch) return salesReps;
-    return salesReps.filter((rep: any) => {
-      const name = rep.fullName || rep.memberId?.name || "";
-      return name.toLowerCase().includes(assigneeSearch.toLowerCase());
-    });
-=======
     return repsData?.data?.map((r: any) => r.memberId.name) || [];
   }, [repsData]);
   //   const salesReps = useMemo(() => {
@@ -154,7 +132,6 @@ export default function SalesTasksList() {
     return salesReps.filter((rep) =>
       rep.toLowerCase().includes(assigneeSearch.toLowerCase()),
     );
->>>>>>> origin/Ritika
   }, [salesReps, assigneeSearch]);
 
   const tasks = useMemo(() => {
@@ -202,128 +179,22 @@ export default function SalesTasksList() {
     const today = new Date().toISOString().split("T")[0];
     return {
       total: tasks.length,
-      pending: tasks.filter((t) => t.status === "Pending").length,
-      inProgress: tasks.filter((t) => t.status === "In Progress").length,
-      completed: tasks.filter((t) => t.status === "Completed").length,
+      pending: tasks.filter((t: any ) => t.status === "Pending").length,
+      inProgress: tasks.filter((t: any) => t.status === "In Progress").length,
+      completed: tasks.filter((t: any) => t.status === "Completed").length,
       overdue: tasks.filter(
-        (t) => t.dueDate < today && t.status !== "Completed",
+        (t: any) => t.dueDate < today && t.status !== "Completed",
       ).length,
-      todayFollowUps: tasks.filter((t) => t.followUpDate === today).length,
-      dealValue: tasks.reduce((sum, t) => sum + t.dealValue, 0),
+      todayFollowUps: tasks.filter((t: any) => t.followUpDate === today).length,
+      dealValue: tasks.reduce((sum : any, t: any) => sum + t.dealValue, 0),
       highPriority: tasks.filter(
-        (t) => t.priority === "High" || t.priority === "Urgent",
+        (t: any) => t.priority === "High" || t.priority === "Urgent",
       ).length,
     };
   }, [tasks]);
 
   // TanStack Table Setup
   const columnHelper = createColumnHelper<SalesTask>();
-<<<<<<< HEAD
-  const columns = useMemo(() => [
-    columnHelper.display({
-      id: "select",
-      header: ({ table }) => (
-        <input
-          type="checkbox"
-          className="checkbox checkbox-sm checkbox-primary"
-          checked={table.getIsAllRowsSelected()}
-          onChange={table.getToggleAllRowsSelectedHandler()}
-        />
-      ),
-      cell: ({ row }) => (
-        <input
-          type="checkbox"
-          className="checkbox checkbox-sm checkbox-primary"
-          checked={row.getIsSelected()}
-          onChange={row.getToggleSelectedHandler()}
-          onClick={(e) => e.stopPropagation()}
-        />
-      ),
-    }),
-    columnHelper.accessor("id", {
-      header: "Task ID",
-      cell: (info) => <span className="text-xs font-mono font-semibold">{info.getValue()}</span>,
-    }),
-    columnHelper.accessor("title", {
-      header: "Task Title",
-      cell: (info) => (
-        <span className="font-semibold text-primary hover:underline cursor-pointer">
-          {info.getValue()}
-        </span>
-      ),
-    }),
-    columnHelper.accessor("customer", {
-      header: "Customer",
-    }),
-    columnHelper.accessor("assignedTo", {
-      header: "Assigned To",
-      cell: (info) => {
-        const name = getRepName(info.getValue());
-        return (
-          <div className="flex items-center gap-2">
-            <div className="avatar placeholder">
-              <div className="bg-neutral text-neutral-content rounded-full w-6">
-                <span className="text-[10px]">{name.charAt(0)}</span>
-              </div>
-            </div>
-            <span className="text-sm">{name}</span>
-          </div>
-      )},
-    }),
-    columnHelper.accessor("priority", {
-      header: "Priority",
-      cell: (info) => {
-        const val = info.getValue();
-        const badgeClass =
-          val === "Urgent" ? "badge-error" : val === "High" ? "badge-warning" : val === "Medium" ? "badge-info" : "badge-neutral";
-        return <span className={`badge badge-sm font-semibold ${badgeClass}`}>{val}</span>;
-      },
-    }),
-    columnHelper.accessor("status", {
-      header: "Status",
-      cell: (info) => {
-        const val = info.getValue();
-        const badgeClass =
-          val === "Completed" ? "badge-success" : val === "In Progress" ? "badge-primary" : val === "On Hold" ? "badge-warning" : "badge-ghost";
-        return <span className={`badge badge-sm badge-outline ${badgeClass}`}>{val}</span>;
-      },
-    }),
-    columnHelper.accessor("dueDate", {
-      header: "Due Date",
-      cell: (info) => {
-        const date = info.getValue();
-        const isOverdue = date < new Date().toISOString().split("T")[0] && info.row.original.status !== "Completed";
-        return <span className={isOverdue ? "text-error font-bold" : ""}>{date}</span>;
-      },
-    }),
-    columnHelper.accessor("progress", {
-      header: "Progress",
-      cell: (info) => (
-        <div className="flex items-center gap-2 w-24">
-          <progress className="progress progress-success w-full" value={info.getValue()} max="100"></progress>
-          <span className="text-xs text-base-content/70">{info.getValue()}%</span>
-        </div>
-      ),
-    }),
-    columnHelper.display({
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="dropdown dropdown-end" onClick={(e) => e.stopPropagation()}>
-          <button tabIndex={0} className="btn btn-ghost btn-xs btn-square">
-            <MdMoreVert size={16} />
-          </button>
-          <ul tabIndex={0} className="dropdown-content z-50 menu p-2 shadow-lg bg-base-100 rounded-box w-40 border border-base-200">
-            <li><a onClick={() => setSelectedTask(row.original)}><MdViewList size={16} /> View Details</a></li>
-            <li><a onClick={(e) => { e.stopPropagation(); setTaskToEdit(row.original); setEditModalOpen(true); }}><MdEdit size={16} /> Edit Task</a></li>
-            <div className="divider my-1"></div>
-            <li><a className="text-error hover:bg-error/10" onClick={(e) => handleDelete(e, row.original.id)}><MdDelete size={16} /> Delete</a></li>
-          </ul>
-        </div>
-      ),
-    })
-  ], [navigate]);
-=======
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -492,11 +363,10 @@ export default function SalesTasksList() {
     ],
     [navigate],
   );
->>>>>>> origin/Ritika
 
   const filteredTasks = useMemo(() => {
     return tasks.filter(
-      (t) =>
+      (t: any) =>
         t.title.toLowerCase().includes(search.toLowerCase()) ||
         t.customer.toLowerCase().includes(search.toLowerCase()),
     );
@@ -535,6 +405,7 @@ export default function SalesTasksList() {
       setSuccessMessage(`Status updated for ${selected.length} tasks!`);
       setSuccessModalOpen(true);
     } catch (error) {
+      console.error("Failed to update status for some tasks:", error);
       toast.error("Failed to update status for some tasks.");
     }
   };
@@ -563,48 +434,46 @@ export default function SalesTasksList() {
 
   const handleBulkDelete = async () => {
     const selected = getSelectedTasks();
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selected.length} selected tasks?`,
-      )
-    ) {
-      try {
-        await Promise.all(
-          selected.map((t) => deleteMutation.mutateAsync(t.id)),
-        );
-        setBulkDeleteModalOpen(false);
-        setRowSelection({});
-        setSuccessMessage(`Deleted ${selected.length} tasks successfully!`);
-        setSuccessModalOpen(true);
-      } catch (error) {
-        toast.error("Failed to delete some tasks.");
-      }
+    try {
+      await Promise.all(
+        selected.map((t) => deleteMutation.mutateAsync(t.id)),
+      );
+      setBulkDeleteModalOpen(false);
+      setRowSelection({});
+      setSuccessMessage(`Deleted ${selected.length} tasks successfully!`);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Failed to delete some tasks:", error);
+      toast.error("Failed to delete some tasks.");
     }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!taskToEdit) return;
-
-    const payload = {
-      title: taskToEdit.title,
-      customer: taskToEdit.customer,
-      assignedTo: taskToEdit.assignedTo,
-      type: taskToEdit.type,
-      priority: taskToEdit.priority,
-      status: taskToEdit.status,
-      expectedDealValue: taskToEdit.dealValue,
-      opportunityStage: taskToEdit.stage,
-      startDate: taskToEdit.startDate,
-      dueDate: taskToEdit.dueDate,
-      followUpDate: taskToEdit.followUpDate,
-      progress: taskToEdit.progress,
-    };
-
-    await updateMutation.mutateAsync({ id: taskToEdit.id, payload });
-    setEditModalOpen(false);
-    setSuccessMessage("Task updated successfully!");
-    setSuccessModalOpen(true);
+    if (!taskToEdit?.id) return;
+    try {
+      const payload = {
+        title: taskToEdit.title,
+        customer: taskToEdit.customer,
+        assignedTo: taskToEdit.assignedTo,
+        type: taskToEdit.type,
+        priority: taskToEdit.priority,
+        status: taskToEdit.status,
+        expectedDealValue: taskToEdit.dealValue,
+        opportunityStage: taskToEdit.stage,
+        startDate: taskToEdit.startDate,
+        dueDate: taskToEdit.dueDate,
+        followUpDate: taskToEdit.followUpDate,
+        progress: taskToEdit.progress,
+      };
+      await updateMutation.mutateAsync({ id: taskToEdit.id, payload });
+      setEditModalOpen(false);
+      setSuccessMessage("Task updated successfully!");
+      setSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      toast.error("Failed to update task. Please try again.");
+    }
   };
 
   const handleImportSubmit = async (validRows: any[]) => {
@@ -653,19 +522,20 @@ export default function SalesTasksList() {
     }
   };
 
-  const handleDelete = async (e: React.MouseEvent, id: string) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent, id: string | undefined) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this task?")) {
       try {
-        await deleteMutation.mutateAsync(id);
+        await deleteMutation.mutateAsync(id as string);
         setSuccessMessage("Task deleted successfully!");
         setSuccessModalOpen(true);
         if (selectedTask?.id === id) setSelectedTask(null);
       } catch (err) {
+        console.error("Failed to delete task:", err);
         toast.error("Failed to delete task.");
       }
     }
-  };
+  },[deleteMutation, selectedTask]); 
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData("taskId", taskId);
@@ -685,6 +555,7 @@ export default function SalesTasksList() {
         setSelectedTask({ ...selectedTask, followUpDate: newFollowUpDate });
       }
     } catch (error) {
+      console.error("Failed to update follow-up date:", error);
       toast.error("Failed to update follow-up date.");
     }
   };
@@ -704,11 +575,12 @@ export default function SalesTasksList() {
       setSuccessMessage("Note added!");
       setSuccessModalOpen(true);
     } catch (err) {
+      console.error("Failed to add note:", err);
       toast.error("Failed to add note.");
     }
   };
 
-  return (
+  return(
     // <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
     <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col overflow-x-hidden">
       {/* ── Header ── */}
@@ -1025,20 +897,6 @@ export default function SalesTasksList() {
                       key={headerGroup.id}
                       className="bg-base-200/50 text-base-content/70"
                     >
-<<<<<<< HEAD
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-xs font-mono text-base-content/50">{task.id}</span>
-                        <span className={`badge badge-xs ${task.priority === 'Urgent' ? 'badge-error' : task.priority === 'High' ? 'badge-warning' : 'badge-neutral'}`}>
-                          {task.priority}
-                        </span>
-                      </div>
-                      <h4 className="font-semibold text-sm mb-1 leading-tight">{task.title}</h4>
-                      <p className="text-xs text-base-content/70 mb-3">{task.customer}</p>
-                      <div className="flex justify-between items-center mt-2 border-t border-base-200 pt-2">
-                        <div className="avatar placeholder" title={getRepName(task.assignedTo)}>
-                          <div className="bg-neutral text-neutral-content rounded-full w-6">
-                            <span className="text-[10px]">{getRepName(task.assignedTo).charAt(0)}</span>
-=======
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
@@ -1109,8 +967,8 @@ export default function SalesTasksList() {
                   </div>
                   <div className="p-3 flex-1 overflow-y-auto space-y-3">
                     {filteredTasks
-                      .filter((t) => t.status === status)
-                      .map((task) => (
+                      .filter((t : any ) => t.status === status)
+                      .map((task: any) => (
                         <div
                           key={task.id}
                           draggable
@@ -1147,7 +1005,6 @@ export default function SalesTasksList() {
                             >
                               Due: {task.dueDate}
                             </span>
->>>>>>> origin/Ritika
                           </div>
                         </div>
                       ))}
@@ -1291,13 +1148,6 @@ export default function SalesTasksList() {
                 Basic Information
               </h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-<<<<<<< HEAD
-                <div><p className="text-base-content/50 mb-1">Customer</p><p className="font-semibold">{selectedTask?.customer}</p></div>
-                <div><p className="text-base-content/50 mb-1">Task Type</p><p className="font-semibold">{selectedTask?.type}</p></div>
-                <div><p className="text-base-content/50 mb-1">Assigned To</p><p className="font-semibold">{getRepName(selectedTask?.assignedTo || "")}</p></div>
-                <div><p className="text-base-content/50 mb-1">Priority</p>
-                  <span className={`badge badge-sm font-semibold ${selectedTask?.priority === 'Urgent' ? 'badge-error' : 'badge-warning'}`}>{selectedTask?.priority}</span>
-=======
                 <div>
                   <p className="text-base-content/50 mb-1">Customer</p>
                   <p className="font-semibold">{selectedTask?.customer}</p>
@@ -1317,7 +1167,6 @@ export default function SalesTasksList() {
                   >
                     {selectedTask?.priority}
                   </span>
->>>>>>> origin/Ritika
                 </div>
               </div>
             </section>
@@ -1482,16 +1331,11 @@ export default function SalesTasksList() {
         <div className="modal-box">
           <h3 className="font-bold text-lg mb-4">Assign Employee</h3>
           <div className="dropdown w-full">
-<<<<<<< HEAD
-            <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">
-              {getRepName(newAssignee) || "-Select Employee-"}
-=======
             <label
               tabIndex={0}
               className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300"
             >
               {newAssignee || "-Select Employee-"}
->>>>>>> origin/Ritika
             </label>
             <div
               tabIndex={0}
@@ -1505,14 +1349,6 @@ export default function SalesTasksList() {
                 onChange={(e) => setAssigneeSearch(e.target.value)}
               />
               <ul className="max-h-60 overflow-y-auto">
-<<<<<<< HEAD
-                {filteredReps.map((rep: any) => {
-                  const name = rep.fullName || rep.memberId?.name || "Unknown";
-                  const id = rep.memberId?._id || rep._id;
-                  return (
-                  <li key={id}>
-                    <a onClick={() => { setNewAssignee(id); (document.activeElement as HTMLElement)?.blur(); }}>{name}</a>
-=======
                 {filteredReps.map((rep) => (
                   <li key={rep}>
                     <a
@@ -1523,9 +1359,8 @@ export default function SalesTasksList() {
                     >
                       {rep}
                     </a>
->>>>>>> origin/Ritika
                   </li>
-                )})}
+                ))};
               </ul>
             </div>
           </div>
@@ -1566,7 +1401,7 @@ export default function SalesTasksList() {
               Cancel
             </button>
             <button className="btn btn-error" onClick={handleBulkDelete}>
-              Delete
+              Yes, Delete
             </button>
           </div>
         </div>
@@ -1611,23 +1446,6 @@ export default function SalesTasksList() {
                     <span className="label-text">Assigned To</span>
                   </label>
                   <div className="dropdown w-full">
-<<<<<<< HEAD
-                    <input 
-                      type="text" 
-                      className="input input-bordered w-full" 
-                      value={getRepName(taskToEdit.assignedTo)} 
-                      readOnly
-                      placeholder="-Select Employee-"
-                      tabIndex={0}
-                    />
-                    <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-50 border border-base-300">
-                      {salesReps.map((rep: any) => {
-                        const name = rep.fullName || rep.memberId?.name || "Unknown";
-                        const id = rep.memberId?._id || rep._id;
-                        return (
-                        <li key={id}>
-                          <a onClick={() => { setTaskToEdit({...taskToEdit, assignedTo: id}); (document.activeElement as HTMLElement)?.blur(); }}>{name}</a>
-=======
                     <input
                       type="text"
                       className="input input-bordered w-full"
@@ -1655,9 +1473,8 @@ export default function SalesTasksList() {
                           >
                             {rep}
                           </a>
->>>>>>> origin/Ritika
                         </li>
-                      )})}
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -1845,6 +1662,7 @@ export default function SalesTasksList() {
               </div>
             </form>
           )}
+        
         </div>
       </dialog>
 
@@ -1897,5 +1715,6 @@ export default function SalesTasksList() {
         </div>
       </dialog>
     </div>
+  
   );
 }

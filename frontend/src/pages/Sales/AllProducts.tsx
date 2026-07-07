@@ -217,6 +217,7 @@ export default function AllProducts({
     const fetchProducts = async () => {
       try {
         const response = await getAllProducts(auth.slug || "default-tenant");
+        // console.log("Response : " , response);
         
         if (response?.success && response?.data) {
           const mappedProducts = response.data.map((p: Product & { _id?: string; openingStock?: number }) => ({
@@ -240,7 +241,7 @@ export default function AllProducts({
     }
   }, [propProducts, stockModalOpen, auth.slug, refreshFlag]);
 
-  const initiateDelete = useCallback((id: string) => {
+  const initiateDelete = useCallback((id: string | undefined) => {
     setProductToDelete(id);
     setDeleteModalOpen(true);
   }, []);
@@ -248,7 +249,8 @@ export default function AllProducts({
   const confirmDelete = async () => {
     if (!productToDelete) return;
     try {
-      await deleteProduct(productToDelete, auth.slug || "default-tenant");
+      console.log(auth.slug)
+      await deleteProduct(productToDelete, auth.slug || "default-tenant" );
       setProducts((prev) => prev.filter((p) => p.id !== productToDelete));
       setDeleteModalOpen(false);
       if (selectedProduct?.id === productToDelete) {
@@ -285,6 +287,7 @@ export default function AllProducts({
       setSuccessMessage("Stock updated successfully!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
+      console.error("Failed to update stock:", error);
       toast.error("Failed to update stock.");
     }
   };
@@ -302,7 +305,8 @@ export default function AllProducts({
       setSuccessMessage("Product updated successfully!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
-      toast.error("Failed to update product.",error);
+      console.error("Failed to update product:", error);
+      toast.error("Failed to update product.");
     }
   };
 
@@ -317,6 +321,7 @@ export default function AllProducts({
       setSuccessMessage("Product archived successfully!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
+      console.error("Failed to archive product:", error);
       toast.error("Failed to archive product.");
     }
   };
@@ -347,7 +352,8 @@ export default function AllProducts({
       setSuccessMessage("Status updated for selected products!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
-      toast.error("Failed to update status for some products.",error);
+      console.error("Failed to update status:", error);
+      toast.error("Failed to update status for some products.");
     }
   };
 
@@ -361,7 +367,8 @@ export default function AllProducts({
       setSuccessMessage("Category updated for selected products!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
-      toast.error("Failed to update category for some products.",error);
+      console.error("Failed to update category:", error);
+      toast.error("Failed to update category for some products.");
     }
   };
 
@@ -378,7 +385,8 @@ export default function AllProducts({
       setSuccessMessage(`${selected.length} products deleted successfully!`);
       setSuccessModalOpen(true);
     } catch (error: unknown) {
-      toast.error("Failed to delete some products.",error);
+      console.error("Failed to delete products:", error);
+      toast.error("Failed to delete some products.");
     }
   };
 

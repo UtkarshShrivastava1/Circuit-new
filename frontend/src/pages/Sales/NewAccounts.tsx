@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useNavigate } from "react-router-dom";
-import { MdSave, MdBusiness, MdDelete } from "react-icons/md";
+import { MdSave, MdBusiness } from "react-icons/md";
 import { toast } from "react-toastify";
 import { createAccount } from "@/services/salesService";
 import { useAuth } from "@/auth/AuthContext";
@@ -113,13 +113,13 @@ export default function NewAccountForm() {
          const res = await getSalesEmployees(slug);
          setOwners(res.data.data);
        } catch (err) {
-         console.log(err);
+         console.error(err);
        }
      };
  
      fetchOwners();
    }, []);
-   console.log(owners)
+ 
   const onSubmit = async (data: AccountFormValues) => {
   setIsSubmitting(true);
 const payload = {
@@ -172,7 +172,7 @@ const payload = {
 
     const response = await createAccount(slug, payload);
     
-    console.log("Account Created:", response.data);
+ 
 
     toast.success("Account created successfully!");
     navigate("/sales/accounts");
@@ -270,13 +270,8 @@ const payload = {
                 </FormRow>
                 <FormRow label="Annual Revenue">
                   <div className="relative">
-<<<<<<< HEAD
                     <span className="absolute left-3 top-3 text-base-content/50">₹</span>
-                    <input type="number" {...register("annualRevenue")} className="input input-bordered w-full pl-8" placeholder="0.00" />
-=======
-                    <span className="absolute left-3 top-3 text-base-content/50">$</span>
                     <input type="number" {...register("annualRevenue")} className="input input-sm input-bordered w-full pl-8" placeholder="0.00" />
->>>>>>> origin/Ritika
                   </div>
                 </FormRow>
               </div>

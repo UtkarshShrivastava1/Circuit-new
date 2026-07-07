@@ -307,10 +307,6 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const { auth } = useAuth();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
-   
-  const isActiveRoute = (path: string) => {
-  return location.pathname === path;
-};
 
   // Department state — persisted so page refresh keeps the selection
   const [department, setDepartment] = useState<Department>(() => {
@@ -376,35 +372,6 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
   const location = useLocation();
 
-const isProductsActive =
-  location.pathname === "/sales/products" ||
-  location.pathname === "/sales/products/new";
-
-  const isLeadsActive =
-  location.pathname === "/sales/leads" ||
-  location.pathname === "/sales/leads/new";
-
-
-  const isAccountsActive =
-  location.pathname === "/sales/accounts" ||
-  location.pathname === "/sales/accounts/new";
-
-  const isContactsActive =
-  location.pathname === "/sales/contacts" ||
-  location.pathname === "/sales/contacts/new";
-
-  const isTasksActive =
-  location.pathname === "/sales/tasks" ||
-  location.pathname === "/sales/tasks/new";
-
-
-  const isCasesActive =
-  location.pathname === "/sales/cases" ||
-  location.pathname === "/sales/cases/new";
-
-  const isForecastActive =
-  location.pathname === "/sales/forecast" ||
-  location.pathname === "/sales/forecast/new";
   /* ── enforce department for non-management employees ── */
   useEffect(() => {
     if (user && !isManagement) {
@@ -419,7 +386,7 @@ const isProductsActive =
   /* ── nav link class helper ── */
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "group flex items-center gap-3 rounded-md px-2.5 py-1.5 text-xs transition-all",
+      "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content",
@@ -463,7 +430,7 @@ const isProductsActive =
 
   /* ── shared submenu button styles ── */
   const dropdownBtnClass = (isActive: boolean) =>
-    `relative flex items-center gap-3 w-full px-2.5 py-1.5 rounded-md text-xs transition-all ${
+    `relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content"
@@ -489,19 +456,11 @@ const isProductsActive =
           <NavLink
             key={item.id}
             to={item.path}
-            end
-            // className={(props) => `${linkClass(props)} relative`}
-            // onClick={() => {
-            //   onItemClick?.(item.id);
-            //   onClose();
-            // }}
-             className={({ isActive }) =>
-    `${linkClass({ isActive })} relative`
-  }
-   onClick={() => {
-    onItemClick?.(item.id);
-    onClose(); 
-  }}
+            className={(props) => `${linkClass(props)} relative`}
+            onClick={() => {
+              onItemClick?.(item.id);
+              onClose();
+            }}
           >
             {item.icon}
             {!collapsed && <span>{item.label}</span>}
@@ -527,7 +486,7 @@ const isProductsActive =
           fixed lg:static top-0 left-0 z-50
           h-screen bg-primary border-r border-base-300 flex flex-col
           transition-all duration-300 ease-in-out overflow-hidden
-          ${collapsed ? "w-20" : "w-56"}
+          ${collapsed ? "w-20" : "w-64"}
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
@@ -860,22 +819,12 @@ const isProductsActive =
                     )}
                     <div className="space-y-1">
                       {salesCoreMenu.map((item) => (
-//                         <NavLink
-//                           key={item.id}
-//                           to={item.path}
-//                           onClick={onClose}
-//                           // className={linkClass}
-//                           className={({ isActive }) =>
-//   `${linkClass({ isActive })}`
-// }
-//                         >
-<NavLink
-  key={item.id}
-  to={item.path}
-  end
-  onClick={onClose}
-  className={({ isActive }) => linkClass({ isActive })}
->
+                        <NavLink
+                          key={item.id}
+                          to={item.path}
+                          onClick={onClose}
+                          className={linkClass}
+                        >
                           {item.icon}
                           {!collapsed && <span>{item.label}</span>}
                         </NavLink>
@@ -894,8 +843,7 @@ const isProductsActive =
                       {/* Products */}
                       <button
                         onClick={() => setSalesProductsOpen(!salesProductsOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
-                        className={dropdownBtnClass(isProductsActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/products"))}
                       >
                         <MdStorefront size={20} />
                         {!collapsed && (
@@ -966,8 +914,7 @@ const isProductsActive =
                       {/* Lead */}
                       <button
                         onClick={() => setSalesLeadOpen(!salesLeadOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
-                        className={dropdownBtnClass(isLeadsActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/leads"))}
                       >
                         <Target size={20} />
                         {!collapsed && (
@@ -984,8 +931,7 @@ const isProductsActive =
                       {/* Account */}
                       <button
                         onClick={() => setSalesAccountOpen(!salesAccountOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
-                        className={dropdownBtnClass(isAccountsActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/accounts"))}
                       >
                         <MdBusiness size={20} />
                         {!collapsed && (
@@ -1002,8 +948,7 @@ const isProductsActive =
                       {/* Contact */}
                       <button
                         onClick={() => setSalesContactOpen(!salesContactOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
-                        className={dropdownBtnClass(isContactsActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/contacts"))}
                       >
                         <MdContactPage size={20} />
                         {!collapsed && (
@@ -1030,8 +975,7 @@ const isProductsActive =
                       {/* Task */}
                       <button
                         onClick={() => setSalesTaskOpen(!salesTaskOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
-                        className={dropdownBtnClass(isTasksActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/tasks"))}
                       >
                         <MdTask size={20} />
                         {!collapsed && (
@@ -1048,8 +992,7 @@ const isProductsActive =
                       {/* Case */}
                       <button
                         onClick={() => setSalesCaseOpen(!salesCaseOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
-                        className={dropdownBtnClass(isCasesActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/cases"))}
                       >
                         <MdSupportAgent size={20} />
                         {!collapsed && (
@@ -1064,10 +1007,9 @@ const isProductsActive =
                       {renderSubMenu(salesCaseSubMenu, salesCaseOpen)}
 
                       {/* Forecast */}
-                      {/* <button
+                      <button
                         onClick={() => setSalesForecastOpen(!salesForecastOpen)}
-                        // className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
-                        className={dropdownBtnClass(isForecastActive)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/forecast"))}
                       >
                         <MdTrendingUp size={20} />
                         {!collapsed && (
@@ -1079,17 +1021,12 @@ const isProductsActive =
                           </>
                         )}
                       </button>
-                      {renderSubMenu(salesForecastSubMenu, salesForecastOpen)} */}
+                      {renderSubMenu(salesForecastSubMenu, salesForecastOpen)}
                     </div>
                   </div>
 
-<<<<<<< HEAD
                   {/* SETTINGS 
                   <div>
-=======
-                  {/* SETTINGS */}
-                  {/* <div>
->>>>>>> origin/Ritika
                     {!collapsed && (
                       <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
                         Settings
@@ -1112,11 +1049,7 @@ const isProductsActive =
                       </button>
                       {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
                     </div>
-<<<<<<< HEAD
                   </div>*/}
-=======
-                  </div> */}
->>>>>>> origin/Ritika
                 </>
               ) : (
                 /* EMPLOYEE SALES MENU */
@@ -1127,7 +1060,7 @@ const isProductsActive =
                     </p>
                   )}
                   <div className="space-y-1">
-                    <NavLink end to="/sales" onClick={onClose} className={linkClass}>
+                    <NavLink to="/sales" onClick={onClose} className={linkClass}>
                       <MdDashboard size={20} />
                       {!collapsed && <span>Dashboard</span>}
                     </NavLink>

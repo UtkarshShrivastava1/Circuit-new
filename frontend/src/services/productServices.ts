@@ -21,6 +21,6 @@ export const updateProduct = async (productId: string, productData: unknown, slu
 }
 
 export const deleteProduct = async (productId: string, slug: string) => {
-  const res = await API.delete(`/products/x${slug}/get-products/${productId}`);
+  const res = await API.delete(`/products/${slug}/get-products/${productId}`);
   return res.data.success;
 }

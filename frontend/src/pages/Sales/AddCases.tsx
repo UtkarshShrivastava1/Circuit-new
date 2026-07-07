@@ -59,22 +59,13 @@ export default function AddCases() {
     queryKey: ["salesReps", auth?.slug],
     queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
   });
-<<<<<<< HEAD
-  
-  const salesReps = useMemo(() => repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [], [repsData]);
-=======
 
 
-  // const salesReps = useMemo(
-  //   () => repsData?.data?.map((r: any) => r.fullName) || [],
-  //   [repsData],
-  // );
   const salesReps = useMemo(
-  () => repsData?.data?.map((r: any) => r.memberId?.name).filter(Boolean) || [],
-  [repsData],
-);
+    () => repsData?.data?.map((r: any) => r.memberId?.name).filter(Boolean) || [],
+    [repsData?.data],
+  );
  console.log("REPS RAW:", repsData);
->>>>>>> origin/Ritika
 
   const mutation = useMutation({
     mutationFn: (newData: Partial<Case>) =>

@@ -48,7 +48,7 @@ export default function TaskDashboard() {
   const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<"table" | "kanban">("table");
+  const [active, setActive] = useState<TaskView>("table");
 
 
 
@@ -185,7 +185,7 @@ export default function TaskDashboard() {
         <StatCard
           title="Overdue"
           value={
-            tasks.filter((t) => {
+            tasks.filter((t: any) => {
               const due = new Date(t.dueDate);
               return due < new Date() && t.status !== "completed";
             }).length

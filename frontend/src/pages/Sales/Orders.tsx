@@ -23,18 +23,10 @@ import {
   updateOrder,
 } from "@/services/orderServices";
 import { getSalesReps } from "@/services/salesRepServices";
-import { getAllProducts } from "@/services/productServices";
 import { getAllAccounts } from "@/services/salesService";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "@/services/productServices";
 
-<<<<<<< HEAD
-// const productsData = [
-//   { id: "PRD-101", name: "Wireless Headphones Pro", sku: "WHP-BLK-01", retail: 4999, cost: 2500, stock: 145 },
-//   { id: "PRD-102", name: "ERP Suite License", sku: "ERP-ENT-ANNUAL", retail: 24999, cost: 5000, stock: 9999 },
-//   { id: "PRD-103", name: "USB-C Hub 7-in-1", sku: "HUB-7IN1-SLV", retail: 1299, cost: 600, stock: 12 },
-// ];
-=======
 /* ─────────────────────────── Mock Data ─────────────────────────── */
 const MOCK_CUSTOMERS = [
   {
@@ -83,7 +75,6 @@ const MOCK_PRODUCTS = [
     stock: 12,
   },
 ];
->>>>>>> origin/Ritika
 
 /* ─────────────────────────── Helpers ─────────────────────────── */
 const numberToWords = (num: number): string => {
@@ -268,9 +259,7 @@ export default function NewOrderForm() {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const { auth } = useAuth();
-  const [attachments, setAttachments] = useState<File[]>([]);
   const [ownerSearch, setOwnerSearch] = useState("");
-  const [productsData, setProductsData] = useState<any[]>([]);
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth?.slug],
@@ -282,26 +271,10 @@ export default function NewOrderForm() {
     queryFn: () => getAllAccounts(auth?.slug || "default-tenant"),
   });
 
-  const { data: products } = useQuery({
+  const { data: fetchedProductsData } = useQuery({
     queryKey: ["products", auth?.slug],
     queryFn: () => getAllProducts(auth?.slug || "default-tenant"),
   });
-
-  console.log("Product : ", productsData)
-
-  useEffect(() => {
-    if (products?.data) {
-      const mappedProducts = products.data.map((p: any) => ({
-        id: p._id || p.id,
-        name: p.productName || p.name,
-        sku: p.sku || "",
-        stock: p.stockQuantity ?? p.openingStock ?? 0,
-        retail: p.sellingPrice || p.unitPrice || 0,
-        cost: p.costPrice || 0,
-      }));
-      setProductsData(mappedProducts);
-    }
-  }, [products]);
 
   const customers = useMemo(() => {
     return accountsData?.data?.data?.map((acc: any) => ({
@@ -316,30 +289,25 @@ export default function NewOrderForm() {
   }, [accountsData]);
 
   const salesReps = useMemo(() => {
-<<<<<<< HEAD
-    return repsData?.data?.map((r: any) => r.memberId?.name || r.name || r.fullName).filter(Boolean) || [];
-=======
     return repsData?.data?.map((r: any) => r.memberId.name) || [];
->>>>>>> origin/Ritika
   }, [repsData]);
-  const { data: productsData } = useQuery({
-    queryKey: ["products", auth?.slug],
-    queryFn: () => getAllProducts(auth?.slug || "default-tenant"),
-  });
 
   const products = useMemo(() => {
-    return productsData?.data || [];
-  }, [productsData]);
-  console.log(products);
+    return (fetchedProductsData?.data || []).map((p: any) => ({
+      id: p._id || p.id,
+      _id: p._id || p.id,
+      productName: p.productName || p.name,
+      sku: p.sku || "",
+      stockQuantity: p.stockQuantity ?? p.openingStock ?? 0,
+      sellingPrice: p.sellingPrice || p.unitPrice || 0,
+      costPrice: p.costPrice || 0,
+    }));
+  }, [fetchedProductsData]);
   const filteredOwners = useMemo(() => {
     if (!ownerSearch) return salesReps;
-<<<<<<< HEAD
-    return salesReps.filter(rep => rep?.toLowerCase().includes(ownerSearch.toLowerCase()));
-=======
     return salesReps.filter((rep) =>
       rep.toLowerCase().includes(ownerSearch.toLowerCase()),
     );
->>>>>>> origin/Ritika
   }, [salesReps, ownerSearch]);
 
   const {
@@ -349,7 +317,7 @@ export default function NewOrderForm() {
     watch,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors }
   } = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema),
     defaultValues: {
@@ -455,13 +423,9 @@ export default function NewOrderForm() {
           const res = await getOrderById(orderId, auth.slug as string);
           if (res.success && res.data) {
             const o = res.data;
-<<<<<<< HEAD
-            const matchedCustomer = customers.find(c => c.name === o.customerName);
-=======
             const matchedCustomer = MOCK_CUSTOMERS.find(
               (c) => c.name === o.customerName,
             );
->>>>>>> origin/Ritika
             reset({
               orderNumber: o.orderNumber,
               salesOwner: o.salesRep || "V VINAY Kumar",
@@ -480,20 +444,6 @@ export default function NewOrderForm() {
               billingAddress: o.billingAddress || "",
               shippingAddress: o.shippingAddress || "",
               sameAsBilling: o.billingAddress === o.shippingAddress,
-<<<<<<< HEAD
-              items: o.products?.map(p => ({
-                productId: p.productId,
-                sku: p.sku || "",
-                stock: productsData.find(mp => mp.id === p.productId)?.stock || 999,
-                retailPrice: p.price,
-                costPrice: p.price * 0.8,
-                sellingPrice: p.price,
-                quantity: p.quantity || (p as any).qty || 1,
-                discountPct: p.discount || 0,
-                taxPct: p.tax || 0,
-                lineTotal: p.total
-              })) || [],
-=======
               items:
                 o.products?.map((p) => ({
                   productId: p.productId,
@@ -509,7 +459,6 @@ export default function NewOrderForm() {
                   taxPct: p.tax || 0,
                   lineTotal: p.total,
                 })) || [],
->>>>>>> origin/Ritika
               subtotal: o.orderValue || 0,
               summaryDiscount: 0,
               summaryTax: 0,
@@ -531,22 +480,19 @@ export default function NewOrderForm() {
             });
           }
         } catch (err) {
+          console.error(err);
           toast.error("Failed to load order details.");
         }
       };
-      if (customers.length > 0 || accountsData) fetchOrder();
+      if (customers.length > 0 && products.length > 0) fetchOrder();
     }
   }, [orderId, auth.slug, reset, customers, accountsData]);
 
   /* ── Handlers ── */
   const handleCustomerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const cid = e.target.value;
-    setValue("customerId", cid);
-<<<<<<< HEAD
-    const customer = customers.find(c => c.id === cid);
-=======
-    const customer = MOCK_CUSTOMERS.find((c) => c.id === cid);
->>>>>>> origin/Ritika
+    setValue("customerId", cid, { shouldValidate: true });
+    const customer = customers.find((c) => c.id === cid);
     if (customer) {
       setValue("contactPerson", customer.contact);
       setValue("phone", customer.phone);
@@ -575,13 +521,9 @@ export default function NewOrderForm() {
     const pid = e.target.value;
 
     setValue(`items.${index}.productId`, pid);
-<<<<<<< HEAD
-    const product = productsData.find(p => p.id === pid);
-=======
 
     const product = products.find((p) => p._id === pid);
 
->>>>>>> origin/Ritika
     if (product) {
       setValue(`items.${index}.sku`, product.sku || "");
       setValue(`items.${index}.stock`, product.stockQuantity || 0);
@@ -595,6 +537,7 @@ export default function NewOrderForm() {
       setValue(`items.${index}.quantity`, 1);
     }
   };
+  const [attachments, setAttachments] = useState<File[]>([]);
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files)
       setAttachments([...attachments, ...Array.from(e.target.files)]);
@@ -625,25 +568,6 @@ export default function NewOrderForm() {
     try {
       const payload = {
         ...data,
-<<<<<<< HEAD
-        customerName: customers.find(c => c.id === data.customerId)?.name || "Unknown Customer",
-        products: data.items.map(item => {
-           const sp = item.sellingPrice || 0;
-           const qty = item.quantity || 0;
-           const base = sp * qty;
-           const afterDisc = base - (base * (item.discountPct || 0) / 100);
-           const lineTotal = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
-           return {
-             productId: item.productId,
-             productName: productsData.find(p => p.id === item.productId)?.name || "Unknown",
-             sku: item.sku,
-             price: item.sellingPrice,
-             quantity: item.quantity,
-             discount: item.discountPct,
-             tax: item.taxPct,
-             total: lineTotal
-           }
-=======
         customerName:
           MOCK_CUSTOMERS.find((c) => c.id === data.customerId)?.name ||
           "Unknown Customer",
@@ -665,7 +589,6 @@ export default function NewOrderForm() {
             tax: item.taxPct,
             total: lineTotal,
           };
->>>>>>> origin/Ritika
         }),
         orderValue: data.grandTotal,
         orderStatus: data.status,
@@ -685,6 +608,7 @@ export default function NewOrderForm() {
       }
       setSuccessModalOpen(true);
     } catch (err: unknown) {
+      console.error(err);
       toast.error(`Failed to ${orderId ? "update" : "create"} order.`);
     } finally {
       setIsSubmitting(false);
@@ -766,7 +690,7 @@ export default function NewOrderForm() {
               <FormRow label="Order Number">
                 <input
                   {...register("orderNumber")}
-                  className="input in          put-sm  input-bordered w-full bg-base-200 font-mono font-bold text-primary"
+                  className="input input-sm  input-bordered w-full bg-base-200 font-mono font-bold text-primary"
                   readOnly
                 />
               </FormRow>
@@ -884,15 +808,9 @@ export default function NewOrderForm() {
                     value={wCustomer}
                   >
                     <option value="">-Select Customer-</option>
-<<<<<<< HEAD
-                    {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-=======
-                    {MOCK_CUSTOMERS.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
->>>>>>> origin/Ritika
                   </select>
                   <button
                     type="button"
@@ -913,13 +831,9 @@ export default function NewOrderForm() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="form-control">
                   <label className="label text-sm font-semibold text-base-content/60">
-                    Contact Person
-                  </label>
-                  <input
-                    {...register("contactPerson")}
-                    className="input input-sm input-bordered bg-base-200"
-                    readOnly
-                  />
+            Contact Person *
+          </label>
+          <input {...register("contactPerson")} className="input input-sm input-bordered bg-base-200" />
                 </div>
                 <div className="form-control">
                   <label className="label text-sm font-semibold text-base-content/60">
@@ -1041,11 +955,6 @@ export default function NewOrderForm() {
                             {index + 1}
                           </td>
                           <td className="align-top">
-<<<<<<< HEAD
-                            <select className="select select-sm select-bordered w-full overflow-x-hidden" value={item.productId} onChange={(e) => handleProductChange(index, e)}>
-                              <option value="" className="overflow-x-hidden">-Select Product-</option>
-                              {productsData.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-=======
                             <select
                               className="select select-sm select-bordered w-full"
                               value={item.productId}
@@ -1058,7 +967,6 @@ export default function NewOrderForm() {
                                   {p.productName}
                                 </option>
                               ))}
->>>>>>> origin/Ritika
                             </select>
                             {errors.items?.[index]?.productId && (
                               <p className="text-xs text-error mt-1">
@@ -1526,19 +1434,14 @@ export default function NewOrderForm() {
                 </p>
               </div>
               <div>
-<<<<<<< HEAD
-                <span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span>
-                <p className="font-medium mt-1 truncate">{wCustomer ? customers.find(c => c.id === wCustomer)?.name : "—"}</p>
-=======
                 <span className="text-xs text-base-content/60 uppercase font-semibold">
                   Customer
                 </span>
                 <p className="font-medium mt-1 truncate">
                   {wCustomer
-                    ? MOCK_CUSTOMERS.find((c) => c.id === wCustomer)?.name
+                    ? customers.find((c) => c.id === wCustomer)?.name
                     : "—"}
                 </p>
->>>>>>> origin/Ritika
               </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>

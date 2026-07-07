@@ -157,7 +157,7 @@ export default function AllLeads() {
         
         setLeads(res.data);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
@@ -165,7 +165,7 @@ export default function AllLeads() {
       fetchLeads();
     }
   }, [slug]);
-  console.log(leads);
+  // console.log(leads);
   useEffect(() => {
     if (selectedLead) {
       setEditData(selectedLead);

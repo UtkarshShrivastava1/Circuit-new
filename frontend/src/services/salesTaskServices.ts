@@ -48,6 +48,7 @@ export const createSalesTask = async (slug: string, payload: Partial<SalesTask>)
 
 export const getSalesTasks = async (slug: string) => {
   const response = await API.get(`/tasks/${slug}/get-all-sales-tasks`);
+  console.log("getSalesTasks response: ", response.data);
   return response.data;
 };
 
@@ -57,7 +58,7 @@ export const getSalesTaskById = async (id: string, slug: string) => {
 };
 
 export const updateSalesTask = async (id: string, payload: Partial<SalesTask>, slug: string) => {
-  const response = await API.put(`/tasks/${slug}/${id}`, payload);
+  const response = await API.put(`/tasks/${slug}/${id}`, payload); 
   return response.data;
 };
 

@@ -76,7 +76,7 @@ export default function ProjectWorkspace() {
 
   const today = new Date();
   const overdueTasks = tasks.filter(
-    (t) => new Date(t.dueDate) < today && t.status !== "completed",
+    (t) => t.dueDate && new Date(t.dueDate) < today && t.status !== "completed",
   );
 
   const latestTasks = [...tasks]

@@ -82,7 +82,7 @@ export default function AllOrders() {
     queryFn: () => getOrders(auth.slug || "default-tenant"),
   });
 
-  console.log("data : ", data);
+  // console.log("data : ", data);
 
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
@@ -99,6 +99,7 @@ export default function AllOrders() {
   // Mutations
   const updateMutation = useMutation({
     mutationFn: (vars: { id: string; payload: Partial<Order> }) => updateOrder(vars.id, vars.payload, auth.slug || "default-tenant"),
+   
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["orders"] }),
   });
 
@@ -172,6 +173,7 @@ export default function AllOrders() {
       setSuccessMessage("Order updated successfully!");
       setSuccessModalOpen(true);
     } catch (error: unknown) {
+      console.error("Error updating order:", error);
       toast.error("Failed to update order.");
     }
   };
@@ -185,6 +187,7 @@ export default function AllOrders() {
       setSuccessMessage(`Status updated to ${newStatus} for selected orders!`);
       setSuccessModalOpen(true);
     } catch (error: unknown) {
+      console.error("Error updating status for orders:", error);
       toast.error("Failed to update status for some orders.");
     }
   };
@@ -201,6 +204,7 @@ export default function AllOrders() {
       setSuccessMessage(`${selected.length} orders deleted successfully!`);
       setSuccessModalOpen(true);
     } catch (error: unknown) {
+      console.error("Error deleting orders:", error);
       toast.error("Failed to delete some orders.");
     }
   };
@@ -775,7 +779,7 @@ export default function AllOrders() {
               <section>
                 <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">Delivery & Rep</h3>
                 <div className="space-y-2">
-                  <p><span className="text-base-content/50">Est. Delivery:</span> <span className="font-medium">{selectedOrder?.deliveryDate}</span></p>
+                  <p><span className="text-base-content/50">Est. Delivery:</span> <span className="font-medium">{selectedOrder?.deliveryDate ? new Date(selectedOrder.deliveryDate).toLocaleDateString() : 'N/A'}</span></p>
                   <p><span className="text-base-content/50">Delivery Status:</span> <span className="font-medium">{selectedOrder?.deliveryStatus}</span></p>
                   <p><span className="text-base-content/50">Sales Rep:</span> <span className="font-medium">{selectedOrder?.salesRep}</span></p>
                   <p><span className="text-base-content/50">Payment:</span> <span className="font-medium text-success">{selectedOrder?.paymentStatus}</span></p>

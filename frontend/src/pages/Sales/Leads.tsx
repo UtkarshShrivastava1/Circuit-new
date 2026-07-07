@@ -174,9 +174,8 @@ export default function Leads() {
           data.countryCode === "Other"
             ? data.customCountryCode
             : data.countryCode,
+        country: data.country || undefined,
       };
-      country: (data.country || undefined,
-        console.log("Payload to submit:", payload));
       await createLead(slug, payload);
 
       toast.success("Lead created successfully!");
