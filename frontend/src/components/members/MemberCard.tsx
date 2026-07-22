@@ -121,7 +121,7 @@ return (
     onClick={() => navigate(`/members/${member._id}`)}
     className="
 group relative
-w-full max-w-[320px]
+w-full max-w-[300px]
 overflow-hidden
 rounded-xl
 border border-primary/30

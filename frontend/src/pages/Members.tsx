@@ -155,7 +155,7 @@ toast.success("Member deleted successfully");
     className="w-full text-sm max-w-sm px-3 py-1 border border-primary/40 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 mt-3"
   />
 </div>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {paginatedMembers.map((member) => (
           <MemberCard key={member._id} member={member} isAdmin={true} onDelete={handleDelete} />
         ))}
