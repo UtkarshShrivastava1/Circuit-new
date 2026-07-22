@@ -456,6 +456,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           <NavLink
             key={item.id}
             to={item.path}
+            end
             className={(props) => `${linkClass(props)} relative`}
             onClick={() => {
               onItemClick?.(item.id);
@@ -972,6 +973,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       </p>
                     )}
                     <div className="space-y-1">
+                      
                       {/* Task */}
                       <button
                         onClick={() => setSalesTaskOpen(!salesTaskOpen)}
@@ -1060,26 +1062,45 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     </p>
                   )}
                   <div className="space-y-1">
-                    <NavLink to="/sales" onClick={onClose} className={linkClass}>
+                    <NavLink end to="/sales" onClick={onClose} className={linkClass}>
                       <MdDashboard size={20} />
                       {!collapsed && <span>Dashboard</span>}
                     </NavLink>
-                    <NavLink to="/sales/employee-leads" onClick={onClose} className={linkClass}>
+                    <NavLink end to="/sales/employee-leads" onClick={onClose} className={linkClass}>
                       <Target size={20} />
                       {!collapsed && <span>My Leads</span>}
                     </NavLink>
-                    <NavLink to={`/sales/profile/${user?.userId || ""}`} onClick={onClose} className={linkClass}>
+                    <NavLink end to={`/sales/profile/${user?.userId || ""}`} onClick={onClose} className={linkClass}>
                       <MdPeople size={20} />
                       {!collapsed && <span>My Profile</span>}
                     </NavLink>
-                    <NavLink to="/sales/contacts" onClick={onClose} className={linkClass}>
+                    <NavLink end to="/sales/contacts" onClick={onClose} className={linkClass}>
                       <MdContactPage size={20} />
                       {!collapsed && <span>Contacts</span>}
                     </NavLink>
-                  <NavLink to="/sales/employee/tasks" onClick={onClose} className={linkClass}>
+                  <NavLink end to="/sales/employee/tasks" onClick={onClose} className={linkClass}>
                     <MdTask size={20} />
                     {!collapsed && <span>Tasks</span>}
                   </NavLink>
+                  <NavLink
+  end
+  to="/leaves"
+  onClick={onClose}
+  className={linkClass}
+>
+  <MdEventAvailable size={20} />
+  {!collapsed && <span>Leaves</span>}
+</NavLink>
+
+<NavLink
+  end
+  to="/notifications"
+  onClick={onClose}
+  className={linkClass}
+>
+  <MdNotifications size={20} />
+  {!collapsed && <span>Notifications</span>}
+</NavLink>
                   </div>
                 </div>
               )}

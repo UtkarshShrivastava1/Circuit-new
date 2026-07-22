@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { useNavigate } from "react-router-dom";
 type User = {
   userId: string;
+  
   name: string;
   email: string;
   role: string;

@@ -23,6 +23,7 @@ interface Participant {
   userId: string;
   role: string;
   responsibility: string;
+   customResponsibility?: string;
 }
 
 const initialProjectState: ProjectData = {
@@ -112,6 +113,7 @@ const handleCreateProject = async () => {
     user: p.userId,
     role: p.role,
     responsibility: p.responsibility,
+      customResponsibility: p.customResponsibility || "",
   })),
 };
 

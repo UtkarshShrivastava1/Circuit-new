@@ -3,7 +3,7 @@ import axios from "axios";
 
 // Use import.meta.env for Vite projects to access environment variables.
 // Variables must start with VITE_ to be exposed to the client.
-const API_BASE_URL = import.meta.env.VITE_BACKEND_PROD_URL || import.meta.env.VITE_BACKEND_LOCAL_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_PROD_URL || import.meta.env.VITE_BACKEND_LOCAL_URL || "http://localhost:5001/api";
 
 const API = axios.create({
   baseURL: API_BASE_URL,
@@ -18,6 +18,9 @@ const API = axios.create({
 // It's useful for adding headers that are needed for every request, like an auth token.
 API.interceptors.request.use(
   (config) => {
+       console.log("REQUEST URL:", config.url);
+    console.log("TOKEN:", localStorage.getItem("token"));
+    console.log("HEADERS:", config.headers);
     // Get the token from wherever you store it (e.g., localStorage, Redux store, etc.)
     const token = localStorage.getItem("token");
 
