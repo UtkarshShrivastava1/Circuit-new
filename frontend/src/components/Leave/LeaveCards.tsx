@@ -58,7 +58,8 @@ export default function LeaveCards({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {requests.map((leave) => {
-        const Icon = TYPE_ICON[leave.type];
+     const Icon =
+  TYPE_ICON[leave.type as keyof typeof TYPE_ICON] || MdCalendarToday;
 
         return (
           <div onClick={() => onView(leave)}

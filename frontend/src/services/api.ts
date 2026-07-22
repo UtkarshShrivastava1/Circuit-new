@@ -10,6 +10,9 @@ const api = axios.create({
   baseURL: API_URL,
     withCredentials: true,
 });
+console.log("NODE_ENV:", import.meta.env.VITE_NODE_ENV);
+console.log("DEV URL:", import.meta.env.VITE_DEVELOPMENT_URL);
+console.log("API URL:", API_URL);
 
 // Request interceptor
 api.interceptors.request.use(

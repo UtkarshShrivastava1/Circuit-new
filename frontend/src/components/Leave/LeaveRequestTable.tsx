@@ -4,6 +4,7 @@ import type { LeaveRequest } from "@/type/leave";
 import { leaveTypeIcon } from "@/type/leave";
 import { useState } from "react";
 import Pagination from "@/components/ui/Pagination";
+import { MdEventBusy } from "react-icons/md";
 
 interface Props {
   requests: LeaveRequest[];
@@ -162,7 +163,7 @@ export default function LeaveRequestTable({
               </tr>
             ) : (
               currentRequests.map((r) => {
-                const Icon = leaveTypeIcon[r.type];
+             const Icon = leaveTypeIcon[r.type] || MdEventBusy;
                 return (
                   <tr
                     key={r.id}
@@ -265,8 +266,7 @@ export default function LeaveRequestTable({
     </div>
   ) : (
     currentRequests.map((r) => {
-      const Icon = leaveTypeIcon[r.type];
-
+    const Icon = leaveTypeIcon[r.type] || MdEventBusy;
       return (
         <div
           key={r.id}

@@ -48,7 +48,8 @@ const app = express();
 // Security Headers
 app.use(helmet());
 
-const URI = process.env.CORS_ORIGIN_PROD || process.env.CORS_ORIGIN_LOCAL || "http://localhost:5174";
+// const URI = process.env.CORS_ORIGIN_PROD || process.env.CORS_ORIGIN_LOCAL || "http://localhost:5174";
+const URI = process.env.CORS_ORIGIN || "http://localhost:5173";
 
 // CORS Configuration
 app.use(cors({
