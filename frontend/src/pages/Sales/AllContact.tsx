@@ -22,7 +22,6 @@ import {
   MdEdit,
   MdDelete,
   MdAssignmentInd,
-  MdChevronRight,
 } from "react-icons/md";
 import { deleteContact, getAllContacts } from "@/services/salesService";
 import { useAuth } from "@/auth/AuthContext";
@@ -430,27 +429,23 @@ const handleRowClick = (row: any) => {
   });
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-visible relative">
+    <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
       {/* ── Header ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-xl font-bold text-base-content tracking-tight">
+          <h1 className="text-2xl font-bold text-base-content tracking-tight">
             Contacts Management
           </h1>
-          <div className="mt-1 text-[13px] text-base-content/60 flex flex-wrap items-center gap-y-1">
-                              <span>Dashboard</span>
-                              <MdChevronRight className="mx-1 text-base-content/50" />
-                  
-                              <span>Sales</span>
-                              <MdChevronRight className="mx-1 text-base-content/50" />
-                  
-                              
-                  
-                                <span className="font-semibold text-primary">Contacts</span>
-                            </div>
+          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
+            <ul>
+              <li>Dashboard</li>
+              <li>Sales</li>
+              <li className="text-primary">Contacts</li>
+            </ul>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-1 bg-base-100">
+          <button className="btn btn-outline btn-sm gap-2 bg-base-100">
             <MdDownload size={16} /> Export CSV
           </button>
           <button className="btn btn-outline btn-sm btn-square bg-base-100">
@@ -458,7 +453,7 @@ const handleRowClick = (row: any) => {
           </button>
           <button
             onClick={() => navigate("/sales/contacts/new")}
-            className="btn btn-primary btn-sm gap-1 shadow-sm"
+            className="btn btn-primary btn-sm gap-2 shadow-sm"
           >
             <MdAdd size={16} /> Add Contact
           </button>
@@ -466,7 +461,7 @@ const handleRowClick = (row: any) => {
       </div>
 
       {/* ── Dashboard Stats ── */}
-      {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
           {
             label: "Total Contacts",
@@ -487,54 +482,19 @@ const handleRowClick = (row: any) => {
         ].map((stat, idx) => (
           <div
             key={idx}
-            className="bg-base-100 border border-base-300 rounded-xl p-4 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+            className="bg-base-100 border border-base-300 rounded-xl p-5 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>
             <span className="text-xs text-base-content/60 font-bold uppercase tracking-wider">
               {stat.label}
             </span>
-            <span className={`text-2xl font-black mt-1 ${stat.color}`}>
+            <span className={`text-3xl font-black mt-1 ${stat.color}`}>
               {stat.value}
             </span>
           </div>
         ))}
-      </div> */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
+      </div>
 
-  {[
-    {
-      label: "Total Contacts",
-      value: stats.total,
-      color: "text-base-content",
-    },
-    { label: "Active & VIP", value: stats.active, color: "text-primary" },
-    {
-      label: "New Prospects",
-      value: stats.prospects,
-      color: "text-info",
-    },
-    {
-      label: "Linked Leads",
-      value: stats.linkedLeads,
-      color: "text-success",
-    },
-  ].map((stat, idx) => (
-    <div
-      key={idx}
-      className="bg-base-100 border border-base-300 rounded-xl p-3 sm:p-4 flex flex-col items-center sm:items-start justify-center text-center sm:text-left shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
-    >
-      <div className="absolute top-0 left-0 w-1 h-full bg-base-300"></div>
-
-      <span className="text-[10px] sm:text-xs text-base-content/60 font-bold uppercase tracking-wider">
-        {stat.label}
-      </span>
-
-      <span className={`text-xl sm:text-2xl font-black mt-1 ${stat.color}`}>
-        {stat.value}
-      </span>
-    </div>
-  ))}
-</div>
       {/* ── Toolbar ── */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-4 bg-base-100 p-3 rounded-xl border border-base-300 shadow-sm">
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -626,11 +586,9 @@ const handleRowClick = (row: any) => {
       )}
 
       {/* ── Main Content Area ── */}
-      {/* <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative"> */}
-      <div className="w-full bg-base-100 border border-base-300 rounded-xl shadow-sm flex flex-col ">
-        {/* <div className="flex-1 overflow-auto"> */}
-         <div className="w-fullmax-w-full overflow-x-auto">
-          <table className="table table-sm  min-w-[900px] w-full text-sm">
+      <div className="flex-1 bg-base-100 border border-base-300 rounded-xl overflow-hidden shadow-sm flex flex-col relative">
+        <div className="flex-1 overflow-auto">
+          <table className="table table-pin-rows w-full text-sm">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
@@ -695,7 +653,7 @@ const handleRowClick = (row: any) => {
         </div>
 
         {/* Table Pagination Footer */}
-        {/* <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
+        <div className="border-t border-base-300 p-3 bg-base-100 flex items-center justify-between text-sm">
           <span className="text-base-content/60 font-medium">
             Showing {table.getRowModel().rows.length} of{" "}
             {filteredContacts.length} contacts
@@ -732,54 +690,7 @@ const handleRowClick = (row: any) => {
               </button>
             </div>
           </div>
-        </div> */}
-        <div className="border-t border-base-300 p-3 bg-base-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
-  
-  {/* Left text */}
-  <span className="text-base-content/60 font-medium text-center sm:text-left">
-    Showing {table.getRowModel().rows.length} of{" "}
-    {filteredContacts.length} contacts
-  </span>
-
-  {/* Right controls */}
-  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-
-    <select
-      className="select select-sm select-bordered bg-base-200 w-full sm:w-auto"
-      value={table.getState().pagination.pageSize}
-      onChange={(e) => table.setPageSize(Number(e.target.value))}
-    >
-      {[10, 25, 50].map((pageSize) => (
-        <option key={pageSize} value={pageSize}>
-          Show {pageSize}
-        </option>
-      ))}
-    </select>
-
-    <div className="join w-full sm:w-auto justify-center sm:justify-start">
-      <button
-        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
-        onClick={() => table.previousPage()}
-        disabled={!table.getCanPreviousPage()}
-      >
-        «
-      </button>
-
-      <button className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none">
-        Page {table.getState().pagination.pageIndex + 1}
-      </button>
-
-      <button
-        className="join-item btn btn-sm bg-base-200 flex-1 sm:flex-none"
-        onClick={() => table.nextPage()}
-        disabled={!table.getCanNextPage()}
-      >
-        »
-      </button>
-    </div>
-
-  </div>
-</div>
+        </div>
       </div>
       <EntityDrawer
   open={drawerOpen}

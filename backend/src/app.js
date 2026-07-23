@@ -34,6 +34,7 @@ const salesDashboard = require("./routes/salesRoutes.js")
 const forecastRoutes = require("./routes/forecastRoutes.js")
 // Add this to the top where you require other routes
 const salesNotificationRoutes = require('./routes/salesNotification.routes');
+const saleAttendance = require('./routes/attendance.routes');
 
 
 
@@ -99,6 +100,7 @@ app.use('/api/cases', caseRoutes);
 app.use('/api/tasks', salesTaskRoutes);
 app.use('/api/sales/' ,salesDashboard )
 app.use('/api/forecast' ,forecastRoutes )
+app.use('/api',saleAttendance);
 
 
 

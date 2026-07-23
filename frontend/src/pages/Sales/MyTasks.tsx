@@ -11,10 +11,10 @@ import {
   MdCalendarMonth,
   MdClose,
   MdVideoCall,
-  // MdLocationOn,
+  MdLocationOn,
   MdPhone,
   MdEmail,
-  // MdArrowForward,
+  MdArrowForward,
   MdMoreVert,
 } from "react-icons/md";
 import {
@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import {
   getSalesTaskByEmpId,
+  getSalesTaskById,
   updateSalesTask,
 } from "@/services/salesTaskServices";
 import { useAuth } from "@/auth/AuthContext";
@@ -284,7 +285,7 @@ export default function MyTasks() {
 
   // Stats
   const todayTasks = tasks.filter(
-    (t) => t.dueDate && new Date(t.dueDate).toDateString() === new Date().toDateString(),
+    (t) => new Date(t.dueDate).toDateString() === new Date().toDateString(),
   );
   const overdueTasks = tasks.filter(
     (t) => new Date(t.dueDate) < new Date() && t.status !== "Completed",
@@ -454,175 +455,81 @@ const normalizedTasks = response.tasks.map((t: any) => ({
      ───────────────────────────────────────────────────────────── */
 
   // 1. STATS KPI HEADER
-  // const KPIHeader = () => (
-  //   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-  //     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
-  //       <div className="card-body p-4 flex flex-row items-center gap-4">
-  //         <div className="p-3 bg-primary/10 text-primary rounded-xl">
-  //           <MdSchedule size={24} />
-  //         </div>
-  //         <div>
-  //           <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
-  //             Today's Tasks
-  //           </p>
-  //           <p className="text-2xl font-bold text-base-content">
-  //             {todayTasks.length}
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
-  //       <div className="card-body p-4 flex flex-row items-center gap-4">
-  //         <div className="p-3 bg-warning/10 text-warning rounded-xl">
-  //           <MdWarning size={24} />
-  //         </div>
-  //         <div>
-  //           <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
-  //             Due Soon
-  //           </p>
-  //           <p className="text-2xl font-bold text-base-content">
-  //             {
-  //               tasks.filter(
-  //                 (t) => t.status !== "Completed" && t.status !== "Cancelled",
-  //               ).length
-  //             }
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
-  //       <div className="card-body p-4 flex flex-row items-center gap-4">
-  //         <div className="p-3 bg-error/10 text-error rounded-xl">
-  //           <MdFlag size={24} />
-  //         </div>
-  //         <div>
-  //           <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
-  //             Overdue
-  //           </p>
-  //           <p className="text-2xl font-bold text-base-content">
-  //             {overdueTasks.length}
-  //           </p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //     <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
-  //       <div className="card-body p-4 flex flex-row items-center gap-4">
-  //         <div className="p-3 bg-success/10 text-success rounded-xl">
-  //           <MdCheckCircle size={24} />
-  //         </div>
-  //         <div>
-  //           <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
-  //             Completion
-  //           </p>
-  //           <div className="flex items-center gap-2">
-  //             <p className="text-2xl font-bold text-base-content">
-  //               {completionRate}%
-  //             </p>
-  //             <progress
-  //               className="progress progress-success w-16"
-  //               value={completionRate}
-  //               max="100"
-  //             ></progress>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
   const KPIHeader = () => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-
-    {/* Today */}
-    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all">
-      <div className=" card-body p-3 sm:p-4 flex flex-row items-center gap-3 sm:gap-4">
-        <div className="p-2 sm:p-3 bg-primary/10 text-primary rounded-lg sm:rounded-xl shrink-0">
-          <MdSchedule size={20} className="sm:hidden" />
-          <MdSchedule size={24} className="hidden sm:block" />
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-base-content/60">
-            Today's Tasks
-          </p>
-          <p className="text-lg sm:text-2xl font-bold">
-            {todayTasks.length}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Due Soon */}
-    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all">
-      <div className="card-body p-3 sm:p-4 flex flex-row items-center gap-3 sm:gap-4">
-        <div className="p-2 sm:p-3 bg-warning/10 text-warning rounded-lg sm:rounded-xl shrink-0">
-          <MdWarning size={20} className="sm:hidden" />
-          <MdWarning size={24} className="hidden sm:block" />
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-base-content/60">
-            Due Soon
-          </p>
-          <p className="text-lg sm:text-2xl font-bold">
-            {
-              tasks.filter(
-                (t) => t.status !== "Completed" && t.status !== "Cancelled"
-              ).length
-            }
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Overdue */}
-    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all">
-      <div className="card-body p-3 sm:p-4 flex flex-row items-center gap-3 sm:gap-4">
-        <div className="p-2 sm:p-3 bg-error/10 text-error rounded-lg sm:rounded-xl shrink-0">
-          <MdFlag size={20} className="sm:hidden" />
-          <MdFlag size={24} className="hidden sm:block" />
-        </div>
-
-        <div className="min-w-0">
-          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-base-content/60">
-            Overdue
-          </p>
-          <p className="text-lg sm:text-2xl font-bold">
-            {overdueTasks.length}
-          </p>
-        </div>
-      </div>
-    </div>
-
-    {/* Completion */}
-    <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all">
-      <div className="card-body p-3 sm:p-4 flex flex-row items-center gap-3 sm:gap-4">
-        <div className="p-2 sm:p-3 bg-success/10 text-success rounded-lg sm:rounded-xl shrink-0">
-          <MdCheckCircle size={20} className="sm:hidden" />
-          <MdCheckCircle size={24} className="hidden sm:block" />
-        </div>
-
-        <div className="min-w-0 w-full">
-          <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-base-content/60">
-            Completion
-          </p>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-lg sm:text-2xl font-bold">
-              {completionRate}%
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="card-body p-4 flex flex-row items-center gap-4">
+          <div className="p-3 bg-primary/10 text-primary rounded-xl">
+            <MdSchedule size={24} />
+          </div>
+          <div>
+            <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
+              Today's Tasks
             </p>
-
-            <progress
-              className="progress progress-success w-14 sm:w-20"
-              value={completionRate}
-              max="100"
-            />
+            <p className="text-2xl font-bold text-base-content">
+              {todayTasks.length}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="card-body p-4 flex flex-row items-center gap-4">
+          <div className="p-3 bg-warning/10 text-warning rounded-xl">
+            <MdWarning size={24} />
+          </div>
+          <div>
+            <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
+              Due Soon
+            </p>
+            <p className="text-2xl font-bold text-base-content">
+              {
+                tasks.filter(
+                  (t) => t.status !== "Completed" && t.status !== "Cancelled",
+                ).length
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="card-body p-4 flex flex-row items-center gap-4">
+          <div className="p-3 bg-error/10 text-error rounded-xl">
+            <MdFlag size={24} />
+          </div>
+          <div>
+            <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
+              Overdue
+            </p>
+            <p className="text-2xl font-bold text-base-content">
+              {overdueTasks.length}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="card bg-base-100 border border-base-200 shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="card-body p-4 flex flex-row items-center gap-4">
+          <div className="p-3 bg-success/10 text-success rounded-xl">
+            <MdCheckCircle size={24} />
+          </div>
+          <div>
+            <p className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">
+              Completion
+            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-2xl font-bold text-base-content">
+                {completionRate}%
+              </p>
+              <progress
+                className="progress progress-success w-16"
+                value={completionRate}
+                max="100"
+              ></progress>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-  </div>
-);
+  );
 
   // 2. LIST VIEW
   const ListView = () => (
@@ -634,7 +541,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
           <div
             key={task.id}
             onClick={() => setSelectedTask(task)}
-            className={`group bg-base-100 border border-base-200 hover:border-primary/30 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col md:flex-row sm:items-center gap-4 ${task.status === "Completed" ? "opacity-70" : ""}`}
+            className={`group bg-base-100 border border-base-200 hover:border-primary/30 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center gap-4 ${task.status === "Completed" ? "opacity-70" : ""}`}
           >
             {/* Checkbox area */}
             <div
@@ -688,7 +595,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
             </div>
 
             {/* Badges & Progress */}
-            <div className="flex items-center flex-wrap gap-2 md:gap-6 shrink-0 mt-3 sm:mt-0">
+            <div className="flex items-center gap-3 sm:gap-6 shrink-0 mt-3 sm:mt-0">
               <div className="hidden md:flex flex-col items-end gap-1 w-24">
                 <div className="flex justify-between w-full text-[10px] font-medium text-base-content/50">
                   <span>Progress</span>
@@ -733,7 +640,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
     };
 
     return (
-      <div className="flex gap-6 overflow-x-auto pb-4 h-auto lg:h-[65vh] flex-col lg:flex-row">
+      <div className="flex gap-6 overflow-x-auto pb-4 h-[65vh] items-start snap-x">
         {columns.map((status) => (
           <div
             key={status}
@@ -742,7 +649,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
             onDrop={(e) => handleDrop(e, status)}
           >
             <div className="flex items-center justify-between mb-4 px-1">
-              <h3 className="font-semibold text-base-content text-sm flex items-center gap-2">
+              <h3 className="font-bold text-base-content text-sm flex items-center gap-2">
                 <span
                   className={`w-2.5 h-2.5 rounded-full ${getStatusColor(status).split(" ")[0].replace("text-", "bg-")}`}
                 ></span>
@@ -818,10 +725,10 @@ const normalizedTasks = response.tasks.map((t: any) => ({
 
   // 4. CALENDAR VIEW (Simplified upcoming agenda list)
   const CalendarView = () => (
-    <div className="bg-base-100 border border-base-200 shadow-sm rounded-2xl p-4 md:p-6">
+    <div className="bg-base-100 border border-base-200 shadow-sm rounded-2xl p-6">
       <div className="flex items-center justify-between mb-6 border-b border-base-200 pb-4">
-        <h2 className="text-md font-bold flex items-center gap-2 text-base-content">
-          <MdCalendarMonth className="text-primary" size={20} />
+        <h2 className="text-lg font-bold flex items-center gap-2 text-base-content">
+          <MdCalendarMonth className="text-primary" size={24} />
           Upcoming Agenda
         </h2>
       </div>
@@ -871,17 +778,17 @@ const normalizedTasks = response.tasks.map((t: any) => ({
   // 5. EMPTY STATE
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4 bg-base-100 rounded-3xl border border-base-200 border-dashed">
-      <div className="w-15 h-15 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6 shadow-inner">
-        <Target size={35} />
+      <div className="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-6 shadow-inner">
+        <Target size={48} />
       </div>
-      <h3 className="text-lg font-bold text-base-content mb-2">
+      <h3 className="text-xl font-bold text-base-content mb-2">
         No tasks found
       </h3>
-      <p className="text-base-content/60 text-sm text-center max-w-sm mb-6">
+      <p className="text-base-content/60 text-center max-w-sm mb-6">
         You're all caught up! Enjoy your day or check back later for new
         assignments.
       </p>
-      <button className="btn btn-sm btn-primary rounded-xl px-5 shadow-sm hover:shadow-md transition-all">
+      <button className="btn btn-primary rounded-xl px-8 shadow-sm hover:shadow-md transition-all">
         Refresh Tasks
       </button>
     </div>
@@ -900,7 +807,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
         ></div>
 
         {/* Drawer Panel */}
-        <div className="fixed inset-y-0 right-0 w-full sm:max-w-md bg-base-100 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 border-l border-base-200">
+        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-base-100 shadow-2xl z-50 flex flex-col transform transition-transform duration-300 border-l border-base-200">
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-base-200 bg-base-100/50 backdrop-blur-md">
             <div className="flex items-center gap-3">
@@ -1378,7 +1285,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
         {/* PAGE HEADER */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-base-content tracking-tight flex items-center gap-3">
+            <h1 className="text-3xl font-extrabold text-base-content tracking-tight flex items-center gap-3">
             Good Morning {auth?.user?.name}
               <span className="animate-bounce origin-bottom-right inline-block">
                 👋
@@ -1390,7 +1297,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="btn btn-sm btn-primary rounded-xl shadow-sm hover:shadow-md transition-all px-6">
+            <button className="btn btn-primary rounded-xl shadow-sm hover:shadow-md transition-all px-6">
               + New Task
             </button>
           </div>
@@ -1400,110 +1307,86 @@ const normalizedTasks = response.tasks.map((t: any) => ({
         <KPIHeader />
 
         {/* WORKSPACE AREA */}
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col xl:flex-row gap-8">
           {/* LEFT: MAIN TASK AREA */}
           <div className="flex-1 w-full space-y-6 min-w-0">
             {/* Filter & View Bar */}
-            {/* Filter & View Bar */}
-<div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between bg-base-100 p-2 sm:p-3 rounded-2xl border border-base-200 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-base-100 p-2 sm:p-3 rounded-2xl border border-base-200 shadow-sm">
+              {/* Search */}
+              <div className="relative flex-1 max-w-md group">
+                <MdSearch
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/40 group-focus-within:text-primary transition-colors"
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search tasks, customers..."
+                  className="input input-sm h-10 pl-10 w-full bg-base-200/50 border-transparent focus:border-primary focus:bg-base-100 rounded-xl transition-all font-medium text-sm"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
 
-  {/* Search */}
-  <div className="relative w-full lg:flex-1 lg:max-w-md group">
-    <MdSearch
-      className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/40 group-focus-within:text-primary transition-colors"
-      size={18}
-    />
+              {/* Filters & Views */}
+              <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-0 hide-scrollbar">
+                <button className="btn btn-sm h-10 bg-base-200/50 hover:bg-base-200 border-none rounded-xl text-base-content/70 font-semibold gap-2 shrink-0">
+                  <MdFilterList size={18} /> Filters
+                </button>
 
-    <input
-      type="text"
-      placeholder="Search tasks, customers..."
-      className="input input-sm h-10 pl-10 w-full bg-base-200/50 border-transparent focus:border-primary focus:bg-base-100 rounded-xl transition-all text-sm"
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-    />
-  </div>
+                <div className="h-6 w-px bg-base-300 mx-1 shrink-0"></div>
 
-  {/* Filters + Views */}
-  <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto lg:overflow-visible hide-scrollbar">
-
-    {/* Filter Button */}
-    <button className="btn btn-sm h-10 bg-base-200/50 hover:bg-base-200 border-none rounded-xl text-base-content/70 font-semibold gap-2 shrink-0">
-      <MdFilterList size={16} />
-      <span className="hidden sm:inline">Filters</span>
-    </button>
-
-    <div className="hidden sm:block h-6 w-px bg-base-300 mx-1 shrink-0" />
-
-    {/* View Switcher */}
-    <div className="bg-base-200/70 p-1 rounded-xl flex gap-1 shrink-0 w-full sm:w-auto">
-
-      <button
-        onClick={() => setViewMode("List")}
-        className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all flex-1 sm:flex-none ${
-          viewMode === "List"
-            ? "bg-base-100 shadow-sm text-primary"
-            : "bg-transparent text-base-content/60 hover:bg-base-200"
-        }`}
-      >
-        <MdViewList size={16} />
-        <span className="hidden sm:inline">List</span>
-      </button>
-
-      <button
-        onClick={() => setViewMode("Board")}
-        className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all flex-1 sm:flex-none ${
-          viewMode === "Board"
-            ? "bg-base-100 shadow-sm text-primary"
-            : "bg-transparent text-base-content/60 hover:bg-base-200"
-        }`}
-      >
-        <MdViewKanban size={16} />
-        <span className="hidden sm:inline">Board</span>
-      </button>
-
-      <button
-        onClick={() => setViewMode("Calendar")}
-        className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all flex-1 sm:flex-none ${
-          viewMode === "Calendar"
-            ? "bg-base-100 shadow-sm text-primary"
-            : "bg-transparent text-base-content/60 hover:bg-base-200"
-        }`}
-      >
-        <MdCalendarMonth size={16} />
-        <span className="hidden sm:inline">Calendar</span>
-      </button>
-
-    </div>
-  </div>
-</div>
+                {/* View Switcher */}
+                <div className="bg-base-200/70 p-1 rounded-xl flex gap-1 shrink-0">
+                  <button
+                    onClick={() => setViewMode("List")}
+                    className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all ${viewMode === "List" ? "bg-base-100 shadow-sm text-primary hover:bg-base-100" : "bg-transparent text-base-content/60 hover:bg-base-200"}`}
+                  >
+                    <MdViewList size={16} />{" "}
+                    <span className="hidden sm:inline">List</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("Board")}
+                    className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all ${viewMode === "Board" ? "bg-base-100 shadow-sm text-primary hover:bg-base-100" : "bg-transparent text-base-content/60 hover:bg-base-200"}`}
+                  >
+                    <MdViewKanban size={16} />{" "}
+                    <span className="hidden sm:inline">Board</span>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("Calendar")}
+                    className={`btn btn-sm h-8 border-none rounded-lg px-3 gap-1.5 transition-all ${viewMode === "Calendar" ? "bg-base-100 shadow-sm text-primary hover:bg-base-100" : "bg-transparent text-base-content/60 hover:bg-base-200"}`}
+                  >
+                    <MdCalendarMonth size={16} />{" "}
+                    <span className="hidden sm:inline">Calendar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Filters */}
-           <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible hide-scrollbar pb-1">
+            <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+              {/* {["All Tasks", "Today", "High Priority", "Pending"].map((f, i) => (
+                <span key={f} className={`badge badge-lg border-none px-4 py-3 cursor-pointer whitespace-nowrap text-xs font-bold transition-all ${i === 0 ? "bg-primary text-primary-content shadow-sm" : "bg-base-100 text-base-content/60 hover:bg-base-200 border border-base-200"}`}>
+                  {f}
+                </span>
+              ))} */}
 
-  {["All Tasks", "Today", "High Priority", "Pending"].map((f) => (
-    <span
-      key={f}
-      onClick={() => {
-        setActiveFilter(f);
-        fetchTasks(f);
-      }}
-      className={`
-        badge cursor-pointer whitespace-nowrap
-        px-3 py-2 text-[11px] sm:text-xs font-semibold
-        rounded-lg transition-all shrink-0
-
-        ${
-          activeFilter === f
-            ? "bg-primary text-primary-content shadow-sm"
-            : "bg-base-100 text-base-content/70 hover:bg-base-200 border border-base-200"
-        }
-      `}
-    >
-      {f}
-    </span>
-  ))}
-
-</div>
+              {["All Tasks", "Today", "High Priority", "Pending"].map((f) => (
+                <span
+                  key={f}
+                  onClick={() => {
+                    setActiveFilter(f);
+                    fetchTasks(f);
+                  }}
+                  className={`badge badge-lg cursor-pointer ${
+                    activeFilter === f
+                      ? "bg-primary text-primary-content"
+                      : "bg-base-100"
+                  }`}
+                >
+                  {f}
+                </span>
+              ))}
+            </div>
 
             {/* RENDER ACTIVE VIEW */}
             <div className="mt-4 animate-fade-in">
@@ -1514,7 +1397,7 @@ const normalizedTasks = response.tasks.map((t: any) => ({
           </div>
 
           {/* RIGHT: AGENDA & ACTIVITY SIDEBAR (Desktop Only) */}
-          <div className="hidden lg:block w-72 xl:w-80 shrink-0 space-y-6">
+          <div className="hidden xl:block w-80 shrink-0 space-y-6">
             {/* Today's Agenda */}
             <div className="card bg-base-100 border border-base-200 shadow-sm">
               <div className="card-body p-5">
@@ -1559,11 +1442,11 @@ const normalizedTasks = response.tasks.map((t: any) => ({
                 <TrendingUp size={120} />
               </div>
               <div className="card-body p-6 relative z-10">
-                <h3 className="font-bold text-md mb-1 opacity-90">
+                <h3 className="font-bold text-lg mb-1 opacity-90">
                   Productivity Score
                 </h3>
-                <p className="text-3xl font-extrabold mb-4">
-                  92<span className="text-lg font-medium opacity-70">/100</span>
+                <p className="text-4xl font-extrabold mb-4">
+                  92<span className="text-xl font-medium opacity-70">/100</span>
                 </p>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm font-medium opacity-90">

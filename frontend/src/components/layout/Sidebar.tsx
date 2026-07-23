@@ -20,7 +20,6 @@ import {
   MdContactPage,
   MdBusiness,
   MdSupportAgent,
-  MdAdminPanelSettings,
 } from "react-icons/md";
 import { FolderKanban, UserPlus, Target, PhoneCall } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
@@ -35,6 +34,13 @@ type MenuItem = {
   path: string;
   icon: JSX.Element;
 };
+
+type Activity = {
+  referenceModel: string;
+  action: string;
+  createdAt: string;
+};
+
 
 interface Props {
   isOpen: boolean;
@@ -54,6 +60,14 @@ const coreMenu: MenuItem[] = [
     label: "Attendance",
     path: "/attendance",
     icon: <MdEventAvailable size={20} />,
+  },
+];
+const salesAttendanceMenu: MenuItem[] = [
+  {
+    id: "sales-attendance",
+    label: "Attendance",
+    path: "/sales/attendance",
+    icon: <MdDashboard size={20} />,
   },
 ];
 
@@ -287,20 +301,20 @@ const salesForecastSubMenu: MenuItem[] = [
   },
 ];
 
-const salesAdminSubMenu: MenuItem[] = [
-  {
-    id: "sales-admin-panel",
-    label: "Panel",
-    path: "/sales/admin",
-    icon: <MdAdminPanelSettings size={18} />,
-  },
-  {
-    id: "sales-admin-settings",
-    label: "Settings",
-    path: "/sales/admin/settings",
-    icon: <MdAdminPanelSettings size={18} />,
-  },
-];
+// const salesAdminSubMenu: MenuItem[] = [
+//   {
+//     id: "sales-admin-panel",
+//     label: "Panel",
+//     path: "/sales/admin",
+//     icon: <MdAdminPanelSettings size={18} />,
+//   },
+//   {
+//     id: "sales-admin-settings",
+//     label: "Settings",
+//     path: "/sales/admin/settings",
+//     icon: <MdAdminPanelSettings size={18} />,
+//   },
+// ];
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function ERPSidebar({ isOpen, onClose }: Props) {
@@ -328,7 +342,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const [salesTaskOpen, setSalesTaskOpen] = useState(false);
   const [salesCaseOpen, setSalesCaseOpen] = useState(false);
   const [salesForecastOpen, setSalesForecastOpen] = useState(false);
-  const [salesAdminOpen, setSalesAdminOpen] = useState(false);
+  const [salesAttendanceOpen ,setsalesAttendanceOpen] = useState(false);
 
   const { activities } = useActivities();
 
@@ -339,28 +353,28 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   const lastVisitedLeaves = localStorage.getItem("lastVisited_leaves");
   const lastVisitedMembers = localStorage.getItem("lastVisited_members");
 
-  const projectCreatedDot = (activities || []).some(
+  const projectCreatedDot = (activities as Activity[] || []).some(
     (a) =>
       a.referenceModel === "Project" &&
       a.action === "Project Created" &&
       (!lastVisitedProjects || new Date(a.createdAt) > new Date(lastVisitedProjects))
   );
-  const workUpdateDot = (activities || []).some(
+  const workUpdateDot = (activities as Activity[] || []).some(
     (a) =>
       a.referenceModel === "WorkUpdateModel" &&
       (!lastVisitedWorkUpdates || new Date(a.createdAt) > new Date(lastVisitedWorkUpdates))
   );
-  const taskDot = (activities || []).some(
+  const taskDot = (activities as Activity[] || []).some(
     (a) =>
       a.referenceModel === "Task" &&
       (!lastVisitedTasks || new Date(a.createdAt) > new Date(lastVisitedTasks))
   );
-  const leaveDot = (activities || []).some(
+  const leaveDot = (activities as Activity[] || []).some(
     (a) =>
       a.referenceModel === "Leave" &&
       (!lastVisitedLeaves || new Date(a.createdAt) > new Date(lastVisitedLeaves))
   );
-  const memberDot = (activities || []).some(
+  const memberDot = (activities as Activity[] || []).some(
     (a) =>
       a.referenceModel === "User" &&
       a.action?.toLowerCase().includes("add") &&
@@ -416,7 +430,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
       setSalesTaskOpen(false);
       setSalesCaseOpen(false);
       setSalesForecastOpen(false);
-      setSalesAdminOpen(false);
+      setsalesAttendanceOpen(false);
     }
   }, [isOpen]);
 
@@ -832,6 +846,34 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                       ))}
                     </div>
                   </div>
+                  
+
+                   {/* ATTENDANCE */}
+                  <div>
+                    {!collapsed && (
+                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
+                        Attendance
+                      </p>
+                    )}
+                    <div className="space-y-1">
+                      {/* Attendance */}
+                      <button
+                        onClick={() => setSalesProductsOpen(!salesAttendanceOpen)}
+                        className={dropdownBtnClass(location.pathname.startsWith("/sales/attendance"))}
+                      >
+                        <MdStorefront size={20} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left">Attendance.</span>
+                            <MdExpandMore
+                              className={`transition-transform duration-300 ${salesAttendanceOpen ? "rotate-180" : ""}`}
+                            />
+                          </>
+                        )}
+                      </button>
+                      {renderSubMenu(salesAttendanceMenu, salesProductsOpen)}
+                    </div>
+                  </div>
 
                   {/* CATALOG */}
                   <div>
@@ -1083,24 +1125,24 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     {!collapsed && <span>Tasks</span>}
                   </NavLink>
                   <NavLink
-  end
-  to="/leaves"
-  onClick={onClose}
-  className={linkClass}
->
-  <MdEventAvailable size={20} />
-  {!collapsed && <span>Leaves</span>}
-</NavLink>
+                          end
+                          to="/leaves"
+                          onClick={onClose}
+                          className={linkClass}
+                        >
+                          <MdEventAvailable size={20} />
+                          {!collapsed && <span>Leaves</span>}
+                        </NavLink>
 
-<NavLink
-  end
-  to="/notifications"
-  onClick={onClose}
-  className={linkClass}
->
-  <MdNotifications size={20} />
-  {!collapsed && <span>Notifications</span>}
-</NavLink>
+                        <NavLink
+                          end
+                          to="/notifications"
+                          onClick={onClose}
+                          className={linkClass}
+                        >
+                          <MdNotifications size={20} />
+                          {!collapsed && <span>Notifications</span>}
+                        </NavLink>
                   </div>
                 </div>
               )}

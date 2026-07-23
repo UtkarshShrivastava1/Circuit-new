@@ -246,30 +246,17 @@ export default function AddSalesRep() {
     <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-4 rounded-xl border border-base-300 shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
         <div>
-          <h1 className="text-xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit" : "Add"} Sales Representative</h1>
-          <div className="text-[13px] text-base-content/60 mt-1 min-w-0">
-      <ul className="flex flex-wrap items-center min-w-0 break-words">
-        
-        <li className="whitespace-normal">Dashboard</li>
-
-        <span className="mx-2 text-base-content/40">›</span>
-
-        <li className="whitespace-normal">Sales</li>
-
-        <span className="mx-2 text-base-content/40">›</span>
-
-        <li className="whitespace-normal">Representatives</li>
-
-        <span className="mx-2 text-base-content/40">›</span>
-
-        <li className="font-semibold text-primary break-words whitespace-normal">
-          {isEditMode ? "Edit" : "Add"} Representative
-        </li>
-
-      </ul>
-    </div>
+          <h1 className="text-2xl font-bold text-base-content tracking-tight">{isEditMode ? "Edit" : "Add"} Sales Representative</h1>
+          <div className="text-sm text-base-content/60 breadcrumbs mt-1">
+            <ul>
+              <li>Dashboard</li>
+              <li>Sales</li>
+              <li>Representatives</li>
+              <li className="font-semibold text-primary">{isEditMode ? "Edit" : "Add"} Representative</li>
+            </ul>
+          </div>
         </div>
         <div className="flex gap-2 flex-wrap">
           <button type="button" className="btn btn-outline btn-sm gap-2">
@@ -400,7 +387,7 @@ export default function AddSalesRep() {
           {/* 3. Employment Information */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-md font-semibold border-b border-base-200">
+            <div className="collapse-title text-lg font-semibold border-b border-base-200">
               1. Employment Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
@@ -409,7 +396,7 @@ export default function AddSalesRep() {
                   <FormRow label="Member" required>
   <select
     {...register("memberId")}
-    className="select select-sm select-bordered w-full"
+    className="select select-bordered w-full"
   >
     <option value="">- Select Member -</option>
     {owners?.map((member) => (
@@ -421,7 +408,7 @@ export default function AddSalesRep() {
 </FormRow>
 
                                 <FormRow label="Designation" required error={errors.designation?.message}>
-                  <select {...register("designation")} className={`select select-sm select-bordered w-full ${errors.designation ? 'select-error' : ''}`}>
+                  <select {...register("designation")} className={`select select-bordered w-full ${errors.designation ? 'select-error' : ''}`}>
                     <option value="">-Select-</option>
                     <option>Sales Executive</option>
                     <option>Senior Sales Executive</option>
@@ -444,23 +431,23 @@ export default function AddSalesRep() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Sales Territory">
                   <div className="flex gap-2">
-                    <select {...register("salesTerritory")} className="select select-sm select-bordered w-full">
+                    <select {...register("salesTerritory")} className="select select-bordered w-full">
                       <option value="">-Select-</option><option>North America</option><option>EMEA</option><option>APAC</option>
                     </select>
-                    <button type="button" onClick={() => (document.getElementById('add_territory_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-outline btn-square"><MdAdd size={18} /></button>
+                    <button type="button" onClick={() => (document.getElementById('add_territory_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                   </div>
                 </FormRow>
                 <FormRow label="Team">
                   <div className="flex gap-2">
-                    <select {...register("team")} className="select select-sm select-bordered w-full">
+                    <select {...register("team")} className="select select-bordered w-full">
                       <option value="">-Select-</option><option>Alpha Squad</option><option>Beta Force</option>
                     </select>
-                    <button type="button" onClick={() => (document.getElementById('add_team_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-outline btn-square"><MdAdd size={18} /></button>
+                    <button type="button" onClick={() => (document.getElementById('add_team_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                   </div>
                 </FormRow>
               </div>
               <FormRow label="Commission (%)" error={errors.commissionPercentage?.message}>
-                <input type="number" step="0.1" {...register("commissionPercentage")} className="input input-sm input-bordered w-full max-w-xs" placeholder="e.g. 5.5" />
+                <input type="number" step="0.1" {...register("commissionPercentage")} className="input input-bordered w-full max-w-xs" placeholder="e.g. 5.5" />
               </FormRow>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="form-control">
@@ -549,12 +536,12 @@ export default function AddSalesRep() {
           {/* 7. Performance Settings */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-md font-semibold border-b border-base-200">
+            <div className="collapse-title text-lg font-semibold border-b border-base-200">
               2. Performance Settings
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Sales Target Enabled">
-                <input type="checkbox" {...register("salesTargetEnabled")} className="toggle toggle-sm toggle-success" />
+                <input type="checkbox" {...register("salesTargetEnabled")} className="toggle toggle-success" />
               </FormRow>
               
               {wSalesTargetEnabled && (
@@ -574,7 +561,7 @@ export default function AddSalesRep() {
                     </div>
                   </div>
                   <FormRow label="Incentive Scheme">
-                    <select {...register("incentiveScheme")} className="select select-sm select-bordered w-full max-w-xs">
+                    <select {...register("incentiveScheme")} className="select select-bordered w-full max-w-xs">
                       <option value="">-Select Scheme-</option>
                       <option>Standard Tier</option>
                       <option>Premium Tier</option>
@@ -625,15 +612,15 @@ export default function AddSalesRep() {
           {/* 9. Notes */}
           <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-md font-semibold border-b border-base-200">
+            <div className="collapse-title text-lg font-semibold border-b border-base-200">
               3. Notes
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Internal Notes">
-                <textarea {...register("internalNotes")} className="textarea textarea-sm textarea-bordered w-full bg-warning/5" rows={3} placeholder="Only visible internally..."></textarea>
+                <textarea {...register("internalNotes")} className="textarea textarea-bordered w-full bg-warning/5" rows={3} placeholder="Only visible internally..."></textarea>
               </FormRow>
               <FormRow label="Remarks">
-                <textarea {...register("remarks")} className="textarea textarea-sm textarea-bordered w-full" rows={3} placeholder="General remarks..."></textarea>
+                <textarea {...register("remarks")} className="textarea textarea-bordered w-full" rows={3} placeholder="General remarks..."></textarea>
               </FormRow>
             </div>
           </div>
@@ -643,11 +630,11 @@ export default function AddSalesRep() {
         {/* ── Right Column (Sidebar Summary Card) ── */}
         <div className="lg:col-span-1 space-y-4">
           <div className="bg-base-100 border border-base-300 rounded-xl p-5 sticky top-24 shadow-sm">
-            <h3 className="font-bold text-md mb-4 pb-2 border-b border-base-200">Employee Summary</h3>
+            <h3 className="font-bold text-lg mb-4 pb-2 border-b border-base-200">Employee Summary</h3>
             
             <div className="space-y-4">
               <div className="flex flex-col items-center pb-4 border-b border-base-200">
-                <div className="w-18 h-18 rounded-full bg-base-300 mb-3 overflow-hidden shadow-sm">
+                <div className="w-20 h-20 rounded-full bg-base-300 mb-3 overflow-hidden shadow-sm">
                   {imagePreview ? <img src={imagePreview} className="w-full h-full object-cover" /> : <MdPersonAdd size={32} className="text-base-content/30 w-full h-full p-4" />}
                 </div>
                 <div className={`badge ${wStatus === 'Active' ? 'badge-success text-white' : wStatus === 'On Leave' ? 'badge-warning' : 'badge-error text-white'} font-bold`}>
