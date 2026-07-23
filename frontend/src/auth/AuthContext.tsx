@@ -3,7 +3,6 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { useNavigate } from "react-router-dom";
 type User = {
   userId: string;
-  
   name: string;
   email: string;
   role: string;
@@ -23,18 +22,6 @@ type AuthContextType = {
   loading: boolean;
 };
 
-// const getInitialAuth = (): AuthState => {
-//   const stored = localStorage.getItem("auth");
-//   console.log("stored" ,stored );
-//   if (stored) {
-//     try {
-//       return JSON.parse(stored);
-//     } catch (e) {
-//       console.warn("Failed to parse auth from localStorage:", e);
-//     }
-//   }
-//   return { token: null, slug: null, role: null, userId: null };
-// };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -45,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   //  Check login on refresh using cookie
   useEffect(() => {
