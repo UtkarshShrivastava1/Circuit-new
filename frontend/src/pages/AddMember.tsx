@@ -108,6 +108,9 @@ const AddMember = () => {
     if (!formData.designation) {
       newErrors.designation = "Designation is required";
     }
+    if (!formData.department) {
+  newErrors.department = "Department is required";
+}
      if (
   formData.department === "other" &&
   !formData.customDepartment.trim()
@@ -428,7 +431,11 @@ const AddMember = () => {
                 </div>
 
                 <div className="form-control w-full">
-                  <label className="label"><span className="label-text font-medium">Department</span></label>
+                 <label className="label">
+  <span className="label-text font-medium">
+    Department <span className="text-error">*</span>
+  </span>
+</label>
                   <select name="department" value={formData.department} onChange={handleChange} className={`select select-bordered w-full ${errors.department ? 'select-error' : ''}`}>
                     <option value="">Select Department</option>
                     <option value="sales">Sales</option>
