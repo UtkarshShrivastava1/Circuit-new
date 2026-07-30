@@ -567,6 +567,11 @@ export default function TaskDrawer({
       const { data } = await API.put(
         `/tasks/${auth.slug}/updateTask/${task.projectId}/${task._id}`,
         formData,
+          {
+    headers:{
+      "Content-Type":"multipart/form-data"
+    }
+  }
       );
 
       if (data.success) {

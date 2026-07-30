@@ -100,7 +100,7 @@ export default function SendNotificationModal({
       }
 
       const res = editingNotification 
-        ? await updateNotification(organizationSlug, editingNotification._id, formData)
+        ? await updateNotification(organizationSlug, editingNotification.id, formData)
         : await sendNotification(organizationSlug, formData);
 
       if (res?.data?.success) {
