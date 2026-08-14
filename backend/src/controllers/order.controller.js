@@ -34,7 +34,7 @@ exports.createOrder = async (req, res) => {
 exports.getAllOrders = async (req, res) => {
   try {
     const tenantId = req.tenantId;
-    const orders = await Order.find({ tenantId }).sort({ createdAt: -1 });
+    const orders = await Order.find({ tenantId }).sort({ createdAt: -1 }).populate('items.productId');
     
     // Map data fields to match what the frontend expects seamlessly
     const mappedOrders = orders.map(order => {

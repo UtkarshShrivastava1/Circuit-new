@@ -10,9 +10,9 @@ const API_BASE_URL = import.meta.env.VITE_NODE_ENV === "production"
 const API = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true, // This is important for sending cookies with requests
-  headers: {
-    "Content-Type": "application/json",
-  },
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 });
 
 // ===== Request Interceptor =====

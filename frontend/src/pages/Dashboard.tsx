@@ -424,13 +424,13 @@ export default function Dashboard() {
               Download Payslips
             </Link>
 
-            <Link
+            {/* <Link
               to="/members"
               className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
             >
               <MdPeople size={16} />
               Team Directory
-            </Link>
+            </Link> */}
           </>
         )}
       </div>

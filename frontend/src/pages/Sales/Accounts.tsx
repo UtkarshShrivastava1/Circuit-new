@@ -606,14 +606,14 @@ export default function AccountsDashboard() {
             </select>
           </div>
           <div className="flex items-end gap-2">
-            <button className="btn btn-sm btn-primary flex-1">Apply</button>
+            {/* <button className="btn btn-sm btn-primary flex-1">Apply</button> */}
             <button
               onClick={() => {
                 setStatusFilter("All");
                 setAccountTypeFilter("All");
                 setIndustryFilter("All");
               }}
-              className="btn btn-sm btn-ghost flex-1"
+              className="btn btn-sm  flex-1"
             >
               Reset
             </button>

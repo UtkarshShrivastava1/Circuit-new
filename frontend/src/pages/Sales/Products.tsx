@@ -97,7 +97,8 @@ export default function NewProduct() {
   const [newBrandInput, setNewBrandInput] = useState("");
   const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [newCategoryInput, setNewCategoryInput] = useState("");
-
+  const [customProductGroup, setCustomProductGroup] = useState("");
+const [isOtherProductGroup, setIsOtherProductGroup] = useState(false);
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -361,16 +362,72 @@ export default function NewProduct() {
               1. Basic Product Information
             </div>
             <div className="collapse-content pt-5 space-y-4">
-              <FormRow label="Product Group" required error={errors.productGroup?.message}>
-                <select {...register("productGroup")} className={`select select-bordered w-full ${errors.productGroup ? "select-error" : ""}`}>
+              {/* <FormRow label="Product Group" required error={errors.productGroup?.message}>
+                 <select {...register("productGroup")} className={`select select-bordered w-full ${errors.productGroup ? "select-error" : ""}`}>
                   <option value="">-Select Group-</option>
                   <option value="Electronics">Electronics</option>
                   <option value="Software">Software</option>
                   <option value="Hardware">Hardware</option>
                   <option value="Services">Services</option>
                   <option value="Accessories">Accessories</option>
-                </select>
-              </FormRow>
+                </select> 
+            
+              </FormRow> */}
+
+              <FormRow
+  label="Product Group"
+  required
+  error={errors.productGroup?.message}
+>
+  <div className="space-y-2">
+    <select
+      {...register("productGroup")}
+      onChange={(e) => {
+        const value = e.target.value;
+
+        if (value === "Other") {
+          setIsOtherProductGroup(true);
+          setCustomProductGroup("");
+          setValue("productGroup", "");
+        } else {
+          setIsOtherProductGroup(false);
+          setCustomProductGroup("");
+          setValue("productGroup", value);
+        }
+      }}
+      className={`select select-bordered w-full ${
+        errors.productGroup ? "select-error" : ""
+      }`}
+    >
+      <option value="">-Select Group-</option>
+      <option value="Electronics">Electronics</option>
+      <option value="Software">Software</option>
+      <option value="Hardware">Hardware</option>
+      <option value="Services">Services</option>
+      <option value="Accessories">Accessories</option>
+      <option value="Other">Other</option>
+    </select>
+
+    {isOtherProductGroup && (
+      <input
+        type="text"
+        value={customProductGroup}
+        onChange={(e) => {
+          const value = e.target.value;
+
+          setCustomProductGroup(value);
+          setValue("productGroup", value, {
+            shouldValidate: true,
+          });
+        }}
+        className={`input input-bordered w-full ${
+          errors.productGroup ? "input-error" : ""
+        }`}
+        placeholder="Enter your product group"
+      />
+    )}
+  </div>
+</FormRow>
               
               <FormRow label="Product Name" required error={errors.productName?.message}>
                 <input {...register("productName")} className={`input input-bordered w-full ${errors.productName ? "input-error" : ""}`} placeholder="Enter product name" />

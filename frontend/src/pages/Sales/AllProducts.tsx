@@ -212,6 +212,11 @@ export default function AllProducts({
 
   const { auth } = useAuth();
   const [refreshFlag, setRefreshFlag] = useState(0);
+  const [filterGroup, setFilterGroup] = useState("All");
+const [filterCategory, setFilterCategory] = useState("All");
+const [filterBrand, setFilterBrand] = useState("All");
+const [filterStockStatus, setFilterStockStatus] = useState("All");
+const [filterWarehouse, setFilterWarehouse] = useState("All");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -517,14 +522,52 @@ export default function AllProducts({
     }),
   ], [navigate, initiateDelete]);
 
-  const filteredProducts = useMemo(() => {
-    return products.filter(p => 
-      p.productName.toLowerCase().includes(search.toLowerCase()) || 
-      p.productCode.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase()) ||
-      p.brand.toLowerCase().includes(search.toLowerCase())
+const filteredProducts = useMemo(() => {
+  const query = search.trim().toLowerCase();
+
+  return products.filter((p) => {
+    const matchesSearch =
+      !query ||
+      p.productName?.toLowerCase().includes(query) ||
+      p.productCode?.toLowerCase().includes(query) ||
+      p.sku?.toLowerCase().includes(query) ||
+      p.brand?.toLowerCase().includes(query);
+
+    const matchesGroup =
+      filterGroup === "All" || p.productGroup === filterGroup;
+
+    const matchesCategory =
+      filterCategory === "All" || p.category === filterCategory;
+
+    const matchesBrand =
+      filterBrand === "All" || p.brand === filterBrand;
+
+    const matchesStockStatus =
+      filterStockStatus === "All" ||
+      p.stockStatus === filterStockStatus;
+
+    const matchesWarehouse =
+      filterWarehouse === "All" ||
+      p.warehouse === filterWarehouse;
+
+    return (
+      matchesSearch &&
+      matchesGroup &&
+      matchesCategory &&
+      matchesBrand &&
+      matchesStockStatus &&
+      matchesWarehouse
     );
-  }, [products, search]);
+  });
+}, [
+  products,
+  search,
+  filterGroup,
+  filterCategory,
+  filterBrand,
+  filterStockStatus,
+  filterWarehouse,
+]);
 
   const table = useReactTable({
     data: filteredProducts,
@@ -621,27 +664,80 @@ export default function AllProducts({
         <div className="bg-base-100 border border-base-300 rounded-xl p-5 mb-4 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 shadow-sm animate-fade-in-down">
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Product Group</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>Electronics</option><option>Software</option></select>
+            <select 
+              className="select select-sm select-bordered w-full"
+              value={filterGroup}
+              onChange={e => setFilterGroup(e.target.value)}
+            >
+              <option>All</option>
+              <option>Electronics</option>
+              <option>Software</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Category</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>Audio</option><option>Enterprise</option></select>
+            <select 
+              className="select select-sm select-bordered w-full"
+              value={filterCategory}
+              onChange={e => setFilterCategory(e.target.value)}
+            >
+              <option>All</option>
+              <option>Audio</option>
+              <option>Enterprise</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Brand</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>Sony</option><option>Logitech</option></select>
+            <select 
+              className="select select-sm select-bordered w-full"
+              value={filterBrand}
+              onChange={e => setFilterBrand(e.target.value)}
+            >
+              <option>All</option>
+              <option>Sony</option>
+              <option>Logitech</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Stock Status</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>In Stock</option><option>Low Stock</option><option>Out Of Stock</option></select>
+            <select 
+              className="select select-sm select-bordered w-full"
+              value={filterStockStatus}
+              onChange={e => setFilterStockStatus(e.target.value)}
+            >
+              <option>All</option>
+              <option>In Stock</option>
+              <option>Low Stock</option>
+              <option>Out Of Stock</option>
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold text-base-content/70 mb-1 block">Warehouse</label>
-            <select className="select select-sm select-bordered w-full"><option>All</option><option>Main Warehouse</option></select>
+            <select 
+              className="select select-sm select-bordered w-full"
+              value={filterWarehouse}
+              onChange={e => setFilterWarehouse(e.target.value)}
+            >
+              <option>All</option>
+              <option>Main Warehouse</option>
+            </select>
           </div>
           <div className="col-span-1 md:col-span-4 lg:col-span-5 flex justify-end gap-2 mt-2">
-            <button className="btn btn-sm btn-ghost">Reset Filters</button>
-            <button className="btn btn-sm btn-primary">Apply Filters</button>
+            {/* <button className="btn btn-sm btn-ghost">Reset Filters</button> */}
+            <button
+  className="btn btn-sm btn-ghost"
+  onClick={() => {
+    setFilterGroup("All");
+    setFilterCategory("All");
+    setFilterBrand("All");
+    setFilterStockStatus("All");
+    setFilterWarehouse("All");
+    setSearch("");
+  }}
+>
+  Reset Filters
+</button>
+          
           </div>
         </div>
       )}

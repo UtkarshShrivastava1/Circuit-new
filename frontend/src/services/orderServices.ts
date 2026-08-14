@@ -1,5 +1,25 @@
 import API from "@/api/axios";
+export interface OrderItem {
+  productId?: {
+    _id: string;
+    productName: string;
+    sku: string;
+    sellingPrice?: number;
+    costPrice?: number;
+    retailPrice?: number;
+  } | string;
 
+  sku?: string;
+  productName?: string;
+  stock?: number;
+  retailPrice?: number;
+  costPrice?: number;
+  sellingPrice?: number;
+  quantity: number;
+  discountPct?: number;
+  taxPct?: number;
+  lineTotal: number;
+}
 export interface OrderProduct {
   productId: string;
   productName: string;
@@ -12,6 +32,8 @@ export interface OrderProduct {
 }
 
 export interface Order {
+  
+  items: OrderItem[];
   id: string;
   orderNumber: string;
   customerName: string;
