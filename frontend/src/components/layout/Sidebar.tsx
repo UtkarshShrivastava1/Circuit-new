@@ -301,20 +301,7 @@ const salesForecastSubMenu: MenuItem[] = [
   },
 ];
 
-// const salesAdminSubMenu: MenuItem[] = [
-//   {
-//     id: "sales-admin-panel",
-//     label: "Panel",
-//     path: "/sales/admin",
-//     icon: <MdAdminPanelSettings size={18} />,
-//   },
-//   {
-//     id: "sales-admin-settings",
-//     label: "Settings",
-//     path: "/sales/admin/settings",
-//     icon: <MdAdminPanelSettings size={18} />,
-//   },
-// ];
+
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function ERPSidebar({ isOpen, onClose }: Props) {
@@ -400,7 +387,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
   /* ── nav link class helper ── */
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     [
-      "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
+      "group flex items-center gap-3 rounded-md px-3 py-2 text-xs transition-all",
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content",
@@ -444,7 +431,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
 
   /* ── shared submenu button styles ── */
   const dropdownBtnClass = (isActive: boolean) =>
-    `relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
+    `relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-xs transition-all ${
       isActive
         ? "bg-base-300 font-semibold text-base-content"
         : "text-primary-content hover:bg-base-300 hover:text-base-content"
@@ -501,13 +488,13 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
           fixed lg:static top-0 left-0 z-50
           h-screen bg-primary border-r border-base-300 flex flex-col
           transition-all duration-300 ease-in-out overflow-hidden
-          ${collapsed ? "w-20" : "w-64"}
+          ${collapsed ? "w-20" : "w-54"}
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
       >
         {/* ── HEADER ── */}
-        <div className="flex items-center w-full px-1.5 py-3 border-b border-base-300">
+        <div className="flex items-center w-full px-1.5 py-2 border-b border-base-300">
           <div className="flex items-center w-full">
             <div className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-lg bg-base-100 text-primary flex items-center justify-center font-bold">
@@ -515,20 +502,20 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
               </div>
               {!collapsed && (
                 <div className="text-base-100">
-                  <p className="font-semibold">Circuit</p>
-                  <p className="text-xs">Office ERP</p>
+                  <p className="font-[16px]">Circuit</p>
+                  <p className="text-[8px]">Office ERP</p>
                 </div>
               )}
             </div>
             <div className="ml-auto flex items-center gap-2">
               <button
-                className="btn btn-ghost btn-xs lg:hidden text-base-100"
+                className="btn btn-ghost btn-xs lg:hidden text-base-100 hover:text-black hover:bg-transparent"
                 onClick={onClose}
               >
                 <MdClose />
               </button>
               <button
-                className="btn btn-ghost btn-xs border border-primary-content/40 rounded-md p-1 hidden lg:flex text-primary-content hover:bg-primary-content/10"
+                className="btn btn-ghost btn-xs   p-1 hidden lg:flex text-primary-content hover:bg-primary-content/10"
                 onClick={() => setCollapsed(!collapsed)}
               >
                 <MdChevronLeft
@@ -1069,31 +1056,7 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     </div>
                   </div>
 
-                  {/* SETTINGS 
-                  <div>
-                    {!collapsed && (
-                      <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                        Settings
-                      </p>
-                    )}
-                    <div className="space-y-1">
-                      <button
-                        onClick={() => setSalesAdminOpen(!salesAdminOpen)}
-                        className={dropdownBtnClass(location.pathname.startsWith("/sales/admin"))}
-                      >
-                        <MdAdminPanelSettings size={20} />
-                        {!collapsed && (
-                          <>
-                            <span className="flex-1 text-left">Admin</span>
-                            <MdExpandMore
-                              className={`transition-transform duration-300 ${salesAdminOpen ? "rotate-180" : ""}`}
-                          />
-                        </>
-                      )}
-                      </button>
-                      {renderSubMenu(salesAdminSubMenu, salesAdminOpen)}
-                    </div>
-                  </div>*/}
+                 
                 </>
               ) : (
                 /* EMPLOYEE SALES MENU */
@@ -1107,6 +1070,10 @@ export default function ERPSidebar({ isOpen, onClose }: Props) {
                     <NavLink end to="/sales" onClick={onClose} className={linkClass}>
                       <MdDashboard size={20} />
                       {!collapsed && <span>Dashboard</span>}
+                    </NavLink>
+                    <NavLink end to="/sales/attendance" onClick={onClose} className={linkClass}>
+                      <MdDashboard size={20} />
+                      {!collapsed && <span>Attendance</span>}
                     </NavLink>
                     <NavLink end to="/sales/employee-leads" onClick={onClose} className={linkClass}>
                       <Target size={20} />

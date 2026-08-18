@@ -461,7 +461,6 @@ export default function TaskDrawer({
   onClose,
   onUpdate,
 }: Props) {
-  console.log("Rendering TaskDrawer with task:", task, "and mode:", mode);
   const { auth } = useAuth();
   const isEdit = mode === "edit";
 
@@ -567,11 +566,6 @@ export default function TaskDrawer({
       const { data } = await API.put(
         `/tasks/${auth.slug}/updateTask/${task.projectId}/${task._id}`,
         formData,
-          {
-    headers:{
-      "Content-Type":"multipart/form-data"
-    }
-  }
       );
 
       if (data.success) {

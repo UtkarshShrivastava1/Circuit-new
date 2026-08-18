@@ -49,6 +49,7 @@ const taskSchema = z.object({
   communicationType: z.string().optional(),
   meetingMode: z.enum(["Online", "Offline", ""]).optional(),
   meetingLocation: z.string().optional(),
+  meetingLocation: z.string().optional(), // Make optional as it depends on meetingMode
   meetingLink: z.string().url("Invalid URL").or(z.literal("")).optional(),
   
   // Progress

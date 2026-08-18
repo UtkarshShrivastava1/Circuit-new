@@ -5,7 +5,7 @@ import axios from "axios";
 // Variables must start with VITE_ to be exposed to the client.
 const API_BASE_URL = import.meta.env.VITE_NODE_ENV === "production"
   ? `${import.meta.env.VITE_BACKEND_URL}/api`
-  : "http://localhost:5001/api";
+  : "http://localhost:5000/api";
 
 const API = axios.create({
   baseURL: API_BASE_URL,

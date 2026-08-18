@@ -42,12 +42,11 @@ import type { ColumnConfig } from "@/type/importExport.types";
 const orderColumns: ColumnConfig[] = [
   { key: "orderNumber", label: "Order Number", required: true, type: "string" },
   { key: "customerName", label: "Customer Name", required: true, type: "string" },
-  { key: "salesRep", label: "Sales Rep", type: "string" },
+  { key: "salesOwner", label: "Sales Owner", type: "string" },
   { key: "orderDate", label: "Order Date", type: "date" },
-  { key: "deliveryDate", label: "Delivery Date", type: "date" },
-  { key: "orderValue", label: "Order Value", type: "number" },
+  { key: "grandTotal", label: "Grand Total", type: "number" },
   { key: "paymentStatus", label: "Payment Status", type: "string" },
-  { key: "orderStatus", label: "Order Status", type: "string" },
+  { key: "status", label: "Order Status", type: "string" },
   { key: "priority", label: "Priority", type: "string" },
 ];
 
@@ -64,6 +63,21 @@ export default function AllOrders() {
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
 
+  // Filter state
+  const [filters, setFilters] = useState({
+    status: "All",
+    paymentStatus: "All",
+    provisioningStatus: "All",
+    priority: "All",
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    status: "All",
+    paymentStatus: "All",
+    provisioningStatus: "All",
+    priority: "All",
+  });
+
   // Modal States
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
@@ -71,7 +85,7 @@ export default function AllOrders() {
   const [successMessage, setSuccessMessage] = useState("");
   const [bulkStatusModalOpen, setBulkStatusModalOpen] = useState(false);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
-  const [newStatus, setNewStatus] = useState<Order["orderStatus"]>("Pending");
+  const [newStatus, setNewStatus] = useState<any>("Unpaid");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
 
@@ -149,7 +163,7 @@ export default function AllOrders() {
     queryClient.invalidateQueries({ queryKey: ["orders"] });
   };
 
-  const handleStatusChange = async (orderId: string, newStatus: Order["orderStatus"]) => {
+  const handleStatusChange = async (orderId: string, newStatus: any) => {
     try {
       await updateMutation.mutateAsync({ id: orderId, payload: { orderStatus: newStatus } });
       toast.success(`Order marked as ${newStatus}`);
@@ -180,7 +194,7 @@ export default function AllOrders() {
   const handleBulkStatusUpdate = async () => {
     const selected = getSelectedOrders();
     try {
-      await Promise.all(selected.map(o => updateMutation.mutateAsync({ id: o.id, payload: { orderStatus: newStatus } })));
+      await Promise.all(selected.map(o => updateMutation.mutateAsync({ id: o.id, payload: { allowedPaymentStatuses: newStatus } })));
       setBulkStatusModalOpen(false);
       setRowSelection({});
       setSuccessMessage(`Status updated to ${newStatus} for selected orders!`);
@@ -225,7 +239,7 @@ export default function AllOrders() {
     e.dataTransfer.setData("orderId", orderId);
   };
 
-  const handleDrop = (e: React.DragEvent, newStatus: Order["orderStatus"]) => {
+  const handleDrop = (e: React.DragEvent, newStatus: any) => {
     const orderId = e.dataTransfer.getData("orderId");
     if (orderId) {
       handleStatusChange(orderId, newStatus);
@@ -234,28 +248,94 @@ export default function AllOrders() {
 
   // Filtering
   const filteredOrders = useMemo(() => {
-    return orders.filter(o => 
-      o.orderNumber.toLowerCase().includes(search.toLowerCase()) || 
-      o.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      o.salesRep.toLowerCase().includes(search.toLowerCase())
-    );
-  }, [orders, search]);
+    const term = search.trim().toLowerCase();
+
+    return orders.filter((o: any) => {
+      const matchesSearch =
+        !term ||
+        String(o.orderNumber || "").toLowerCase().includes(term) ||
+        String(o.customerName || "").toLowerCase().includes(term) ||
+        String(o.salesOwner || o.salesRep || "").toLowerCase().includes(term) ||
+        String(
+          o.items?.map((item: any) => item.productName).join(" ") || ""
+        ).toLowerCase().includes(term);
+
+      const orderStatus = o.status || o.orderStatus || "";
+      const paymentStatus = o.paymentStatus || "";
+      const provisioningStatus = o.provisioningStatus || "";
+      const priority = o.priority || "";
+
+      const matchesStatus =
+        appliedFilters.status === "All" ||
+        orderStatus === appliedFilters.status;
+
+      const matchesPaymentStatus =
+        appliedFilters.paymentStatus === "All" ||
+        paymentStatus === appliedFilters.paymentStatus;
+
+      const matchesProvisioningStatus =
+        appliedFilters.provisioningStatus === "All" ||
+        provisioningStatus === appliedFilters.provisioningStatus;
+
+      const matchesPriority =
+        appliedFilters.priority === "All" ||
+        priority === appliedFilters.priority;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPaymentStatus &&
+        matchesProvisioningStatus &&
+        matchesPriority
+      );
+    });
+  }, [orders, search, appliedFilters]);
+
+  const applyFilters = () => {
+    setAppliedFilters({ ...filters });
+    setRowSelection({});
+  };
+
+  const resetFilters = () => {
+    const resetState = {
+      status: "All",
+      paymentStatus: "All",
+      provisioningStatus: "All",
+      priority: "All",
+    };
+
+    setFilters(resetState);
+    setAppliedFilters(resetState);
+    setRowSelection({});
+  };
 
   // Stats
   const stats = useMemo(() => {
+    const getTotal = (o: any) =>
+      Number(o.grandTotal ?? o.orderValue ?? 0);
+
     return {
       total: orders.length,
-      revenue: orders.reduce((sum, o) => sum + o.orderValue, 0),
-      draft: orders.filter(o => o.orderStatus === "Draft").length,
-      pending: orders.filter(o => o.orderStatus === "Pending").length,
-      processing: orders.filter(o => o.orderStatus === "Processing").length,
-      delivered: orders.filter(o => o.orderStatus === "Delivered").length,
-      cancelled: orders.filter(o => o.orderStatus === "Cancelled").length,
-      aov: orders.length > 0 ? orders.reduce((sum, o) => sum + o.orderValue, 0) / orders.length : 0,
+      revenue: orders.reduce((sum: number, o: any) => sum + getTotal(o), 0),
+      draft: orders.filter((o: any) => (o.status || o.orderStatus) === "Draft").length,
+      pending: orders.filter((o: any) =>
+        ["Pending", "Pending Approval"].includes(o.status || o.orderStatus)
+      ).length,
+      processing: orders.filter((o: any) =>
+        ["Processing", "Awaiting Payment"].includes(o.status || o.orderStatus)
+      ).length,
+      completed: orders.filter((o: any) =>
+        ["Completed", "Provisioned"].includes(o.status || o.orderStatus)
+      ).length,
+      cancelled: orders.filter((o: any) => (o.status || o.orderStatus) === "Cancelled").length,
+      aov:
+        orders.length > 0
+          ? orders.reduce((sum: number, o: any) => sum + getTotal(o), 0) / orders.length
+          : 0,
     };
   }, [orders]);
 
-  const overDueCount = orders.filter(o => new Date(o.deliveryDate) < new Date() && o.deliveryStatus !== "Delivered").length;
+  const overDueCount = 0;
 
   // Table Definition
   const columnHelper = createColumnHelper<Order>();
@@ -277,11 +357,11 @@ export default function AllOrders() {
       header: "Customer",
       cell: (info) => <span className="font-medium">{info.getValue()}</span>,
     }),
-    columnHelper.accessor("salesRep", {
-      header: "Sales Rep",
+    columnHelper.accessor("salesOwner" as any, {
+      header: "Sales Owner",
       cell: (info) => (
         <div className="flex items-center gap-2">
-          <img src={info.row.original.salesRepAvatar || `https://ui-avatars.com/api/?name=${info.getValue()}`} alt="rep" className="w-6 h-6 rounded-full" />
+          <img src={info.row.original.salesOwnerAvatar || `https://ui-avatars.com/api/?name=${info.getValue()}&background=random`} alt="rep" className="w-6 h-6 rounded-full" />
           <span className="text-xs">{info.getValue()}</span>
         </div>
       ),
@@ -290,9 +370,16 @@ export default function AllOrders() {
       header: "Order Date",
       cell: (info) => new Date(info.getValue()).toLocaleDateString(),
     }),
-    columnHelper.accessor("orderValue", {
+    columnHelper.accessor("grandTotal" as any, {
       header: "Total",
-      cell: (info) => <span className="font-semibold text-success">₹{info.getValue()?.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>,
+      cell: (info) => {
+        const value = Number(info.getValue() ?? (info.row.original as any).orderValue ?? 0);
+        return (
+          <span className="font-semibold text-success">
+            ₹{value.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </span>
+        );
+      },
     }),
     columnHelper.accessor("paymentStatus", {
       header: "Payment",
@@ -301,11 +388,11 @@ export default function AllOrders() {
         return <span className={`badge badge-sm font-semibold border-none ${val === "Paid" ? "badge-success text-white" : val === "Unpaid" ? "badge-error text-white" : "badge-warning"}`}>{val}</span>;
       },
     }),
-    columnHelper.accessor("orderStatus", {
+    columnHelper.accessor("status" as any, {
       header: "Status",
       cell: (info) => {
         const val = info.getValue();
-        return <span className={`badge badge-sm badge-outline ${val === "Completed" || val === "Delivered" ? "badge-primary" : val === "Cancelled" ? "badge-error" : "badge-neutral"}`}>{val}</span>;
+        return <span className={`badge badge-sm badge-outline ${val === "Completed" || val === "Provisioned" ? "badge-primary" : val === "Cancelled" ? "badge-error" : "badge-neutral"}`}>{val}</span>;
       },
     }),
     columnHelper.accessor("priority", {
@@ -432,13 +519,125 @@ export default function AllOrders() {
       {/* ── Filters Panel ── */}
       {showFilters && (
         <div className="bg-base-100 border border-base-300 rounded-xl p-5 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shadow-sm">
-          <div><label className="text-xs font-semibold mb-1 block">Order Status</label><select className="select select-sm select-bordered w-full"><option>All</option><option>Pending</option><option>Processing</option></select></div>
-          <div><label className="text-xs font-semibold mb-1 block">Payment Status</label><select className="select select-sm select-bordered w-full"><option>All</option><option>Paid</option><option>Unpaid</option></select></div>
-          <div><label className="text-xs font-semibold mb-1 block">Delivery Status</label><select className="select select-sm select-bordered w-full"><option>All</option><option>Pending</option><option>Shipped</option></select></div>
-          <div><label className="text-xs font-semibold mb-1 block">Priority</label><select className="select select-sm select-bordered w-full"><option>All</option><option>Urgent</option><option>High</option></select></div>
-          <div className="col-span-full flex justify-end gap-2 mt-2">
-            <button className="btn btn-sm btn-ghost">Reset Filters</button>
-            <button className="btn btn-sm btn-primary">Apply Filters</button>
+          <div>
+            <label className="text-xs font-semibold mb-1 block">
+              Order Status
+            </label>
+            <select
+              className="select select-sm select-bordered w-full"
+              value={filters.status}
+              onChange={(e) =>
+                setFilters((current) => ({
+                  ...current,
+                  status: e.target.value,
+                }))
+              }
+            >
+              <option value="All">All</option>
+              <option value="Draft">Draft</option>
+              <option value="Pending">Pending</option>
+              <option value="Pending Approval">Pending Approval</option>
+              <option value="Approved">Approved</option>
+              <option value="Processing">Processing</option>
+              <option value="Awaiting Payment">Awaiting Payment</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
+              <option value="On Hold">On Hold</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold mb-1 block">
+              Payment Status
+            </label>
+            <select
+              className="select select-sm select-bordered w-full"
+              value={filters.paymentStatus}
+              onChange={(e) =>
+                setFilters((current) => ({
+                  ...current,
+                  paymentStatus: e.target.value,
+                }))
+              }
+            >
+              <option value="All">All</option>
+              <option value="Unpaid">Unpaid</option>
+              <option value="Partially Paid">Partially Paid</option>
+              <option value="Paid">Paid</option>
+              <option value="Refunded">Refunded</option>
+              <option value="Partially Refunded">
+                Partially Refunded
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold mb-1 block">
+              Provisioning Status
+            </label>
+            <select
+              className="select select-sm select-bordered w-full"
+              value={filters.provisioningStatus}
+              onChange={(e) =>
+                setFilters((current) => ({
+                  ...current,
+                  provisioningStatus: e.target.value,
+                }))
+              }
+            >
+              <option value="All">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Processing">Processing</option>
+              <option value="Provisioned">Provisioned</option>
+              <option value="Failed">Failed</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-xs font-semibold mb-1 block">
+              Priority
+            </label>
+            <select
+              className="select select-sm select-bordered w-full"
+              value={filters.priority}
+              onChange={(e) =>
+                setFilters((current) => ({
+                  ...current,
+                  priority: e.target.value,
+                }))
+              }
+            >
+              <option value="All">All</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Urgent">Urgent</option>
+            </select>
+          </div>
+
+          <div className="col-span-full flex justify-between items-center gap-2 mt-2">
+            <span className="text-xs text-base-content/60">
+              {filteredOrders.length} matching
+              {filteredOrders.length === 1 ? " order" : " orders"}
+            </span>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={resetFilters}
+              >
+                Reset Filters
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={applyFilters}
+              >
+                Apply Filters
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -448,8 +647,8 @@ export default function AllOrders() {
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3 mb-4 flex items-center justify-between shadow-sm animate-fade-in-up">
           <span className="text-sm font-semibold text-primary">{Object.keys(rowSelection).length} orders selected</span>
           <div className="flex gap-2">
-            <button onClick={() => setBulkStatusModalOpen(true)} className="btn btn-xs btn-primary">Change Status</button>
-            <button onClick={() => toast.info("Assign Rep function not fully implemented")} className="btn btn-xs btn-outline bg-base-100">Assign Rep</button>
+            {/* <button onClick={() => setBulkStatusModalOpen(true)} className="btn btn-xs btn-primary">Change Status</button>
+            <button onClick={() => toast.info("Assign Rep function not fully implemented")} className="btn btn-xs btn-outline bg-base-100">Assign Rep</button> */}
             <button onClick={() => setBulkDeleteModalOpen(true)} className="btn btn-xs btn-error btn-outline">Delete</button>
           </div>
         </div>
@@ -497,7 +696,7 @@ export default function AllOrders() {
               <div key={order.id} onClick={() => setSelectedOrder(order)} className="card bg-base-100 shadow-sm border border-base-300 hover:border-primary cursor-pointer transition-colors p-4">
                 <div className="flex justify-between items-start mb-2">
                   <span className="font-bold text-primary">{order.orderNumber}</span>
-                  <span className={`badge badge-sm ${order.orderStatus === 'Processing' ? 'badge-info' : 'badge-ghost'}`}>{order.orderStatus}</span>
+                  <span className={`badge badge-sm ${((order as any).status || (order as any).orderStatus) === 'Processing' ? 'badge-info' : 'badge-ghost'}`}>{(order as any).status || (order as any).orderStatus}</span>
                 </div>
                 <p className="text-sm font-semibold mb-1">{order.customerName}</p>
                 <p className="text-xs text-base-content/60 mb-4">{new Date(order.orderDate).toLocaleDateString()}</p>
@@ -516,19 +715,19 @@ export default function AllOrders() {
         {/* View 3: Kanban Board */}
         {view === "kanban" && (
           <div className="flex-1 overflow-x-auto p-4 flex gap-4 bg-base-200/50 min-h-[500px]">
-            {["Draft", "Pending", "Processing", "Shipped", "Delivered", "Completed"].map((status) => (
+            {["Draft", "Pending", "Pending Approval", "Approved", "Processing", "Awaiting Payment", "Completed", "Cancelled", "On Hold"].map((status) => (
               <div 
                 key={status} 
                 className="flex-none w-72 bg-base-100 rounded-xl border border-base-300 flex flex-col max-h-full"
                 onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => handleDrop(e, status as Order["orderStatus"])}
+                onDrop={(e) => handleDrop(e, status as any)}
               >
                 <div className="p-3 border-b border-base-200 font-bold flex justify-between items-center bg-base-200/30 rounded-t-xl">
                   <span className="text-base-content/80">{status}</span>
-                  <span className="badge badge-sm">{orders.filter(o => o.orderStatus === status).length}</span>
+                  <span className="badge badge-sm">{orders.filter((o: any) => (o.status || o.orderStatus) === status).length}</span>
                 </div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-3">
-                  {orders.filter(o => o.orderStatus === status).map(order => (
+                  {orders.filter((o: any) => (o.status || o.orderStatus) === status).map(order => (
                     <div 
                       key={order.id} 
                       draggable 
@@ -584,7 +783,7 @@ export default function AllOrders() {
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <span className="font-mono text-lg font-bold text-primary">{selectedOrder?.orderNumber}</span>
-                <span className={`badge badge-sm ${selectedOrder?.orderStatus === 'Completed' ? 'badge-primary' : 'badge-ghost'}`}>{selectedOrder?.orderStatus}</span>
+                <span className={`badge badge-sm ${((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) === 'Completed' ? 'badge-primary' : 'badge-ghost'}`}>{selectedOrder?.orderStatus}</span>
               </div>
               <p className="text-sm text-base-content/60">Placed on {selectedOrder && new Date(selectedOrder.orderDate).toLocaleString()}</p>
             </div>
@@ -599,8 +798,8 @@ export default function AllOrders() {
             
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2 pb-6 border-b border-base-200">
-              {selectedOrder?.orderStatus === 'Pending' && <button onClick={() => handleStatusChange(selectedOrder.id, "Approved")} className="btn btn-sm btn-success text-white">Approve Order</button>}
-              {selectedOrder?.orderStatus === 'Approved' && <button onClick={() => handleStatusChange(selectedOrder.id, "Processing")} className="btn btn-sm btn-info text-white">Mark Processing</button>}
+              {((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) === 'Pending' && <button onClick={() => handleStatusChange(selectedOrder.id, "Approved")} className="btn btn-sm btn-success text-white">Approve Order</button>}
+              {((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) === 'Approved' && <button onClick={() => handleStatusChange(selectedOrder.id, "Processing")} className="btn btn-sm btn-info text-white">Mark Processing</button>}
               <button onClick={(e) => triggerSuccess("Invoice generated successfully!", e)} className="btn btn-sm btn-outline"><MdReceipt /> Generate Invoice</button>
               <button onClick={(e) => { if (selectedOrder) handleSendEmail(e, selectedOrder.id); }} className="btn btn-sm btn-outline"><MdEmail /> Email Customer</button>
               <button onClick={(e) => { e.stopPropagation(); if (selectedOrder) { setOrderToEdit(selectedOrder); setEditModalOpen(true); } }} className="btn btn-sm btn-outline"><MdEdit /> Edit Order</button>
@@ -619,11 +818,11 @@ export default function AllOrders() {
                 </div>
               </section>
               <section>
-                <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">Delivery & Rep</h3>
+                <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">Software Order</h3>
                 <div className="space-y-2">
-                  <p><span className="text-base-content/50">Est. Delivery:</span> <span className="font-medium">{selectedOrder?.deliveryDate}</span></p>
-                  <p><span className="text-base-content/50">Delivery Status:</span> <span className="font-medium">{selectedOrder?.deliveryStatus}</span></p>
-                  <p><span className="text-base-content/50">Sales Rep:</span> <span className="font-medium">{selectedOrder?.salesRep}</span></p>
+                  <p><span className="text-base-content/50">Sales Owner:</span> <span className="font-medium">{(selectedOrder as any)?.salesOwner || (selectedOrder as any)?.salesRep || "—"}</span></p>
+                  <p><span className="text-base-content/50">Delivery Type:</span> <span className="font-medium">{(selectedOrder as any)?.deliveryType || "—"}</span></p>
+                  <p><span className="text-base-content/50">Provisioning:</span> <span className="font-medium">{(selectedOrder as any)?.provisioningStatus || "Pending"}</span></p>
                   <p><span className="text-base-content/50">Payment:</span> <span className="font-medium text-success">{selectedOrder?.paymentStatus}</span></p>
                 </div>
               </section>
@@ -643,22 +842,28 @@ export default function AllOrders() {
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedOrder?.products?.map((p, idx) => (
+                    {((selectedOrder as any)?.items || []).map((item: any, idx: number) => (
                       <tr key={idx}>
                         <td>
-                          <p className="font-semibold">{p.productName || (p as any).name}</p>
-                          <p className="text-[10px] text-base-content/50 font-mono">{p.sku}</p>
+                          <p className="font-semibold">{item.productName || "Software Product"}</p>
+                          <p className="text-[10px] text-base-content/50 font-mono">
+                            {item.productCode || item.sku || "—"}
+                          </p>
+                          <p className="text-[10px] text-base-content/50">
+                            {item.planName ? `Plan: ${item.planName}` : ""}
+                            {item.billingCycle ? ` • ${item.billingCycle}` : ""}
+                          </p>
                         </td>
-                        <td>₹{p.price?.toLocaleString()}</td>
-                        <td>{p.quantity || (p as any).qty}</td>
-                        <td className="text-right font-medium">₹{p.total?.toLocaleString()}</td>
+                        <td>₹{Number(item.unitPrice || 0).toLocaleString()}</td>
+                        <td>{Number(item.quantity || 0)}</td>
+                        <td className="text-right font-medium">₹{Number(item.lineTotal ?? item.total ?? 0).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                   <tfoot>
                     <tr className="bg-base-200/30">
                       <td colSpan={3} className="text-right font-bold text-base-content/70">Grand Total</td>
-                      <td className="text-right font-bold text-lg text-success">₹{selectedOrder?.orderValue?.toLocaleString()}</td>
+                      <td className="text-right font-bold text-lg text-success">₹{Number((selectedOrder as any)?.grandTotal ?? (selectedOrder as any)?.orderValue ?? 0).toLocaleString()}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -689,7 +894,7 @@ export default function AllOrders() {
                   </div>
                   <hr className="bg-primary" />
                 </li>
-                {selectedOrder?.orderStatus !== "Draft" && selectedOrder?.orderStatus !== "Pending" && (
+                {((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) !== "Draft" && ((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) !== "Pending" && (
                   <li>
                     <hr className="bg-primary" />
                     <div className="timeline-middle"><MdCheckCircle className="text-primary" /></div>
@@ -697,7 +902,7 @@ export default function AllOrders() {
                       <span className="font-semibold">Order Approved</span>
                       <p className="text-xs text-base-content/50">By Sales Manager</p>
                     </div>
-                    {selectedOrder?.orderStatus === "Completed" && <hr className="bg-primary" />}
+                    {((selectedOrder as any)?.status || (selectedOrder as any)?.orderStatus) === "Completed" && <hr className="bg-primary" />}
                   </li>
                 )}
               </ul>
@@ -719,109 +924,174 @@ export default function AllOrders() {
       </dialog>
 
       <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
-        <div className="modal-box max-w-3xl">
-          <h3 className="font-bold text-lg mb-4">Edit Order</h3>
+        <div className="modal-box max-w-4xl">
+          <h3 className="font-bold text-lg mb-4">Edit Software Order</h3>
           {orderToEdit && (
-            <form onSubmit={handleEditSubmit} className="space-y-4">
+            <form onSubmit={handleEditSubmit} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="form-control">
                   <label className="label"><span className="label-text">Order Number</span></label>
                   <input type="text" className="input input-bordered w-full bg-base-200" value={orderToEdit.orderNumber} readOnly />
                 </div>
+
                 <div className="form-control">
-                  <label className="label"><span className="label-text">Customer Name</span></label>
-                  <input type="text" className="input input-bordered w-full" value={orderToEdit.customerName} onChange={(e) => setOrderToEdit({...orderToEdit, customerName: e.target.value})} required />
+                  <label className="label"><span className="label-text">Customer</span></label>
+                  <input type="text" className="input input-bordered w-full" value={orderToEdit.customerName || ""} onChange={(e) => setOrderToEdit({...orderToEdit, customerName: e.target.value})} required />
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Contact Person</span></label>
                   <input type="text" className="input input-bordered w-full" value={orderToEdit.contactPerson || ""} onChange={(e) => setOrderToEdit({...orderToEdit, contactPerson: e.target.value})} />
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Email</span></label>
                   <input type="email" className="input input-bordered w-full" value={orderToEdit.email || ""} onChange={(e) => setOrderToEdit({...orderToEdit, email: e.target.value})} />
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Phone</span></label>
                   <input type="text" className="input input-bordered w-full" value={orderToEdit.phone || ""} onChange={(e) => setOrderToEdit({...orderToEdit, phone: e.target.value})} />
                 </div>
+
                 <div className="form-control">
-                  <label className="label"><span className="label-text">Sales Rep</span></label>
+                  <label className="label"><span className="label-text">Sales Owner</span></label>
                   <div className="dropdown w-full">
-                    <input 
-                      type="text" 
-                      className="input input-bordered w-full" 
-                      value={orderToEdit.salesRep || ""} 
-                      onChange={(e) => setOrderToEdit({...orderToEdit, salesRep: e.target.value})} 
-                      placeholder="-Select Rep-"
+                    <input
+                      type="text"
+                      className="input input-bordered w-full"
+                      value={(orderToEdit as any).salesOwner || (orderToEdit as any).salesRep || ""}
+                      onChange={(e) => setOrderToEdit({...orderToEdit, ...( { salesOwner: e.target.value } as any)})}
+                      placeholder="-Select Owner-"
                       tabIndex={0}
                     />
                     <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-full max-h-60 overflow-y-auto z-50 border border-base-300">
                       {salesReps.map(rep => (
-                        <li key={rep}><a onClick={() => { setOrderToEdit({...orderToEdit, salesRep: rep}); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
+                        <li key={rep}><a onClick={() => { setOrderToEdit({...orderToEdit, ...( { salesOwner: rep } as any) }); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>
                       ))}
                     </ul>
                   </div>
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Order Date</span></label>
                   <input type="date" className="input input-bordered w-full" value={orderToEdit.orderDate ? new Date(orderToEdit.orderDate).toISOString().split('T')[0] : ""} onChange={(e) => setOrderToEdit({...orderToEdit, orderDate: e.target.value})} />
                 </div>
-                <div className="form-control">
-                  <label className="label"><span className="label-text">Delivery Date</span></label>
-                  <input type="date" className="input input-bordered w-full" value={orderToEdit.deliveryDate ? new Date(orderToEdit.deliveryDate).toISOString().split('T')[0] : ""} onChange={(e) => setOrderToEdit({...orderToEdit, deliveryDate: e.target.value})} />
-                </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Order Status</span></label>
-                  <select className="select select-bordered w-full" value={orderToEdit.orderStatus} onChange={(e) => setOrderToEdit({...orderToEdit, orderStatus: e.target.value as any})}>
+                  <select className="select select-bordered w-full" value={(orderToEdit as any).status || (orderToEdit as any).orderStatus || "Draft"} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { status: e.target.value } as any)})}>
                     <option value="Draft">Draft</option>
                     <option value="Pending">Pending</option>
+                    <option value="Pending Approval">Pending Approval</option>
                     <option value="Approved">Approved</option>
                     <option value="Processing">Processing</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
+                    <option value="Awaiting Payment">Awaiting Payment</option>
                     <option value="Completed">Completed</option>
                     <option value="Cancelled">Cancelled</option>
+                    <option value="On Hold">On Hold</option>
                   </select>
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Payment Status</span></label>
-                  <select className="select select-bordered w-full" value={orderToEdit.paymentStatus} onChange={(e) => setOrderToEdit({...orderToEdit, paymentStatus: e.target.value as any})}>
+                  <select className="select select-bordered w-full" value={orderToEdit.paymentStatus || "Unpaid"} onChange={(e) => setOrderToEdit({...orderToEdit, paymentStatus: e.target.value as any})}>
                     <option value="Unpaid">Unpaid</option>
                     <option value="Partially Paid">Partially Paid</option>
                     <option value="Paid">Paid</option>
                     <option value="Refunded">Refunded</option>
+                    <option value="Partially Refunded">Partially Refunded</option>
                   </select>
                 </div>
+
                 <div className="form-control">
                   <label className="label"><span className="label-text">Priority</span></label>
-                  <select className="select select-bordered w-full" value={orderToEdit.priority} onChange={(e) => setOrderToEdit({...orderToEdit, priority: e.target.value as any})}>
+                  <select className="select select-bordered w-full" value={orderToEdit.priority || "Medium"} onChange={(e) => setOrderToEdit({...orderToEdit, priority: e.target.value as any})}>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
                     <option value="Urgent">Urgent</option>
                   </select>
                 </div>
+
                 <div className="form-control">
-                  <label className="label"><span className="label-text font-semibold">Order Value (₹)</span></label>
-                  <input type="number" className="input input-bordered w-full" value={orderToEdit.orderValue || 0} onChange={(e) => setOrderToEdit({...orderToEdit, orderValue: Number(e.target.value)})} required />
+                  <label className="label"><span className="label-text">Delivery Type</span></label>
+                  <select className="select select-bordered w-full" value={(orderToEdit as any).deliveryType || "Account Provisioning"} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { deliveryType: e.target.value } as any)})}>
+                    <option value="Instant Download">Instant Download</option>
+                    <option value="Email">Email</option>
+                    <option value="License Key">License Key</option>
+                    <option value="Domain Activation">Domain Activation</option>
+                    <option value="Manual Activation">Manual Activation</option>
+                    <option value="Account Provisioning">Account Provisioning</option>
+                  </select>
                 </div>
+
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Provisioning Status</span></label>
+                  <select className="select select-bordered w-full" value={(orderToEdit as any).provisioningStatus || "Pending"} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { provisioningStatus: e.target.value } as any)})}>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Provisioned">Provisioned</option>
+                    <option value="Failed">Failed</option>
+                  </select>
+                </div>
+
+                <div className="form-control">
+                  <label className="label"><span className="label-text">Advance Payment</span></label>
+                  <input type="number" min="0" step="0.01" className="input input-bordered w-full" value={(orderToEdit as any).advancePayment || 0} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { advancePayment: Number(e.target.value) } as any)})} />
+                </div>
+
+                <div className="form-control">
+                  <label className="label"><span className="label-text font-semibold">Grand Total (₹)</span></label>
+                  <input type="number" min="0" step="0.01" className="input input-bordered w-full" value={(orderToEdit as any).grandTotal ?? (orderToEdit as any).orderValue ?? 0} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { grandTotal: Number(e.target.value) } as any)})} />
+                </div>
+
                 <div className="form-control col-span-1 md:col-span-2">
                   <label className="label"><span className="label-text">Billing Address</span></label>
                   <textarea className="textarea textarea-bordered w-full" value={orderToEdit.billingAddress || ""} onChange={(e) => setOrderToEdit({...orderToEdit, billingAddress: e.target.value})}></textarea>
                 </div>
+
                 <div className="form-control col-span-1 md:col-span-2">
-                  <label className="label"><span className="label-text">Shipping Address</span></label>
-                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.shippingAddress || ""} onChange={(e) => setOrderToEdit({...orderToEdit, shippingAddress: e.target.value})}></textarea>
+                  <label className="label"><span className="label-text">Delivery Email</span></label>
+                  <input type="email" className="input input-bordered w-full" value={(orderToEdit as any).deliveryEmail || ""} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { deliveryEmail: e.target.value } as any)})} />
                 </div>
+
+                <div className="form-control col-span-1 md:col-span-2">
+                  <label className="label"><span className="label-text">Activation Domain</span></label>
+                  <input type="text" className="input input-bordered w-full" value={(orderToEdit as any).activationDomain || ""} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { activationDomain: e.target.value } as any)})} />
+                </div>
+
                 <div className="form-control col-span-1 md:col-span-2">
                   <label className="label"><span className="label-text">Internal Notes</span></label>
-                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.notes?.internal || ""} onChange={(e) => setOrderToEdit({...orderToEdit, notes: {...(orderToEdit.notes || {internal: "", customer: ""}), internal: e.target.value}} as Order)}></textarea>
+                  <textarea className="textarea textarea-bordered w-full" value={(orderToEdit as any).internalNotes || orderToEdit.notes?.internal || ""} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { internalNotes: e.target.value } as any), notes: {...(orderToEdit.notes || {internal: "", customer: ""}), internal: e.target.value}} as Order)}></textarea>
                 </div>
+
                 <div className="form-control col-span-1 md:col-span-2">
                   <label className="label"><span className="label-text">Customer Notes</span></label>
-                  <textarea className="textarea textarea-bordered w-full" value={orderToEdit.notes?.customer || ""} onChange={(e) => setOrderToEdit({...orderToEdit, notes: {...(orderToEdit.notes || {internal: "", customer: ""}), customer: e.target.value}} as Order)}></textarea>
+                  <textarea className="textarea textarea-bordered w-full" value={(orderToEdit as any).customerNotes || orderToEdit.notes?.customer || ""} onChange={(e) => setOrderToEdit({...orderToEdit, ...( { customerNotes: e.target.value } as any), notes: {...(orderToEdit.notes || {internal: "", customer: ""}), customer: e.target.value}} as Order)}></textarea>
                 </div>
               </div>
+
+              <div className="rounded-xl border border-base-300 bg-base-200/50 p-4">
+                <h4 className="font-semibold mb-3">Software Items</h4>
+                <div className="space-y-2">
+                  {((orderToEdit as any).items || []).map((item: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between gap-3 rounded-lg bg-base-100 border border-base-300 p-3 text-sm">
+                      <div>
+                        <p className="font-semibold">{item.productName || "Software Product"}</p>
+                        <p className="text-xs text-base-content/50">
+                          {item.productCode || item.sku || "—"} • {item.planName || "No plan"} • {item.billingCycle || "—"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">₹{Number(item.lineTotal ?? item.unitPrice ?? 0).toLocaleString()}</p>
+                        <p className="text-xs text-base-content/50">Qty {Number(item.quantity || 0)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="modal-action mt-6">
                 <button type="button" className="btn btn-ghost" onClick={() => setEditModalOpen(false)}>Cancel</button>
                 <button type="submit" className="btn btn-primary">Save Changes</button>
@@ -847,15 +1117,22 @@ export default function AllOrders() {
           <h3 className="font-bold text-lg mb-4">Update Status for Selected Orders</h3>
           <div className="form-control w-full">
             <label className="label"><span className="label-text font-semibold">New Status</span></label>
-            <select className="select select-bordered ml-3" value={newStatus} onChange={(e) => setNewStatus(e.target.value as Order["orderStatus"])}>
-              <option value="Draft">Draft</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Processing">Processing</option>
-              <option value="Shipped">Shipped</option>
-              <option value="Delivered">Delivered</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
+            <select className="select select-bordered ml-3" value={newStatus} onChange={(e) => setNewStatus(e.target.value as any)}>
+             <option value="Unpaid">
+                      Unpaid
+                    </option>
+                    <option value="Partially Paid">
+                      Partially Paid
+                    </option>
+                    <option value="Paid">
+                      Paid
+                    </option>
+                    <option value="Refunded">
+                      Refunded
+                    </option>
+                    <option value="Partially Refunded">
+                      Partially Refunded
+                    </option>
             </select>
           </div>
           <div className="modal-action">

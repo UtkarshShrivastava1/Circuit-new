@@ -20,7 +20,7 @@ export default function TaskFilters({ value, onChange }: Props) {
           key={f.id}
           onClick={() => onChange(f.id)}
           className={clsx(
-            "px-2 py-1 rounded-full text-xs border transition text-base-content/80 font-medium",
+            "px-3 py-1.5 rounded-full text-xs border transition text-base-content/80 font-medium",
             value === f.id
               ? "bg-primary text-primary-content border-primary"
               : "bg-base-100 border-primary hover:bg-white/50"

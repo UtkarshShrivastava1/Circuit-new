@@ -283,7 +283,7 @@ export default function SalesRepAdminProfile() {
                 <p className="text-xs text-base-content/50 font-bold uppercase mb-1">Mobile</p>
                 <p className="font-medium">{rep.phone}</p>
               </div>
-              <div>
+              <div className="break-all">
                 <p className="text-xs text-base-content/50 font-bold uppercase mb-1">Email</p>
                 <p className="font-medium break-all">{rep.email}</p>
               </div>

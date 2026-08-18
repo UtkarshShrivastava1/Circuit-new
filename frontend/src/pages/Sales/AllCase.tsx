@@ -165,7 +165,7 @@ export default function AllCase() {
     try {
       await Promise.all(selected.map(c => updateMutation.mutateAsync({ id: c.id, payload: { status: "Escalated" } })));
       setRowSelection({});
-      setSuccessMessage(`Escalated ${selected.length} cases!`);
+      setSuccessMessage(`Escalated ${selected.length} case(s)!`);
       setSuccessModalOpen(true);
       if (selectedCase && selected.some(c => c.id === selectedCase.id)) {
         setSelectedCase({ ...selectedCase, status: "Escalated" });
