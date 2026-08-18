@@ -69,6 +69,7 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
             toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
             reason: leave.reason,
             status: leave.status,
+            attachments: leave.attachments || [],
           }));
           
           setRequests(fetchedLeaves);

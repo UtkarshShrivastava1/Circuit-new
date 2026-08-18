@@ -21,7 +21,10 @@ exports.createSalesTask = async (req, res) => {
 exports.getSalesTasks = async (req, res) => {
   try {
     const tenantId = req.organization._id;
-    const tasks = await SalesTask.find({ organization: tenantId }).sort({ createdAt: -1 });
+    // const tasks = await SalesTask.find({ organization: tenantId }).sort({ createdAt: -1 });
+    const tasks = await SalesTask.find({ organization: tenantId })
+  .populate("assignedTo", "_id name email phone")
+  .sort({ createdAt: -1 });
     res.status(200).json({ success: true, data: tasks });
   } catch (error) {
     console.error("Get Sales Tasks Error:", error);

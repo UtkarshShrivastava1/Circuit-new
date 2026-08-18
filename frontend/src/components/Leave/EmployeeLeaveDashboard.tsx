@@ -90,6 +90,7 @@ export default function EmployeeLeaveDashboard() {
           toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
           reason: leave.reason,
           status: leave.status,
+          attachments: leave.attachments || [],
         }));
 
         
@@ -107,7 +108,7 @@ export default function EmployeeLeaveDashboard() {
 
     fetchData();
   }, [refreshTrigger, auth.slug, user]);
-
+ console.log("leave requests:", requests);
   // Real-time socket listener to refresh dashboard
   useEffect(() => {
     if (auth?.user) {
@@ -138,10 +139,26 @@ export default function EmployeeLeaveDashboard() {
 
      
 
-      const payload = { ...leave, name: auth.user?.name };
+     const formData = new FormData();
 
-      // 2. Call the backend API via leaveService
-      const response = await applyLeave(auth.slug, payload);
+formData.append("name", auth.user?.name || "");
+formData.append("type", leave.type);
+formData.append("fromDate", leave.fromDate);
+formData.append("toDate", leave.toDate);
+formData.append("reason", leave.reason);
+formData.append("session", leave.session);
+formData.append("emergency", String(leave.emergency));
+
+leave.attachments.forEach((file: File) => {
+  formData.append("attachments", file);
+});
+console.log("Selected attachments:", leave.attachments);
+
+for (const [key, value] of formData.entries()) {
+  console.log("FORM DATA:", key, value);
+}
+
+const response = await applyLeave(auth.slug, formData);
       const savedLeave = response.data.leave;
 
       // 3. Update local state with the new response from DB
@@ -153,6 +170,7 @@ export default function EmployeeLeaveDashboard() {
         toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : leave.toDate,
         reason: savedLeave.reason,
         status: savedLeave.status,
+        attachments: savedLeave.attachments || [],
       };
 
       setRequests((prev) => [newLeave, ...prev]);

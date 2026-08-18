@@ -249,7 +249,13 @@ const payload = {
                 <FormRow label="Industry">
                   <select {...register("industry")} className="select select-bordered w-full">
                     <option value="">-Select Industry-</option>
-                    <option>Technology</option><option>Manufacturing</option><option>Retail</option><option>Defense</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Manufacturing">Manufacturing</option>
+                    <option value="Education">Education</option>
+                    <option value="Retailer">Retailer</option>
+                    <option value="Other">Other</option>
                   </select>
                 </FormRow>
               </div>
@@ -416,10 +422,10 @@ const payload = {
                 </div>
               </div>
               
-              <div>
+              {/* <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Account Owner</span>
                 <p className="font-medium mt-1 truncate">{wOwner || "Unassigned"}</p>
-              </div>
+              </div> */}
             </div>
 
             <div className="mt-6 pt-4 border-t border-base-200 space-y-2">
