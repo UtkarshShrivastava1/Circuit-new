@@ -6,9 +6,9 @@ const auth = require("../middlewares/auth.middleware");
 const tenant = require("../middlewares/tenant.middleware");
 
 const memberController = require("../controllers/member.controller");
+const requireRole = require("../middlewares/role.middleware");
 
-
-router.post("/:slug/members", auth, tenant, memberController.createEmployee);
+router.post("/:slug/members", auth, tenant,  requireRole(["owner", "admin"]), memberController.createEmployee);
 router.get("/:slug/members", auth, tenant, memberController.getMembers);
 router.get("/:slug/members/sales", auth, tenant, memberController.getSalesEmployees);
 router.get("/:slug/members/:userId", auth, tenant, memberController.getEmployeeById);
