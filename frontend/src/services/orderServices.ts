@@ -78,8 +78,8 @@ export const getOrderById = async (orderId: string, slug: string): Promise<{ suc
 };
 
 export const updateOrder = async (orderId: string, payload: Partial<Order>, slug: string): Promise<{ success: boolean; data: Order; message?: string }> => {
+  console.log("updateOrder res.data : ", payload);
   const res = await API.put(`/orders/${slug}/get-orders/${orderId}`, payload);
-  console.log("updateOrder res.data : ", res.data);
   return res.data;
 };
 

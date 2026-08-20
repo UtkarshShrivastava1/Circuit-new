@@ -1,6 +1,7 @@
 import { DragDropContext,type DropResult } from "@hello-pangea/dnd";
 import  KanbanColumn  from "./KanbanColumn";
 import type { Task, TaskStatus } from "@/type/task";
+import React from "react";
 
 const COLUMNS: { id: TaskStatus; title: string }[] = [
   { id: "pending", title: "To Do" },
@@ -15,7 +16,7 @@ interface Props {
   onTaskSelect: (task: Task) => void;
 }
 
-export default function TaskKanban({
+export  function TaskKanban({
   tasks,
   setTasks,
   onTaskSelect,
@@ -59,6 +60,20 @@ export default function TaskKanban({
     });
   };
 
+  // Memoize the filtered tasks for each column to prevent unnecessary re-renders
+  // of KanbanColumn when the parent re-renders but the filtered data hasn't changed.
+  const memoizedFilteredTasks = React.useMemo(() => {
+    const filtered = {};
+    COLUMNS.forEach(col => {
+      filtered[col.id] = tasks.filter(t => t.status === col.id);
+    });
+    return filtered;
+  }, [tasks]);
+
+  const memoizedOnTaskSelect = React.useCallback((task: Task) => {
+    onTaskSelect(task);
+  }, [onTaskSelect]);
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto pb-3 ">
@@ -67,11 +82,13 @@ export default function TaskKanban({
             key={col.id}
             columnId={col.id}
             title={col.title}
-            tasks={tasks.filter((t) => t.status === col.id)}
-            onTaskClick={onTaskSelect}
+            tasks={memoizedFilteredTasks[col.id]}
+            onTaskClick={memoizedOnTaskSelect}
           />
         ))}
       </div>
     </DragDropContext>
   );
 }
+
+export default React.memo(TaskKanban);

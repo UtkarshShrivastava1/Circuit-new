@@ -238,7 +238,7 @@ export default function AllCase() {
         ),
       );
       setRowSelection({});
-      setSuccessMessage(`Escalated ${selected.length} cases!`);
+      setSuccessMessage(`Escalated ${selected.length} case(s)!`);
       setSuccessModalOpen(true);
       if (selectedCase && selected.some((c) => c.id === selectedCase.id)) {
         setSelectedCase({ ...selectedCase, status: "Escalated" });

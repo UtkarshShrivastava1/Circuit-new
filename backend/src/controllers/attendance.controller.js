@@ -722,7 +722,7 @@ const getMyAttendance = asyncHandler(async (req, res) => {
   }
 
   const attendances = await Attendance.find(filter).sort({ date: -1 });
-
+ 
   // Format response to only extract the specific user's records from the document arrays
   const myAttendance = attendances.map(doc => {
     const myRecord = doc.records.find(r => r.employee.toString() === userId.toString());
@@ -734,6 +734,7 @@ const getMyAttendance = asyncHandler(async (req, res) => {
       record: myRecord
     };
   });
+  //
 
   return successResponse(res, 'My attendance retrieved successfully', myAttendance);
 });

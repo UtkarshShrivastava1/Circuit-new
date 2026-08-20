@@ -1,23 +1,17 @@
 import API from "@/api/axios";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-type User = {
-  userId: string;
-  name: string;
-  email: string;
-  role: string;
-  organization: string;
-  department: string;
-};
+// import { useNavigate } from "react-router-dom";
+import type  { OrganizationMember } from "@/type/User";
+
 
 type AuthState = {
-  user: User | null;
+  user: OrganizationMember | null;
   slug: string | null;
 };
 
 type AuthContextType = {
   auth: AuthState;
-  login: (data: { user: User; slug: string }) => void;
+  login: (data: { user: OrganizationMember; slug: string }) => void;
   logout: () => void;
   loading: boolean;
 };
@@ -62,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = (data: { user: User; slug: string }) => {
+  const login = (data: { user: OrganizationMember; slug: string }) => {
     const newAuth = {
       user: data.user,
       slug: data.slug,

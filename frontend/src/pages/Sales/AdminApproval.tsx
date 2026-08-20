@@ -28,7 +28,7 @@ const AdminApproval = () => {
     );
   }
 //  console.log(`Attendance : ${JSON.stringify(data)}`);
-  const { kpis, approvals } = data;
+  const { kpis, approvals }= data; // Explicitly type approvals
    
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">

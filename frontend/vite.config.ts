@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => {
               : env.VITE_API_BASE_URL,
           changeOrigin: true,
         },
+         '/api/geoip': {
+        target: 'https://geoip.maxmind.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/geoip/, '/geoip/v2.1/country/me')
+      },
       },
     },
   };

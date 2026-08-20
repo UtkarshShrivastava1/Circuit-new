@@ -115,12 +115,13 @@ export default function AttendanceTable({
     );
   }
 
+
   return (
     <>
       {/* Desktop table */}
       <div className="hidden md:block overflow-x-auto rounded-2xl border border-base-300">
         <table className="table table-sm">
-          <thead className="sticky top-0 bg-base-200 z-[1]">
+          <thead className="sticky top-0 bg-base-200 z-[1] text-sm">
             <tr>
               {showEmployeeColumn && <th>Employee</th>}
               {showAdminColumns && <th>Department</th>}
@@ -136,7 +137,7 @@ export default function AttendanceTable({
               <th>Status</th>
               {showAdminColumns && <th>Location</th>}
               <th>Remarks</th>
-              <th className="text-right">Actions</th>
+              <th className="text-right ">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -145,9 +146,15 @@ export default function AttendanceTable({
                 {showEmployeeColumn && (
                   <td>
                     <div className="flex items-center gap-2">
-                      <img src={r.employee.profileImage || `https://i.pravatar.cc/40?u=${r.employee._id}`} alt={r.employee.name} className="w-7 h-7 rounded-full object-cover" />
+                      <img
+                        src={r.employee.profileImage || `https://i.pravatar.cc/40?u=${r.employee._id}`}
+                        alt={r.employee.name}
+                        className="w-7 h-7 rounded-full object-cover"
+                      />
                       <div>
-                        <p className="font-medium leading-tight">{r.employee.name}</p>
+                        <p className="font-medium leading-tight">
+                          {r.employee.name}
+                        </p>
                         <p className="text-[11px] text-base-content/50">{r.employee.designation}</p>
                       </div>
                     </div>
@@ -156,8 +163,16 @@ export default function AttendanceTable({
                 {showAdminColumns && <td className="text-base-content/70">{r.department ?? "--"}</td>}
                 <td className="font-medium">{new Date(r.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</td>
                 <td className="text-base-content/60">{new Date(r.date).toLocaleDateString("en-US", { weekday: "short" })}</td>
-                <td>{r.checkIn}</td>
-                <td>{r.checkOut}</td>
+                <td>
+                  {r.checkIn
+                    ? new Date(r.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                    : '--:--'}
+                </td>
+                <td>
+                  {r.checkOut
+                    ? new Date(r.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })
+                    : '--:--'}
+                </td>
                 <td>{r.totalHours}h</td>
                 <td className="text-base-content/60">{r.breakHours}h</td>
                 <td className={r.lateMinutes > 0 ? "text-warning font-medium" : "text-base-content/40"}>

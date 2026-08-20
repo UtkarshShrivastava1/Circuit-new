@@ -68,11 +68,13 @@ export function useApproveAttendance() {
   const slug = auth?.slug || "";
   return useMutation({
     mutationFn: ({ attendanceId, employeeId }: { attendanceId: string, employeeId: string }) =>
-      approveAttendance(slug, attendanceId, { employeeId, status: 'PRESENT' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["attendance"] }),
+      approveAttendance(slug, attendanceId, { employeeId, status: 'PRESENT' }), // Assuming approveAttendance returns a Promise
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendance", "all"] }); // Invalidate specific attendance queries
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "admin"] }); // Invalidate admin dashboard stats
+    },
   });
 }
-
 export function useRejectAttendance() {
   const queryClient = useQueryClient();
   const { auth } = useAuth();
@@ -80,6 +82,9 @@ export function useRejectAttendance() {
   return useMutation({
     mutationFn: ({ attendanceId, employeeId }: { attendanceId: string, employeeId: string }) =>
       approveAttendance(slug, attendanceId, { employeeId, status: 'ABSENT' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["attendance"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["attendance", "all"] }); // Invalidate specific attendance queries
+      queryClient.invalidateQueries({ queryKey: ["dashboard", "admin"] }); // Invalidate admin dashboard stats
+    },
   });
 }

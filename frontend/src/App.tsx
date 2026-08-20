@@ -16,8 +16,8 @@ import NewContact from "./pages/Sales/NewContacts";
 import AllContacts from "./pages/Sales/AllContact";
 // import SalesRepDetails from "./pages/Sales/SalesRepDetails";
 import AddSalesRep from "./pages/Sales/AddSalesRep";
-import NewOrderForm from "./pages/Sales/Orders";
-import AllOrders from "./pages/Sales/AllOrders";
+import NewOrderForm from "./pages/Sales/Orders.updated";
+import AllOrders from "./pages/Sales/AllOrders.updated";
 // import SalesLeads from "./pages/Sales/Employee/SalesLeads";
 import SalesMemberProfile from "./pages/Sales/Employee/SalesMemberProfile";
 // import Accounts from "./pages/Sales/Accounts";
@@ -33,6 +33,7 @@ import AllSalesReps from "./pages/Sales/AllSalesReps";
 import AllCase from "./pages/Sales/AllCase";
 import AddCases from "./pages/Sales/AddCases";
 import MyTasks from "./pages/Sales/MyTasks";
+
 // import SalesForecastDashboard from "./pages/Sales/SalesForecastDashboard";
 // import AddSalesForecast from "./pages/Sales/AddSalesForecast";
 import AllNotifications from "./pages/Sales/AllNotifications";
@@ -179,7 +180,7 @@ export default function App() {
 
             <Route path="/sales/orders" element={<AllOrders />} />
             <Route path="/sales/orders/pending" element={<PendingOrders />} />
-            <Route path="/sales/orders/new" element={<NewOrderForm />} />
+            <Route path="/sales/orders/new" element={<NewOrderForm/>} />
 
             <Route path="/sales/accounts" element={<AllAccountDetails />} />
             <Route path="/sales/accounts/new" element={<NewAccounts />} />
