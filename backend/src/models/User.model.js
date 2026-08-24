@@ -110,7 +110,7 @@ const userSchema = new mongoose.Schema({
     "marketing",
     "customer-support",
     "it",
-    "human-resource and administration",
+    "human-resource",
     
     "other",
   ],

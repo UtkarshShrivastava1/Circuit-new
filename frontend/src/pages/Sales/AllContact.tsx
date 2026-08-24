@@ -418,7 +418,7 @@ export default function ContactsDashboard() {
           <button className="btn btn-outline btn-sm gap-2 bg-base-100">
             <MdDownload size={16} /> Export CSV
           </button>
-          <button className="btn btn-outline btn-sm btn-square bg-base-100">
+          <button  onClick={fetchContacts} className="btn btn-outline btn-sm btn-square bg-base-100">
             <MdRefresh size={16} />
           </button>
           <button
@@ -702,29 +702,63 @@ export default function ContactsDashboard() {
         type={drawerType}
         data={selectedContact}
         onClose={() => setDrawerOpen(false)}
-        onSave={(updated: any) => {
-          setContacts((prev) =>
-            prev.map((c) =>
-              c.id === updated._id
-                ? {
-                    ...c,
-                    name: updated.firstName + " " + updated.lastName,
-                    email: updated.email,
-                    phoneNumber: updated.phone?.number,
-                    company: updated.company,
-                    designation: updated.designation ?? "",
-                    leadSource: updated.leadSource ?? "-",
-                    city: updated.address?.city ?? "",
-                    status: updated.status ?? "Active",
-                    assignedRep:
-                      updated.assignedRep?.name ?? updated.assignedRep ?? "",
-                  }
-                : c,
-            ),
-          );
+        // onSave={(updated: any) => {
+        //   setContacts((prev) =>
+        //     prev.map((c) =>
+        //       c.id === updated._id
+        //         ? {
+        //             ...c,
+        //             name: updated.firstName + " " + updated.lastName,
+        //             email: updated.email,
+        //             phoneNumber: updated.phone?.number,
+        //             company: updated.company,
+        //             designation: updated.designation ?? "",
+        //             leadSource: updated.leadSource ?? "-",
+        //             city: updated.address?.city ?? "",
+        //             status: updated.status ?? "Active",
+        //             assignedRep:
+        //               updated.assignedRep?.name ?? updated.assignedRep ?? "",
+        //           }
+        //         : c,
+        //     ),
+        //   );
 
-          setDrawerOpen(false);
-        }}
+        //   setDrawerOpen(false);
+        // }}
+        onSave={(updated: any) => {
+  // 1. Update table data
+  setContacts((prev) =>
+    prev.map((c) =>
+      c.id === updated._id
+        ? {
+            ...c,
+            name: `${updated.firstName ?? ""} ${updated.lastName ?? ""}`.trim(),
+            email: updated.email,
+            phoneNumber: updated.phone?.number ?? "",
+            company: updated.company ?? "-",
+            designation: updated.designation ?? "",
+            leadSource: updated.leadSource ?? "-",
+            city: updated.address?.city ?? "",
+            status: updated.status ?? "Active",
+            assignedRep:
+              updated.assignedRep?.name ?? updated.assignedRep ?? "",
+          }
+        : c
+    )
+  );
+
+  // 2. IMPORTANT: Update rawContacts also
+  setRawContacts((prev) =>
+    prev.map((c) =>
+      c._id === updated._id ? updated : c
+    )
+  );
+
+  // 3. Update currently selected drawer data
+  setSelectedContact(updated);
+
+  setDrawerOpen(false);
+}}
       />
     </div>
   );

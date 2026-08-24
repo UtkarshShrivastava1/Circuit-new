@@ -73,7 +73,7 @@ const AdminProfile = React.lazy(() => import("./pages/AdminProfile"));
 const AddMember = React.lazy(() => import("./pages/AddMember"));
 const CreateProject = React.lazy(() => import("./pages/CreateProject"));
 const Login = React.lazy(() => import("./pages/Login"));
-const AddMemberPage = React.lazy(() => import("./pages/AddMembers"));
+
 const OrganizationRegistrationPage = React.lazy(() => import("./pages/Organization/OrganizationRegistrationPage"));
 const ERPLandingPage = React.lazy(() => import("./pages/ERPLandingPage"));
 const SalesDashboard = React.lazy(() => import("./pages/Sales/SalesDashboard"));
@@ -227,7 +227,7 @@ export default function App() {
                 <Route path="/addMember" element={<AddMember />} />
             <Route path="/createProject" element={<PageContainer><CreateProject /></PageContainer>} />
             <Route path="/notifications" element={<PageContainer><Notifications /></PageContainer>} />
-            <Route path="/createMember" element={<PageContainer><AddMemberPage /></PageContainer>} />
+            {/* <Route path="/createMember" element={<PageContainer><AddMemberPage /></PageContainer>} /> */}
                 <Route path="/settings" element={<SettingsPage />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />

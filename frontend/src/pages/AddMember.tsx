@@ -293,7 +293,25 @@ const AddMember = () => {
 
                   <div className="form-control w-full">
                     <label className="label"><span className="label-text font-medium">Phone Number <span className="text-error">*</span></span></label>
-                    <input type="text" name="phone" placeholder="10-digit mobile" onChange={handleChange} value={formData.phone} className={`input input-bordered w-full ${errors.phone ? 'input-error' : ''}`} />
+                   <input
+  type="text"
+  name="phone"
+  placeholder="10-digit mobile"
+  maxLength={10}
+  value={formData.phone}
+  onChange={(e) => {
+    const value = e.target.value.replace(/\D/g, "");
+    handleChange({
+      target: {
+        name: "phone",
+        value: value
+      }
+    });
+  }}
+  className={`input input-bordered w-full ${
+    errors.phone ? "input-error" : ""
+  }`}
+/>
                     {errors.phone && <span className="text-error text-xs mt-1">{errors.phone}</span>}
                   </div>
 
@@ -442,7 +460,7 @@ const AddMember = () => {
                     <option value="marketing">Marketing</option>
                     <option value="customer-support">Customer Support</option>
                     <option value="it">IT</option>
-                    <option value="human-resource">Human Resource and Administration</option>
+                    <option value="human-resource">Human Resource</option>
                     <option value="other">Other</option>
                   </select>
                   {errors.department && <span className="text-error text-xs mt-1">{errors.department}</span>}
