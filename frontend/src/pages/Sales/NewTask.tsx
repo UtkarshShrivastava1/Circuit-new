@@ -203,12 +203,12 @@ export default function NewTask() {
           </div>
         </div>
         <div className="flex gap-2">
-          <button type="button" className="btn btn-outline btn-sm gap-2">
+          {/* <button type="button" className="btn btn-outline btn-sm gap-2">
             <MdSave size={16} /> Save Draft
           </button>
           <button type="button" className="btn btn-outline btn-sm gap-2" onClick={() => loadTemplate("Follow-up")}>
             <MdContentCopy size={16} /> Load Template
-          </button>
+          </button> */}
           <button onClick={() => navigate(-1)} type="button" className="btn btn-ghost btn-sm">Cancel</button>
         </div>
       </div>

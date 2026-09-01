@@ -489,9 +489,9 @@ export default function AccountsDashboard() {
           <button className="btn btn-outline btn-sm gap-2 bg-base-100">
             <MdDownload size={16} /> Export CSV
           </button>
-          <button className="btn btn-outline btn-sm btn-square bg-base-100">
+          {/* <button onClick={fetchAccount} className="btn btn-outline btn-sm btn-square bg-base-100">
             <MdRefresh size={16} />
-          </button>
+          </button> */}
           <button
             onClick={() => navigate("/sales/accounts/new")}
             className="btn btn-primary btn-sm gap-2 shadow-sm"

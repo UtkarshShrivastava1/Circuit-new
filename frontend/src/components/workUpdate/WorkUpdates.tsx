@@ -178,9 +178,9 @@ const WorkUpdate = ({
 
                   {/* Files */}
                   <td className="py-3 px-4">
-                    {item.attachments.length > 0 ? (
+                    {item.attachments?.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
-                        {item.attachments.map((file, i) => (
+                        {item.attachments?.map((file, i) => (
                           <a
                             key={i}
                             href={file}
@@ -213,7 +213,7 @@ const WorkUpdate = ({
                   <td className="py-3 ">
                     <div className="flex ml-5 gap-3 min-w-[60px]">
                       {/* EDIT */}
-                      {auth?.user?.userId === item.createdBy._id ? (
+                      {auth?.user?.userId === item.createdBy?._id ? (
                         <button
                           onClick={() => {
                             setEditingUpdate(item);
@@ -230,7 +230,7 @@ const WorkUpdate = ({
                       )}
 
                       {/* DELETE */}
-                      {(auth?.user?.userId === item.createdBy._id ||
+                      {(auth?.user?.userId === item.createdBy?._id ||
                         ["admin", "owner"].includes(auth?.user?.role)) && (
                         <button
                           onClick={() => handleDelete(item._id)}

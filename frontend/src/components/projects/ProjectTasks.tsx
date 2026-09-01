@@ -549,7 +549,7 @@ const canDelete =
                   <th>Assignee</th>
                   <th>Status</th>
                   <th>Due</th>
-                  <th className="">Action</th>
+                 {(canEditTask || canDelete) && <th>Action</th>}
                 </tr>
               </thead>
 
@@ -579,6 +579,7 @@ const canDelete =
                     <td>
                       {new Date(task.dueDate).toLocaleDateString("en-GB")}
                     </td>
+{(canEditTask || canDelete) && (
 
                     <td
                       className=""
@@ -609,6 +610,7 @@ const canDelete =
                         </button>
                       )}
                     </td>
+)}
                   </tr>
                 ))}
               </tbody>

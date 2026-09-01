@@ -1296,11 +1296,11 @@ const normalizedTasks = response.tasks.map((t: any) => ({
               activities.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <button className="btn btn-primary rounded-xl shadow-sm hover:shadow-md transition-all px-6">
               + New Task
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* KPI CARDS */}

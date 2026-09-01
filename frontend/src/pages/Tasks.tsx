@@ -42,7 +42,7 @@ export default function TaskDashboard() {
   const [loading, setLoading] = useState(true);
 
   const { auth } = useAuth();
-
+  console.log(auth)
   const [activeFilter, setActiveFilter] = useState<TaskFilter>("all");
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [drawerMode, setDrawerMode] = useState<"view" | "edit">("view");
@@ -240,14 +240,15 @@ export default function TaskDashboard() {
   <div className="flex flex-wrap gap-2 w-full lg:w-auto">
     
     {/* NEW TASK → ALWAYS VISIBLE (mobile + desktop) */}
-    <Button
+    {auth?.user?.role!="member"?<Button
       size="sm"
       variant="primary"
       onClick={() => setOpen(true)}
       className="flex-1 sm:flex-none"
     >
       + New Task
-    </Button>
+    </Button>:null}
+    
 
     {/* THESE → ONLY DESKTOP */}
     <div className="hidden md:flex gap-2">

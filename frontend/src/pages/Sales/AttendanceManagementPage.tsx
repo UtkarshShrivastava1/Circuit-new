@@ -11,7 +11,7 @@ const allTabsConfig = [
   { id: 1, name: "Admin Approval", component: <AdminApproval />, roles: ["admin", "owner"] },
   { id: 2, name: "Attendance History", component: <EmployeeAttendanceHistory />, roles: ["employee", "admin", "owner"] },
   { id: 3, name: "Team Attendance", component: <AdminAttendanceHistory />, roles: ["admin", "owner"] },
-  { id: 4, name: "Leave & Regularization", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["employee", "admin", "owner"] },
+  // { id: 4, name: "Leave & Regularization", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["employee", "admin", "owner"] },
   { id: 5, name: "Attendance Reports", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["admin", "owner"] },
 ];
 

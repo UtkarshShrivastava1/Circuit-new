@@ -87,12 +87,12 @@ export default function NewProduct() {
           </div>
         </div>
         <div className="flex gap-[8px] flex-wrap">
-          <button type="button" className="btn btn-outline btn-sm gap-2" onClick={() => loadTemplate("Software")}>
+          {/* <button type="button" className="btn btn-outline btn-sm gap-2" onClick={() => loadTemplate("Software")}>
             <MdContentCopy size={16} /> Load Template
-          </button>
-          <button type="button" className="btn btn-outline btn-sm gap-2">
+          </button> */}
+          {/* <button type="button" className="btn btn-outline btn-sm gap-2">
             <MdSave size={16} /> Save Draft
-          </button>
+          </button> */}
           <button onClick={() => navigate(-1)} type="button" className="btn btn-ghost btn-sm">Cancel</button>
         </div>
       </div>

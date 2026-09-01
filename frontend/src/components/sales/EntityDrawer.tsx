@@ -180,7 +180,7 @@ return (
       </div>
 
       {/* ACTIONS */}
-      <div className="p-3 border-b flex gap-2">
+      {/* <div className="p-3 border-b flex gap-2">
         <button className="btn btn-sm btn-primary">
           Call
         </button>
@@ -188,7 +188,7 @@ return (
         <button className="btn btn-sm btn-outline">
           Email
         </button>
-      </div>
+      </div> */}
 
       {/* BODY */}
       <div className="p-4 overflow-auto flex-1">
@@ -383,11 +383,11 @@ const displayValue =
   const leadSourceOptions = [
   "Website",
   "Referral",
-  "Social Media",
-  "Email",
+  
+
   "Cold Call",
-  "Advertisement",
-  "Other",
+  
+ 
 ];
 
 const statusOptions = [
