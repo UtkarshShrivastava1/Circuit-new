@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import TaskStatusSelect from "../projects/TaskStatusSelect";
 import { MdDelete, MdEdit } from "react-icons/md";
 import API from "@/api/axios";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import NewTaskModal from "../projects/NewTaskModal";
 import TaskDrawer from "../task/TaskDrawer";
 import { toast } from "react-toastify";
@@ -246,8 +246,8 @@ const MemberTask = ({ memberId }: MemberTaskProps) => {
   //   [tasks, activeStatus],
   // );
   const filteredTasks = useMemo(() => {
-  console.log("Active Status:", activeStatus);
-  console.log("All Tasks:", tasks);
+  // console.log("Active Status:", activeStatus);
+  // console.log("All Tasks:", tasks);
 
   return tasks.filter((t) => {
     console.log(t.status, activeStatus, t.status === activeStatus);

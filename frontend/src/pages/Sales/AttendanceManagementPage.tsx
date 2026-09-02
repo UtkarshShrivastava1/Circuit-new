@@ -4,15 +4,15 @@ import AdminApproval from "./AdminApproval";
 import EmployeeAttendanceHistory from "./Employee/EmployeeAttendanceHistory";
 import AdminAttendanceHistory from "./AdminAttendanceHistory";
 // import TeamAttendance from "./TeamAttendance";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 
 const allTabsConfig = [
   { id: 0, name: "Employee Attendance", component: <EmployeeAttendance />, roles: ["employee"] },
   { id: 1, name: "Admin Approval", component: <AdminApproval />, roles: ["admin", "owner"] },
-  { id: 2, name: "Attendance History", component: <EmployeeAttendanceHistory />, roles: ["employee", "admin", "owner"] },
+  { id: 2, name: "Attendance History", component: <EmployeeAttendanceHistory />, roles: ["employee"] },
   { id: 3, name: "Team Attendance", component: <AdminAttendanceHistory />, roles: ["admin", "owner"] },
-  { id: 4, name: "Leave & Regularization", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["employee", "admin", "owner"] },
-  { id: 5, name: "Attendance Reports", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["admin", "owner"] },
+  // { id: 4, name: "Leave & Regularization", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["employee", "admin", "owner"] },
+  // { id: 5, name: "Attendance Reports", component: <div className="p-8 text-center text-base-content/60">This section is under construction.</div>, roles: ["admin", "owner"] },
 ];
 
 const AttendanceManagementPage = () => {

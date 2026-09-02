@@ -1,4 +1,4 @@
-const { cloudinary } = require("../config/cloudinary");
+const { cloudinary, uploadBufferToCloudinary } = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const Project = require("../models/Project.model");
 const Task = require("../models/Task.model");
@@ -53,19 +53,14 @@ console.log("User:", req.user);
     const uploadedAttachments = [];
 
     for (const file of files) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "tasks" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
-
-        streamifier.createReadStream(file.buffer).pipe(stream);
+      const result = await uploadBufferToCloudinary(file.buffer, {
+        folder: "tasks",
+        resource_type: "auto",
       });
 
-      uploadedAttachments.push(result.secure_url);
+      if (result && result.secure_url) {
+        uploadedAttachments.push(result.secure_url);
+      }
     }
 
     // Role check
@@ -179,10 +174,22 @@ const updateTask = async (req, res) => {
     const userRole = req.user.role;
     const { projectId, taskId } = req.params;
 
-    if (!["admin", "manager", "owner"].includes(userRole)) {
+    const existingTask = await Task.findOne({ _id: taskId, organization: orgId });
+    if (!existingTask) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found",
+      });
+    }
+
+    const isAssigned = existingTask.assignedTo?.some(
+      (uid) => uid.toString() === req.user._id.toString()
+    );
+
+    if (!["admin", "manager", "owner"].includes(userRole) && !isAssigned) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to update tasks",
+        message: "You are not authorized to update this task",
       });
     }
 
@@ -203,53 +210,40 @@ const updateTask = async (req, res) => {
     if (description !== undefined) updateFields.description = description;
     if (priority !== undefined) updateFields.priority = priority;
     if (status !== undefined) updateFields.status = status;
-    if (assignedTo !== undefined) updateFields.assignedTo = assignedTo;
+    if (assignedTo !== undefined && ["admin", "manager", "owner"].includes(userRole)) {
+      updateFields.assignedTo = assignedTo;
+    }
     if (dueDate !== undefined) updateFields.dueDate = dueDate;
     if (tag !== undefined) updateFields.tag = tag;
 
-    // FIX: subtasks string -> JSON
-    const parsedSubtasks = JSON.parse(subtasks);
-
-    updateFields.subtasks = parsedSubtasks.map((sub) => ({
-      ...(sub._id && sub._id.length === 24 ? { _id: sub._id } : {}),
-      title: sub.title,
-      completed: sub.completed,
-    }));
+    // FIX: safely parse subtasks
+    if (subtasks !== undefined) {
+      let parsedSubtasks = [];
+      try {
+        parsedSubtasks = typeof subtasks === "string" ? JSON.parse(subtasks) : subtasks;
+      } catch (e) {
+        parsedSubtasks = [];
+      }
+      updateFields.subtasks = (parsedSubtasks || []).map((sub) => ({
+        ...(sub._id && sub._id.length === 24 ? { _id: sub._id } : {}),
+        title: sub.title,
+        completed: sub.completed,
+      }));
+    }
     // FILE UPLOAD SUPPORT
     let uploadedAttachments = [];
 
     if (req.files && req.files.length > 0) {
-    uploadedAttachments = await Promise.all(
-  req.files.map((file) => {
-    return new Promise((resolve, reject) => {
-      let resourceType = "raw";
-
-if(file.mimetype.startsWith("image/")){
-  resourceType = "image";
-}
-console.log({
-  name: file.originalname,
-  type: file.mimetype
-});
-const stream = cloudinary.uploader.upload_stream(
-{
-  folder: "tasks",
-  resource_type: resourceType,
-   public_id: file.originalname,
-  use_filename: true,
-  unique_filename: true,
-},
-(error, result) => {
-  if (error) reject(error);
-  else resolve(result.secure_url);
-});
-
-      streamifier
-        .createReadStream(file.buffer)
-        .pipe(stream);
-    });
-  }),
-);
+      uploadedAttachments = await Promise.all(
+        req.files.map(async (file) => {
+          const result = await uploadBufferToCloudinary(file.buffer, {
+            folder: "tasks",
+            resource_type: "auto",
+          });
+          return result?.secure_url;
+        })
+      );
+      uploadedAttachments = uploadedAttachments.filter(Boolean);
     }
     console.log(req.files);
     const updateQuery = { ...updateFields };
@@ -498,11 +492,17 @@ const updateTaskStatus = async (req, res) => {
     const { projectId, taskId } = req.params;
     const { status } = req.body;
 
+    const targetTaskId = taskId || projectId;
+    const query = { _id: targetTaskId, organization: orgId };
+    if (projectId && taskId && projectId !== "undefined" && projectId !== "all") {
+      query.projectId = projectId;
+    }
+
     const updatedTask = await Task.findOneAndUpdate(
-      { _id: taskId, projectId, organization: orgId },
+      query,
       { status },
       { new: true, runValidators: true },
-    );
+    ).populate("assignedTo", "name email");
 
     if (!updatedTask) {
       return res.status(404).json({

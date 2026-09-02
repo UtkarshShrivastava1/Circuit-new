@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
 import StatusBadge from "../ui/StatusBadge";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { getAllSalarySlips, downloadSalarySlipPDF } from "@/services/salarySlipService";
 import { toast } from "react-toastify";
 
@@ -123,7 +123,7 @@ const AdminPayslipTable = () => {
                    <td colSpan={7} className="text-center py-8">Loading payrolls...</td>
                  </tr>
                ) : (
-               {filtered.map((record) => (
+                 filtered.map((record) => (
                  <tr key={record._id} className="hover:bg-base-200">
    
                    <td>
@@ -168,7 +168,7 @@ const AdminPayslipTable = () => {
                    </td>
    
                  </tr>
-               )))}
+               )) )}
              </tbody>
            </table>
    

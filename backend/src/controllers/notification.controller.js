@@ -1,6 +1,6 @@
 
 const User = require("../models/User.model");
-const { cloudinary } = require("../config/cloudinary");
+const { cloudinary, uploadBufferToCloudinary } = require("../config/cloudinary");
 const streamifier = require("streamifier");
 const NotificationModel = require("../models/Notification.model");
 const { getIO } = require("../services/socket.service.js");
@@ -40,26 +40,18 @@ const sendNotification = async (req, res) => {
     const uploadedAttachments = [];
 
     for (const file of files) {
-      const result = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-  {
-    folder: "notifications",
-    resource_type: "auto",
-  },
-  (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-
-        streamifier.createReadStream(file.buffer).pipe(stream);
+      const result = await uploadBufferToCloudinary(file.buffer, {
+        folder: "notifications",
+        resource_type: "auto",
       });
 
-      uploadedAttachments.push({
-        fileUrl: result.secure_url,
-        fileName: file.originalname,
-        fileType: file.mimetype,
-      });
+      if (result?.secure_url) {
+        uploadedAttachments.push({
+          fileUrl: result.secure_url,
+          fileName: file.originalname,
+          fileType: file.mimetype,
+        });
+      }
     }
 
     const notification = await NotificationModel.create({
@@ -184,26 +176,18 @@ const updateNotification = async (req, res) => {
       uploadedAttachments = [];
 
       for (const file of files) {
-        const result = await new Promise((resolve, reject) => {
-       const stream = cloudinary.uploader.upload_stream(
-  {
-    folder: "notifications",
-    resource_type: "auto",
-  },
-  (error, result) => {
-              if (error) reject(error);
-              else resolve(result);
-            }
-          );
-
-          streamifier.createReadStream(file.buffer).pipe(stream);
+        const result = await uploadBufferToCloudinary(file.buffer, {
+          folder: "notifications",
+          resource_type: "auto",
         });
 
-        uploadedAttachments.push({
-          fileUrl: result.secure_url,
-          fileName: file.originalname,
-          fileType: file.mimetype,
-        });
+        if (result?.secure_url) {
+          uploadedAttachments.push({
+            fileUrl: result.secure_url,
+            fileName: file.originalname,
+            fileType: file.mimetype,
+          });
+        }
       }
     }
 
@@ -276,16 +260,32 @@ const deleteNotification = async (req, res) => {
 const markAsRead = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.userId || req.user._id;
+    const userId = req.user?._id || req.user?.userId;
 
-    const notification = await NotificationModel.findByIdAndUpdate(
-      id,
-      { $addToSet: { readBy: userId } }, //  prevents duplicate IDs
-      { new: true }
-    );
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
 
+    const userIdStr = userId.toString();
+
+    const notification = await NotificationModel.findById(id);
     if (!notification) {
       return res.status(404).json({ success: false, message: "Notification not found" });
+    }
+
+    // Check if already marked as read by this user
+    const alreadyRead = notification.readBy?.some((r) => {
+      if (!r) return false;
+      const uid = r.user?.toString() || r._id?.toString() || (typeof r === "string" ? r : "");
+      return uid === userIdStr;
+    });
+
+    if (!alreadyRead) {
+      notification.readBy.push({
+        user: userId,
+        readAt: new Date(),
+      });
+      await notification.save();
     }
 
     res.json({ success: true, data: notification });
@@ -298,15 +298,41 @@ const markAsRead = async (req, res) => {
 // Mark all notifications as read for the current user
 const markAllAsRead = async (req, res) => {
   try {
-    const userId = req.user.userId || req.user._id;
+    const userId = req.user?._id || req.user?.userId;
+    const organization = req.organization?._id;
 
-    await NotificationModel.updateMany(
-      { 
-        organization: req.organization._id,
-        readBy: { $ne: userId } // Only update documents the user hasn't read yet
-      },
-      { $addToSet: { readBy: userId } }
-    );
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "User not authenticated" });
+    }
+
+    const userIdStr = userId.toString();
+
+    const notifications = await NotificationModel.find({
+      organization,
+      $or: [
+        { sendTo: "all" },
+        { recipients: userId }
+      ]
+    });
+
+    const updates = [];
+    for (const notif of notifications) {
+      const alreadyRead = notif.readBy?.some((r) => {
+        if (!r) return false;
+        const uid = r.user?.toString() || r._id?.toString() || (typeof r === "string" ? r : "");
+        return uid === userIdStr;
+      });
+
+      if (!alreadyRead) {
+        notif.readBy.push({
+          user: userId,
+          readAt: new Date(),
+        });
+        updates.push(notif.save());
+      }
+    }
+
+    await Promise.all(updates);
 
     res.json({ success: true, message: "All notifications marked as read" });
   } catch (error) {

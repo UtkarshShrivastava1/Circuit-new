@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useTheme } from "../../context/use-theme";
 import { MdNotifications, MdMenu, MdSearch, MdClose, MdLightMode, MdDarkMode } from "react-icons/md";
-import { useAuth } from "../../auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify"; // Keep toast for avatar upload
 import { uploadImage } from "@/services/uploadService";
 import {type OrganizationMember} from '@/type/User';
@@ -16,7 +16,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const { theme, setTheme } = useTheme();
   const { auth, logout } = useAuth();
   const user = auth?.user as OrganizationMember | undefined;
-  const currentUserId = user?.userId  || ""; // Define currentUserId before calling the hook
+  const currentUserId = user?.userId || user?._id || (user as any)?.id || ""; // Define currentUserId before calling the hook
   const {
     visibleNotifications,
     unreadCount,
@@ -59,6 +59,7 @@ const isSales =
     try {
       setIsUploading(true);
       const imgUrl = await uploadImage(file);
+
 
       toast.success("Avatar uploaded successfully!");
       // TODO: Here you can update your auth context or user profile with data.imageUrl
@@ -255,7 +256,8 @@ const isSales =
           >
             <div className="w-8 md:w-9 rounded-full">
               <img
-                src={user?.imageUrl || "https://i.pravatar.cc/100?img=12"}
+                src={user?.imageUrl 
+                   || "https://i.pravatar.cc/100?img=12"}
                 alt="User avatar"
                 className={isUploading ? "opacity-50" : ""}
               />
