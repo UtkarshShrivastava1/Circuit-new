@@ -10,21 +10,21 @@ import { getProject } from "@/services/projectServices";
 import { MdDelete, MdEdit } from "react-icons/md";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 
 interface WorkUpdate {
   _id: string;
   description: string;
-  attachments: string[];
+  attachments?: string[];
   createdAt: string;
-  createdBy: {
-    name: string;
-    _id: string;
-  };
-  projectId: {
-    _id: string;
-    projectName: string;
-  };
+  createdBy?: {
+    name?: string;
+    _id?: string;
+  } | string | null;
+  projectId?: {
+    _id?: string;
+    projectName?: string;
+  } | string | null;
 }
 
 const WorkUpdate = ({
@@ -151,30 +151,44 @@ const WorkUpdate = ({
 
             {/* BODY */}
             <tbody>
-              {updates?.map((item) => (
-                <tr
-                  key={item._id}
-                  className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content text-[13px]"
-                >
-                  {/* Project */}
-                  <td className="py-3 px-4 font-medium">
-                    {item.projectId?.projectName}
-                  </td>
+              {updates?.map((item) => {
+                const currentUserId = auth?.user?.userId || auth?.user?._id || auth?.user?.id;
+                const itemCreatorId = typeof item.createdBy === 'object' && item.createdBy !== null
+                  ? item.createdBy._id
+                  : (typeof item.createdBy === 'string' ? item.createdBy : undefined);
+                const itemCreatorName = typeof item.createdBy === 'object' && item.createdBy !== null
+                  ? item.createdBy.name || "Member"
+                  : "Member";
+                const itemProjectName = typeof item.projectId === 'object' && item.projectId !== null
+                  ? item.projectId.projectName || "General"
+                  : (typeof item.projectId === 'string' ? "Project" : "General");
+                const isCreator = Boolean(currentUserId && itemCreatorId && String(currentUserId) === String(itemCreatorId));
+                const canDelete = isCreator || ["admin", "owner"].includes(auth?.user?.role || "");
 
-                  {/* Description */}
-                  <td className="py-3 px-4 max-w-[280px]">
-                    <p className="line-clamp-2">{item.description}</p>
-                  </td>
+                return (
+                  <tr
+                    key={item._id}
+                    className="border-b border-primary/20 hover:bg-base-300/50 transition text-base-content text-[13px]"
+                  >
+                    {/* Project */}
+                    <td className="py-3 px-4 font-medium">
+                      {itemProjectName}
+                    </td>
 
-                  {/* User */}
-                  <td className="py-3 px-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
-                        {item.createdBy?.name?.charAt(0)}
+                    {/* Description */}
+                    <td className="py-3 px-4 max-w-[280px]">
+                      <p className="line-clamp-2">{item.description}</p>
+                    </td>
+
+                    {/* User */}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold">
+                          {itemCreatorName.charAt(0).toUpperCase()}
+                        </div>
+                        <span>{itemCreatorName}</span>
                       </div>
-                      <span>{item.createdBy?.name}</span>
-                    </div>
-                  </td>
+                    </td>
 
                   {/* Files */}
                   <td className="py-3 px-4">
@@ -226,8 +240,11 @@ const WorkUpdate = ({
                           <MdEdit size={16} />
                         </button>
                       ) : (
-                        <div className="w-[16px]" /> // 👈 placeholder
+                        <span className=" text-base-content">
+                          No files
+                        </span>
                       )}
+                    </td>
 
                       {/* DELETE */}
                       {(auth?.user?.userId === item.createdBy?._id ||

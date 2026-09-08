@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import API from "@/api/axios";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify";
 import { Edit2, FileEdit, Trash } from "lucide-react";
 
@@ -111,12 +111,7 @@ function TaskDrawer({
 
       await API.put(
         `/tasks/${auth.slug}/updateTask/${projectId}/${task.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        formData
       );
 
       toast.success("Task Updated Successfully");

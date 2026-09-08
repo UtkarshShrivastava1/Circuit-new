@@ -5,10 +5,11 @@ import * as z from "zod";
 import { MdSave, MdContentCopy, MdAttachment, MdSend, MdDelete, MdCheckCircle } from "react-icons/md";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSalesTask } from "@/services/salesTaskServices";
 import { getSalesReps } from "@/services/salesRepServices";
+import { PageHeader } from "@/components/common";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const taskSchema = z.object({
@@ -49,7 +50,6 @@ const taskSchema = z.object({
   communicationType: z.string().optional(),
   meetingMode: z.enum(["Online", "Offline", ""]).optional(),
   meetingLocation: z.string().optional(),
-  meetingLocation: z.string().optional(), // Make optional as it depends on meetingMode
   meetingLink: z.string().url("Invalid URL").or(z.literal("")).optional(),
   
   // Progress
@@ -134,11 +134,10 @@ export default function NewTask() {
 
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
-   return salesReps.filter((rep: any) =>
-    rep.memberId.name
-      .toLowerCase()
-      .includes(assigneeSearch.toLowerCase())
-  );
+    return salesReps.filter((rep: any) => {
+      const repName = rep.memberId?.name || rep.name || "";
+      return repName.toLowerCase().includes(assigneeSearch.toLowerCase());
+    });
   }, [salesReps, assigneeSearch]);
 
   // Check for Delay Display
@@ -303,7 +302,7 @@ export default function NewTask() {
                   <label className="label py-1"><span className="label-text font-medium">Assigned To *</span></label>
                   <div className="dropdown w-full">
                     <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedTo ? "border-error" : "border-base-300"}`}>
-                     {salesReps.find((rep: any) => rep.memberId._id === wAssignedTo)?.memberId.name || "-Select Employee-"}
+                     {salesReps.find((rep: any) => (rep.memberId?._id || rep.memberId || rep._id) === wAssignedTo)?.memberId?.name || wAssignedTo || "-Select Employee-"}
                     </label>
                     <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input 
@@ -314,22 +313,26 @@ export default function NewTask() {
                         onChange={e => setAssigneeSearch(e.target.value)}
                       />
                       <ul className="max-h-60 overflow-y-auto">
-                        {filteredReps.map((rep) => (
-                          <li key={rep.memberId._id}>
-    <a
-      onClick={() => {
-        setValue(
-          "assignedTo",
-          rep.memberId._id,
-          { shouldValidate: true }
-        );
-        (document.activeElement as HTMLElement)?.blur();
-      }}
-    >
-      {rep.memberId.name}
-    </a>
-  </li>
-                        ))}
+                        {filteredReps.map((rep: any, idx: number) => {
+                          const repId = rep.memberId?._id || rep.memberId || rep._id || `rep-${idx}`;
+                          const repName = rep.memberId?.name || rep.name || "Sales Rep";
+                          return (
+                            <li key={repId}>
+                              <a
+                                onClick={() => {
+                                  setValue(
+                                    "assignedTo",
+                                    repId,
+                                    { shouldValidate: true }
+                                  );
+                                  (document.activeElement as HTMLElement)?.blur();
+                                }}
+                              >
+                                {repName}
+                              </a>
+                            </li>
+                          );
+                        })}
                       </ul>
                     </div>
                   </div>
@@ -652,7 +655,7 @@ export default function NewTask() {
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span>
                 <p className="font-medium text-base-content mt-1">
-                  {salesReps.find((rep: any) => rep.memberId._id === wAssignee)?.memberId.name || wAssignee || "Unassigned"}
+                  {salesReps.find((rep: any) => (rep.memberId?._id || rep.memberId || rep._id) === wAssignee)?.memberId?.name || wAssignee || "Unassigned"}
                 </p>
               </div>
 

@@ -8,9 +8,13 @@ export type AttendanceRecord = {
   status: AttendanceStatus;
 };
 
-export type UserRole = "admin" | "employee" | "owner";
+export type UserRole = "admin" | "employee" | "owner" |'member';
 
 export type AttendanceStatus =
+  | "pending"
+  | "approved"
+  | "absent"
+  | "rejected"
   | "Present"
   | "Absent"
   | "Half Day"
@@ -19,7 +23,8 @@ export type AttendanceStatus =
   | "WFH";
 
 export interface Attendance {
-  id: string;
+  imageUrl:string,
+  _id: string;
   employeeId: string;
   employeeName: string;
   department: string;
@@ -33,11 +38,12 @@ export interface Attendance {
   breakHours: number;
   lateMinutes: number;
   earlyLeaveMinutes: number;
-  status: AttendanceStatus;
-  shift: string;
+  status: "PRESENT" | "PENDING";
+  approval?: "Pending" | "Approved" | "Rejected";  shift: string;
   remarks?: string;
   location?: string;
   device?: string;
+  email:string;
 }
 
 export interface AttendanceFilters {
@@ -88,3 +94,11 @@ export interface PaginatedResult<T> {
   page: number;
   pageSize: number;
 }
+
+// export interface AdminDashboardData {
+//   kpis: AdminKpis;
+
+//   approvals: AdminApproval[];
+
+//   employees: AdminEmployee[];
+// }

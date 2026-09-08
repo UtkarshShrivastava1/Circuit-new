@@ -3,26 +3,28 @@ import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
+import path from "path";
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react(), tailwindcss(), tsconfigPaths()],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src"),
+      },
+    },
     server: {
       port: 5173,
       proxy: {
         "/api": {
           target:
-            env.NODE_ENV === "production"
-              ? env.VITE_API_BASE_URL
-              : env.VITE_API_BASE_URL,
+            env.VITE_BACKEND_URL ||
+            env.VITE_DEVELOPMENT_URL ||
+            "http://127.0.0.1:5000",
           changeOrigin: true,
         },
-         '/api/geoip': {
-        target: 'https://geoip.maxmind.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/geoip/, '/geoip/v2.1/country/me')
-      },
       },
     },
   };

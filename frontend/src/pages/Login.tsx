@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Lottie from "lottie-react";
-import loginAnimation from "../assets/loginAnimation.json";
-import { LockIcon, User2Icon } from "lucide-react";
+import { LockIcon, User2Icon, AlertCircleIcon, Loader2Icon } from "lucide-react";
+// import loginAnimation from "@/assets/LoginAnimation.json";
+
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { login as loginService } from "../services/authService";
-import { useAuth } from "../auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import { socket } from "@/services/socket";
@@ -17,6 +18,9 @@ interface LoginProps {
 const Login = ({ setToken }: LoginProps) => {
   const navigate = useNavigate();
   const { login: contextLogin } = useAuth();
+  // const animationUrl = "/login-animation.json";
+
+
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,6 +29,11 @@ const Login = ({ setToken }: LoginProps) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+
+  
+
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -61,33 +70,32 @@ const Login = ({ setToken }: LoginProps) => {
 
       // Proceed if user data is successfully returned
       if (payload && payload.user) {
-        // ✅ Save the full user details so other components (like Dashboards) can access it
+        // Save the user details
         localStorage.setItem("user", JSON.stringify(payload.user || {}));
-        
-        // ✅ Only set token if it actually exists in the response (Fallback for non-cookie setups)
+
         if (payload.token) {
           localStorage.setItem("token", payload.token);
           if (setToken) setToken(payload.token);
+        } else {
+          localStorage.removeItem("token");
         }
 
-        socket.emit("joinUserRoom", payload.user.id); // Join the user's personal notification room
+        socket.emit("joinUserRoom", payload.user.id || payload.user.userId);
 
-        // ✅ Update AuthContext global state correctly
+        // Update AuthContext global state correctly
         contextLogin({ 
           user: payload.user,
           slug: payload.slug || payload.user?.slug || payload.user?.organization?.slug,
         });
 
         // Navigate to the dashboard upon successful login
-       const dept = payload.user.department?.trim().toLowerCase();
+        const dept = payload.user.department?.trim().toLowerCase();
 
-if (dept === "sales") {
-  navigate("/sales/dashboard", { replace: true });
-} else if (dept === "it") {
-  navigate("/", { replace: true });
-} else {
-  navigate("/", { replace: true });
-}
+        if (dept === "sales") {
+          navigate("/sales", { replace: true });
+        } else {
+          navigate("/", { replace: true });
+        }
       }
 
       
@@ -102,10 +110,15 @@ if (dept === "sales") {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-6">
       <div className="w-full max-w-5xl bg-blue-200 rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
-        {/* LEFT */}
-        <div className="w-full md:w-1/2 bg-blue-100 flex items-center justify-center p-10">
-          <Lottie animationData={loginAnimation} loop className="w-[350px]" />
+       {/* LEFT SIDE: Handles loading, error, and rendering smoothly */}
+      <div className="w-full md:w-1/2 bg-blue-100 flex items-center justify-center overflow-hidden">
+          <img
+            src="/loginImage.png"
+            alt="Circuit ERP"
+            className="w-full h-full max-h-[520px] object-fill"
+          />
         </div>
+
 
         {/* RIGHT */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-primary to-primary/40 p-12 flex flex-col justify-center text-white">
@@ -136,7 +149,15 @@ if (dept === "sales") {
 
             {/* Password */}
             <div>
-              <label className="text-sm text-primary-content mb-4">Password</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="text-sm text-primary-content">Password</label>
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-blue-200 hover:text-white hover:underline transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <LockIcon
                   size={18}
@@ -174,7 +195,7 @@ if (dept === "sales") {
             Don't have an account?{" "}
             <button
               type="button"
-              onClick={() => navigate("/organizationRegister")}
+              onClick={() => navigate("/organization-register")}
               className="text-white font-semibold hover:underline transition-all cursor-pointer"
             >
               Sign up
