@@ -224,42 +224,46 @@ const WorkUpdate = ({
                   </td>
 
                   {/* Actions */}
-                  <td className="py-3 ">
-                    <div className="flex ml-5 gap-3 min-w-[60px]">
-                      {/* EDIT */}
-                      {auth?.user?.userId === item.createdBy?._id ? (
-                        <button
-                          onClick={() => {
-                            setEditingUpdate(item);
-                            setEditDescription(item.description);
-                            setEditProjectId(item.projectId?._id || "");
-                            setEditFiles([]);
-                          }}
-                          className="text-primary hover:scale-110 transition"
-                        >
-                          <MdEdit size={16} />
-                        </button>
-                      ) : (
-                        <span className=" text-base-content">
-                          No files
-                        </span>
-                      )}
-                    </td>
+                 <td className="py-3">
+  <div className="flex ml-5 gap-3 min-w-[60px]">
 
-                      {/* DELETE */}
-                      {(auth?.user?.userId === item.createdBy?._id ||
-                        ["admin", "owner"].includes(auth?.user?.role)) && (
-                        <button
-                          onClick={() => handleDelete(item._id)}
-                          className="text-error hover:scale-110 transition"
-                        >
-                          <MdDelete size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+    {/* EDIT */}
+    {isCreator && (
+      <button
+        onClick={() => {
+          setEditingUpdate(item);
+          setEditDescription(item.description);
+
+          setEditProjectId(
+            typeof item.projectId === "object" && item.projectId !== null
+              ? item.projectId._id || ""
+              : ""
+          );
+
+          setEditFiles([]);
+        }}
+        className="text-primary hover:scale-110 transition"
+      >
+        <MdEdit size={16} />
+      </button>
+    )}
+
+    {/* DELETE */}
+    {(isCreator ||
+      ["admin", "owner"].includes(auth?.user?.role || "")) && (
+      <button
+        onClick={() => handleDelete(item._id)}
+        className="text-error hover:scale-110 transition"
+      >
+        <MdDelete size={16} />
+      </button>
+    )}
+
+  </div>
+</td></tr>
+
+                )}
+              )}
             </tbody>
           </table>
         </div>

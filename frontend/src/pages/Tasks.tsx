@@ -49,7 +49,7 @@ export default function TaskDashboard() {
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<TaskView>("table");
-
+   const canCreateTask = auth?.user?.role !== "member"; // Only non-members can create tasks
   /* ---------------- FETCH TASKS ---------------- */
 
   const fetchTasks = async () => {

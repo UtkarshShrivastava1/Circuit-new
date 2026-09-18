@@ -74,28 +74,21 @@ export default function NewProduct() {
     <div className="min-h-screen bg-base-200 p-3 md:p-4 lg:p-6 font-sans">
       
       {/* ── Page Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center margin-bottom-[24px] gap-[16px] bg-base-100 padding-[20px] rounded-[12px] border border-base-300 shadow-[0_1px_3px_rgba(0,0,0,0.08)] mb-3">
-        <div className="p-2">
-          <h1 className="text-[24px] font-[700] text-base-content tracking-tight">{isEditMode ? "Edit Software Product" : "Add New Software Product"}</h1>
-          <div className="text-[14px] text-base-content/60 breadcrumbs margin-top-[4px]">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li>Products</li>
-              <li className="font-[600] text-primary">{isEditMode ? "Edit Product" : "Add Product"}</li>
-            </ul>
-          </div>
-        </div>
-        <div className="flex gap-[8px] flex-wrap">
-          {/* <button type="button" className="btn btn-outline btn-sm gap-2" onClick={() => loadTemplate("Software")}>
-            <MdContentCopy size={16} /> Load Template
-          </button> */}
-          {/* <button type="button" className="btn btn-outline btn-sm gap-2">
-            <MdSave size={16} /> Save Draft
-          </button> */}
-          <button onClick={() => navigate(-1)} type="button" className="btn btn-ghost btn-sm">Cancel</button>
-        </div>
-      </div>
+     
+      <PageHeader
+  title={isEditMode ? "Edit Software Product" : "Add New Software Product"}
+  breadcrumbs={[
+    { label: "Dashboard" },
+    { label: "Sales" },
+    { label: "Products" },
+    {
+      label: isEditMode ? "Edit Product" : "Add Product",
+      active: true,
+    },
+  ]}
+  cancel
+/>
+   
 
       <form onSubmit={handleSubmit(hookOnSubmit)} className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         

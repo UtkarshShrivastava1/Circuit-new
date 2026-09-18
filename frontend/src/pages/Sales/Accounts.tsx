@@ -401,35 +401,7 @@ export default function AccountsDashboard() {
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6 font-sans flex flex-col h-full overflow-hidden relative">
       {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-base-100 p-5 rounded-xl border border-base-300 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold text-base-content tracking-tight">
-            Accounts Management
-          </h1>
-          <div className="text-sm text-base-content/60 breadcrumbs mt-1 font-medium">
-            <ul>
-              <li>Dashboard</li>
-              <li>Sales</li>
-              <li className="text-primary">Accounts</li>
-            </ul>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <button className="btn btn-outline btn-sm gap-2 bg-base-100">
-            <MdDownload size={16} /> Export CSV
-          </button>
-          {/* <button onClick={fetchAccount} className="btn btn-outline btn-sm btn-square bg-base-100">
-            <MdRefresh size={16} />
-          </button> */}
-          <button
-            onClick={() => navigate("/sales/accounts/new")}
-            className="btn btn-primary btn-sm gap-2 shadow-sm"
-          >
-            <MdAdd size={16} /> Add Account
-          </button>
-        </div>
-      </div>
-
+     
       <PageHeader
       title='Accounts Management'
        breadcrumbs={[
