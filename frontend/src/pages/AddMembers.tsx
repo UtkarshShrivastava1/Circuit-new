@@ -8,6 +8,8 @@ import { PageHeader } from "@/components/common";
 import { useAuth } from "@/auth/useAuth";
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
+  customDepartment?: string | undefined;
+  customDesignation?: string;
   name?: string;
   email?: string;
   password?: string;
@@ -31,20 +33,40 @@ const inputBase =
 
 const labelBase = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
+// const Field = ({
+//   label, error, children,
+// }: { label: string; error?: string; children: React.ReactNode }) => (
+//   <div>
+//     <label className={labelBase}>{label}</label>
+//     {children}
+//     {error && <p className="text-red-500 text-xs mt-1.5">{error}</p>}
+//   </div>
+// );
+
+
+
 const Field = ({
-  label, error, children,
-}: { label: string; error?: string; children: React.ReactNode }) => (
+  label,
+  error,
+  children,
+}: {
+  label: React.ReactNode;
+  error?: string;
+  children: React.ReactNode;
+}) => (
   <div>
-    <label className={labelBase}>{label}</label>
+    <div className={labelBase}>{label}</div>
     {children}
-    {error && <p className="text-red-500 text-xs mt-1.5">{error}</p>}
+    {error && (
+      <p className="text-red-500 text-xs mt-1.5">{error}</p>
+    )}
   </div>
 );
-
 const AddMember = () => {
   const {auth} = useAuth();
   const slug = auth.slug;
   const navigate = useNavigate();
+  const [sameAsCurrent, setSameAsCurrent] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [adding, setAdding] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -69,6 +91,7 @@ const AddMember = () => {
     passport: "",
     role: "member" as UserRole,
     designation: "",
+    customDesignation: "",
     department: "",
     customDepartment: "",
     joiningDate: "",
@@ -78,12 +101,29 @@ const AddMember = () => {
     ifscCode: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleChange = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  // };
+ 
+
+const handleChange = (
+  e: React.ChangeEvent<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >
+) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+    ...(name === "currentAddress" && sameAsCurrent
+      ? { permanentAddress: value }
+      : {}),
+  }));
+};
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -93,25 +133,98 @@ const AddMember = () => {
     }
   };
 
-  const validate = (): boolean => {
-    const newErrors: Errors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
-    if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
-    if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter valid 10-digit number";
-    if (formData.emergencyPhone && !/^[6-9]\d{9}$/.test(formData.emergencyPhone))
-      newErrors.emergencyPhone = "Enter valid 10-digit number";
-    if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar))
-      newErrors.aadhaar = "Must be exactly 12 digits";
-    if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase()))
-      newErrors.pan = "Format: ABCDE1234F";
-    if (!formData.designation) newErrors.designation = "Designation is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // const validate = (): boolean => {
+  //   const newErrors: Errors = {};
+  //   if (!formData.name.trim()) newErrors.name = "Name is required";
+  //   if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
+  //   if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
+  //   if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter valid 10-digit number";
+  //   if (formData.emergencyPhone && !/^[6-9]\d{9}$/.test(formData.emergencyPhone))
+  //     newErrors.emergencyPhone = "Enter valid 10-digit number";
+  //   if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar))
+  //     newErrors.aadhaar = "Must be exactly 12 digits";
+  //   if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase()))
+  //     newErrors.pan = "Format: ABCDE1234F";
+  //   if (!formData.designation) newErrors.designation = "Designation is required";
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
+
+
+const validate = (): boolean => {
+  const newErrors: Errors = {};
+
+  if (!formData.name.trim()) {
+    newErrors.name = "Name is required";
+  }
+
+  if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+    newErrors.email = "Enter a valid email";
+  }
+
+  if (formData.password.length < 6) {
+    newErrors.password = "Minimum 6 characters";
+  }
+
+  if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+    newErrors.phone = "Enter valid 10-digit number";
+  }
+
+  if (
+    formData.emergencyPhone &&
+    !/^[6-9]\d{9}$/.test(formData.emergencyPhone)
+  ) {
+    newErrors.emergencyPhone = "Enter valid 10-digit number";
+  }
+
+  if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar)) {
+    newErrors.aadhaar = "Must be exactly 12 digits";
+  }
+
+  if (
+    formData.pan &&
+    !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.pan.toUpperCase())
+  ) {
+    newErrors.pan = "Format: ABCDE1234F";
+  }
+
+  if (!formData.designation) {
+    newErrors.designation = "Designation is required";
+  }
+if (
+  formData.designation === "other" &&
+  !formData.customDesignation.trim()
+) {
+  newErrors.customDesignation = "Custom designation is required";
+}
+  setErrors(newErrors);
+
+  // Find the earliest step containing a validation error
+  const stepErrors = [
+    ["name", "email", "password", "phone"],
+    ["emergencyPhone"],
+    ["aadhaar", "pan"],
+    ["designation", "customDesignation", "customDepartment"],
+    [],
+  ];
+
+  const errorStep = stepErrors.findIndex((fields) =>
+    fields.some((field) => field in newErrors)
+  );
+
+  if (errorStep !== -1) {
+    setCurrentStep(errorStep);
+    toast.error("Please fix the errors in " + steps[errorStep].label);
+    return false;
+  }
+
+  return true;
+};
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting form data:", formData);
     if (!validate()) return;
     setAdding(true);
     try {
@@ -141,7 +254,7 @@ const AddMember = () => {
         currentAddress: "", permanentAddress: "", emergencyName: "", emergencyPhone: "",
         emergencyRelation: "", aadhaar: "", pan: "", passport: "", role: "member",
         designation: "", department: "", customDepartment: "", joiningDate: "", previousCompany: "",
-        bankName: "", accountNumber: "", ifscCode: "",
+        bankName: "", accountNumber: "", ifscCode: "", customDesignation: "",
       });
       setPreview(null);
       setSelectedFile(null);
@@ -306,14 +419,102 @@ const AddMember = () => {
                       <option value="other">Other</option>
                     </select>
                   </Field>
-                  <Field label="Current Address">
-                    <textarea name="currentAddress" value={formData.currentAddress} onChange={handleChange}
-                      rows={2} placeholder="Current address" className={`${inputBase} resize-none`} />
-                  </Field>
-                  <Field label="Permanent Address">
-                    <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleChange}
-                      rows={2} placeholder="Permanent address" className={`${inputBase} resize-none`} />
-                  </Field>
+                  
+<Field label="Current Address">
+  <textarea
+    name="currentAddress"
+    value={formData.currentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Current address"
+    className={`${inputBase} resize-none`}
+  />
+</Field>
+
+{/* <Field label="Permanent Address">
+  <div className="flex items-center gap-2 mb-2">
+    <input
+      type="checkbox"
+      id="sameAsCurrent"
+      checked={sameAsCurrent}
+      onChange={(e) => {
+        const checked = e.target.checked;
+        setSameAsCurrent(checked);
+
+        if (checked) {
+          setFormData((prev) => ({
+            ...prev,
+            permanentAddress: prev.currentAddress,
+          }));
+        }
+      }}
+      className="h-3 w-3 accent-violet-600 cursor-pointer"
+    />
+
+    <label
+      htmlFor="sameAsCurrent"
+      className="text-xs text-gray-600 cursor-pointer"
+    >
+      Same as Current Address
+    </label>
+  </div>
+
+  <textarea
+    name="permanentAddress"
+    value={formData.permanentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Permanent address"
+    disabled={sameAsCurrent}
+    className={`${inputBase} resize-none ${
+      sameAsCurrent ? "bg-gray-100 cursor-not-allowed" : ""
+    }`}
+  />
+</Field> */}
+<Field
+  label={
+    <div className="flex items-center gap-4">
+      <span>Permanent Address</span>
+
+      <label
+        htmlFor="sameAsCurrent"
+        className="flex items-center gap-1 !text-[10px] cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          id="sameAsCurrent"
+          checked={sameAsCurrent}
+          onChange={(e) => {
+    const checked = e.target.checked;
+    setSameAsCurrent(checked);
+
+    if (checked) {
+      setFormData((prev) => ({
+        ...prev,
+        permanentAddress: prev.currentAddress,
+      }));
+    }
+  }}
+          className="h-3 w-3 accent-violet-600 cursor-pointer"
+        />
+        Same as Current Address
+      </label>
+    </div>
+  }
+>
+  <textarea
+ 
+    name="permanentAddress"
+    value={formData.permanentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Permanent address"
+    disabled={sameAsCurrent}
+    className={`${inputBase} resize-none ${
+      sameAsCurrent ? "bg-gray-100 cursor-not-allowed" : ""
+    }`}
+  />
+</Field>
                 </div>
               </div>
             )}
@@ -420,7 +621,19 @@ const AddMember = () => {
                       <option value="qa-engineer">QA Engineer</option>
                       <option value="devops-engineer">DevOps Engineer</option>
                       <option value="intern">Intern</option>
+                      <option value="other">Other</option>
                     </select>
+                    {formData.designation === "other" && (
+  <Field label="Custom Designation">
+    <input
+      name="customDesignation"
+      value={formData.customDesignation}
+      onChange={handleChange}
+      placeholder="Enter custom designation"
+      className={inputBase}
+    />
+  </Field>
+)}
                   </Field>
                   <Field label="Department">
                     <select name="department" value={formData.department} onChange={handleChange} className={inputBase}>
@@ -437,7 +650,8 @@ const AddMember = () => {
                     </select>
                   </Field>
                   {formData.department === "other" && (
-                    <Field label="Custom Department">
+                    <Field label="Custom Department"
+                     error={errors.customDepartment}>
                       <input
                         name="customDepartment"
                         value={formData.customDepartment}

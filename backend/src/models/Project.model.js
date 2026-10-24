@@ -10,10 +10,13 @@ const participantSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["Member", "Manager"],
+      enum: ["Member", "Manager","Lead","Other"],
       required: true,
     },
-
+    customRole: {
+      type: String,
+      default: "",
+    },
     responsibility: {
       type: String,
       enum: [

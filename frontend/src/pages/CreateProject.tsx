@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/common";
 import { toast } from "react-toastify";
 import { MdOutlineWorkspaces, MdInfoOutline, MdPeopleAlt } from "react-icons/md";
 import { FaCalendarAlt, FaTag } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const TABS = ["Project Info", "Participants"];
 export interface ProjectData {
@@ -84,6 +85,7 @@ const CreateProject = () => {
   //   }
   // };
  // make sure this is your axios instance or fetch wrapper
+ const navigate=useNavigate();
  const { auth } = useAuth(); // get auth context for slug and token
  const slug = auth.slug;
 const handleCreateProject = async () => {
@@ -122,6 +124,7 @@ const handleCreateProject = async () => {
 
     if (res.data.success) {
       toast.success("Project created successfully ");
+      navigate("/projects"); // Navigate to the newly created project page
       // Reset form
       setProjectData(initialProjectState);
       setParticipants([]);

@@ -48,20 +48,75 @@ const createProject = async (req, res) => {
     }
 
     //  Handle participants
-    let uniqueParticipants = [];
+    // let uniqueParticipants = [];
 
-    if (participants && participants.length > 0) {
-      const seen = new Set();
+    // if (participants && participants.length > 0) {
+    //   const seen = new Set();
 
-      uniqueParticipants = participants.filter((p) => {
-        if (!p.user || !p.role || !p.responsibility) return false;
+    //   uniqueParticipants = participants.filter((p) => {
+    //     if (!p.user || !p.role || !p.responsibility) return false;
 
-        if (seen.has(p.user.toString())) return false;
+    //     if (seen.has(p.user.toString())) return false;
 
-        seen.add(p.user.toString());
-        return true;
-      });
-    }
+    //     seen.add(p.user.toString());
+    //     return true;
+    //   });
+    // }
+
+    
+let uniqueParticipants = [];
+
+if (Array.isArray(participants) && participants.length > 0) {
+  const seen = new Set();
+
+  uniqueParticipants = participants
+    .filter((p) => {
+      const userId = p.userId || p.user;
+
+      if (
+        !userId ||
+        !p.role ||
+        !p.responsibility
+      ) {
+        return false;
+      }
+
+      if (
+        p.role === "Other" &&
+        !p.customRole?.trim()
+      ) {
+        return false;
+      }
+
+      if (
+        p.responsibility === "Other" &&
+        !p.customResponsibility?.trim()
+      ) {
+        return false;
+      }
+
+      const id = userId.toString();
+
+      if (seen.has(id)) return false;
+
+      seen.add(id);
+      return true;
+    })
+    .map((p) => ({
+      user: p.userId || p.user,
+      role: p.role,
+      customRole:
+        p.role === "Other"
+          ? p.customRole.trim()
+          : "",
+      responsibility: p.responsibility,
+      customResponsibility:
+        p.responsibility === "Other"
+          ? p.customResponsibility.trim()
+          : "",
+    }));
+}
+
 
     //  Create project
     const project = await Project.create({
@@ -201,15 +256,77 @@ const editProject = async (req, res) => {
       project.customDomain = domain === "Other" ? customDomain || "" : "";
     }
     if (description) project.description = description;
-    if (participants) {
-      const seen = new Set();
-      project.participants = participants.filter((p) => {
-        if (!p.user || !p.role || !p.responsibility) return false;
-        if (seen.has(p.user.toString())) return false;
-        seen.add(p.user.toString());
-        return true;
+    
+if (participants !== undefined) {
+  if (!Array.isArray(participants)) {
+    return res.status(400).json({
+      success: false,
+      message: "Participants must be an array",
+    });
+  }
+
+  const seen = new Set();
+  const updatedParticipants = [];
+
+  for (const p of participants) {
+    const userId = p.user?._id || p.userId || p.user;
+
+    if (!userId || !p.role || !p.responsibility) {
+      return res.status(400).json({
+        success: false,
+        message: "Each participant must have a user, role, and responsibility",
       });
     }
+
+    if (
+      p.role === "Other" &&
+      !p.customRole?.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a custom role",
+      });
+    }
+
+    if (
+      p.responsibility === "Other" &&
+      !p.customResponsibility?.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a custom responsibility",
+      });
+    }
+
+    const id = userId.toString();
+
+    if (seen.has(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Duplicate project participants are not allowed",
+      });
+    }
+
+    seen.add(id);
+
+    updatedParticipants.push({
+      user: userId,
+      role: p.role,
+      customRole:
+        p.role === "Other"
+          ? p.customRole.trim()
+          : "",
+      responsibility: p.responsibility,
+      customResponsibility:
+        p.responsibility === "Other"
+          ? p.customResponsibility.trim()
+          : "",
+    });
+  }
+
+  project.participants = updatedParticipants;
+}
+
 
     await project.save();
 

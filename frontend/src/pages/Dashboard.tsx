@@ -367,7 +367,7 @@ export default function Dashboard() {
             </Link>
 
             <Link
-              to="/createProject"
+              to="/projects/create"
               className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
             >
               <MdWorkspaces size={14} />
@@ -375,7 +375,7 @@ export default function Dashboard() {
             </Link>
 
             <Link
-              to="/addMember"
+              to="/employees/add"
               className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
             >
               <MdPersonAdd size={14} />

@@ -43,6 +43,7 @@ exports.createEmployee = async (req, res) => {
       aadhaar, pan, passport,
       // Employment
       role, designation, department, customDepartment, joiningDate, previousCompany,
+      customDesignation,
       // Financial
       bankName, accountNumber, ifscCode
     } = req.body;
@@ -140,6 +141,8 @@ exports.createEmployee = async (req, res) => {
       designation: designation && String(designation).trim() ? String(designation).trim() : undefined,
       department: cleanDept,
       customDepartment: cleanCustomDept,
+      customDesignation: customDesignation && String(customDesignation).trim() ? String(customDesignation).trim() : undefined,
+      
       joiningDate: cleanJoiningDate,
       previousCompany: previousCompany && String(previousCompany).trim() ? String(previousCompany).trim() : undefined,
       bankName: bankName && String(bankName).trim() ? String(bankName).trim() : undefined,

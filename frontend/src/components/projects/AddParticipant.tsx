@@ -16,6 +16,7 @@ interface User {
 interface Participant {
   userId: string;
   role: string;
+  customRole?: string;
   responsibility: string;
    customResponsibility?: string;
 }
@@ -40,6 +41,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
   const [form, setForm] = useState<Participant>({
     userId: "",
     role: "",
+    customRole: "",
     responsibility: "",
      customResponsibility: "",
   });
@@ -77,9 +79,9 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
   const handleAdd = () => {
    if (
   !form.userId ||
-  !form.role ||
-  !form.responsibility ||
-  (form.responsibility === "Other" && !form.customResponsibility)
+  !form.role || (form.role === "Other" && !form.customRole) ||
+  !form.responsibility || (form.responsibility === "Other" && !form.customResponsibility)
+
 ) {
   toast.error("Please fill all required fields");
   return;
@@ -99,6 +101,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
  setForm({
   userId: "",
   role: "",
+  customRole: "",
   responsibility: "",
   customResponsibility: "",
 });
@@ -150,7 +153,19 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
         <option value="">Select Role</option>
         <option value="Member">Project Member</option>
         <option value="Manager">Project Manager</option>
+        <option value="Lead">Project Lead</option>
+        <option value="Other">Other</option>
       </select>
+      {form.role === "Other" && (
+  <input
+    type="text"
+    name="customRole"
+    value={form.customRole || ""}
+    onChange={handleChange}
+    placeholder="Enter Custom Role"
+    className="w-full px-3 py-2 rounded-lg bg-base-100 border border-base-content/10 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-200 text-base-content mt-2"
+  />
+)}
 
       {/* Responsibility */}
       <select
@@ -208,7 +223,7 @@ export const AddParticipant: React.FC<AddParticipantProps> = ({
                 <p className="font-semibold text-base-content text-sm mb-1">
                   {getUserName(p.userId)}
                 </p>
-                <p className="text-sm   text-base-content/60">Role: {p.role}</p>
+                <p className="text-sm   text-base-content/60">Role: {p.role === "Other" ? p.customRole : p.role}</p>
                <p className="text-sm text-base-content/60">
   {p.responsibility === "Other"
     ? p.customResponsibility

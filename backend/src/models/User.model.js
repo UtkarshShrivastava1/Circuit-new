@@ -106,6 +106,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  customDesignation: {
+    type: String,
+    default: "",
+  },
   department: {
     type: String,
     trim: true,
