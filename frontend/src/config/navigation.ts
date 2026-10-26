@@ -401,8 +401,8 @@ export const DEPARTMENT_NAVIGATION: Record<string, NavSection[]> = {
           badgeKey: "unreadNotifications",
         },
         {
-          id: "broadcast-notifications",
-          label: "Broadcast Center",
+          id: "send-notifications",
+          label: "Send Notifications",
           path: "/sales/notifications/admin",
           icon: "MdSend",
           roles: ["admin", "owner", "manager"],

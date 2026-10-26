@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MdCheckCircle, MdDelete, MdSearch, MdOutlineSettings, MdClose ,MdWarning } from 'react-icons/md';
 import {  useNavigate } from 'react-router-dom';
 import { useAuth } from '@/auth/useAuth';
-import { getNotifications, markAllAsRead, markAsRead,deleteNotification, type Notification } from '@/services/notificationServices';
+import { getNotifications, markAllAsRead, markAsRead,deleteNotification, type Notification } from '@/services/salesNotificationServices';
 import { toast } from 'react-toastify';
 import { PageHeader } from '@/components/common';
 
@@ -136,7 +136,7 @@ export default function AllNotifications() {
         <div className="flex-1 bg-base-100 rounded-xl border border-base-300 shadow-sm overflow-hidden flex flex-col">
           <div className="p-4 border-b border-base-200 bg-base-200/30 flex flex-col sm:flex-row gap-4 justify-between items-center">
             <div className="flex gap-2 overflow-x-auto hide-scrollbar w-full sm:w-auto">
-              {['All', 'Unread', 'Tasks', 'Leads', 'Orders'].map(f => (
+              {['All', 'Unread'].map(f => (
                 <button key={f} onClick={() => setFilter(f)} className={`btn btn-sm rounded-full ${filter === f ? 'btn-primary' : 'btn-ghost border border-base-300'}`}>{f}</button>
               ))}
             </div>
@@ -223,9 +223,9 @@ export default function AllNotifications() {
           </div>
 
           <div className="p-4 border-t border-base-200 bg-base-100 flex gap-3">
-            {selectedNotif?.link && (
+            {/* {selectedNotif?.link && (
               <button onClick={() => navigate(selectedNotif.link!)} className="btn btn-primary flex-1 shadow-sm">View Details</button>
-            )}
+            )} */}
             <button className="btn btn-outline btn-error flex-1 shadow-sm"
             onClick={() => {
               if (selectedNotif) {

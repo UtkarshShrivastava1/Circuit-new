@@ -9,8 +9,52 @@ const streamifier = require("streamifier");
 exports.createProduct = async (req, res) => {
   try {
     const { openingStock, ...productData } = req.body;
+    
+
+// Parse fields sent as JSON strings through FormData
+const jsonArrayFields = [
+  "plans",
+  "features",
+  "platformSupport",
+  "tags",
+  "screenshotUrls",
+];
+
+// for (const field of jsonArrayFields) {
+//   if (typeof productData[field] === "string") {
+//     try {
+//       productData[field] = JSON.parse(productData[field]);
+//     } catch (error) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid ${field} format`,
+//       });
+//     }
+//   }
+// }
+
 
     // Handle Cloudinary File Uploads
+    
+for (const field of jsonArrayFields) {
+  if (typeof productData[field] === "string") {
+    try {
+      productData[field] = JSON.parse(productData[field]);
+    } catch (error) {
+      console.log("Invalid field:", field);
+      console.log("Received value:", productData[field]);
+      console.log("Value type:", typeof productData[field]);
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid ${field} format`,
+        receivedValue: productData[field],
+      });
+    }
+  }
+}
+
+    
     const imageUrls = [];
     const documentUrls = [];
     

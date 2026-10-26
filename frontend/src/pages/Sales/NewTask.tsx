@@ -87,6 +87,7 @@ export default function NewTask() {
   return repsData?.data || [];
 }, [repsData]);
 
+console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetched sales reps
   const mutation = useMutation({
     mutationFn: (newData: Partial<SalesTask>) => createSalesTask(auth.slug || "default-tenant", newData as Partial<SalesTask>),
     onSuccess: () => {

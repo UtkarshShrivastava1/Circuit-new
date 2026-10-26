@@ -27,9 +27,13 @@ const salesNotificationSchema = new mongoose.Schema({
     type: String,
     default: 'System'
   },
+  createdById: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'User'
+},
   link: { type: String },
-  recipientType: { type: String, enum: ['All', 'Department', 'Employee'], default: 'All' },
-  department: { type: String },
+  recipientType: { type: String, enum: ['All', 'Employee'], default: 'All' },
+  
   employee: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   tenantId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', required: true }
 }, { timestamps: true });

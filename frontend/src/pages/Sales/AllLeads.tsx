@@ -641,7 +641,7 @@ const [ownerFilter, setOwnerFilter] = useState("All");
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="bg-base-200/50 text-base-content/70"
+                  className="bg-base-100 text-base-content/70"
                 >
                   {headerGroup.headers.map((header) => (
                     <th

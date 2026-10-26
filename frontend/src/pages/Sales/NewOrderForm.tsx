@@ -520,7 +520,7 @@ export default function NewOrderForm() {
                     <option value="">-Select Customer-</option>
                     {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
-                  <button type="button" onClick={() => (document.getElementById('add_customer_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
+                  {/* <button type="button" onClick={() => (document.getElementById('add_customer_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button> */}
                 </div>
               </FormRow>
               

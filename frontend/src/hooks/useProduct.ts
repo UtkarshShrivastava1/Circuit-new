@@ -48,9 +48,9 @@ export const useProduct = ({ productId, duplicateProduct, onSuccess, onError }: 
     releaseChannel: "Stable",
     licenseType: "One Time",
     activationType: "License Key",
-    validityDays: 0,
-    maxUsers: 0,
-    maxDevices: 0,
+    validityDays: undefined,
+    maxUsers: undefined,
+    maxDevices: undefined,
     platformSupport: [],
     softwareDownloadUrl: "",
     documentationUrl: "",
@@ -62,12 +62,12 @@ export const useProduct = ({ productId, duplicateProduct, onSuccess, onError }: 
     videoUrl: "",
     features: [],
     plans: [],
-    costPrice: 0,
-    sellingPrice: 0,
+    costPrice: undefined,
+    sellingPrice: undefined,
     tags: [],
     availableForSale: true,
-    tax: 18,
-    discount: 0,
+    tax: undefined,
+    discount: undefined,
     metaTitle: "",
     metaDescription: "",
     keywords: "",
@@ -192,21 +192,61 @@ export const useProduct = ({ productId, duplicateProduct, onSuccess, onError }: 
     try {
       const formData = new FormData();
       
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null && value !== "") {
-          if (Array.isArray(value)) {
-            value.forEach(item => {
-    if (item instanceof File) {
+ 
+const jsonFields = [
+  "plans",
+  "features",
+  "platformSupport",
+  "tags",
+  "screenshotUrls",
+];
+console.log("Plans before FormData:", data.plans);
+console.log("Plans JSON:", JSON.stringify(data.plans));
+
+Object.entries(data).forEach(([key, value]) => {
+  if (value === undefined || value === null || value === "") {
+    return;
+  }
+
+  // Arrays/objects that backend expects as structured JSON
+  if (jsonFields.includes(key)) {
+    formData.append(key, JSON.stringify(value));
+    return;
+  }
+
+  // Uploaded files
+  if (Array.isArray(value)) {
+    value.forEach((item) => {
+      if (item instanceof File) {
         formData.append(key, item);
-    } else {
+      } else if (
+        typeof item === "string" ||
+        typeof item === "number"
+      ) {
         formData.append(key, String(item));
-    }
+      } else {
+        formData.append(key, JSON.stringify(item));
+      }
+    });
+    return;
+  }
+
+  if (value instanceof File) {
+    formData.append(key, value);
+    return;
+  }
+
+  formData.append(key, String(value));
 });
-          } else {
-            formData.append(key, String(value));
-          }
-        }
-      });
+
+images.forEach((img) => {
+  formData.append("images", img);
+});
+
+documents.forEach((doc) => {
+  formData.append("documents", doc);
+});
+
 
       images.forEach((img) => formData.append("images", img));
       documents.forEach((doc) => formData.append("documents", doc));

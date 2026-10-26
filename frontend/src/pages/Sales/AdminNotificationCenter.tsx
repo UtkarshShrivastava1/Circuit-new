@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { getSalesReps } from "@/services/salesRepServices";
+import { useMemo } from "react";
 import * as z from 'zod';
 import { MdSend, MdHistory, MdRefresh } from 'react-icons/md';
 import { toast } from 'react-toastify';
-import {getNotificationStats,   getNotifications , sendNotification, } from '@/services/notificationServices';
+import { sendNotification, getNotificationStats, getSentNotifications } from "@/services/salesNotificationServices";
 import {useAuth} from '@/auth/useAuth';
 import { useQuery } from '@tanstack/react-query';
 
@@ -22,19 +24,45 @@ const notifSchema = z.object({
 type NotifForm = z.infer<typeof notifSchema>;
 
 export default function AdminNotificationCenter() {
+  
   const [activeTab, setActiveTab] = useState<'send' | 'history'>('send');
   
   const { auth } = useAuth();
   const slug = auth.slug!;
   // const stats = getNotificationStats(slug); // Replace with API
 
-  
+  const { data: repsData, isLoading: repsLoading } = useQuery({
+  queryKey: ["salesReps", slug],
+  queryFn: () => getSalesReps(slug),
+  enabled: !!slug,
+});
+const {
+  data: sentData,
+  isLoading: sentLoading,
+  isError: sentError,
+} = useQuery({
+  queryKey: ["getSentNotifications", slug],
+  queryFn: () => getSentNotifications(slug),
+  enabled: !!slug && activeTab === "history",
+});
+
+const sentNotifications = sentData?.data ?? [];
+console.log(sentNotifications, "Sent Notifications Data");
+
+
+
+const salesReps = useMemo(() => {
+  return repsData?.data || [];
+}, [repsData]);
   const { data: stats, isLoading } = useQuery({
     queryKey: ["notification-stats", slug],
     queryFn: () => getNotificationStats(slug),
   });
-  
+  console.log(stats, "Notification Stats Data");
+  console.log(salesReps, "Sales Reps Data");
 
+
+  
   const { register, handleSubmit, watch, reset, formState: { errors, isSubmitting } } = useForm<NotifForm>({
     resolver: zodResolver(notifSchema),
     defaultValues: { type: 'Announcement', priority: 'Medium', recipientType: 'All' }
@@ -44,6 +72,13 @@ export default function AdminNotificationCenter() {
 
   const onSubmit = async (data: NotifForm) => {
     try {
+       if (
+      data.recipientType === "Employee" &&
+      !data.employee
+    ) {
+      toast.error("Please select a Sales Rep");
+      return;
+    }
       await sendNotification(slug, data);
       console.log('Broadcasting:', data);
       toast.success('Notification broadcasted successfully!');
@@ -62,9 +97,9 @@ export default function AdminNotificationCenter() {
           <h1 className="text-2xl font-bold text-base-content tracking-tight">Notification Center</h1>
           <p className="text-sm text-base-content/60 mt-1">Broadcast announcements and manage system alerts.</p>
         </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <button className="btn btn-outline btn-sm gap-2 bg-base-100"><MdRefresh /> Refresh Stats</button>
-        </div>
+        </div> */}
       </div>
 
      {/* Analytics */}
@@ -79,7 +114,7 @@ export default function AdminNotificationCenter() {
       <div className="skeleton h-9 w-20 mt-2"></div>
     ) : (
       <span className="text-3xl font-black mt-1 text-primary">
-        {stats?.total?.toLocaleString() ?? 0}
+        {stats?.data?.data?.total?.toLocaleString() ?? 0}
       </span>
     )}
   </div>
@@ -95,12 +130,12 @@ export default function AdminNotificationCenter() {
     ) : (
       <div className="flex items-center gap-2 mt-1">
         <span className="text-3xl font-black text-success">
-          {stats?.readRate ?? 0}%
+          {stats?.data?.data?.readRate ?? 0}%
         </span>
 
         <progress
           className="progress progress-success w-20"
-          value={stats?.readRate ?? 0}
+          value={stats?.data?.data?.readRate ?? 0}
           max={100}
         />
       </div>
@@ -117,7 +152,7 @@ export default function AdminNotificationCenter() {
       <div className="skeleton h-9 w-24 mt-2"></div>
     ) : (
       <span className="text-3xl font-black mt-1 text-info">
-        {stats?.deliveryRate ?? 0}%
+        {stats?.data?.data?.deliveryRate ?? 0}%
       </span>
     )}
   </div>
@@ -132,7 +167,7 @@ export default function AdminNotificationCenter() {
       <div className="skeleton h-9 w-20 mt-2"></div>
     ) : (
       <span className="text-3xl font-black mt-1 text-warning">
-        {stats?.unread ?? 0}
+        {stats?.data?.data?.unread ?? 0}
       </span>
     )}
   </div>
@@ -177,21 +212,41 @@ export default function AdminNotificationCenter() {
                   <label className="label font-bold text-sm pt-0">Recipients</label>
                   <div className="flex gap-6 mb-4">
                     <label className="cursor-pointer flex items-center gap-2"><input type="radio" value="All" {...register("recipientType")} className="radio radio-primary radio-sm" /><span className="text-sm font-medium">Entire Company</span></label>
-                    <label className="cursor-pointer flex items-center gap-2"><input type="radio" value="Department" {...register("recipientType")} className="radio radio-primary radio-sm" /><span className="text-sm font-medium">Specific Department</span></label>
+                    {/* <label className="cursor-pointer flex items-center gap-2"><input type="radio" value="Department" {...register("recipientType")} className="radio radio-primary radio-sm" /><span className="text-sm font-medium">Specific Department</span></label> */}
                     <label className="cursor-pointer flex items-center gap-2"><input type="radio" value="Employee" {...register("recipientType")} className="radio radio-primary radio-sm" /><span className="text-sm font-medium">Individual Employee</span></label>
                   </div>
                   {wRecipientType === 'Department' && (
                     <select {...register("department")} className="select select-sm select-bordered w-full max-w-xs"><option>Sales</option><option>Marketing</option></select>
                   )}
-                  {wRecipientType === 'Employee' && (
+                  {/* {wRecipientType === 'Employee' && (
                     <input {...register("employee")} className="input input-sm input-bordered w-full max-w-xs" placeholder="Search employee email/ID..." />
-                  )}
+                  )} */}
+                  {wRecipientType === "Employee" && (
+  <select
+    {...register("employee")}
+    className="select select-sm select-bordered w-full max-w-xs"
+    disabled={repsLoading}
+  >
+    <option value="">
+      {repsLoading ? "Loading sales reps..." : "Select Sales Rep"}
+    </option>
+
+    {salesReps.map((rep: any) => (
+      <option
+        key={rep.memberId?._id}
+        value={rep.memberId?._id}
+      >
+        {rep.memberId?.name}
+      </option>
+    ))}
+  </select>
+)}
                 </div>
 
-                <div className="form-control md:col-span-2">
+                {/* <div className="form-control md:col-span-2">
                   <label className="label font-bold text-sm">Action Link (Optional)</label>
                   <input {...register("link")} className="input input-bordered w-full" placeholder="https://..." />
-                </div>
+                </div> */}
               </div>
 
               <div className="pt-4 border-t border-base-200 flex gap-3 justify-end">
@@ -203,7 +258,7 @@ export default function AdminNotificationCenter() {
             </form>
           )}
 
-          {activeTab === 'history' && (
+          {/* {activeTab === 'history' && (
             <div className="animate-fade-in overflow-x-auto">
               <table className="table table-zebra w-full text-sm">
                 <thead className="bg-base-200">
@@ -217,14 +272,71 @@ export default function AdminNotificationCenter() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* MOCK ROWS */}
+                  MOCK ROWS
                   <tr><td>2026-06-18</td><td className="font-bold">Q3 Targets Live</td><td>Target</td><td>Sales</td><td className="text-success font-semibold">95%</td><td className="text-right"><button className="btn btn-xs btn-ghost text-primary">View</button></td></tr>
                   <tr><td>2026-06-15</td><td className="font-bold">System Maintenance</td><td>System</td><td>All</td><td className="text-success font-semibold">88%</td><td className="text-right"><button className="btn btn-xs btn-ghost text-primary">View</button></td></tr>
                 </tbody>
               </table>
             </div>
-          )}
-        </div>
+          )} */}
+
+          {activeTab === "history" && (
+  <div className="animate-fade-in overflow-x-auto">
+    {sentLoading ? (
+      <p className="p-6 text-center">Loading sent notifications...</p>
+    ) : sentError ? (
+      <p className="p-6 text-center text-error">
+        Failed to load notification history.
+      </p>
+    ) : sentNotifications.length === 0 ? (
+      <p className="p-6 text-center text-base-content/60">
+        No sent notifications found.
+      </p>
+    ) : (
+      <table className="table table-zebra w-full text-sm">
+        <thead className="bg-base-200">
+          <tr>
+            <th>Date Sent</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Audience</th>
+            <th>Priority</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {sentNotifications.map((notification: any) => (
+            <tr key={notification._id}>
+              <td>
+                {new Date(notification.createdAt).toLocaleDateString()}
+              </td>
+
+              <td className="font-semibold">
+                {notification.title}
+              </td>
+
+              <td>{notification.type}</td>
+
+              <td>
+                {notification.recipientType === "All"
+                  ? "Entire Sales Department"
+                  : notification.employee?.name || "N/A"}
+              </td>
+
+              <td>{notification.priority}</td>
+
+              <td className="max-w-xs truncate">
+                {notification.message}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+)}
+        </div> 
       </div>
 
     </div>

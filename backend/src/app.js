@@ -19,6 +19,7 @@ const salarySlipRoutes = require("./routes/salarySlip.routes.js");
 const uploadImageRoutes = require("./routes/uploadRoutes.js");
 const activityRoutes = require("./routes/activity.routes.js");
 const notificationRoutes = require("./routes/notification.routes.js");
+// const salesNotificationRoutes = require("./routes/salesNotification.routes.js");
 const message = require("./routes/message.routes.js")
 const workUpdateRoutes = require("./routes/workUpdate.routes.js");
 
@@ -138,7 +139,7 @@ app.use("/api/upload", uploadImageRoutes);
 app.use("/api/activity", activityRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api/notification", notificationRoutes);
-app.use("/api/notifications", notificationRoutes);
+
 app.use('/api/messages', message);
 app.use("/api", workUpdateRoutes);
 
@@ -152,7 +153,7 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/contacts', contactRoutes);
 app.use('/api/sales', salesDashboard);
 app.use('/api/forecast', forecastRoutes);
-app.use('/api/notification', salesNotificationRoutes); 
+app.use('/api/salesNotification', salesNotificationRoutes); 
 // Define a simple GET API endpoint
 // app.get('/', (req, res) => {const api = axios.create({
 //   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000", // Fallback added here helps prevent undefined

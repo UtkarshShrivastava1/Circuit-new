@@ -583,7 +583,7 @@ const PlanEditor = ({ control, register, watch, errors }: any) => {
             </FormRow>
           </div>
         ))}
-        <button type="button" onClick={() => append({ name: "", price: 0, billingCycle: "Monthly", features: [] })} className="btn btn-outline btn-primary btn-sm gap-[8px]">
+        <button type="button" onClick={() => append({ name: "", price: undefined, billingCycle: "Monthly", features: [] })} className="btn btn-outline btn-primary btn-sm gap-[8px]">
           <MdAdd size={18} /> Add Plan
         </button>
       </div>

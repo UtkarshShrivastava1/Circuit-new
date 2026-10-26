@@ -7,7 +7,18 @@ const tenant = require('../middlewares/tenant.middleware');
 router.get('/:slug/notifications', auth, tenant, notificationController.getNotifications);
 router.get('/:slug/notifications/unread', auth, tenant, notificationController.getUnreadNotifications);
 router.get('/:slug/notifications/stats', auth, tenant, notificationController.getNotificationStats);
+router.get(
+  "/:slug/notifications/sent",
+  (req, res, next) => {
+    console.log("🔥 Sent notification route hit");
+    next();
+  },
+  auth,
+  tenant,
+  notificationController.getSentNotifications
+);
 router.get('/:slug/notifications/:id', auth, tenant, notificationController.getNotificationById);
+// router.get('/:slug/notifications/sent', auth, tenant, notificationController.getSentNotifications);
 
 router.post('/:slug/notifications/send', auth, tenant, notificationController.sendNotification);
 

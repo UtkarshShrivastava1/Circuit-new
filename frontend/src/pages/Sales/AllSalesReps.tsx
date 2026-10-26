@@ -575,7 +575,7 @@ const stats = useMemo(() => {
               <table className="table table-pin-rows w-full text-sm">
                 <thead>
                   {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id} className="bg-base-200/50 text-base-content/70">
+                    <tr key={headerGroup.id} className="bg-base-100 text-base-content/70">
                       {headerGroup.headers.map(header => (
                         <th key={header.id} className="font-semibold py-3 cursor-pointer select-none" onClick={header.column.getToggleSortingHandler()}>
                           {flexRender(header.column.columnDef.header, header.getContext())}
