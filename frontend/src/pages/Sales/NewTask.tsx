@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useMemo} from "react";
+import React, { useState, useEffect ,useMemo, useRef} from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -8,8 +8,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSalesTask } from "@/services/salesTaskServices";
-import { getSalesReps } from "@/services/salesRepServices";
+import { getSalesReps, updateSalesRep } from "@/services/salesRepServices";
 import { PageHeader } from "@/components/common";
+import { createPortal } from "react-dom";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const taskSchema = z.object({
@@ -71,6 +72,12 @@ type TaskFormValues = z.infer<typeof taskSchema>;
 /* ─────────────────────────── Component ─────────────────────────── */
 export default function NewTask() {
   const navigate = useNavigate();
+  const [addingOption, setAddingOption] = useState<
+  "team" | "salesTerritory" | null
+>(null);
+
+const [newOptionValue, setNewOptionValue] = useState("");
+const [isSavingOption, setIsSavingOption] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -132,7 +139,48 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
   const wPriority = watch("priority");
   const wValue = watch("expectedDealValue");
   const wAssignedTo = watch("assignedTo");
+  const selectedRep = useMemo(() => {
+  return salesReps.find((rep: any) => {
+    const repId = rep.memberId?._id || rep.memberId || rep._id;
+    return String(repId) === String(wAssignedTo);
+  });
+}, [salesReps, wAssignedTo]);
+console.log("Selected Rep:", selectedRep); // Debugging line to check the selected sales rep
+const availableTeams = selectedRep?.team ?? [];
+const availableTerritories = selectedRep?.salesTerritory ?? [];
+const assignedToRef = useRef<HTMLDivElement>(null);
+const [dropdownOpen, setDropdownOpen] = useState(false);
+const [dropdownStyle, setDropdownStyle] = useState({
+  top: 0,
+  left: 0,
+  width: 0,
+});
 
+const updateDropdownPosition = () => {
+  const rect = assignedToRef.current?.getBoundingClientRect();
+
+  if (rect) {
+    setDropdownStyle({
+      top: rect.bottom + 4,
+      left: rect.left,
+      width: rect.width,
+    });
+  }
+};
+
+useEffect(() => {
+  if (!dropdownOpen) return;
+
+  updateDropdownPosition();
+
+  window.addEventListener("resize", updateDropdownPosition);
+  window.addEventListener("scroll", updateDropdownPosition, true);
+
+  return () => {
+    window.removeEventListener("resize", updateDropdownPosition);
+    window.removeEventListener("scroll", updateDropdownPosition, true);
+  };
+}, [dropdownOpen]);
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
     return salesReps.filter((rep: any) => {
@@ -173,6 +221,7 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => e.preventDefault();
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -185,6 +234,63 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
     // The 'attachments' field in the model expects URLs.
     mutation.mutate(data);
   };
+ const handleAddRepOption = async (
+  field: "team" | "salesTerritory"
+) => {
+  const value = newOptionValue.trim();
+
+  if (!selectedRep?._id) {
+    toast.error("Please select a Sales Rep first");
+    return;
+  }
+
+  if (!value) {
+    toast.error("Please enter a value");
+    return;
+  }
+
+  const existingValues: string[] = selectedRep[field] ?? [];
+
+  if (
+    existingValues.some(
+      (item) => item.toLowerCase() === value.toLowerCase()
+    )
+  ) {
+    toast.info("This value already exists");
+    return;
+  }
+
+  try {
+    setIsSavingOption(true);
+
+    await updateSalesRep(
+      selectedRep._id,
+      { [field]: [...existingValues, value] },
+      auth.slug || "default-tenant"
+    );
+
+    await queryClient.invalidateQueries({
+      queryKey: ["salesReps", auth.slug],
+    });
+
+    if (field === "team") {
+      setValue("team", value, { shouldValidate: true });
+    } else {
+      setValue("region", value, { shouldValidate: true });
+    }
+
+    setNewOptionValue("");
+    setAddingOption(null);
+
+    toast.success("Added successfully!");
+  } catch (error: any) {
+    toast.error(
+      error.response?.data?.message || "Failed to add option"
+    );
+  } finally {
+    setIsSavingOption(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-base-200 p-4 md:p-6 lg:p-8 font-sans">
@@ -279,20 +385,20 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
           </div>
 
           {/* 2. Assignment Details */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl overflow-visible">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               2. Assignment Details
             </div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content overflow-visible pt-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
+                {/* <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned To *</span></label>
-                  <div className="dropdown w-full">
+                  <div className="dropdown dropdown-bottom w-full">
                     <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.assignedTo ? "border-error" : "border-base-300"}`}>
                      {salesReps.find((rep: any) => (rep.memberId?._id || rep.memberId || rep._id) === wAssignedTo)?.memberId?.name || wAssignedTo || "-Select Employee-"}
                     </label>
-                    <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                    <div tabIndex={0} className="dropdown-content absolute left-0 top-full z-[9999] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input 
                         type="text" 
                         placeholder="Search..." 
@@ -326,7 +432,85 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
                   </div>
                   {errors.assignedTo && <span className="text-error text-xs">{errors.assignedTo.message}</span>}
                 </div>
-                
+                 */}
+                 <div ref={assignedToRef} className="relative w-full">
+  <label className="label py-1">
+    <span className="label-text font-medium">Assigned To *</span>
+  </label>
+
+  <button
+    type="button"
+    onClick={() => {
+      updateDropdownPosition();
+      setDropdownOpen((prev) => !prev);
+    }}
+    className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${
+      errors.assignedTo ? "border-error" : "border-base-300"
+    }`}
+  >
+    {selectedRep?.memberId?.name ||
+      selectedRep?.name ||
+      wAssignedTo ||
+      "-Select Employee-"}
+  </button>
+
+  {dropdownOpen &&
+    createPortal(
+      <div
+        style={{
+          position: "fixed",
+          top: dropdownStyle.top,
+          left: dropdownStyle.left,
+          width: dropdownStyle.width,
+          zIndex: 99999,
+        }}
+        className="menu p-2 shadow-lg bg-base-100 rounded-box border border-base-300"
+      >
+        <input
+          type="text"
+          placeholder="Search..."
+          className="input input-sm input-bordered w-full mb-2"
+          value={assigneeSearch}
+          onChange={(e) => setAssigneeSearch(e.target.value)}
+          autoFocus
+        />
+
+        <ul className="max-h-60 overflow-y-auto">
+          {filteredReps.map((rep: any, idx: number) => {
+            const repId =
+              rep.memberId?._id || rep.memberId || rep._id || `rep-${idx}`;
+
+            const repName =
+              rep.memberId?.name || rep.name || "Sales Rep";
+
+            return (
+              <li key={repId}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue("assignedTo", String(repId), {
+                      shouldValidate: true,
+                    });
+                    setDropdownOpen(false);
+                    setAssigneeSearch("");
+                  }}
+                >
+                  {repName}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>,
+      document.body
+    )}
+
+  {errors.assignedTo && (
+    <span className="text-error text-xs">
+      {errors.assignedTo.message}
+    </span>
+  )}
+</div>
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned By</span></label>
                   <input type="text" className="input input-bordered w-full bg-base-200" value="Current Admin User" readOnly />
@@ -336,16 +520,71 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
                   <label className="label py-1"><span className="label-text font-medium">Department</span></label>
                   <input type="text" className="input input-bordered w-full bg-base-200" value="Sales" readOnly />
                 </div>
+<div>
+  <label className="label py-1">
+    <span className="label-text font-medium">Team</span>
+  </label>
 
-                <div>
-                  <label className="label py-1"><span className="label-text font-medium">Team</span></label>
-                  <select {...register("team")} className="select select-bordered w-full">
-                    <option value="">-Select Team-</option>
-                    <option value="North Team">North Team</option>
-                    <option value="South Team">South Team</option>
-                    <option value="Global">Global Enterprise</option>
-                  </select>
-                </div>
+  <div className="flex gap-2">
+    <select
+      {...register("team")}
+      className="select select-bordered w-full"
+      disabled={!wAssignedTo}
+    >
+      <option value="">- Select Team -</option>
+      {availableTeams.map((team: string) => (
+        <option key={team} value={team}>
+          {team}
+        </option>
+      ))}
+    </select>
+
+    <button
+      type="button"
+      className="btn btn-outline whitespace-nowrap"
+      disabled={!wAssignedTo}
+      onClick={() => {
+        setAddingOption("team");
+        setNewOptionValue("");
+      }}
+    >
+      + Add New
+    </button>
+  </div>
+
+  {addingOption === "team" && (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <input
+        type="text"
+        value={newOptionValue}
+        onChange={(e) => setNewOptionValue(e.target.value)}
+        placeholder="Enter team name"
+        className="input input-bordered min-w-0 flex-1"
+      />
+
+      <button
+        type="button"
+        disabled={isSavingOption}
+        onClick={() => handleAddRepOption("team")}
+        className="btn btn-primary btn-sm"
+      >
+        {isSavingOption ? "Saving..." : "Save"}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setAddingOption(null);
+          setNewOptionValue("");
+        }}
+        className="btn btn-ghost btn-sm"
+      >
+        Cancel
+      </button>
+    </div>
+  )}
+</div>
+           
               </div>
             </div>
           </div>
@@ -356,7 +595,7 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               3. Customer & Lead Information
             </div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content pt-5 overflow-visible">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Customer / Client *</span></label>
@@ -403,7 +642,7 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
             <div className="collapse-title text-lg font-semibold border-b border-base-200">
               4. Scheduling
             </div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content pt-5 overflow-visible">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Task Creation Date</span></label>
@@ -480,17 +719,73 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
                   <label className="label py-1"><span className="label-text font-medium">Expected Closing Date</span></label>
                   <input {...register("closingDate")} type="date" className="input input-bordered w-full" />
                 </div>
+ 
+              <div>
+  <label className="label py-1">
+    <span className="label-text font-medium">
+      Sales Territory / Region
+    </span>
+  </label>
 
-                <div className="md:col-span-2">
-                  <label className="label py-1"><span className="label-text font-medium">Sales Territory / Region</span></label>
-                  <select {...register("region")} className="select select-bordered w-full">
-                    <option value="">-Select Region-</option>
-                    <option value="North America">North America</option>
-                    <option value="EMEA">EMEA</option>
-                    <option value="APAC">APAC</option>
-                    <option value="LATAM">LATAM</option>
-                  </select>
-                </div>
+  <div className="flex gap-2">
+    <select
+      {...register("region")}
+      className="select select-bordered w-full"
+      disabled={!wAssignedTo}
+    >
+      <option value="">- Select Territory -</option>
+      {availableTerritories.map((territory: string) => (
+        <option key={territory} value={territory}>
+          {territory}
+        </option>
+      ))}
+    </select>
+
+    <button
+      type="button"
+      className="btn btn-outline whitespace-nowrap"
+      disabled={!wAssignedTo}
+      onClick={() => {
+        setAddingOption("salesTerritory");
+        setNewOptionValue("");
+      }}
+    >
+      + Add New
+    </button>
+  </div>
+
+  {addingOption === "salesTerritory" && (
+    <div className="mt-2 flex flex-wrap items-center gap-2">
+      <input
+        type="text"
+        value={newOptionValue}
+        onChange={(e) => setNewOptionValue(e.target.value)}
+        placeholder="Enter region name"
+        className="input input-bordered min-w-0 flex-1"
+      />
+
+      <button
+        type="button"
+        disabled={isSavingOption}
+        onClick={() => handleAddRepOption("salesTerritory")}
+        className="btn btn-primary btn-sm"
+      >
+        {isSavingOption ? "Saving..." : "Save"}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setAddingOption(null);
+          setNewOptionValue("");
+        }}
+        className="btn btn-ghost btn-sm"
+      >
+        Cancel
+      </button>
+    </div>
+  )}
+</div>
               </div>
             </div>
           </div>

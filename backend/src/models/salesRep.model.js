@@ -37,8 +37,8 @@ const salesRepSchema = new mongoose.Schema({
   // 3. Employment Info
   // employeeType: { type: String },
   // employmentStatus: { type: String, default: "Active" }, 
-  salesTerritory: { type: String }, // Maps to territory on frontend
-  team: { type: String },
+  salesTerritory: { type: [String],default: [] }, // Maps to territory on frontend
+  team: { type: [String],default: [] },
   commissionPercentage: { type: Number, default: 0 },
   monthlyTarget: { type: Number, default: 0 },
   quarterlyTarget: { type: Number, default: 0 },

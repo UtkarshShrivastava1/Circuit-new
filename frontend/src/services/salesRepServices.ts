@@ -1,14 +1,17 @@
 import API from "@/api/axios";
 
 export interface SalesRep {
+  memberId: string;
+  employmentStatus: string;
+  salesTerritory: string[];
   id: string;
   employeeCode: string;
   fullName: string;
   email: string;
   phone: string;
   designation: string;
-  team: string;
-  territory: string;
+  team: string[];
+  territory: string[];
   status: "Active" | "Inactive" | "On Leave" | "Suspended";
   monthlyTarget: number;
   achievement: number;

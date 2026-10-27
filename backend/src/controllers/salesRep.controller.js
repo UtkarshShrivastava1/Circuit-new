@@ -5,7 +5,8 @@ exports.createSalesRep = async (req, res) => {
   try {
     const tenantId = req.organization?._id?.toString() || req.tenantId || req.params.slug;
     const repData = { ...req.body, tenantId };
-    
+      console.log("Request body:", req.body);
+    console.log("Received memberId:", req.body.memberId);
     if (!repData.memberId) {
       repData.memberId = req.body.userId || req.user?._id;
     }
@@ -88,7 +89,7 @@ exports.updateSalesRep = async (req, res) => {
     const rep = await SalesRep.findOneAndUpdate(
       { _id: req.params.id, tenantId },
       req.body,
-      { new: true, runValidators: true, strict: false }
+      { new: true, runValidators: true}
     );
     
     if (!rep) {

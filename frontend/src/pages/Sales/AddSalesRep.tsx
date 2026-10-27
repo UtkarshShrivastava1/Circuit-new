@@ -36,11 +36,13 @@ const salesRepSchema = z.object({
   // country: z.string().optional(),
   // postalCode: z.string().optional(),
 
-  // 3. Employment Info
-  employeeType: z.string().optional(),
-  employmentStatus: z.string().default("Active"),
-  salesTerritory: z.string().optional(),
-  team: z.string().optional(),
+    // 3. Employment Info
+    employeeType: z.string().optional(),
+    employmentStatus: z.string().default("Active"),
+    // salesTerritory: z.string().optional(),
+    // team: z.string().optional(),
+    salesTerritory: z.array(z.string()).default([]),
+team: z.array(z.string()).default([]),
   commissionPercentage: z.coerce.number().min(0).max(100).optional(),
   monthlyTarget: z.coerce.number().min(0).optional(),
   quarterlyTarget: z.coerce.number().min(0).optional(),
@@ -91,6 +93,8 @@ export default function AddSalesRep() {
   const { id } = useParams<{ id: string }>();
   const isEditMode = !!id;
   const { auth } = useAuth();
+  const [teamInput, setTeamInput] = useState("");
+const [territoryInput, setTerritoryInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -111,10 +115,37 @@ export default function AddSalesRep() {
       salesTargetEnabled: false,
       loginAccessEnabled: false,
       permissions: [],
+       team: [],
+  salesTerritory: [],
     }
   });
 
+const teams = watch("team") || [];
+const territories = watch("salesTerritory") || [];
 
+const addTeam = () => {
+  const name = teamInput.trim();
+
+  if (name && !teams.includes(name)) {
+    setValue("team", [...teams, name], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setTeamInput("");
+  }
+};
+
+const addTerritory = () => {
+  const name = territoryInput.trim();
+
+  if (name && !territories.includes(name)) {
+    setValue("salesTerritory", [...territories, name], {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    setTerritoryInput("");
+  }
+};
 
    useEffect(() => {
        const fetchOwners = async () => {
@@ -137,13 +168,25 @@ export default function AddSalesRep() {
           const res = await getSalesRepById(id, auth.slug as string);
           if (res.success && res.data) {
             const data = res.data;
+            // reset({
+            //   ...data,
+            //   // employeeId: data.employeeCode,
+            //   // mobileNumber: data.phone,
+            //   salesTerritory: data.territory,
+            //   employmentStatus: data.status,
+            // });
             reset({
-              ...data,
-              // employeeId: data.employeeCode,
-              // mobileNumber: data.phone,
-              salesTerritory: data.territory,
-              employmentStatus: data.status,
-            });
+  ...data,
+  team: Array.isArray(data.team) ? data.team : [],
+  salesTerritory: Array.isArray(data.salesTerritory)
+    ? data.salesTerritory
+    : Array.isArray(data.territory)
+      ? data.territory
+      : data.territory
+        ? [data.territory]
+        : [],
+  employmentStatus: data.status ?? data.employmentStatus ?? "Active",
+});
             if (data.avatarUrl) {
               setImagePreview(data.avatarUrl);
             }
@@ -218,13 +261,16 @@ export default function AddSalesRep() {
 
   /* ── Submit Handler ── */
   const onSubmit = async (data: SalesRepFormValues) => {
+    console.log("Form data:", data);
+  console.log("memberId:", data.memberId);
     setIsSubmitting(true);
     try {
       const payload = {
         ...data,
         // employeeCode: data.employeeId,
         // phone: data.mobileNumber,
-        territory: data.salesTerritory,
+ team: data.team ?? [],
+  salesTerritory: data.salesTerritory ?? [],
         status: data.employmentStatus
       };
 
@@ -439,7 +485,7 @@ export default function AddSalesRep() {
                 </FormRow> */}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormRow label="Sales Territory">
+                {/* <FormRow label="Sales Territory">
                   <div className="flex gap-2">
                     <select {...register("salesTerritory")} className="select select-bordered w-full">
                       <option value="">-Select-</option><option>North America</option><option>EMEA</option><option>APAC</option>
@@ -454,7 +500,108 @@ export default function AddSalesRep() {
                     </select>
                     <button type="button" onClick={() => (document.getElementById('add_team_modal') as HTMLDialogElement).showModal()} className="btn btn-outline btn-square"><MdAdd size={18} /></button>
                   </div>
-                </FormRow>
+                </FormRow> */}
+                
+<FormRow label="Sales Territory">
+  <div className="space-y-3">
+    <div className="flex gap-2">
+      <input
+        value={territoryInput}
+        onChange={(e) => setTerritoryInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addTerritory();
+          }
+        }}
+        className="input input-bordered w-full"
+        placeholder="Enter territory name"
+      />
+      <button
+        type="button"
+        onClick={addTerritory}
+        className="btn btn-outline btn-square"
+      >
+        <MdAdd size={18} />
+      </button>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      {territories.map((territory, index) => (
+        <span
+          key={`${territory}-${index}`}
+          className="badge badge-primary badge-lg gap-2"
+        >
+          {territory}
+          <button
+            type="button"
+            aria-label={`Remove ${territory}`}
+            onClick={() =>
+              setValue(
+                "salesTerritory",
+                territories.filter((_, i) => i !== index),
+                { shouldDirty: true, shouldValidate: true }
+              )
+            }
+          >
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+  </div>
+</FormRow>
+
+<FormRow label="Team">
+  <div className="space-y-3">
+    <div className="flex gap-2">
+      <input
+        value={teamInput}
+        onChange={(e) => setTeamInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addTeam();
+          }
+        }}
+        className="input input-bordered w-full"
+        placeholder="Enter team name"
+      />
+      <button
+        type="button"
+        onClick={addTeam}
+        className="btn btn-outline btn-square"
+      >
+        <MdAdd size={18} />
+      </button>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      {teams.map((teamName, index) => (
+        <span
+          key={`${teamName}-${index}`}
+          className="badge badge-primary badge-lg gap-2"
+        >
+          {teamName}
+          <button
+            type="button"
+            aria-label={`Remove ${teamName}`}
+            onClick={() =>
+              setValue(
+                "team",
+                teams.filter((_, i) => i !== index),
+                { shouldDirty: true, shouldValidate: true }
+              )
+            }
+          >
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+  </div>
+</FormRow>
+
               </div>
               <FormRow label="Commission (%)" error={errors.commissionPercentage?.message}>
                 <input type="number" step="0.1" {...register("commissionPercentage")} className="input input-bordered w-full max-w-xs" placeholder="e.g. 5.5" />
@@ -669,7 +816,12 @@ export default function AddSalesRep() {
               
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Team & Territory</span>
-                <p className="font-medium mt-1 truncate">{wTeam || "Unassigned"} • {wTerritory || "N/A"}</p>
+                {/* <p className="font-medium mt-1 truncate">{wTeam || "Unassigned"} • {wTerritory || "N/A"}</p> */}
+                <p className="font-medium mt-1 break-words">
+  {(wTeam || []).join(", ") || "Unassigned"}
+  {" • "}
+  {(wTerritory || []).join(", ") || "N/A"}
+</p>
               </div>
 
               <div>
