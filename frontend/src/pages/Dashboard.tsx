@@ -1,5 +1,4 @@
-// import PageHeader from "../components/ui/PageHeader";
-import StatCard from "../components/ui/StatCard";
+import { PageHeader, StatsGrid } from "@/components/common";
 import EmptyState from "../components/ui/EmptyState";
 import StatusBadge from "../components/ui/StatusBadge";
 import confetti from "canvas-confetti";
@@ -20,7 +19,7 @@ import SingleBirthdayCard from "@/components/members/SingleBirthdayCard";
 
 import BirthdayCarousel from "@/components/members/BirthdayCarousel";
 import type { Member } from "@/type/member";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { getMembers } from "@/services/memberService";
 import { getAttendance, getMyAttendance } from "@/services/attendanceService";
 import { getProject } from "@/services/projectServices";
@@ -50,7 +49,7 @@ const getActivityLink = (activity: any) => {
   if (combined.includes("leave")) return "/leaves";
   if (combined.includes("task")) return "/tasks";
   if (combined.includes("project")) return "/projects";
-  if (combined.includes("member") || combined.includes("user")) return "/members";
+  if (combined.includes("member") || combined.includes("user")) return "/employees";
   if (combined.includes("attendance")) return "/attendance";
   return "#";
 };
@@ -120,10 +119,15 @@ export default function Dashboard() {
         if (attendanceRes.status === "fulfilled" && isAdmin) {
           const attendanceDocs = attendanceRes.value.data?.data || attendanceRes.value.data || [];
           attendanceDocs.forEach((doc: any) => {
-            (doc.records || []).forEach((r: any) => {
-              const status = (r.status || "").toUpperCase();
+            if (doc.records && Array.isArray(doc.records)) {
+              doc.records.forEach((r: any) => {
+                const status = (r.status || "").toUpperCase();
+                if (status === "PRESENT" || status === "HALF_DAY") presentCount++;
+              });
+            } else {
+              const status = (doc.status || "").toUpperCase();
               if (status === "PRESENT" || status === "HALF_DAY") presentCount++;
-            });
+            }
           });
         } else if (attendanceRes.status === "fulfilled" && !isAdmin) {
           const myDocs = attendanceRes.value.data?.data || [];
@@ -190,7 +194,7 @@ export default function Dashboard() {
     {
       title: "Employees",
       value: statsData.totalEmployees,
-      icon: <MdPeople size={20} />,
+      icon: <MdPeople size={18} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
           <span className="text-xs font-medium text-primary/80">Active workforce</span>
@@ -200,7 +204,7 @@ export default function Dashboard() {
     {
       title: "Present Today",
       value: statsData.presentToday,
-      icon: <MdEventAvailable size={20} />,
+      icon: <MdEventAvailable size={18} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
           <span className="text-xs font-medium text-primary/80">
@@ -214,7 +218,7 @@ export default function Dashboard() {
     {
       title: "Active Projects",
       value: statsData.activeProjects,
-      icon: <MdWorkspaces size={20} />,
+      icon: <MdWorkspaces size={18} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
           <span className="text-xs font-medium text-primary/80">Stable</span>
@@ -224,7 +228,7 @@ export default function Dashboard() {
     {
       title: "Pending Leaves",
       value: statsData.pendingLeaves,
-      icon: <MdPendingActions size={20} />,
+      icon: <MdPendingActions size={18} />,
       helperText: (
         <span className="flex items-center gap-1 text-base-content/60 mt-1">
           <span className="text-xs font-medium text-primary/80">Awaiting review</span>
@@ -241,10 +245,10 @@ export default function Dashboard() {
           {statsData.activeProjects}
         </span>
       ),
-      icon: <MdWorkspaces size={20} />,
+      icon: <MdWorkspaces size={18} />,
       helperText: (
-        <span className="flex items-center justify-start gap-1 text-base-content/60 mt-1 w-full text-left">
-          <span className="text-xs font-medium">Projects you are assigned to</span>
+        <span className="flex items-center justify-start gap-1 text-black/50 mt-1 w-full text-left">
+          <span className="text-xs font-medium text-black/50">Projects you are assigned to</span>
         </span>
       ),
     },
@@ -252,14 +256,14 @@ export default function Dashboard() {
       title: "Today's Attendance",
       value: (
         <span className="inline-block text-left w-full">
-          <StatusBadge status={statsData.myAttendanceStatus.replace('_', ' ').toLowerCase()} size="md" />
+          <StatusBadge status={statsData.myAttendanceStatus.replace('_', ' ').toLowerCase()} size="sm" />
         </span>
       ),
-      icon: <MdEventAvailable size={20} />,
+      icon: <MdEventAvailable size={18} />,
       helperText: statsData.myAttendanceStatus === "PRESENT" ? (
         <span className="flex items-center justify-start gap-1 text-success mt-1 font-medium text-xs w-full text-left">On time</span>
       ) : (
-        <span className="flex items-center justify-start gap-1 text-base-content/60 mt-1 font-medium text-xs w-full text-left">Your current status</span>
+        <span className="flex items-center justify-start gap-1 text-black/50 mt-1 ml-1 font-medium text-xs w-full text-left">Your current status</span>
       ),
     },
   ];
@@ -321,263 +325,381 @@ export default function Dashboard() {
     activityPage * ACTIVITIES_PER_PAGE
   );
 
-  const primaryBtnClass = "btn btn-primary btn-sm shadow-sm transition-all hover:shadow-md  text-sm";
-  const secondaryBtnClass = "btn btn-sm bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 hover:border-base-300 shadow-sm transition-all  text-sm";
+  // const primaryBtnClass = "btn btn-primary btn-sm shadow-sm transition-all hover:shadow-md  text-sm";
+  // const secondaryBtnClass = "btn btn-sm bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 hover:border-base-300 shadow-sm transition-all  text-sm";
 
   return (
-    <div className="p-6 space-y-6">
-      {/* <PageHeader
+    <div className="px-2.5 py-2.5 sm:p-3 space-y-3">
+      <PageHeader
         title="Dashboard"
-        subtitle="Overview of your organization"
-      /> */}
-      <Breadcrumbs/>
-     {/* STATS */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4">
-        {statsToRender.map((stat) => (
-          <StatCard
-            key={stat.title}
-            title={stat.title}
-            value={stat.value}
-            icon={stat.icon}
-            helperText={stat.helperText}
-          />
-        ))}
-      </div>
-      
-      {/* QUICK ACTIONS */}
-      <div>
-        <h2 className="text-lg font-semibold text-base-content mb-3">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          {isAdmin ? (
-            <>
-              <Link to="/tasks" className={primaryBtnClass}><MdAssignment size={16} /> Assign Task</Link>
-              <Link to="/createProject" className={secondaryBtnClass}><MdWorkspaces size={16} /> Create Project</Link>
-              <Link to="/addMember" className={secondaryBtnClass}><MdPersonAdd size={16} /> Add Member</Link>
-              <Link to="/members" className={secondaryBtnClass}><MdPeople size={16} /> Team Directory</Link>
-              <Link to="/leaves" className={secondaryBtnClass}><MdPeople size={16} /> Leave</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/attendance" className={primaryBtnClass}><MdEventAvailable size={16} /> Attendance</Link>
-              <Link to="/tasks" className={secondaryBtnClass}><MdAssignment size={16} /> My Tasks</Link>
-              <Link to="/leaves" className={secondaryBtnClass}><MdFlightTakeoff size={16} /> Log Leave</Link>
-              <Link to="/my-salary" className={secondaryBtnClass}><MdReceiptLong size={16} /> Download Payslips</Link>
-              <Link to="/members" className={secondaryBtnClass}><MdPeople size={16} /> Team Directory</Link>
-            </>
-          )}
-        </div>
-      </div>
-
-  {/* BIRTHDAY SECTION */}
-{birthdayEmployees.length > 0 && (
-  <div className="mb-6">
-  {birthdayEmployees.length === 1 && (
-  <div className="bg-white rounded-2xl shadow-sm p-6">
-    <div className="flex items-center justify-between mb-4">
-      <h2 className="text-lg font-semibold">
-        🎂 Birthday Today
-      </h2>
-    </div>
-
-    <SingleBirthdayCard employee={birthdayEmployees[0]} />
-  </div>
-)}
-
-   {birthdayEmployees.length === 2 && (
-  <div className="bg-white rounded-2xl shadow-sm p-6">
-    <h2 className="text-lg font-semibold mb-4">
-      🎂 Birthdays Today
-    </h2>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {birthdayEmployees.map((emp) => (
-        <SingleBirthdayCard key={emp.id} employee={emp} />
-      ))}
-    </div>
-  </div>
-)}
-    {birthdayEmployees.length > 2 && (
-      <BirthdayCarousel
-        employees={birthdayEmployees}
-        currentIndex={currentIndex}
-        setCurrentIndex={setCurrentIndex}
+        breadcrumbs={[
+          { label: "Home" },
+          { label: "Dashboard", active: true },
+        ]}
       />
-    )}
-  </div>
-)}
 
-      {/* ATTENDANCE TREND GRAPH */}
-      {isAdmin && (
-        <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-base-content mb-4">Attendance Trend (This Week)</h2>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={attendanceTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#6b7280', fontSize: 12 }} />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#6b7280', fontSize: 12 }} 
-                  allowDecimals={false}
-                  domain={[0, Math.max(10, statsData.totalEmployees)]}
-                />
-                <Tooltip cursor={{ fill: '#f3f4f6' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-                <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Bar barSize={40} dataKey="present" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Present" />
-                <Bar barSize={40} dataKey="absent" fill="#f43f5e" radius={[4, 4, 0, 0]} name="Absent" />
-              </BarChart>
-            </ResponsiveContainer>
+      {/* STATS */}
+      <StatsGrid
+        columns={{ default: 1, sm: 2, md: 2, lg: 4 }}
+        stats={statsToRender.map((stat) => ({
+          label: stat.title,
+          value: stat.value,
+          icon: stat.icon,
+          description: stat.helperText,
+        }))}
+      />
+
+    {/* QUICK ACTIONS */}
+    <div>
+      <h2 className="text-sm font-semibold text-base-content mb-1.5">
+        Quick Actions
+      </h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-1.5">
+        {isAdmin ? (
+          <>
+            <Link
+              to="/tasks"
+              className="btn btn-primary btn-xs w-full sm:w-auto shadow-sm transition-all text-xs"
+            >
+              <MdAssignment size={14} />
+              Assign Task
+            </Link>
+
+            <Link
+              to="/projects/create"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdWorkspaces size={14} />
+              Create Project
+            </Link>
+
+            <Link
+              to="/employees/add"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdPersonAdd size={14} />
+              Add Member
+            </Link>
+
+            <Link
+              to="/members"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdPeople size={14} />
+              Team Directory
+            </Link>
+
+            <Link
+              to="/leaves"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdPeople size={14} />
+              Leave
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              to="/attendance"
+              className="btn btn-primary btn-xs w-full sm:w-auto shadow-sm transition-all text-xs"
+            >
+              <MdEventAvailable size={14} />
+              Attendance
+            </Link>
+
+            <Link
+              to="/tasks"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdAssignment size={14} />
+              My Tasks
+            </Link>
+
+            <Link
+              to="/leaves"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdFlightTakeoff size={14} />
+              Log Leave
+            </Link>
+
+            <Link
+              to="/my-salary"
+              className="btn btn-xs w-full sm:w-auto bg-base-100 border border-base-300 text-base-content/80 hover:bg-base-200 shadow-sm transition-all text-xs"
+            >
+              <MdReceiptLong size={14} />
+              Download Payslips
+            </Link>
+          </>
+        )}
+      </div>
+    </div>
+
+    {/* BIRTHDAY SECTION */}
+    {birthdayEmployees.length > 0 && (
+      <div className="mb-6">
+        {birthdayEmployees.length === 1 && (
+          <div className="bg-base-100 rounded-2xl shadow-sm p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold">
+                🎂 Birthday Today
+              </h2>
+            </div>
+
+            <SingleBirthdayCard employee={birthdayEmployees[0]} />
           </div>
-        </div>
-      )}
-    
-      {/* RECENT ACTIVITY (EMPTY STATE FOR NOW) */}
-      {/* <div>
-        <h2 className="text-lg font-semibold text-base-content mb-3">
-          Recent Activity
+        )}
+
+        {birthdayEmployees.length === 2 && (
+          <div className="bg-base-100 rounded-2xl shadow-sm p-3 sm:p-4">
+            <h2 className="text-lg font-semibold mb-4">
+              🎂 Birthdays Today
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {birthdayEmployees.map((emp) => (
+                <SingleBirthdayCard
+                  key={emp.id}
+                  employee={emp}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {birthdayEmployees.length > 2 && (
+          <BirthdayCarousel
+            employees={birthdayEmployees}
+            currentIndex={currentIndex}
+            setCurrentIndex={setCurrentIndex}
+          />
+        )}
+      </div>
+    )}
+
+    {/* ATTENDANCE GRAPH */}
+    {isAdmin && (
+      <div className="bg-base-100 rounded-xl shadow-sm border border-base-300 p-2.5 sm:p-3 mb-4 overflow-hidden">
+        <h2 className="text-sm font-semibold text-base-content mb-2.5">
+          Attendance Trend (This Week)
         </h2>
 
-      {groupedActivities.length > 0 ? (
-          <div className="bg-base-100 rounded-2xl shadow-sm border border-base-300 p-6">
-            <ul className="space-y-4">
-              {paginatedActivities.map((activity) => {
-                const link = getActivityLink(activity);
-                const isClickable = link !== "#";
-                
-                return (
-                <li 
-                  key={activity._id || activity.id} 
-                  onClick={() => isClickable && navigate(link)}
-                  className={`flex justify-between items-start sm:items-center text-sm border-b border-base-200 pb-3 last:border-0 last:pb-0 ${
-                    isClickable ? "cursor-pointer hover:opacity-70 transition-opacity" : ""
-                  }`}
+        <div className="h-[170px] sm:h-52 w-full overflow-x-auto">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={attendanceTrendData}
+              margin={{
+                top: 10,
+                right: 5,
+                left: -30,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#e5e7eb"
+              />
+
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{
+                  fill: "#6b7280",
+                  fontSize: 11,
+                }}
+              />
+
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{
+                  fill: "#6b7280",
+                  fontSize: 11,
+                }}
+                allowDecimals={false}
+                domain={[
+                  0,
+                  Math.max(
+                    10,
+                    statsData.totalEmployees
+                  ),
+                ]}
+              />
+
+              <Tooltip
+                cursor={{ fill: "#f3f4f6" }}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "none",
+                  boxShadow:
+                    "0 4px 6px -1px rgba(0,0,0,0.1)",
+                }}
+              />
+
+              <Legend
+                wrapperStyle={{
+                  fontSize: "11px",
+                  paddingTop: "6px",
+                }}
+              />
+
+              <Bar
+                barSize={20}
+                dataKey="present"
+                fill="#8b5cf6"
+                radius={[3, 3, 0, 0]}
+                name="Present"
+              />
+
+              <Bar
+                barSize={20}
+                dataKey="absent"
+                fill="#f43f5e"
+                radius={[3, 3, 0, 0]}
+                name="Absent"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    )}
+
+    {/* RECENT ACTIVITY */}
+    <div className="bg-primary/10 rounded-xl shadow-sm border border-base-300 p-2.5 overflow-hidden">
+      <div className="flex items-center justify-between mb-1.5">
+        <h2 className="text-sm font-semibold text-base-content">
+          Recent Activity
+        </h2>
+      </div>
+
+      {paginatedActivities.length > 0 ? (
+        <>
+          <ul className="space-y-3">
+            {paginatedActivities.map((activity) => {
+              const link = getActivityLink(activity);
+              const isClickable = link !== "#";
+
+              return (
+                <li
+                  key={activity._id || activity.id}
+                  onClick={() =>
+                    isClickable && navigate(link)
+                  }
+                  className={`
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-center
+                    justify-between
+                    gap-2
+                    p-2
+                    rounded-xl
+                    border
+                    border-base-200
+                    bg-base-100
+                    transition-all
+                    duration-200
+                    ${
+                      isClickable
+                        ? "cursor-pointer hover:bg-base-200 hover:shadow-sm"
+                        : ""
+                    }
+                  `}
                 >
-                  <div className="flex items-center gap-3">
+                  {/* LEFT */}
+                  <div className="flex items-start gap-2 min-w-0 flex-1">
                     {activity.user && (
-                      <div className="w-9 h-9 rounded-full bg-base-200 border border-base-300 flex items-center justify-center overflow-hidden shrink-0">
+                      <div className="w-7 h-7  rounded-full bg-base-200 border border-base-300 flex items-center justify-center overflow-hidden shrink-0">
                         {activity.user.imageUrl ? (
-                          <img src={activity.user.imageUrl} alt={activity.user.name || "User"} className="w-full h-full object-cover" />
+                          <img
+                            src={activity.user.imageUrl}
+                            alt={
+                              activity.user.name ||
+                              "User"
+                            }
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <span className="text-sm font-medium text-base-content/60">
                             {(activity.user?.name || "?")
-                              .trim()
                               .split(" ")
-                              .map((n: string) => n[0])
-                              .filter(Boolean)
+                              .map(
+                                (n: string) => n[0]
+                              )
                               .slice(0, 2)
                               .join("")
-                              .toUpperCase() || "?"}
+                              .toUpperCase()}
                           </span>
-                        )} 
+                        )}
                       </div>
                     )}
-                    <div className="flex flex-col">
-                  <span className="text-base-content font-medium">
-                    {activity.action || "Activity"}
-                    {activity.count > 1 && <span className="text-primary ml-1 text-xs">({activity.count})</span>}
-                  </span>
-                      <span className="text-base-content/70 text-xs">{activity.message || activity.title}</span>
+
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-base-content font-medium text-sm  truncate">
+                        {activity.action || "Activity"}
+
+                        {activity.count > 1 && (
+                          <span className="text-primary ml-1 text-xs">
+                            ({activity.count})
+                          </span>
+                        )}
+                      </span>
+
+                      <span
+                        className="
+                          text-base-content/70
+                          text-xs
+                          break-words
+                          line-clamp-2
+                        "
+                      >
+                        {activity.message ||
+                          activity.title}
+                      </span>
                     </div>
                   </div>
-                  <span className="text-base-content/50 text-xs whitespace-nowrap shrink-0 mt-1 sm:mt-0">
-                    {activity.time || (activity.createdAt ? timeAgo(activity.createdAt) : "")}
+
+                  {/* RIGHT */}
+                  <span
+                    className="
+                      text-xs
+                      text-base-content/60
+                      self-start
+                      sm:self-auto
+                      whitespace-nowrap
+                      shrink-0
+                    "
+                  >
+                    {activity.time ||
+                      (activity.createdAt
+                        ? timeAgo(
+                            activity.createdAt
+                          )
+                        : "")}
                   </span>
                 </li>
-              )})}
-            </ul>
+              );
+            })}
+          </ul>
 
-            <div className="mt-6">
-              <Pagination
-                currentPage={activityPage}
-                totalPages={totalActivityPages}
-                onPageChange={setActivityPage}
-              />
-            </div>
+          <div className="mt-6 overflow-x-auto">
+            <Pagination
+              currentPage={activityPage}
+              totalPages={totalActivityPages}
+              onPageChange={setActivityPage}
+            />
           </div>
-        ) : (
-          <EmptyState
-            title="No activity yet"
-            description="Recent attendance, tasks, and project updates will appear here."
-          />
-        )}
-      </div> */}
-
-
-      <div className="bg-primary/10 rounded-2xl shadow-sm border border-base-300 p-6">
-  <ul className="space-y-3">
-    {paginatedActivities.map((activity) => {
-      const link = getActivityLink(activity);
-      const isClickable = link !== "#";
-
-      return (
-        <li
-          key={activity._id || activity.id}
-          onClick={() => isClickable && navigate(link)}
-          className={`flex justify-between items-start sm:items-center text-sm 
-          p-3 rounded-xl border border-base-200 bg-base-100
-          transition-all duration-200
-          ${isClickable ? "cursor-pointer hover:bg-base-200 hover:shadow-sm" : ""}
-          `}
-        >
-          {/* LEFT */}
-          <div className="flex items-center gap-3">
-            {activity.user && (
-              <div className="w-9 h-9 rounded-full bg-base-200 border border-base-300 flex items-center justify-center overflow-hidden shrink-0">
-                {activity.user.imageUrl ? (
-                  <img
-                    src={activity.user.imageUrl}
-                    alt={activity.user.name || "User"}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span className="text-sm font-medium text-base-content/60">
-                    {(activity.user?.name || "?")
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .slice(0, 2)
-                      .join("")
-                      .toUpperCase()}
-                  </span>
-                )}
-              </div>
-            )}
-
-            <div className="flex flex-col">
-              <span className="text-base-content font-medium">
-                {activity.action || "Activity"}
-                {activity.count > 1 && (
-                  <span className="text-primary ml-1 text-xs">
-                    ({activity.count})
-                  </span>
-                )}
-              </span>
-
-              <span className="text-base-content text-xs">
-                {activity.message || activity.title}
-              </span>
-            </div>
-          </div>
-
-          {/* RIGHT */}
-          <span className="text-base-content text-xs whitespace-nowrap shrink-0 mt-1 sm:mt-0">
-            {activity.time ||
-              (activity.createdAt ? timeAgo(activity.createdAt) : "")}
-          </span>
-        </li>
-      );
-    })}
-  </ul>
-
-  <div className="mt-6">
-    <Pagination
-      currentPage={activityPage}
-      totalPages={totalActivityPages}
-      onPageChange={setActivityPage}
-    />
-  </div>
-</div>
-
+        </>
+      ) : (
+        <EmptyState
+          title="No activity yet"
+          description="Recent attendance, tasks, and project updates will appear here."
+        />
+      )}
     </div>
-  );
+  </div>
+);
 }

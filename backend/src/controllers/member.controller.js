@@ -31,87 +31,165 @@ try {
 // ------------------------------------------------
 
 exports.createEmployee = async (req, res) => {
-
   try {
     logger.info(" employee request received", req.body);
 
     const {
       // Personal
-      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
+      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress, imageUrl,
       // Emergency
       emergencyName, emergencyPhone, emergencyRelation,
       // Identity
       aadhaar, pan, passport,
       // Employment
-      role, designation, department, joiningDate, previousCompany,
+      role, designation, department, customDepartment, joiningDate, previousCompany,
+      customDesignation,
       // Financial
       bankName, accountNumber, ifscCode
     } = req.body;
 
-    
+    if (!name || !name.trim() || !email || !email.trim() || !password) {
+      return res.status(400).json({
+        message: "Name, email, and password are required"
+      });
+    }
 
     const organization = req.organization._id;
+    const normalizedEmail = email.trim().toLowerCase();
 
     logger.info("Create employee request", { 
-      email,
+      email: normalizedEmail,
       organization
     });
 
     const existing = await User.findOne({
-      email,
+      email: normalizedEmail,
       organization
     });
 
     if (existing) {
-
-      logger.warn("Employee already exists", { email });
-
+      logger.warn("Employee already exists", { email: normalizedEmail });
       return res.status(400).json({
-        message: "Employee already exists"
+        message: "Employee with this email already exists"
       });
-
     }
 
-    const user = await User.create({
-      // Personal
-      name, email, password, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
-      // Emergency
-      emergencyName, emergencyPhone, emergencyRelation,
-      // Identity
-      aadhaar, pan, passport,
-      // Employment
-      role: role || "member",
-      designation, department, joiningDate, previousCompany,
-      // Financial
-      bankName, accountNumber, ifscCode,
-      // Organization
+    const departmentCodes = {
+      sales: "SAL",
+      marketing: "MKT",
+      "customer-support": "CSR",
+      it: "IT",
+      "human-resource and administration": "HR",
+      "human-resource": "HR",
+      hr: "HR",
+      engineering: "ENG",
+      finance: "FIN",
+      operations: "OPS",
+    };
+
+    const cleanDept = department?.trim() || "";
+    const cleanCustomDept = customDepartment?.trim() || "";
+
+    let deptCode = "EMP";
+    if (cleanDept.toLowerCase() === "other" && cleanCustomDept) {
+      deptCode = cleanCustomDept.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase() || "OTH";
+    } else if (cleanDept && departmentCodes[cleanDept.toLowerCase()]) {
+      deptCode = departmentCodes[cleanDept.toLowerCase()];
+    } else if (cleanDept) {
+      deptCode = cleanDept.replace(/[^a-zA-Z]/g, "").slice(0, 3).toUpperCase() || "EMP";
+    }
+
+    const count = await User.countDocuments({ organization });
+    let employeeId;
+    let suffix = count + 1;
+    do {
+      employeeId = `${deptCode}-${String(suffix).padStart(3, "0")}`;
+      const exists = await User.findOne({ organization, employeeId });
+      if (!exists) break;
+      suffix++;
+    } while (true);
+
+    // Sanitize optional fields to avoid empty string cast errors & unique constraint collisions
+    const cleanAadhaar = aadhaar && String(aadhaar).trim() ? String(aadhaar).trim() : undefined;
+    const cleanPan = pan && String(pan).trim() ? String(pan).trim().toUpperCase() : undefined;
+    const cleanPassport = passport && String(passport).trim() ? String(passport).trim() : undefined;
+    const cleanDob = dateOfBirth && String(dateOfBirth).trim() ? new Date(dateOfBirth) : undefined;
+    const cleanJoiningDate = joiningDate && String(joiningDate).trim() ? new Date(joiningDate) : undefined;
+    const cleanGender = gender && String(gender).trim() ? String(gender).trim() : undefined;
+
+    // Normalize role
+    let userRole = (role || "employee").toLowerCase();
+    if (userRole === "member") {
+      userRole = "employee";
+    }
+
+    const userPayload = {
+      name: name.trim(),
+      email: normalizedEmail,
+      password,
+      phone: phone && String(phone).trim() ? String(phone).trim() : undefined,
+      gender: cleanGender,
+      dateOfBirth: cleanDob,
+      currentAddress: currentAddress && String(currentAddress).trim() ? String(currentAddress).trim() : undefined,
+      permanentAddress: permanentAddress && String(permanentAddress).trim() ? String(permanentAddress).trim() : undefined,
+      imageUrl: imageUrl && String(imageUrl).trim() ? String(imageUrl).trim() : undefined,
+      emergencyName: emergencyName && String(emergencyName).trim() ? String(emergencyName).trim() : undefined,
+      emergencyPhone: emergencyPhone && String(emergencyPhone).trim() ? String(emergencyPhone).trim() : undefined,
+      emergencyRelation: emergencyRelation && String(emergencyRelation).trim() ? String(emergencyRelation).trim() : undefined,
+      role: userRole,
+      employeeId,
+      designation: designation && String(designation).trim() ? String(designation).trim() : undefined,
+      department: cleanDept,
+      customDepartment: cleanCustomDept,
+      customDesignation: customDesignation && String(customDesignation).trim() ? String(customDesignation).trim() : undefined,
+      
+      joiningDate: cleanJoiningDate,
+      previousCompany: previousCompany && String(previousCompany).trim() ? String(previousCompany).trim() : undefined,
+      bankName: bankName && String(bankName).trim() ? String(bankName).trim() : undefined,
+      accountNumber: accountNumber && String(accountNumber).trim() ? String(accountNumber).trim() : undefined,
+      ifscCode: ifscCode && String(ifscCode).trim() ? String(ifscCode).trim().toUpperCase() : undefined,
       organization
-    });
+    };
+
+    if (cleanAadhaar) userPayload.aadhaar = cleanAadhaar;
+    if (cleanPan) userPayload.pan = cleanPan;
+    if (cleanPassport) userPayload.passport = cleanPassport;
+
+    const user = await User.create(userPayload);
 
     logger.info("Employee created", {
       userId: user._id,
-      organization
+      organization,
+      employeeId: user.employeeId
     });
 
     console.log(
-      chalk.green(`✔ Employee created → ${user}`)
+      chalk.green(`✔ Employee created → ${user._id}`)
     );
 
-      // 2. Insert the Activity Log here!
-    await Activity.create({
-      organization: organization, 
-      user: req.user.userId || req.user._id,
-      action: "Member Added",
-      message: `Added a new member: ${user.name}`,
-      referenceId: user._id,
-      referenceModel: "User"
-    });
+    // Activity Log
+    try {
+      await Activity.create({
+        organization: organization, 
+        user: req.user?.userId || req.user?._id,
+        action: "Member Added",
+        message: `Added a new member: ${user.name}`,
+        referenceId: user._id,
+        referenceModel: "User"
+      });
+    } catch (actErr) {
+      logger.error("Failed to log activity for employee creation", actErr?.message);
+    }
 
-    // 3. Emit Realtime Notification to Admins/Managers
+    // Socket notification
     try {
       const io = getIO();
-      // Exclude the admin who is performing the action
-      const admins = await User.find({ organization, role: { $in: ['admin', 'owner', 'manager'] }, _id: { $ne: req.user.userId || req.user._id } });
+      const currentActorId = req.user?.userId || req.user?._id;
+      const admins = await User.find({ 
+        organization, 
+        role: { $in: ['admin', 'owner', 'manager'] }, 
+        _id: { $ne: currentActorId } 
+      });
       
       admins.forEach(admin => {
         io.to(admin._id.toString()).emit('new_notification', {
@@ -121,24 +199,37 @@ exports.createEmployee = async (req, res) => {
         });
       });
     } catch (err) {
-      logger.error("Socket emit failed for member creation", err);
+      logger.error("Socket emit failed for member creation", err?.message);
     }
 
     res.status(201).json(user);
 
   } catch (error) {
-
     logger.error("Create employee failed", {
       error: error.message
     });
+    console.error("Create employee error:", error);
+
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0] || "field";
+      return res.status(400).json({
+        message: `An employee with this ${field} already exists.`,
+        error: error.message
+      });
+    }
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({
+        message: error.message,
+        error: error.message
+      });
+    }
 
     res.status(500).json({
-      message: "Server error",
+      message: error.message || "Server error",
       error: error.message
     });
-
   }
-
 };
 
 
@@ -516,6 +607,7 @@ exports.updateEmployee = async (req, res) => {
   try{
     const { userId } = req.params;
     const {
+      customDepartment,customDesignation,
       name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
       emergencyName, emergencyPhone, emergencyRelation,status,
       aadhaar, pan, passport,
@@ -544,6 +636,7 @@ exports.updateEmployee = async (req, res) => {
         organization
       },
       {
+        customDesignation,customDepartment,
         name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
         emergencyName, emergencyPhone, emergencyRelation,status,
         aadhaar, pan, passport,
@@ -609,5 +702,26 @@ exports.getEmployees = async (req, res) => {
   } catch (error) {
     logger.error("Get employees failed", { error: error.message });
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getSalesEmployees = async (req, res) => {
+  try {
+    const organizationId = req.organization._id;
+
+    const salesEmployees = await User.find({
+      organizationId,
+      department: "sales", // 👈 IMPORTANT CHANGE
+    })
+
+    return res.status(200).json({
+      message: "Sales employees fetched successfully",
+      data: salesEmployees,
+    });
+  } catch (error) {
+    console.error("Get Sales Employees Error:", error);
+    return res.status(500).json({
+      message: "Server error while fetching sales employees",
+    });
   }
 };

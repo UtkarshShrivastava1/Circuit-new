@@ -23,11 +23,34 @@ import { getLeavePolicy } from "@/services/leavePolicyService";
 import { toast } from "react-toastify";
 // import { getOrganizationSlug } from "@/utils/auth";
 // import { getUser } from "@/utils/getUser";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { socket } from "@/socket";
 import Pagination from "@/components/ui/Pagination"
 import Swal from "sweetalert2";
 
+
+const normalizeAttachments = (raw: any): string[] => {
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => (typeof item === "string" ? item : item?.url || item?.secure_url || item?.fileUrl || ""))
+      .filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === "string" ? item : item?.url || item?.secure_url || item?.fileUrl || ""))
+          .filter(Boolean);
+      }
+      return [raw];
+    } catch {
+      return [raw];
+    }
+  }
+  return [];
+};
 
 export default function EmployeeLeaveDashboard() {
   const { auth } = useAuth();
@@ -80,9 +103,9 @@ export default function EmployeeLeaveDashboard() {
         // }
 
         if (response.status === 304) return; // keep old data
-        console.log(response.data)
+        // console.log(response.data)
         
-        const fetchedLeaves: LeaveRequest[] = response.data.leaves.map((leave: any) => ({
+        const fetchedLeaves: LeaveRequest[] = (response.data.leaves || []).map((leave: any) => ({
           id: leave._id,
           employee: leave.name || user.name || "Employee",
           type: leave.leaveType,
@@ -90,6 +113,7 @@ export default function EmployeeLeaveDashboard() {
           toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
           reason: leave.reason,
           status: leave.status,
+          attachments: normalizeAttachments(leave.attachments || leave.attachment),
         }));
 
         
@@ -107,7 +131,7 @@ export default function EmployeeLeaveDashboard() {
 
     fetchData();
   }, [refreshTrigger, auth.slug, user]);
-
+ console.log("leave requests:", requests);
   // Real-time socket listener to refresh dashboard
   useEffect(() => {
     if (auth?.user) {
@@ -138,10 +162,26 @@ export default function EmployeeLeaveDashboard() {
 
      
 
-      const payload = { ...leave, name: auth.user?.name };
+     const formData = new FormData();
 
-      // 2. Call the backend API via leaveService
-      const response = await applyLeave(auth.slug, payload);
+formData.append("name", auth.user?.name || "");
+formData.append("type", leave.type);
+formData.append("fromDate", leave.fromDate);
+formData.append("toDate", leave.toDate);
+formData.append("reason", leave.reason);
+formData.append("session", leave.session);
+formData.append("emergency", String(leave.emergency));
+
+leave.attachments.forEach((file: File) => {
+  formData.append("attachments", file);
+});
+console.log("Selected attachments:", leave.attachments);
+
+for (const [key, value] of formData.entries()) {
+  console.log("FORM DATA:", key, value);
+}
+
+const response = await applyLeave(auth.slug, formData);
       const savedLeave = response.data.leave;
 
       // 3. Update local state with the new response from DB
@@ -153,6 +193,7 @@ export default function EmployeeLeaveDashboard() {
         toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : leave.toDate,
         reason: savedLeave.reason,
         status: savedLeave.status,
+        attachments: normalizeAttachments(savedLeave.attachments || savedLeave.attachment),
       };
 
       setRequests((prev) => [newLeave, ...prev]);
@@ -217,14 +258,30 @@ if (!confirmDelete.isConfirmed) return;
 
   const handleUpdateLeave = async (updatedLeave: any) => {
     try {
-     
-        if (!auth.slug) {
-          toast.error("User data not found. Please log in again.");
-          return;
-        }
+      if (!auth.slug) {
+        toast.error("User data not found. Please log in again.");
+        return;
+      }
 
-      
-      const response = await updateLeave(auth.slug, updatedLeave.id, updatedLeave);
+      const formData = new FormData();
+      formData.append("type", updatedLeave.type);
+      formData.append("fromDate", updatedLeave.fromDate);
+      formData.append("toDate", updatedLeave.toDate || "");
+      formData.append("reason", updatedLeave.reason || "");
+
+      const existingUrls: string[] = [];
+      (updatedLeave.attachments || []).forEach((att: any) => {
+        if (att instanceof File) {
+          formData.append("attachments", att);
+        } else if (typeof att === "string") {
+          existingUrls.push(att);
+        } else if (att?.url || att?.secure_url) {
+          existingUrls.push(att.url || att.secure_url);
+        }
+      });
+      formData.append("existingAttachments", JSON.stringify(existingUrls));
+
+      const response = await updateLeave(auth.slug, updatedLeave.id, formData);
       const savedLeave = response.data.leave;
       
       setRequests((prev) =>
@@ -235,6 +292,7 @@ if (!confirmDelete.isConfirmed) return;
             fromDate: savedLeave.startDate ? savedLeave.startDate.split("T")[0] : updatedLeave.fromDate,
             toDate: savedLeave.endDate ? savedLeave.endDate.split("T")[0] : updatedLeave.toDate,
             reason: savedLeave.reason,
+            attachments: normalizeAttachments(savedLeave.attachments || updatedLeave.attachments),
           } : r
         )
       );
@@ -272,13 +330,13 @@ if (!confirmDelete.isConfirmed) return;
    
 
 <div className="hidden md:flex mb-5 mt-2">
-  <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1 flex-wrap">
+  <div className="tab tab-sm bg-base-200 p-1 rounded-lg inline-flex gap-1 flex-wrap">
 
     {/* OVERVIEW */}
     <button
       onClick={() => setActive("overview")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "overview"
@@ -287,7 +345,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdDashboard size={16} />
+      <MdDashboard size={15} />
       Overview
     </button>
 
@@ -295,7 +353,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("my-leaves")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "my-leaves"
@@ -304,7 +362,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={15} />
       My Leaves
     </button>
 
@@ -312,7 +370,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("balance")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px]  font-medium
         transition-all duration-200
         ${
           active === "balance"
@@ -321,7 +379,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdAccountBalanceWallet size={16} />
+      <MdAccountBalanceWallet size={15} />
       Leave Balance
     </button>
 
@@ -329,7 +387,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("calendar")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "calendar"
@@ -338,7 +396,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdCalendarMonth size={16} />
+      <MdCalendarMonth size={15} />
       Leave Calendar
     </button>
 
@@ -346,7 +404,7 @@ if (!confirmDelete.isConfirmed) return;
     <button
       onClick={() => setActive("policy")}
       className={`
-        flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium
+        flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium
         transition-all duration-200
         ${
           active === "policy"
@@ -355,7 +413,7 @@ if (!confirmDelete.isConfirmed) return;
         }
       `}
     >
-      <MdMenuBook size={16} />
+      <MdMenuBook size={15} />
       Leave Policy
     </button>
 

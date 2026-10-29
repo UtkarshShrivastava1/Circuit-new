@@ -1,6 +1,6 @@
 import { connect, socket } from "@/ws";
 import { useEffect, useState , useRef } from "react";
-import { useAuth } from "@/auth/AuthContext"; // Import useAuth
+import { useAuth } from "@/auth/useAuth"; // Import useAuth
 import API from "@/api/axios";
 
 interface Message {
@@ -131,7 +131,7 @@ export default function ProjectChat({ projectId, currentUser }: Props) {
       });
 
     } catch (err) {
-      console.log("Message saved locally only",err);
+      console.error("Message saved locally only",err);
     } finally {
       setLoading(false);
     }

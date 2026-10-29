@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from "react";
-import StatCard from "@/components/ui/StatCard";
+import { StatsGrid } from "@/components/common";
 import LeaveRequestTable from "@/components/Leave/LeaveRequestTable";
 // import LeaveFilters from "@/components/Leave/LeaveFilters";
 import {
@@ -24,11 +24,32 @@ import AddHolidayDrawer from "./AddHolidayDrawer";
 import LeavePolicy from "./LeavePolicy";
 import MobileLeaveTabs from "./MobileLeaveTabs";
 // import { getOrganizationSlug } from "@/utils/auth";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { data } from "react-router-dom";
 import LeaveDrawer from "./LeaveDrawer";
 
-
+const normalizeAttachments = (raw: any): string[] => {
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => (typeof item === "string" ? item : item?.url || item?.secure_url || item?.fileUrl || ""))
+      .filter(Boolean);
+  }
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((item) => (typeof item === "string" ? item : item?.url || item?.secure_url || item?.fileUrl || ""))
+          .filter(Boolean);
+      }
+      return [raw];
+    } catch {
+      return [raw];
+    }
+  }
+  return [];
+};
 
 export default function AdminLeaveDashboard() {
   const {auth } = useAuth();
@@ -61,7 +82,7 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
 
          
           
-          const fetchedLeaves: LeaveRequest[] = leavesRes.data.leaves.map((leave: any) => ({
+          const fetchedLeaves: LeaveRequest[] = (leavesRes.data.leaves || []).map((leave: any) => ({
             id: leave._id,
             employee: leave.name || leave.user?.name || "Employee",
             type: leave.leaveType,
@@ -69,6 +90,7 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
             toDate: leave.endDate ? leave.endDate.split("T")[0] : "",
             reason: leave.reason,
             status: leave.status,
+            attachments: normalizeAttachments(leave.attachments || leave.attachment),
           }));
           
           setRequests(fetchedLeaves);
@@ -90,7 +112,7 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
          toast.error("User data not found. Please log in again.");
          return;
        }
-       console.log("id",id)
+      //  console.log("id",id)
 
       await updateLeaveStatus(slug, id, { status });
       
@@ -191,75 +213,98 @@ const [selectedLeave, setSelectedLeave] = useState<LeaveRequest | null>(null);
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0">
+    <div className="space-y-4 pb-20 md:pb-0">
       {/* STATS */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard title="Total Requests" value={total} icon={<MdBeachAccess />} />
-        <StatCard title="Pending" value={pending} variant="warning" icon={<MdPendingActions />} />
-        <StatCard title="Approved" value={approved} variant="success" icon={<MdCheckCircle />} />
-        <StatCard title="Rejected" value={rejected} variant="error" icon={<MdCancel />} />
-      </section>
+      <StatsGrid
+        columns={{ default: 2, sm: 2, md: 4 }}
+        stats={[
+          {
+            label: "Total Requests",
+            value: total,
+            icon: <MdBeachAccess size={18} />,
+            color: "text-base-content",
+          },
+          {
+            label: "Pending",
+            value: pending,
+            icon: <MdPendingActions size={18} />,
+            color: "text-warning",
+          },
+          {
+            label: "Approved",
+            value: approved,
+            icon: <MdCheckCircle size={18} />,
+            color: "text-success",
+          },
+          {
+            label: "Rejected",
+            value: rejected,
+            icon: <MdCancel size={18} />,
+            color: "text-error",
+          },
+        ]}
+      />
 
       {/* FILTERS */}
       {/* <LeaveFilters /> */}
 
       {/* TABS */}
-      <div className="hidden md:block mb-5 mt-4">
+      <div className="hidden md:block mb-4 mt-3">
   <div className="bg-base-200 p-1 rounded-lg inline-flex gap-1">
 
     {/* REQUESTS */}
     <button
       onClick={() => setActiveTab("requests")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "requests"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={14} />
       Leave Requests
     </button>
 
     {/* HISTORY */}
     <button
       onClick={() => setActiveTab("history")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px]  font-medium transition-all duration-200
         ${
           activeTab === "history"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdAssignment size={16} />
+      <MdAssignment size={14} />
       Leave History
     </button>
 
     {/* CALENDAR */}
     <button
       onClick={() => setActiveTab("calendar")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "calendar"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdCalendarMonth size={16} />
+      <MdCalendarMonth size={14} />
       Calendar
     </button>
 
     {/* POLICY */}
     <button
       onClick={() => setActiveTab("policy")}
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200
+      className={`flex items-center gap-1 px-2 py-1 rounded-md text-[13px] font-medium transition-all duration-200
         ${
           activeTab === "policy"
             ? "bg-primary text-primary-content shadow-sm"
             : "text-base-content/60 hover:bg-base-100"
         }`}
     >
-      <MdMenuBook size={16} />
+      <MdMenuBook size={14} />
       Policy Configuration
     </button>
 

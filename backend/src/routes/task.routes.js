@@ -44,10 +44,17 @@ router.patch(
   taskController.updateTaskStatus,
 );
 router.patch(
+  "/:slug/updateTaskStatus/:taskId",
+  auth,
+  tenant,
+  taskController.updateTaskStatus,
+);
+router.patch(
   "/:slug/updateSubtaskStatus/:projectId/:taskId/:subtaskId",
   auth,
   tenant,
   taskController.updateSubtaskStatus,
 );
+
 
 module.exports = router;

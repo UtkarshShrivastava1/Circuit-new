@@ -1,9 +1,9 @@
 const Activity = require("../models/Activity");
-const { cloudinary } = require("../config/cloudinary");
-const streamifier = require("streamifier");
+const { uploadOnCloudinary, uploadBufferToCloudinary, cloudinary } = require("../config/cloudinary");
 const WorkUpdateModel = require("../models/WorkUpdate.model");
 const ProjectModel = require("../models/Project.model");
-
+const logger = require("../common/libs/logger");
+const streamifier = require("streamifier");
 // Add Work Update
 
 const addWorkUpdate = async (req, res) => {
@@ -14,11 +14,13 @@ const addWorkUpdate = async (req, res) => {
     const { projectId } = req.params;
 
     const { description, status } = req.body;
+    logger.info(`Adding work update for project ${projectId} by user ${userId} in org ${orgId}`);
+    logger.debug(`Request body: ${JSON.stringify(req.body)}`);
 
     // Project validation
     const project = await ProjectModel.findOne({
       _id: projectId,
-      organization: orgId,
+      orgId: orgId,
     });
 
     if (!project) {
@@ -27,26 +29,29 @@ const addWorkUpdate = async (req, res) => {
         message: "Project not found in this organization",
       });
     }
+let files = [];
 
+if (Array.isArray(req.files)) {
+  files = req.files;
+} else if (req.files && typeof req.files === "object") {
+  files = Object.values(req.files).flat();
+}
     // Upload attachments to Cloudinary
-    const files = req.files || [];
     const uploadedAttachments = [];
 
     for (const file of files) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "work-updates" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
-
-        streamifier.createReadStream(file.buffer).pipe(stream);
+      const result = await uploadBufferToCloudinary(file.buffer, {
+        folder: "work-updates",
+        resource_type: "auto",
       });
 
-      uploadedAttachments.push(result.secure_url);
+      if (result?.secure_url) {
+        uploadedAttachments.push(result.secure_url);
+      }
     }
+
+    const validStatuses = ["updated", "notUpdated", "pending", "in-progress", "completed"];
+    const normalizedStatus = validStatuses.includes(status) ? status : "updated";
 
     // Create work update
     const workUpdate = new WorkUpdateModel({
@@ -54,7 +59,7 @@ const addWorkUpdate = async (req, res) => {
       projectId,
       description,
       attachments: uploadedAttachments,
-      status: status || "updated",
+      status: normalizedStatus,
       createdBy: userId,
     });
 
@@ -62,16 +67,16 @@ const addWorkUpdate = async (req, res) => {
 
     const populatedWorkUpdate = await WorkUpdateModel.findById(workUpdate._id)
       .populate("createdBy", "name email role")
-      .populate("projectId", "name");
+      .populate("projectId", "projectName");
 
     // Activity log
     await Activity.create({
       organization: orgId,
       user: userId,
       action: "Work Update Added",
-      message: `Added a work update in project '${project.name}'`,
+      message: `Added a work update in project '${project.projectName}'`,
       referenceId: workUpdate._id,
-      referenceModel: "WorkUpdateModel",
+      referenceModel: "WorkUpdate",
     });
 
     // Socket notification
@@ -79,7 +84,7 @@ const addWorkUpdate = async (req, res) => {
     if (io) {
       io.emit("new_notification", {
         action: "Work Update Added",
-        message: `New work update added in project '${project.name}'`,
+        message: `New work update added in project '${project.projectName}'`,
       });
     }
 
@@ -191,23 +196,23 @@ const editWorkUpdate = async (req, res) => {
     }
 
     //  Upload new attachments
-    const files = req.files || [];
+    let files = [];
+    if (Array.isArray(req.files)) {
+      files = req.files;
+    } else if (req.files && typeof req.files === "object") {
+      files = Object.values(req.files).flat();
+    }
     const uploadedAttachments = [];
 
     for (const file of files) {
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "work-updates" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          },
-        );
-
-        streamifier.createReadStream(file.buffer).pipe(stream);
+      const result = await uploadBufferToCloudinary(file.buffer, {
+        folder: "work-updates",
+        resource_type: "auto",
       });
 
-      uploadedAttachments.push(result.secure_url);
+      if (result?.secure_url) {
+        uploadedAttachments.push(result.secure_url);
+      }
     }
 
     // Update fields

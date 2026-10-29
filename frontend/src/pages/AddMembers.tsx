@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash, FaUser, FaShieldAlt, FaBriefcase, FaUniversity, FaUserFriends } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { createMember } from "../services/memberService";
-// import { getOrganizationSlug } from "@/utils/auth";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import { useAuth } from "@/auth/AuthContext";
+import { uploadImage } from "@/services/uploadService";
+import { PageHeader } from "@/components/common";
+import { useAuth } from "@/auth/useAuth";
 type UserRole = "member" | "manager" | "admin";
 type Errors = {
+  customDepartment?: string | undefined;
+  customDesignation?: string;
   name?: string;
   email?: string;
   password?: string;
@@ -30,24 +33,46 @@ const inputBase =
 
 const labelBase = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
+// const Field = ({
+//   label, error, children,
+// }: { label: string; error?: string; children: React.ReactNode }) => (
+//   <div>
+//     <label className={labelBase}>{label}</label>
+//     {children}
+//     {error && <p className="text-red-500 text-xs mt-1.5">{error}</p>}
+//   </div>
+// );
+
+
+
 const Field = ({
-  label, error, children,
-}: { label: string; error?: string; children: React.ReactNode }) => (
+  label,
+  error,
+  children,
+}: {
+  label: React.ReactNode;
+  error?: string;
+  children: React.ReactNode;
+}) => (
   <div>
-    <label className={labelBase}>{label}</label>
+    <div className={labelBase}>{label}</div>
     {children}
-    {error && <p className="text-red-500 text-xs mt-1.5">{error}</p>}
+    {error && (
+      <p className="text-red-500 text-xs mt-1.5">{error}</p>
+    )}
   </div>
 );
-
 const AddMember = () => {
   const {auth} = useAuth();
   const slug = auth.slug;
+  const navigate = useNavigate();
+  const [sameAsCurrent, setSameAsCurrent] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [adding, setAdding] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [preview, setPreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -66,7 +91,9 @@ const AddMember = () => {
     passport: "",
     role: "member" as UserRole,
     designation: "",
+    customDesignation: "",
     department: "",
+    customDepartment: "",
     joiningDate: "",
     previousCompany: "",
     bankName: "",
@@ -74,67 +101,173 @@ const AddMember = () => {
     ifscCode: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // const handleChange = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  // ) => {
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  // };
+ 
+
+const handleChange = (
+  e: React.ChangeEvent<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >
+) => {
+  const { name, value } = e.target;
+
+  setFormData((prev) => ({
+    ...prev,
+    [name]: value,
+    ...(name === "currentAddress" && sameAsCurrent
+      ? { permanentAddress: value }
+      : {}),
+  }));
+};
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setPreview(URL.createObjectURL(file));
+    if (file) {
+      setSelectedFile(file);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
-  const validate = (): boolean => {
-    const newErrors: Errors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
-    if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
-    if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter valid 10-digit number";
-    if (formData.emergencyPhone && !/^[6-9]\d{9}$/.test(formData.emergencyPhone))
-      newErrors.emergencyPhone = "Enter valid 10-digit number";
-    if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar))
-      newErrors.aadhaar = "Must be exactly 12 digits";
-    if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase()))
-      newErrors.pan = "Format: ABCDE1234F";
-    if (!formData.designation) newErrors.designation = "Designation is required";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  // const validate = (): boolean => {
+  //   const newErrors: Errors = {};
+  //   if (!formData.name.trim()) newErrors.name = "Name is required";
+  //   if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = "Enter a valid email";
+  //   if (formData.password.length < 6) newErrors.password = "Minimum 6 characters";
+  //   if (!/^[6-9]\d{9}$/.test(formData.phone)) newErrors.phone = "Enter valid 10-digit number";
+  //   if (formData.emergencyPhone && !/^[6-9]\d{9}$/.test(formData.emergencyPhone))
+  //     newErrors.emergencyPhone = "Enter valid 10-digit number";
+  //   if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar))
+  //     newErrors.aadhaar = "Must be exactly 12 digits";
+  //   if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan.toUpperCase()))
+  //     newErrors.pan = "Format: ABCDE1234F";
+  //   if (!formData.designation) newErrors.designation = "Designation is required";
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
+
+
+const validate = (): boolean => {
+  const newErrors: Errors = {};
+
+  if (!formData.name.trim()) {
+    newErrors.name = "Name is required";
+  }
+
+  if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+    newErrors.email = "Enter a valid email";
+  }
+
+  if (formData.password.length < 6) {
+    newErrors.password = "Minimum 6 characters";
+  }
+
+  if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+    newErrors.phone = "Enter valid 10-digit number";
+  }
+
+  if (
+    formData.emergencyPhone &&
+    !/^[6-9]\d{9}$/.test(formData.emergencyPhone)
+  ) {
+    newErrors.emergencyPhone = "Enter valid 10-digit number";
+  }
+
+  if (formData.aadhaar && !/^\d{12}$/.test(formData.aadhaar)) {
+    newErrors.aadhaar = "Must be exactly 12 digits";
+  }
+
+  if (
+    formData.pan &&
+    !/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(formData.pan.toUpperCase())
+  ) {
+    newErrors.pan = "Format: ABCDE1234F";
+  }
+
+  if (!formData.designation) {
+    newErrors.designation = "Designation is required";
+  }
+if (
+  formData.designation === "other" &&
+  !formData.customDesignation.trim()
+) {
+  newErrors.customDesignation = "Custom designation is required";
+}
+  setErrors(newErrors);
+
+  // Find the earliest step containing a validation error
+  const stepErrors = [
+    ["name", "email", "password", "phone"],
+    ["emergencyPhone"],
+    ["aadhaar", "pan"],
+    ["designation", "customDesignation", "customDepartment"],
+    [],
+  ];
+
+  const errorStep = stepErrors.findIndex((fields) =>
+    fields.some((field) => field in newErrors)
+  );
+
+  if (errorStep !== -1) {
+    setCurrentStep(errorStep);
+    toast.error("Please fix the errors in " + steps[errorStep].label);
+    return false;
+  }
+
+  return true;
+};
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting form data:", formData);
     if (!validate()) return;
     setAdding(true);
     try {
-       
-       if (!slug) {
-         toast.error("User data not found. Please log in again.");
-         return;
-       }
+      if (!slug) {
+        toast.error("User data not found. Please log in again.");
+        return;
+      }
 
-            await createMember(slug, formData);
-      
-            toast.success("Employee Registered Successfully");
-            
+      let imgUrl = "";
+      if (selectedFile) {
+        try {
+          imgUrl = await uploadImage(selectedFile);
+        } catch (uploadErr) {
+          console.warn("Image upload failed, proceeding without image", uploadErr);
+        }
+      }
+
+      await createMember(slug, {
+        ...formData,
+        imageUrl: imgUrl || undefined,
+      });
+
+      toast.success("Employee Registered Successfully");
+
       setFormData({
         name: "", email: "", password: "", phone: "", gender: "", dateOfBirth: "",
         currentAddress: "", permanentAddress: "", emergencyName: "", emergencyPhone: "",
         emergencyRelation: "", aadhaar: "", pan: "", passport: "", role: "member",
-        designation: "", department: "", joiningDate: "", previousCompany: "",
-        bankName: "", accountNumber: "", ifscCode: "",
+        designation: "", department: "", customDepartment: "", joiningDate: "", previousCompany: "",
+        bankName: "", accountNumber: "", ifscCode: "", customDesignation: "",
       });
       setPreview(null);
+      setSelectedFile(null);
       setErrors({});
       setCurrentStep(0);
-    } catch (error : any) {
-      console.error("error",error);
-       const errorMessage = error.response?.data?.message || "Failed to register employee";
-      toast.error("Failed to register employee",errorMessage);
-      
-      
-
+      navigate("/employees")
+    } catch (error: any) {
+      console.error("Employee registration error:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to register employee";
+      toast.error(errorMessage);
     } finally {
       setAdding(false);
     }
@@ -172,20 +305,15 @@ const AddMember = () => {
       `}</style>
 
       <div className="form-wrap w-full max-w-3xl">
-        <div className="mb-6">
-          <Breadcrumbs />
-        </div>
-
-        {/* Header */}
-        <div className="mb-8 flex items-center gap-5">
-          <div className="w-12 h-12 rounded-2xl btn-primary flex items-center justify-center text-white shadow-lg">
-            <FaUser size={18} />
-          </div>
-          <div>
-            <h1 className="section-tag leading-none">Employee Onboarding</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Register a new team member</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Employee Onboarding"
+          breadcrumbs={[
+            { label: "Dashboard" },
+            { label: "Team Members" },
+            { label: "Add Member", active: true },
+          ]}
+          cancel
+        />
 
         {/* Stepper */}
         <div className="bg-white rounded-2xl p-4 mb-6 card-shadow">
@@ -291,14 +419,102 @@ const AddMember = () => {
                       <option value="other">Other</option>
                     </select>
                   </Field>
-                  <Field label="Current Address">
-                    <textarea name="currentAddress" value={formData.currentAddress} onChange={handleChange}
-                      rows={2} placeholder="Current address" className={`${inputBase} resize-none`} />
-                  </Field>
-                  <Field label="Permanent Address">
-                    <textarea name="permanentAddress" value={formData.permanentAddress} onChange={handleChange}
-                      rows={2} placeholder="Permanent address" className={`${inputBase} resize-none`} />
-                  </Field>
+                  
+<Field label="Current Address">
+  <textarea
+    name="currentAddress"
+    value={formData.currentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Current address"
+    className={`${inputBase} resize-none`}
+  />
+</Field>
+
+{/* <Field label="Permanent Address">
+  <div className="flex items-center gap-2 mb-2">
+    <input
+      type="checkbox"
+      id="sameAsCurrent"
+      checked={sameAsCurrent}
+      onChange={(e) => {
+        const checked = e.target.checked;
+        setSameAsCurrent(checked);
+
+        if (checked) {
+          setFormData((prev) => ({
+            ...prev,
+            permanentAddress: prev.currentAddress,
+          }));
+        }
+      }}
+      className="h-3 w-3 accent-violet-600 cursor-pointer"
+    />
+
+    <label
+      htmlFor="sameAsCurrent"
+      className="text-xs text-gray-600 cursor-pointer"
+    >
+      Same as Current Address
+    </label>
+  </div>
+
+  <textarea
+    name="permanentAddress"
+    value={formData.permanentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Permanent address"
+    disabled={sameAsCurrent}
+    className={`${inputBase} resize-none ${
+      sameAsCurrent ? "bg-gray-100 cursor-not-allowed" : ""
+    }`}
+  />
+</Field> */}
+<Field
+  label={
+    <div className="flex items-center gap-4">
+      <span>Permanent Address</span>
+
+      <label
+        htmlFor="sameAsCurrent"
+        className="flex items-center gap-1 !text-[10px] cursor-pointer"
+      >
+        <input
+          type="checkbox"
+          id="sameAsCurrent"
+          checked={sameAsCurrent}
+          onChange={(e) => {
+    const checked = e.target.checked;
+    setSameAsCurrent(checked);
+
+    if (checked) {
+      setFormData((prev) => ({
+        ...prev,
+        permanentAddress: prev.currentAddress,
+      }));
+    }
+  }}
+          className="h-3 w-3 accent-violet-600 cursor-pointer"
+        />
+        Same as Current Address
+      </label>
+    </div>
+  }
+>
+  <textarea
+ 
+    name="permanentAddress"
+    value={formData.permanentAddress}
+    onChange={handleChange}
+    rows={2}
+    placeholder="Permanent address"
+    disabled={sameAsCurrent}
+    className={`${inputBase} resize-none ${
+      sameAsCurrent ? "bg-gray-100 cursor-not-allowed" : ""
+    }`}
+  />
+</Field>
                 </div>
               </div>
             )}
@@ -405,18 +621,46 @@ const AddMember = () => {
                       <option value="qa-engineer">QA Engineer</option>
                       <option value="devops-engineer">DevOps Engineer</option>
                       <option value="intern">Intern</option>
+                      <option value="other">Other</option>
                     </select>
+                    {formData.designation === "other" && (
+  <Field label="Custom Designation">
+    <input
+      name="customDesignation"
+      value={formData.customDesignation}
+      onChange={handleChange}
+      placeholder="Enter custom designation"
+      className={inputBase}
+    />
+  </Field>
+)}
                   </Field>
                   <Field label="Department">
                     <select name="department" value={formData.department} onChange={handleChange} className={inputBase}>
                       <option value="">Select department</option>
                       <option value="engineering">Engineering</option>
-                      <option value="hr">Human Resources</option>
-                      <option value="finance">Finance</option>
+                      <option value="sales">Sales</option>
                       <option value="marketing">Marketing</option>
+                      <option value="it">IT</option>
+                      <option value="customer-support">Customer Support</option>
+                      <option value="human-resource">Human Resources & Administration</option>
+                      <option value="finance">Finance</option>
                       <option value="operations">Operations</option>
+                      <option value="other">Other</option>
                     </select>
                   </Field>
+                  {formData.department === "other" && (
+                    <Field label="Custom Department"
+                     error={errors.customDepartment}>
+                      <input
+                        name="customDepartment"
+                        value={formData.customDepartment}
+                        onChange={handleChange}
+                        placeholder="Enter custom department"
+                        className={inputBase}
+                      />
+                    </Field>
+                  )}
                   <Field label="Joining Date">
                     <input type="date" name="joiningDate" value={formData.joiningDate}
                       onChange={handleChange} className={inputBase} />

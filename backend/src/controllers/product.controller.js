@@ -1,0 +1,262 @@
+const Product = require("../models/Product.model");
+const { cloudinary, uploadBufferToCloudinary } = require("../config/cloudinary");
+const streamifier = require("streamifier");
+
+/**
+ * @desc    Create a new product
+ * @route   POST /api/:slug/products
+ */
+exports.createProduct = async (req, res) => {
+  try {
+    const { openingStock, ...productData } = req.body;
+    
+
+// Parse fields sent as JSON strings through FormData
+const jsonArrayFields = [
+  "plans",
+  "features",
+  "platformSupport",
+  "tags",
+  "screenshotUrls",
+];
+
+// for (const field of jsonArrayFields) {
+//   if (typeof productData[field] === "string") {
+//     try {
+//       productData[field] = JSON.parse(productData[field]);
+//     } catch (error) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid ${field} format`,
+//       });
+//     }
+//   }
+// }
+
+
+    // Handle Cloudinary File Uploads
+    
+for (const field of jsonArrayFields) {
+  if (typeof productData[field] === "string") {
+    try {
+      productData[field] = JSON.parse(productData[field]);
+    } catch (error) {
+      console.log("Invalid field:", field);
+      console.log("Received value:", productData[field]);
+      console.log("Value type:", typeof productData[field]);
+
+      return res.status(400).json({
+        success: false,
+        message: `Invalid ${field} format`,
+        receivedValue: productData[field],
+      });
+    }
+  }
+}
+
+    
+    const imageUrls = [];
+    const documentUrls = [];
+    
+    let files = [];
+    if (Array.isArray(req.files)) {
+      files = req.files;
+    } else if (req.files && typeof req.files === 'object') {
+      files = Object.values(req.files).flat();
+    }
+
+    for (const file of files) {
+      const isImage = file.fieldname === 'images' || (file.mimetype && file.mimetype.startsWith('image/'));
+      const folder = isImage ? "products/images" : "products/documents";
+      
+      const result = await uploadBufferToCloudinary(file.buffer, {
+        folder,
+        resource_type: isImage ? "image" : "auto",
+      });
+
+      if (isImage) imageUrls.push(result.secure_url);
+      else documentUrls.push({ name: file.originalname, url: result.secure_url });
+    }
+    console.log(imageUrls);
+
+    let normalizedType = productData.productType || productData.category || "ERP";
+    const validTypes = ["ERP", "CRM", "SaaS", "POS", "HRMS", "Other"];
+    if (!validTypes.includes(normalizedType)) {
+      const lower = normalizedType.toLowerCase();
+      if (lower.includes("software") || lower.includes("saas")) normalizedType = "SaaS";
+      else if (lower.includes("crm")) normalizedType = "CRM";
+      else if (lower.includes("pos")) normalizedType = "POS";
+      else if (lower.includes("hrm")) normalizedType = "HRMS";
+      else if (lower.includes("erp")) normalizedType = "ERP";
+      else normalizedType = "Other";
+    }
+
+    const productPayload = {
+      ...productData,
+      productCode: productData.productCode || productData.sku || `PRD-${Date.now()}`,
+      productType: normalizedType,
+      images: imageUrls,
+      documents: documentUrls,
+      organization: req.organization._id,
+    };
+
+    const newProduct = new Product(productPayload);
+    await newProduct.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully",
+      data: newProduct,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Get all products for the organization
+ * @route   GET /api/:slug/products
+ */
+exports.getAllProducts = async (req, res) => {
+  try {
+    const { status, category, brand, search } = req.query;
+    
+    // Build query based on tenant and optional filters
+    const query = { organization: req.organization._id };
+    if (status) query.status = status; // Keep status filter as is
+    if (category) query.softwareCategory = category; // Changed from 'category' to 'softwareCategory'
+    if (brand) query.brand = brand;
+    
+    if (search) {
+      query.$or = [
+        { productName: { $regex: search, $options: "i" } },
+        { productCode: { $regex: search, $options: "i" } },
+        { sku: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const products = await Product.find(query).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Get single product by ID
+ * @route   GET /api/:slug/products/:id
+ */
+exports.getProductById = async (req, res) => {
+  try {
+    const product = await Product.findOne({
+      _id: req.params.id,
+      organization: req.organization._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+/**
+ * @desc    Update product
+ * @route   PUT /api/:slug/products/:id
+ */
+exports.updateProduct = async (req, res) => {
+  try {
+    const updateFields = { ...req.body };
+    
+    // Remove arrays from $set to avoid MongoDB conflict with $push operations below
+    delete updateFields.images;
+    delete updateFields.documents;
+
+    // Handle Cloudinary File Uploads for Updates
+    const imageUrls = [];
+    const documentUrls = [];
+    
+    let files = [];
+    if (Array.isArray(req.files)) {
+      files = req.files;
+    } else if (req.files && typeof req.files === 'object') {
+      files = Object.values(req.files).flat();
+    }
+
+    if (files.length > 0) {
+      for (const file of files) {
+        const isImage = file.fieldname === 'images' || (file.mimetype && file.mimetype.startsWith('image/'));
+        const folder = isImage ? "products/images" : "products/documents";
+        
+        const result = await uploadBufferToCloudinary(file.buffer, {
+          folder,
+          resource_type: isImage ? "image" : "auto",
+        });
+
+        if (isImage) imageUrls.push(result.secure_url);
+        else documentUrls.push({ name: file.originalname, url: result.secure_url });
+      }
+    }
+
+    const updateQuery = { $set: updateFields };
+    
+    // Append new uploaded files to the existing arrays in the database
+    if (imageUrls.length > 0 || documentUrls.length > 0) {
+      updateQuery.$push = updateQuery.$push || {};
+      if (imageUrls.length > 0) {
+        updateQuery.$push.images = { $each: imageUrls };
+      }
+      if (documentUrls.length > 0) {
+        updateQuery.$push.documents = { $each: documentUrls };
+      }
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { _id: req.params.id, organization: req.organization._id },
+      updateQuery,
+      { new: true, runValidators: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Product updated", data: product });
+  } catch (error) {
+    console.error("Error updating product:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * @desc    Delete a product
+ * @route   DELETE /api/:slug/products/:id
+ */
+exports.deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findOneAndDelete({
+      _id: req.params.id,
+      organization: req.organization._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Product deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting product:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

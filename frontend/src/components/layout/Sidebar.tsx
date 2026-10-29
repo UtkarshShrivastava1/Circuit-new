@@ -1,704 +1,244 @@
-import { useEffect, useState, type JSX } from "react";
+import React, { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import { useAuth } from "@/auth/useAuth";
+import { getDepartmentNavigation, type NavItem, type NavSection } from "@/config/navigation";
+import Logo from "../common/Logo";
+import DepartmentSwitcher from "./DepartmentSwitcher";
 import {
   MdDashboard,
   MdEventAvailable,
   MdWorkspaces,
+  MdAdd,
+  MdAssignment,
   MdPeople,
+  MdPersonAdd,
   MdTask,
-  MdChevronLeft,
-  MdExpandMore,
+  MdFlightTakeoff,
   MdPayments,
+  MdAccountBalanceWallet,
   MdReceiptLong,
   MdHistory,
   MdNotifications,
-  MdClose,
-  MdWallet,
+  MdSettings,
+  MdStorefront,
+  MdShoppingCart,
+  MdHourglassEmpty,
+  MdBusiness,
+  MdContactPage,
+  MdSupportAgent,
+  MdTrendingUp,
+  MdSend,
+  MdExpandMore,
+  MdChevronLeft,
+  MdChevronRight,
 } from "react-icons/md";
-import { FolderKanban, UserPlus } from "lucide-react";
-import { useAuth } from "../../auth/AuthContext";
-import { useActivities } from "@/hooks/useActivities";
+import { LuTarget } from "react-icons/lu";
 
-type MenuItem = {
-  id: string;
-  label: string;
-  path: string;
-  icon: JSX.Element;
-};
-
-interface Props {
-  isOpen: boolean;
-  onClose: () => void;
+interface SidebarProps {
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+  onCloseMobile?: () => void;
 }
 
-const coreMenu: MenuItem[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    path: "/",
-    icon: <MdDashboard size={20} />,
-  },
-  {
-    id: "attendance",
-    label: "Attendance",
-    path: "/attendance",
-    icon: <MdEventAvailable size={20} />,
-  },
-];
+const ICON_MAP: Record<string, React.ReactNode> = {
+  MdDashboard: <MdDashboard size={15} />,
+  MdEventAvailable: <MdEventAvailable size={15} />,
+  MdWorkspaces: <MdWorkspaces size={15} />,
+  MdAdd: <MdAdd size={13} />,
+  MdAssignment: <MdAssignment size={15} />,
+  MdPeople: <MdPeople size={15} />,
+  MdPersonAdd: <MdPersonAdd size={13} />,
+  MdTask: <MdTask size={15} />,
+  MdFlightTakeoff: <MdFlightTakeoff size={15} />,
+  MdPayments: <MdPayments size={15} />,
+  MdWallet: <MdAccountBalanceWallet size={15} />,
+  MdReceiptLong: <MdReceiptLong size={15} />,
+  MdHistory: <MdHistory size={15} />,
+  MdNotifications: <MdNotifications size={15} />,
+  MdSettings: <MdSettings size={15} />,
+  MdStorefront: <MdStorefront size={15} />,
+  MdShoppingCart: <MdShoppingCart size={15} />,
+  MdHourglassEmpty: <MdHourglassEmpty size={15} />,
+  MdBusiness: <MdBusiness size={15} />,
+  MdContactPage: <MdContactPage size={15} />,
+  MdSupportAgent: <MdSupportAgent size={15} />,
+  MdTrendingUp: <MdTrendingUp size={15} />,
+  MdSend: <MdSend size={15} />,
+  Target: <LuTarget size={15} />,
+};
 
-const managementMenu: MenuItem[] = [
-  { id: "tasks", label: "Tasks", path: "/tasks", icon: <MdTask size={20} /> },
-  {
-    id: "leaves",
-    label: "Leaves",
-    path: "/leaves",
-    icon: <MdTask size={20} />,
-  },
-  {
-    id: "notifications",
-    label: "Notifications",
-    path: "/notifications",
-    icon: <MdNotifications size={20} />,
-  },
-];
-
-const teamSubMenu: MenuItem[] = [
-  {
-    id: "members",
-    label: "Members",
-    path: "/members",
-    icon: <MdPeople size={18} />,
-  },
-  {
-    id: "addMember",
-    label: "Add Member",
-    path: "/addMember",
-    icon: <UserPlus size={18} />,
-  },
-];
-
-const projectsSubMenu: MenuItem[] = [
-  {
-    id: "projects",
-    label: "Projects",
-    path: "/projects",
-    icon: <MdWorkspaces size={18} />,
-  },
-  {
-    id: "createProject",
-    label: "Create Project",
-    path: "/createProject",
-    icon: <FolderKanban size={18} />,
-  },
-  {
-    id: "workUpdates",
-    label: "Work Updates",
-    path: "/work-updates",
-    icon: <MdWorkspaces size={20} />,
-  },
-];
-
-const payrollSubMenu: MenuItem[] = [
-  {
-    id: "payroll-dashboard",
-    label: "Payroll Dashboard",
-    path: "/payroll/dashboard",
-    icon: <MdWallet size={18} />,
-  },
-  {
-    id: "salary-structure",
-    label: "Salary Structure",
-    path: "/payroll/salary-structure",
-    icon: <MdPayments size={18} />,
-  },
-  {
-    id: "generate-payslips",
-    label: "Generate Payslips",
-    path: "/payroll/generate",
-    icon: <MdReceiptLong size={18} />,
-  },
-  {
-    id: "payroll-history",
-    label: "Payroll History",
-    path: "/payroll/history",
-    icon: <MdHistory size={18} />,
-  },
-];
-
-export default function ERPSidebar({ isOpen, onClose }: Props) {
-  const { auth } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
-  const [payrollOpen, setPayrollOpen] = useState(false);
-  const [teamOpen, setTeamOpen] = useState(false);
-  const [projectsOpen, setProjectsOpen] = useState(false);
-  const { activities } = useActivities();
-  const lastVisitedProjects = localStorage.getItem("lastVisited_projects");
-  const lastVisitedWorkUpdates = localStorage.getItem(
-    "lastVisited_workUpdates",
-  );
-  const lastVisitedTasks = localStorage.getItem("lastVisited_tasks");
-  const lastVisitedLeaves = localStorage.getItem("lastVisited_leaves");
-  const lastVisitedMembers = localStorage.getItem("lastVisited_members");
-  const projectCreatedDot = (activities || []).some(
-    (a) =>
-      a.referenceModel === "Project" &&
-      a.action === "Project Created" &&
-      (!lastVisitedProjects ||
-        new Date(a.createdAt) > new Date(lastVisitedProjects)),
-  );
-  // console.log("Activities for Projects:", projectCreatedDot);
-  const workUpdateDot = (activities || []).some(
-    (a) =>
-      a.referenceModel === "WorkUpdateModel" &&
-      (!lastVisitedWorkUpdates ||
-        new Date(a.createdAt) > new Date(lastVisitedWorkUpdates)),
-  );
-  const taskDot = (activities || []).some(
-    (a) =>
-      a.referenceModel === "Task" &&
-      (!lastVisitedTasks || new Date(a.createdAt) > new Date(lastVisitedTasks)),
-  );
-
-  const leaveDot = (activities || []).some(
-    (a) =>
-      a.referenceModel === "Leave" &&
-      (!lastVisitedLeaves ||
-        new Date(a.createdAt) > new Date(lastVisitedLeaves)),
-  );
-
-  const memberDot = (activities || []).some(
-    (a) =>
-      a.referenceModel === "User" && // ya "Member" (backend check karna)
-      a.action?.toLowerCase().includes("add") &&
-      (!lastVisitedMembers ||
-        new Date(a.createdAt) > new Date(lastVisitedMembers)),
-  );
-  const projectDot = projectCreatedDot || workUpdateDot;
-  // console.log("Activities for Work Updates:", workUpdateDot);
-  // console.log("Activities:", activities);
-  const user = auth?.user;
-  const isManagement = ["admin", "owner", "manager"].includes(user?.role || "");
+export default function Sidebar({
+  collapsed = false,
+  onToggleCollapse,
+  onCloseMobile,
+}: SidebarProps) {
+  const { auth, activeDepartment } = useAuth();
   const location = useLocation();
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    [
-      "group flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-all",
-      isActive
-        ? "bg-base-300 font-semibold text-base-content"
-        : "text-primary-content hover:bg-base-300 hover:text-base-content",
-    ].join(" ");
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const isPayrollActive = location.pathname.startsWith("/payroll");
-  const isTeamActive =
-    location.pathname.startsWith("/members") ||
-    location.pathname.startsWith("/addMember");
-  const isProjectsActive =
-    location.pathname.startsWith("/projects") ||
-    location.pathname.startsWith("/createProject");
-  
+  const userRole = auth.user?.role;
+  const sections: NavSection[] = getDepartmentNavigation(
+    activeDepartment || "erp",
+    userRole
+  );
 
-  /* ================= FIX 2: RESET WHEN SIDEBAR CLOSES ================= */
-  useEffect(() => {
-    if (!isOpen) {
-      setPayrollOpen(false);
-      setTeamOpen(false);
-      setProjectsOpen(false);
+  const toggleGroup = (id: string) => {
+    setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const isItemActive = (item: NavItem): boolean => {
+    if (location.pathname === item.path) return true;
+    if (item.children) {
+      return item.children.some((child) => location.pathname === child.path);
     }
-  }, [isOpen]);
+    return false;
+  };
+
   return (
-    <>
-      <div
-        onClick={onClose}
-        className={`
-            fixed inset-0 bg-black/40 z-40 lg:hidden
-            transition-opacity duration-300
-            ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}
-          `}
-      />
-      {/* <aside
-        className={`
-    h-screen bg-base-200 border-r border-base-300 flex flex-col
-    transition-all duration-300 ease-in-out
-    ${collapsed ? "w-25" : "w-64"}
-    ${isOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
-        `}
-      > */}
-
-      <aside
-        className={`
-            fixed lg:static
-            top-0 left-0
-            z-50
-            h-screen bg-primary border-r border-base-300 flex flex-col
-            transition-all duration-300 ease-in-out
-            ${collapsed ? "w-20" : "w-64"}
-            ${isOpen ? "translate-x-0" : "-translate-x-full"}
-            lg:translate-x-0
-             overflow-hidden   
-          `}
-      >
-        {/* HEADER */}
-        {/* <div className="flex items-center gap-3 px-4 py-4 border border-base-300 text-base-content border-b-white"> */}
-        <div className="flex items-center w-full px-1.5 py-3 border-b border-base-300">
-          <div className="flex items-center w-full">
-            {/* LEFT */}
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-base-100 text-primary flex items-center justify-center font-bold">
-                C
-              </div>
-
-              {!collapsed && (
-                <div className="text-base-100">
-                  <p className="font-semibold">Circuit</p>
-                  <p className="text-xs">Office ERP</p>
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT */}
-            <div className="ml-auto flex items-center gap-2">
-              {/* CLOSE (mobile) */}
-              <button
-                className="btn btn-ghost btn-xs lg:hidden text-base-100"
-                onClick={onClose}
-              >
-                <MdClose />
-              </button>
-
-              {/* COLLAPSE */}
-              <button
-                className="btn btn-ghost btn-xs border border-primary-content/40 rounded-md p-1 hidden lg:flex text-primary-content hover:bg-primary-content/10"
-                onClick={() => setCollapsed(!collapsed)}
-              >
-                <MdChevronLeft
-                  className={`transition-transform ${
-                    collapsed ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-          {/* <div
-            className={`w-9 p-1 h-9 rounded-lg bg-base-100 text-primary flex items-center justify-center font-bold text-lg transition-all duration-300 ease-in-out ${collapsed ? "w-9" : "w-12"}`}
-          >
-            C
-          </div>
-
-          <div
-            className={`
-            flex-1 overflow-hidden transition-all duration-300 ease-in-out text-base-100
-            ${collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"}
-          `}
-          >
-            <p className="font-semibold text-base-100 whitespace-nowrap">
-              Circuit
-            </p>
-            <p className="text-xs text-base-100 whitespace-nowrap">
-              Office ERP
-            </p>
-          </div>
-
+    <aside
+      className={`h-screen bg-base-100 border-r border-base-300 flex flex-col transition-all duration-300 select-none z-30 ${
+        collapsed ? "w-16" : "w-52"
+      }`}
+    >
+      {/* ── Sidebar Top Header ── */}
+      <div className="h-12 px-3 flex items-center justify-between border-b border-base-200 shrink-0">
+        <Logo collapsed={collapsed} />
+        {onToggleCollapse && (
           <button
-            className="text-lg btn btn-ghost btn-xs border-2  rounded-ee-none flex items-center justify-center lg:hidden  border-base-content"
-            onClick={onClose}
+            type="button"
+            onClick={onToggleCollapse}
+            className="btn btn-ghost btn-xs btn-square text-base-content/50 hover:text-base-content hidden lg:flex"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            <MdClose
-              className={`transition-transform 
-              `}
-            />
+            {collapsed ? <MdChevronRight size={16} /> : <MdChevronLeft size={16} />}
           </button>
+        )}
+      </div>
 
-          <button
-            className="btn btn-ghost btn-xs border-2 rounded-md p-1 hidden lg:flex border-primary-content text-primary-content shrink-0"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            <MdChevronLeft
-              className={`transition-transform ${
-                collapsed ? "rotate-180" : ""
-              }`}
-            />
-          </button> */}
-        </div>
+      {/* ── Department Switcher ── */}
+      <div className="border-b border-base-200 shrink-0">
+        <DepartmentSwitcher collapsed={collapsed} />
+      </div>
 
-        {/* NAV */}
-        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-6 text-base-content">
-          {/* CORE */}
-          <div>
-            {!collapsed && (
-              <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                Core
-              </p>
+      {/* ── Navigation Items List ── */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 space-y-4 scrollbar-thin">
+        {sections.map((section, sIdx) => (
+          <div key={sIdx} className="space-y-0.5">
+            {!collapsed && section.title && (
+              <div className="text-[9px] font-bold text-base-content/40 uppercase tracking-wider px-2 py-0.5">
+                {section.title}
+              </div>
             )}
 
-            <div className="space-y-1 ">
-              {coreMenu.map((item) => (
-                <NavLink key={item.id} to={item.path}   onClick={onClose} className={linkClass}>
-                  {item.icon}
-                  {!collapsed && <span>{item.label}</span>}
-                </NavLink>
-              ))}
+            <div className="space-y-0.5">
+              {section.items.map((item) => {
+                const hasChildren = item.children && item.children.length > 0;
+                const active = isItemActive(item);
+                const isExpanded = openGroups[item.id] ?? active;
 
-              {/* PROJECTS DROPDOWN */}
-              {user?.role === "admin" || user?.role === "owner" ? (
-                <>
-                  <button
-                    onClick={() => {
-                      setProjectsOpen(!projectsOpen);
-                    }}
-                    className={`relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
-                      isProjectsActive
-                        ? "bg-base-300 font-semibold text-base-content"
-                        : "text-primary-content hover:bg-base-300 hover:text-base-content"
-                    }`}
-                  >
-                    <MdWorkspaces size={20} />
-                    {projectDot && !projectsOpen && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full z-50" />
-                    )}
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Projects</span>
-                        <MdExpandMore
-                          className={`transition-transform duration-300 ${
-                            projectsOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      </>
-                    )}
-                  </button>
-<div
-  className={`
-    transition-all duration-300 ease-in-out
-    ${projectsOpen ? "block mt-1" : "hidden"}
-  `}
->
-                    {/* <div className="ml-8 space-y-1 pb-1"> */}
-                    <div
-                      className={`space-y-1 pb-1 ${
-                        collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
-                      }`}
-                    >
-                      {projectsSubMenu.map((item) => (
-                        <NavLink
-                        
-                          key={item.id}
-                          to={item.path}
-                          className={(props) => `${linkClass(props)} relative`}
-                          onClick={() => {
-                            if (item.id === "projects") {
-                              localStorage.setItem(
-                                "lastVisited_projects",
-                                new Date().toISOString(),
-                              );
-                            }
-                            if (item.id === "workUpdates") {
-                              localStorage.setItem(
-                                "lastVisited_workUpdates",
-                                new Date().toISOString(),
-                              );
-                            }
-                              onClose()
-                          }
-                        }
-                        >
-                          {item.icon}
-                          {!collapsed && <span>{item.label}</span>}
-                          {item.id === "projects" && projectCreatedDot && (
-                            <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                          )}
-
-                          {item.id === "workUpdates" && workUpdateDot && (
-                            <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                          )}
-                        </NavLink>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* <NavLink to="/projects"  className={`${linkClass} relative`}>
-                    <MdWorkspaces size={20} />
-                    {!collapsed && <span>Projects</span>}
-                      {projectCreatedDot && <span className="absolute top-1 right-2 h-2 w-2 bg-red-500 rounded-full" />}
-                  </NavLink> */}
-
-                  <NavLink
-                    to="/projects"
-                    onClick={() => {
-                      localStorage.setItem(
-                        "lastVisited_projects",
-                        new Date().toISOString(),
-                      );
-                        onClose()
-                    }
-
-                  }
-                    className={(props) => `${linkClass(props)} relative`}
-                  >
-                    <MdWorkspaces size={20} />
-                    {!collapsed && <span>Projects</span>}
-
-                    {projectCreatedDot && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full z-50" />
-                    )}
-                  </NavLink>
-                  <NavLink
-                    onClick={() => {
-                      localStorage.setItem(
-                        "lastVisited_workUpdates",
-                        new Date().toISOString(),
-                      );
-                        onClose()
-                    }}
-                    to="/work-updates"
-                    className={linkClass}
-                  >
-                    <MdWorkspaces size={20} />
-                    {!collapsed && <span>Work Updates</span>}
-                    {workUpdateDot && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full z-50" />
-                    )}
-                  </NavLink>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* MANAGEMENT */}
-          <div>
-            {!collapsed && (
-              <p className="px-3 mb-2 text-xs font-semibold uppercase text-primary-content">
-                Management
-              </p>
-            )}
-
-            <div className="space-y-1">
-              {/* TEAM DROPDOWN */}
-              {isManagement &&
-                (user?.role === "admin" || user?.role === "owner" ? (
-                  <>
-                    <button
-                      onClick={() => setTeamOpen(!teamOpen)}
-                      className={`relative flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all ${
-                        isTeamActive
-                          ? "bg-base-300 font-semibold text-base-content"
-                          : "text-primary-content hover:bg-base-300 hover:text-base-content"
-                      }`}
-                    >
-                      <MdPeople size={20} />
-                      {memberDot && !teamOpen && (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2.5 w-2.5 bg-red-500 rounded-full" />
-                      )}
-
-                      {!collapsed && (
-                        <>
-                          <span className="flex-1 text-left">Team</span>
-                          <MdExpandMore
-                            className={`transition-transform duration-300 ${
-                              teamOpen ? "rotate-180" : ""
-                            }`}
-                          />
-                        </>
-                      )}
-                    </button>
-
-                    <div
-                      className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      ${
-                        teamOpen
-                          ? "max-h-40 opacity-100 mt-1"
-                          : "max-h-0 opacity-0"
-                      }
-                    `}
-                    >
-                      {/* <div className="ml-8 space-y-1 pb-1"> */}
-                      <div
-                        className={`space-y-1 pb-1 ${
-                          collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
+                if (hasChildren && !collapsed) {
+                  return (
+                    <div key={item.id} className="space-y-0.5">
+                      <button
+                        type="button"
+                        onClick={() => toggleGroup(item.id)}
+                        className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all ${
+                          active
+                            ? "bg-primary/10 text-primary"
+                            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
                         }`}
                       >
-                        {teamSubMenu.map((item) => (
-                          <NavLink
-                            key={item.id}
-                            to={item.path}
-                            onClick={() => {
-                              if (item.id === "members") {
-                                localStorage.setItem(
-                                  "lastVisited_members",
-                                  new Date().toISOString(),
-                                );
-                              }
-                                onClose()
-                            }}
-                            className={(props) =>
-                              `${linkClass(props)} relative`
-                            }
-                          >
-                            {item.icon}
-                            {!collapsed && <span>{item.label}</span>}
-                            {item.id === "members" && memberDot && (
-                              <span className="absolute right-2 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                            )}
-                          </NavLink>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <NavLink
-                    to="/members"
-                    className={(props) => `${linkClass(props)} relative`}
-                    onClick={() => {
-                      localStorage.setItem(
-                        "lastVisited_members",
-                        new Date().toISOString(),
-                      );
-                      onClose()
-                    }}
-                  >
-                    <MdPeople size={20} />
-
-                    {!collapsed && <span>Team</span>}
-                    {memberDot && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                    )}
-                  </NavLink>
-                ))}
-
-              {managementMenu.map((item) => (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  className={(props) => `${linkClass(props)} relative`}
-                  onClick={() => {
-                    if (item.id === "tasks") {
-                      localStorage.setItem(
-                        "lastVisited_tasks",
-                        new Date().toISOString(),
-                      );
-                    }
-                    if (item.id === "leaves") {
-                      localStorage.setItem(
-                        "lastVisited_leaves",
-                        new Date().toISOString(),
-                      );
-                    }
-                    onClose()
-                  }}
-                >
-                  {item.icon}
-                  {!collapsed && <span>{item.label}</span>}
-
-                  {/* DOTS */}
-                  {item.id === "tasks" && taskDot && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                  )}
-
-                  {item.id === "leaves" && leaveDot && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 h-2 w-2 bg-red-500 rounded-full" />
-                  )}
-                </NavLink>
-              ))}
-
-              {/* PAYROLL / MY SALARY SECTION */}
-              {isManagement ? (
-                <>
-                  {/* PAYROLL PARENT */}
-                  <button
-                    onClick={() => setPayrollOpen(!payrollOpen)}
-                    className={`flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm transition-all  ${
-                      isPayrollActive
-                        ? "bg-base-300 font-semibold text-base-content"
-                        : "text-primary-content hover:bg-base-300 hover:text-base-content"
-                    }`}
-                  >
-                    <MdPayments size={20} />
-                    {!collapsed && (
-                      <>
-                        <span className="flex-1 text-left">Payroll</span>
+                        <div className="flex items-center gap-2">
+                          <span className="shrink-0 text-base">
+                            {ICON_MAP[item.icon] || <MdDashboard size={15} />}
+                          </span>
+                          <span className="truncate">{item.label}</span>
+                        </div>
                         <MdExpandMore
-                          className={`transition-transform duration-300 ${
-                            payrollOpen ? "rotate-180" : ""
+                          size={13}
+                          className={`transition-transform duration-200 ${
+                            isExpanded ? "rotate-180" : ""
                           }`}
                         />
-                      </>
-                    )}
-                  </button>
+                      </button>
 
-                  {/* PAYROLL SUBMENU */}
-                  <div
-                    className={`
-                      overflow-hidden transition-all duration-300 ease-in-out
-                      ${
-                        payrollOpen
-                          ? "max-h-40 opacity-100 mt-1"
-                          : "max-h-0 opacity-0"
-                      }
-                    `}
-                  >
-                    {/* <div className="ml-8 space-y-1 pb-1"> */}
-                    <div
-                      className={`space-y-1 pb-1 ${
-                        collapsed ? "ml-0 flex flex-col items-center" : "ml-8"
-                      }`}
-                    >
-                      {payrollSubMenu.map((item) => (
-                        <NavLink
-                          key={item.id}
-                          to={item.path}
-                          className={linkClass}
-                          onClick={()=>{
-                            onClose();
-                          }}
-                        >
-                          {item.icon}
-                          {!collapsed && <span>{item.label}</span>}
-                        </NavLink>
-                      ))}
+                      {isExpanded && (
+                        <div className="pl-4 pr-1 space-y-0.5 border-l-2 border-base-200 ml-3.5 my-0.5">
+                          {item.children!.map((child) => (
+                            <NavLink
+                              key={child.id}
+                              to={child.path}
+                              end
+                              onClick={onCloseMobile}
+                              className={({ isActive }) =>
+                                `flex items-center gap-2 px-2 py-1 rounded-md text-[11px] font-medium transition-all ${
+                                  isActive
+                                    ? "bg-primary text-primary-content font-bold shadow-xs"
+                                    : "text-base-content/60 hover:bg-base-200 hover:text-base-content"
+                                }`
+                              }
+                            >
+                              <span className="shrink-0 text-xs">
+                                {ICON_MAP[child.icon] || <MdChevronRight size={11} />}
+                              </span>
+                              <span className="truncate">{child.label}</span>
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </>
-              ) : (
-                <NavLink to="/my-salary" className={linkClass}>
-                  <MdReceiptLong size={20} />
-                  {!collapsed && <span>My Salary</span>}
-                </NavLink>
-              )}
+                  );
+                }
+
+                return (
+                  <NavLink
+                    key={item.id}
+                    to={item.path}
+                    end
+                    onClick={onCloseMobile}
+                    title={collapsed ? item.label : undefined}
+                    className={({ isActive }) =>
+                      `flex items-center ${
+                        collapsed ? "justify-center px-0 py-1.5" : "gap-2 px-2.5 py-1.5"
+                      } rounded-lg text-[11px] font-semibold transition-all ${
+                        isActive
+                          ? "bg-primary text-primary-content font-bold shadow-xs shadow-primary/20"
+                          : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
+                      }`
+                    }
+                  >
+                    <span className="shrink-0 text-base">
+                      {ICON_MAP[item.icon] || <MdDashboard size={15} />}
+                    </span>
+                    {!collapsed && <span className="truncate">{item.label}</span>}
+                  </NavLink>
+                );
+              })}
             </div>
           </div>
-        </nav>
+        ))}
+      </div>
 
-        {/* FOOTER */}
-        <div className="border-t border-base-300 p-3">
-          <div className="flex items-center gap-3">
-            <div className="avatar placeholder">
-              <div className="bg-primary text-primary-content rounded-full w-9 flex items-center justify-center">
-                <img
-                  src={user?.imageUrl || "https://i.pravatar.cc/100?img=12"}
-                  alt="User"
-                />
-                {/* {
-                 user?.name ? user.name.charAt(0).toUpperCase() : "U"
-               } */}
-              </div>
+      {/* ── Sidebar Footer User Mini Card ── */}
+      <div className="p-2 border-t border-base-200 shrink-0 bg-base-200/30">
+        <div className={`flex items-center ${collapsed ? "justify-center" : "gap-2"} p-1`}>
+          <div className="avatar placeholder shrink-0">
+            <div className="bg-primary/15 text-primary rounded-lg w-6 h-6 font-bold text-[10px] flex items-center justify-center border border-primary/20">
+              <span>{auth.user?.name?.charAt(0)?.toUpperCase() || "U"}</span>
             </div>
-
-            {!collapsed && (
-              <div>
-                <p className="text-sm font-semibold text-base-100">
-                  {" "}
-                  {user?.name || "User Name"}
-                </p>
-                <p className="text-xs text-base-100 capitalize ">
-                  {user?.role || "Administrator"}
-                </p>
-              </div>
-            )}
           </div>
+          {!collapsed && (
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-[11px] font-bold text-base-content truncate">
+                {auth.user?.name || "User"}
+              </span>
+              <span className="text-[9px] text-base-content/50 truncate capitalize font-medium">
+                {auth.user?.role || "Employee"} • {auth.user?.department || "General"}
+              </span>
+            </div>
+          )}
         </div>
-      </aside>
-    </>
+      </div>
+    </aside>
   );
 }

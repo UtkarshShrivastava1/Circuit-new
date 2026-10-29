@@ -1,13 +1,13 @@
 import type { UserRole } from "./attendance";
 
 export type Member={
-  id: string;
+  _id: string;
   name: string;
   email: string;
   role:UserRole;
 dateOfBirth?: string | Date;
 designation?:string;
-  imgUrl?: string;
+  imageUrl?: string;
   status?: "active" | "inactive";
   joinedAt?: string;
   phone?: string;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify";
 import { updateProject } from "@/services/projectServices";
 import { getMembers } from "@/services/memberService";
@@ -21,9 +21,11 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
     user: "",
     role: "",
     responsibility: "",
+    customRole: "",
+    customResponsibility: "",
   });
-
-  const roles = ["Member", "Manager"];
+ const canEdit=auth?.user?.role!="member"
+  const roles = ["Member", "Manager", "Lead", "Other"];
   const responsibilities = [
     "Frontend Development",
     "Backend Development",
@@ -35,6 +37,7 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
     "UI Design",
     "Testing",
     "Deployment",
+    "Other",
   ];
 
   // Fetch organization members for the dropdown
@@ -55,11 +58,17 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
       setLoading(true);
 
       // Map participants to just the IDs and roles for the backend update
-      let updatedParticipants = participants.map((p: any) => ({
-        user: p.user?._id || p.user,
-        role: p.role,
-        responsibility: p.responsibility,
-      }));
+    
+let updatedParticipants = participants.map((p: any) => ({
+  user: p.user?._id || p.user,
+  role: p.role,
+  customRole: p.role === "Other" ? p.customRole || "" : "",
+  responsibility: p.responsibility,
+  customResponsibility:
+    p.responsibility === "Other"
+      ? p.customResponsibility || ""
+      : "",
+}));
 
       if (isAdding) {
         updatedParticipants.push(newParticipant);
@@ -100,7 +109,7 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
       }
 
       setShowModal(false);
-      setNewParticipant({ user: "", role: "", responsibility: "" });
+      setNewParticipant({ user: "", role: "", responsibility: "" , customRole: "", customResponsibility: ""});
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update members");
     } finally {
@@ -108,19 +117,35 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
     }
   };
 
-  const handleAddMember = () => {
-    if (!newParticipant.user || !newParticipant.role || !newParticipant.responsibility) {
-      toast.error("Please select user, role, and responsibility");
-      return;
-    }
+ 
+const handleAddMember = () => {
+  if (
+    !newParticipant.user ||
+    !newParticipant.role ||
+    (newParticipant.role === "Other" &&
+      !newParticipant.customRole.trim()) ||
+    !newParticipant.responsibility ||
+    (newParticipant.responsibility === "Other" &&
+      !newParticipant.customResponsibility.trim())
+  ) {
+    toast.error("Please fill all required fields");
+    return;
+  }
 
-    if (participants.some((p: any) => (p.user?._id || p.user) === newParticipant.user)) {
-      toast.error("User is already a member of this project");
-      return;
-    }
+  if (
+    participants.some(
+      (p: any) =>
+        String(p.user?._id || p.user) ===
+        String(newParticipant.user)
+    )
+  ) {
+    toast.error("User is already a member of this project");
+    return;
+  }
 
-    handleSaveParticipant(true);
-  };
+  handleSaveParticipant(true);
+};
+
 
   const handleRemoveMember = (userId: string) => {
     if (confirm("Are you sure you want to remove this member from the project?")) {
@@ -129,15 +154,16 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
   };
 
   return (
-    <div className="bg-white/70 border border-base-300 rounded-lg p-6">
-      <div className="flex justify-between mb-4 border-b border-base-300 pb-2">
-        <h3 className="font-semibold text-base-content ">
+    <div className="bg-white/70 border border-base-300 rounded-lg p-5">
+      <div className="flex justify-between mb-4 border-base-300 pb-2">
+        <h3 className="text-[15px] font-semibold text-black">
           Team Members
         </h3>
-
-        <button className="btn btn-sm btn-primary text-primary-content" onClick={() => setShowModal(true)}>
+ 
+{canEdit?<button className="btn btn-sm btn-primary text-primary-content" onClick={() => setShowModal(true)}>
           + Add Member
-        </button>
+        </button>:null}
+        
       </div>
 
       <ul className="divide-y divide-base-300">
@@ -146,24 +172,36 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
           return (
             <li
               key={userId || index}
-              className="py-3 flex justify-between items-center"
+              className="py-2.5 flex justify-between items-center"
             >
               <div>
-                <p className="font-medium text-base-content">
+                <p className="text-[14px] font-medium text-black">
                   {participant.user?.name || "Unknown User"}
                 </p>
-                <p className="text-sm text-base-content/60">
-                  {participant.role} {participant.responsibility ? `- ${participant.responsibility}` : ""}
-                </p>
-              </div>
+               
+<p className="text-xs text-black/50">
+  Role:{" "}
+  {participant.role === "Other"
+    ? participant.customRole || "Other"
+    : participant.role}
+</p>
 
-              <button 
-                className="btn btn-xs btn-error btn-outline"
+<p className="text-xs text-black/50">
+  Responsibility:{" "}
+  {participant.responsibility === "Other"
+    ? participant.customResponsibility || "Other"
+    : participant.responsibility || ""}
+</p>
+
+              </div>
+{canEdit? <button 
+                className="btn btn-xs btn-error btn-outline bg-red-600 text-white"
                 onClick={() => handleRemoveMember(userId)}
                 disabled={loading}
               >
                 Remove
-              </button>
+              </button>:null}
+             
             </li>
           );
         })}
@@ -180,11 +218,16 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
                 onChange={(e) => setNewParticipant({ ...newParticipant, user: e.target.value })}
               >
                 <option value="">Select User</option>
-                {orgUsers.map((u) => (
-                  <option key={u._id} value={u._id}>
-                    {u.name} ({u.role})
-                  </option>
-                ))}
+                {orgUsers.map((u) => {
+                  const isAdded = participants.some(
+                    (p: any) => String(p.user?._id || p.user) === String(u._id)
+                  );
+                  return (
+                    <option key={u._id} value={u._id} disabled={isAdded}>
+                      {u.name} ({u.role}) {isAdded ? "(Already Added)" : ""}
+                    </option>
+                  );
+                })}
               </select>
               <select
                 className="select select-bordered w-full"
@@ -196,6 +239,22 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
+              
+{newParticipant.role === "Other" && (
+  <input
+    type="text"
+    value={newParticipant.customRole}
+    onChange={(e) =>
+      setNewParticipant({
+        ...newParticipant,
+        customRole: e.target.value,
+      })
+    }
+    placeholder="Enter Custom Role"
+    className="input input-bordered w-full"
+  />
+)}
+
               <select
                 className="select select-bordered w-full"
                 value={newParticipant.responsibility}
@@ -206,6 +265,22 @@ export default function ProjectMembers({ project, onUpdateProject }: Props) {
                   <option key={r} value={r}>{r}</option>
                 ))}
               </select>
+              
+{newParticipant.responsibility === "Other" && (
+  <input
+    type="text"
+    value={newParticipant.customResponsibility}
+    onChange={(e) =>
+      setNewParticipant({
+        ...newParticipant,
+        customResponsibility: e.target.value,
+      })
+    }
+    placeholder="Enter Custom Responsibility"
+    className="input input-bordered w-full"
+  />
+)}
+
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <button className="btn btn-ghost" onClick={() => setShowModal(false)} disabled={loading}>

@@ -15,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import API from "@/api/axios";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify";
 import { Edit2, FileEdit, Trash } from "lucide-react";
 
@@ -111,12 +111,7 @@ function TaskDrawer({
 
       await API.put(
         `/tasks/${auth.slug}/updateTask/${projectId}/${task.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        formData
       );
 
       toast.success("Task Updated Successfully");
@@ -542,14 +537,14 @@ const canDelete =
           </div>
         ) : (
           <div className="overflow-x-auto rounded-lg">
-            <table className="table min-w-[600px] border border-base-300 rounded-lg">
+            <table className="table table-sm min-w-[600px] border border-base-300 rounded-lg">
               <thead className="bg-primary text-primary-content ">
                 <tr className="divide-x divide-white/20">
                   <th>Task</th>
                   <th>Assignee</th>
                   <th>Status</th>
                   <th>Due</th>
-                  <th className="">Action</th>
+                 {(canEditTask || canDelete) && <th>Action</th>}
                 </tr>
               </thead>
 
@@ -579,6 +574,7 @@ const canDelete =
                     <td>
                       {new Date(task.dueDate).toLocaleDateString("en-GB")}
                     </td>
+{(canEditTask || canDelete) && (
 
                     <td
                       className=""
@@ -609,6 +605,7 @@ const canDelete =
                         </button>
                       )}
                     </td>
+)}
                   </tr>
                 ))}
               </tbody>

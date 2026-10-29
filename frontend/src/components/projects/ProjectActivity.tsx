@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "@/auth/AuthContext";
+import { useAuth } from "@/auth/useAuth";
 import API from "@/api/axios";
 
 interface Props {
@@ -44,8 +44,8 @@ export default function ProjectActivity({ projectId }: Props) {
   }, [auth.slug, projectId]);
 
   return (
-    <div className="bg-white/70  border border-base-300 rounded-lg p-6">
-      <h3 className="font-semibold text-base-content mb-4">
+    <div className="bg-white/70  border border-base-300 rounded-lg p-5">
+      <h3 className="text-[15px]    font-semibold text-black mb-4">
         Activity Timeline
       </h3>
 
@@ -54,7 +54,7 @@ export default function ProjectActivity({ projectId }: Props) {
           <span className="loading loading-spinner text-primary"></span>
         </div>
       ) : activities.length === 0 ? (
-        <p className="text-sm text-base-content/60">No recent activity for this project.</p>
+        <p className="text-[13px] text-black/50">No recent activity for this project.</p>
       ) : (
         <ul className="space-y-4">
           {activities.map((activity) => (
@@ -62,10 +62,10 @@ export default function ProjectActivity({ projectId }: Props) {
               <div className="w-2 h-2 mt-2 rounded-full bg-primary shrink-0" />
 
               <div>
-                <p className="text-sm text-base-content">
+                <p className="text-sm text-black">
                   {activity.message}
                 </p>
-                <p className="text-xs text-base-content/60">
+                <p className="text-xs text-black/50">
                   {new Date(activity.createdAt).toLocaleString("en-GB", {
                     day: "2-digit",
                     month: "short",
