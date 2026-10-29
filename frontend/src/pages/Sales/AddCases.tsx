@@ -10,6 +10,8 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { createCase, type Case } from "@/services/caseServices";
 import { getSalesReps } from "@/services/salesRepServices";
 import { PageHeader } from "@/components/common";
+import { getAllAccounts } from "@/services/salesService";
+import { getAllProducts } from "@/services/productServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const caseSchema = z.object({
@@ -37,7 +39,26 @@ export default function AddCases() {
   const [attachments, setAttachments] = useState<File[]>([]);
   const [assigneeSearch, setAssigneeSearch] = useState("");
   const { auth } = useAuth();
+const [assigneeOpen, setAssigneeOpen] = useState(false);
+const { data: accountsData } = useQuery({
+  queryKey: ["accounts", auth?.slug],
+  queryFn: () => getAllAccounts(auth?.slug || "default-tenant"),
+});
 
+const accounts = accountsData?.data?.data ?? [];
+
+console.log("Accounts:", accounts);
+
+const { data: productsData } = useQuery({
+  queryKey: ["products", auth?.slug],
+  queryFn: () => getAllProducts(auth?.slug || "default-tenant"),
+});
+
+
+const products = productsData?.data ?? [];
+console.log(accounts)
+console.log(products)
+  
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth?.slug],
     queryFn: () => getSalesReps(auth?.slug || "default-tenant"),
@@ -47,7 +68,10 @@ export default function AddCases() {
 
   const mutation = useMutation({
     mutationFn: (newData: Partial<Case>) => createCase(auth.slug || "default-tenant", newData),
-    onSuccess: () => setSuccessModalOpen(true),
+    onSuccess: () =>{ toast.success("Case created successfully!");
+    navigate("/sales/cases");
+
+    },
     onError: () => toast.error("Failed to create case."),
     onSettled: () => setIsSubmitting(false)
   });
@@ -61,6 +85,9 @@ export default function AddCases() {
   const wCustomer = watch("customer");
   const wPriority = watch("priority");
   const wType = watch("type");
+const selectedAccount = accounts.find(
+  (account: any) => account._id === wCustomer
+);
 
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
@@ -160,26 +187,102 @@ export default function AddCases() {
             <div className="collapse-title text-lg font-semibold border-b border-base-200">2. Customer & Product Details</div>
             <div className="collapse-content pt-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
+                {/* <div>
                   <label className="label py-1"><span className="label-text font-medium">Customer *</span></label>
                   <input {...register("customer")} type="text" className={`input input-bordered w-full ${errors.customer ? "input-error" : ""}`} placeholder="Search customer..." />
                   {errors.customer && <span className="text-error text-xs">{errors.customer.message}</span>}
-                </div>
-                <div><label className="label py-1"><span className="label-text font-medium">Contact Person</span></label><input {...register("contactPerson")} type="text" className="input input-bordered w-full" placeholder="e.g. John Doe" /></div>
-                <div><label className="label py-1"><span className="label-text font-medium">Related Product</span></label><input {...register("product")} type="text" className="input input-bordered w-full" placeholder="Search product..." /></div>
+                </div> */}
+
+                {/* <div><label className="label py-1"><span className="label-text font-medium">Contact Person</span></label><input {...register("contactPerson")} type="text" className="input input-bordered w-full" placeholder="e.g. John Doe" /></div> */}
+                <div>
+  <label className="label py-1">
+    <span className="label-text font-medium">Customer *</span>
+  </label>
+
+  <select
+    {...register("customer", {
+      onChange: (e) => {
+        const account = accounts.find(
+          (a: any) => a._id === e.target.value
+        );
+
+        setValue(
+          "contactPerson",
+          account
+            ? `${account.primaryContact?.firstName ?? ""} ${
+                account.primaryContact?.lastName ?? ""
+              }`.trim()
+            : ""
+        );
+      },
+    })}
+    className={`select select-bordered w-full ${
+      errors.customer ? "select-error" : ""
+    }`}
+  >
+    <option value="">Select Customer</option>
+
+    {accounts.map((account: any) => (
+      <option key={account._id} value={account._id}>
+        {account.accountName}
+      </option>
+    ))}
+  </select>
+
+  {errors.customer && (
+    <span className="text-error text-xs">
+      {errors.customer.message}
+    </span>
+  )}
+</div>
+
+<div>
+  <label className="label py-1">
+    <span className="label-text font-medium">Contact Person</span>
+  </label>
+
+  <input
+    {...register("contactPerson")}
+    type="text"
+    readOnly
+    className="input input-bordered w-full bg-base-200"
+    placeholder="Auto-filled from customer"
+  />
+</div>
+                {/* <div><label className="label py-1"><span className="label-text font-medium">Related Product</span></label><input {...register("product")} type="text" className="input input-bordered w-full" placeholder="Search product..." /></div> */}
+
+                <div>
+  <label className="label py-1">
+    <span className="label-text font-medium">Related Product</span>
+  </label>
+
+  <select
+    {...register("product")}
+    className="select select-bordered w-full"
+  >
+    <option value="">Select Product (Optional)</option>
+
+    {products.map((product: any) => (
+      <option key={product._id} value={product._id}>
+        {product.productName ?? product.name}
+      </option>
+    ))}
+  </select>
+</div>
                 <div><label className="label py-1"><span className="label-text font-medium">Related Order</span></label><input {...register("relatedOrder")} type="text" className="input input-bordered w-full" placeholder="e.g. SO-2026-..." /></div>
               </div>
             </div>
           </div>
 
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl"> */}
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl overflow-visible relative z-50">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">3. Assignment & Resolution</div>
-            <div className="collapse-content pt-5">
+            <div className="collapse-content pt-5 overflow-visible">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Assigned Representative</span></label>
-                  <div className="dropdown w-full">
+                  {/* <div className="dropdown w-full">
                     <label tabIndex={0} className="btn btn-outline bg-base-100 justify-start font-normal w-full border-base-300">{wAssignee || "-Select Representative-"}</label>
                     <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                       <input type="text" placeholder="Search..." className="input input-sm input-bordered w-full mb-2" value={assigneeSearch} onChange={e => setAssigneeSearch(e.target.value)} />
@@ -187,7 +290,59 @@ export default function AddCases() {
                         {filteredReps.map((rep:string) => <li key={rep}><a onClick={() => { setValue("assignedRep", rep); (document.activeElement as HTMLElement)?.blur(); }}>{rep}</a></li>)}
                       </ul>
                     </div>
-                  </div>
+                  </div> */}
+                  
+<div className="relative w-full">
+  <button
+    type="button"
+    className="btn btn-outline bg-base-100 justify-between font-normal w-full border-base-300"
+    onClick={() => setAssigneeOpen((prev) => !prev)}
+  >
+    {wAssignee || "-Select Representative-"}
+    <span>▾</span>
+  </button>
+
+  {assigneeOpen && (
+    // <div className="absolute left-0 top-full mt-1 z-50 w-full rounded-xl border border-base-300 bg-base-100 p-2 shadow-lg">
+    <div className="absolute left-0 top-full mt-1 z-[100] w-full rounded-xl border border-base-300 bg-base-100 p-2 shadow-lg">
+      <input
+        type="text"
+        placeholder="Search representative..."
+        className="input input-sm input-bordered w-full mb-2"
+        value={assigneeSearch}
+        onChange={(e) => setAssigneeSearch(e.target.value)}
+      />
+
+      <ul className="max-h-60 overflow-y-auto">
+        {filteredReps.length > 0 ? (
+          filteredReps.map((rep: string) => (
+            <li key={rep}>
+              <button
+                type="button"
+                className="w-full text-left rounded-lg px-3 py-2 hover:bg-base-200"
+                onClick={() => {
+                  setValue("assignedRep", rep, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                  setAssigneeOpen(false);
+                  setAssigneeSearch("");
+                }}
+              >
+                {rep}
+              </button>
+            </li>
+          ))
+        ) : (
+          <li className="px-3 py-2 text-sm opacity-60">
+            No representatives found
+          </li>
+        )}
+      </ul>
+    </div>
+  )}
+</div>
+
                 </div>
                 <div><label className="label py-1"><span className="label-text font-medium">Due Date</span></label><input {...register("dueDate")} type="date" className="input input-bordered w-full" /></div>
                 <div className="md:col-span-2"><label className="label py-1"><span className="label-text font-medium">Initial Resolution Notes</span></label><textarea {...register("resolutionNotes")} className="textarea textarea-bordered w-full" rows={3} placeholder="Initial thoughts or proposed resolution..."></textarea></div>
@@ -232,7 +387,12 @@ export default function AddCases() {
             <div className="space-y-4 text-sm">
               <div><span className="text-xs text-base-content/60 uppercase font-semibold">Priority</span><div className="mt-1"><div className={`badge ${wPriority === 'Critical' ? 'badge-error text-white' : wPriority === 'High' ? 'badge-warning' : 'badge-info text-white'} badge-lg font-bold`}>{wPriority || "Medium"}</div></div></div>
               <div><span className="text-xs text-base-content/60 uppercase font-semibold">Case Type</span><p className="font-medium text-base-content mt-1">{wType || "Support Request"}</p></div>
-              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span><p className="font-medium text-base-content mt-1">{wCustomer || "Not specified"}</p></div>
+              <div><span className="text-xs text-base-content/60 uppercase font-semibold">Customer</span>
+              {/* <p className="font-medium text-base-content mt-1">{wCustomer || "Not specified"}</p> */}
+              <p className="font-medium text-base-content mt-1">
+  {selectedAccount?.accountName || "Not specified"}
+</p>
+              </div>
               <div><span className="text-xs text-base-content/60 uppercase font-semibold">Assigned To</span><p className="font-medium text-base-content mt-1">{wAssignee || "Unassigned"}</p></div>
             </div>
             <div className="mt-6 pt-4 border-t border-base-200"><button type="submit" disabled={isSubmitting} className="btn btn-primary w-full shadow-md">{isSubmitting ? <span className="loading loading-spinner loading-sm"></span> : <><MdSave size={18} /> Create Case</>}</button></div>

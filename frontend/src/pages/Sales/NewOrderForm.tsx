@@ -3,7 +3,7 @@ import { useNavigate,useParams } from "react-router-dom";
 import { useAuth } from '@/auth/useAuth';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm,useWatch } from 'react-hook-form';
 import { getAllProducts } from '@/services/api/products.api';
 import { getAllAccounts } from '@/services/api/crm.api';
 import { getSalesReps } from '@/services/salesRepServices';
@@ -143,6 +143,7 @@ export default function NewOrderForm() {
       setProductsData(mappedProducts);
     }
   }, [products]);
+  
 
   const customers = useMemo(() => {
     return accountsData?.data?.data?.map((acc: any) => ({
@@ -165,7 +166,7 @@ export default function NewOrderForm() {
     return salesReps.filter(rep => rep?.toLowerCase().includes(ownerSearch.toLowerCase()));
   }, [salesReps, ownerSearch]);
 
-  const { register, control, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<OrderFormValues>({
+  const { register, control, handleSubmit, watch,getValues, setValue, reset, formState: { errors } } = useForm<OrderFormValues>({
     resolver: zodResolver(orderSchema) as any,
     defaultValues: {
       orderNumber: `SO-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(5, '0')}`,
@@ -174,8 +175,8 @@ export default function NewOrderForm() {
       status: "Draft",
       priority: "Medium",
       sameAsBilling: true,
-      items: [{ productId: "", sku: "", stock: 0, retailPrice: 0, costPrice: 0, sellingPrice: 0, quantity: 1, discountPct: 0, taxPct: 0, lineTotal: 0 }],
-      summaryDiscount: 0, summaryTax: 0, shippingCharges: 0, adjustment: 0, advancePayment: 0,
+      items: [{ productId: "", sku: "", stock: "" as any, retailPrice: ""as any, costPrice: "" as any, sellingPrice: "" as any, quantity: "" as any, discountPct: ""as any, taxPct: ""as any, lineTotal: ""as any }],
+      summaryDiscount: ""as any, summaryTax: ""as any, shippingCharges: ""as any, adjustment: ""as any, advancePayment: ""as any,
       paymentTerms: "Immediate", paymentMethod: "Bank Transfer",
       deliveryMethod: "Courier", approvalStatus: "Pending", requiresApproval: false
     }
@@ -184,7 +185,7 @@ export default function NewOrderForm() {
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
   // Live Watches
-  const wItems = watch("items");
+  // const wItems = watch("items");
   const wSubDisc = watch("summaryDiscount");
   const wSubTax = watch("summaryTax");
   const wShipping = watch("shippingCharges");
@@ -194,18 +195,43 @@ export default function NewOrderForm() {
   const wSameAsBilling = watch("sameAsBilling");
   const wBilling = watch("billingAddress");
   const wSalesOwner = watch("salesOwner");
+const wItems = useWatch({
+  control,
+  name: "items",
+});
 
+console.log("Watched items:", wItems);
   // Summary Calculations
-  const calculatedSubtotal = useMemo(() => {
-    return wItems.reduce((sum, item) => {
-      const sp = item.sellingPrice || 0;
-      const qty = item.quantity || 0;
-      const base = sp * qty;
-      const afterDisc = base - (base * (item.discountPct || 0) / 100);
-      const afterTax = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
-      return sum + afterTax;
-    }, 0);
-  }, [wItems]);
+  // const calculatedSubtotal = useMemo(() => {
+  //   return wItems.reduce((sum, item) => {
+  //     const sp = item.sellingPrice || 0;
+  //     const qty = item.quantity || 0;
+  //     const base = sp * qty;
+  //     const afterDisc = base - (base * (item.discountPct || 0) / 100);
+  //     const afterTax = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
+  //     return sum + afterTax;
+  //   }, 0);
+  // }, [wItems]);
+ 
+
+const calculatedSubtotal = useMemo(() => {
+  return (wItems || []).reduce((sum, item) => {
+    const price = Number(item.sellingPrice) || 0;
+    const qty = Number(item.quantity) || 0;
+    const discount = Number(item.discountPct) || 0;
+    const tax = Number(item.taxPct) || 0;
+
+    const base = price * qty;
+    const afterDiscount = base - (base * discount / 100);
+    const finalTotal = afterDiscount + (afterDiscount * tax / 100);
+
+    return sum + finalTotal;
+  }, 0);
+}, [wItems]);
+useEffect(() => {
+  console.log("Watched Items:", wItems);
+  console.log("Calculated Subtotal:", calculatedSubtotal);
+}, [wItems, calculatedSubtotal]);
 
   const grandTotal = Math.max(0, calculatedSubtotal - (wSubDisc || 0) + (wSubTax || 0) + (wShipping || 0) + (wAdjustment || 0));
   const outstanding = Math.max(0, grandTotal - (wAdvance || 0));
@@ -216,7 +242,11 @@ export default function NewOrderForm() {
     setValue("subtotal", calculatedSubtotal);
     setValue("grandTotal", grandTotal);
   }, [calculatedSubtotal, grandTotal, setValue]);
-
+useEffect(() => {
+  console.log("Items:", wItems);
+  console.log("Subtotal:", calculatedSubtotal);
+  console.log("Grand Total:", grandTotal);
+}, [wItems, calculatedSubtotal, grandTotal]);
   // Sync Same As Billing
   useEffect(() => {
     if (wSameAsBilling) setValue("shippingAddress", wBilling);
@@ -307,19 +337,61 @@ export default function NewOrderForm() {
     }
   };
 
-  const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectElement>) => {
-    const pid = e.target.value;
-    setValue(`items.${index}.productId`, pid);
-    const product = productsData.find(p => p.id === pid);
-    if (product) {
-      setValue(`items.${index}.sku`, product.sku);
-      setValue(`items.${index}.stock`, product.stock);
-      setValue(`items.${index}.retailPrice`, product.retail);
-      setValue(`items.${index}.costPrice`, product.cost);
-      setValue(`items.${index}.sellingPrice`, product.retail);
-      setValue(`items.${index}.quantity`, 1);
-    }
-  };
+//   const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectElement>) => {
+//     const pid = e.target.value;
+//     setValue(`items.${index}.productId`, pid);
+//     const product = productsData.find(p => p.id === pid);
+//     setValue(`items.${index}.productId`, pid, {
+//   shouldDirty: true,
+//   shouldValidate: true,
+// });
+//     if (product) {
+//       setValue(`items.${index}.sku`, product.sku);
+//       setValue(`items.${index}.stock`, product.stock);
+//       setValue(`items.${index}.retailPrice`, product.retail);
+//       setValue(`items.${index}.costPrice`, product.cost);
+//       setValue(`items.${index}.sellingPrice`, product.retail);
+//       setValue(`items.${index}.quantity`, 1);
+//     }
+//   };
+
+
+const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectElement>) => {
+  const pid = e.target.value;
+
+  console.log("Selected product ID:", pid);
+  console.log("Available products:", productsData);
+
+  const product = productsData.find(
+    (p) => String(p.id) === String(pid)
+  );
+
+  console.log("Matched product:", product);
+
+  if (!product) {
+    console.log("Product not found!");
+    return;
+  }
+
+  setValue(`items.${index}.productId`, String(pid), {
+    shouldDirty: true,
+    shouldValidate: true,
+  });
+
+  setValue(`items.${index}.sku`, product.sku ?? "");
+  setValue(`items.${index}.stock`, Number(product.stock) || 0);
+  setValue(`items.${index}.retailPrice`, Number(product.retail) || 0);
+  setValue(`items.${index}.costPrice`, Number(product.cost) || 0);
+  setValue(`items.${index}.sellingPrice`, Number(product.retail) || 0);
+  setValue(`items.${index}.quantity`, 1);
+  setValue(`items.${index}.discountPct`, 0);
+  setValue(`items.${index}.taxPct`, 0);
+
+  console.log("Updated form values:", getValues("items"));
+  setTimeout(() => {
+  console.log("Form values after update:", getValues("items"));
+}, 0);
+};
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) setAttachments([...attachments, ...Array.from(e.target.files)]);
@@ -455,19 +527,20 @@ export default function NewOrderForm() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* 1. Order Information */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl"> */}
+          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl relative z-20 overflow-visible">
             <input type="checkbox" defaultChecked />
-            <div className="collapse-title text-lg font-semibold border-b border-base-200">1. Order Information</div>
+            <div className=" collapse-title text-lg font-semibold border-b border-base-200">1. Order Information</div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Order Number">
                 <input {...register("orderNumber")} className="input input-bordered w-full bg-base-200 font-mono font-bold text-primary" readOnly />
               </FormRow>
-              <FormRow label="Sales Owner" required error={errors.salesOwner?.message}>
+              {/* <FormRow label="Sales Owner" required error={errors.salesOwner?.message}>
                 <div className="dropdown w-full">
                   <label tabIndex={0} className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${errors.salesOwner ? "border-error" : "border-base-300"}`}>
                     {wSalesOwner || "-Select Owner-"}
                   </label>
-                  <div tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
+                  <div tabIndex={0} className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-full border border-base-300">
                     <input 
                       type="text" 
                       placeholder="Search..." 
@@ -484,7 +557,57 @@ export default function NewOrderForm() {
                     </ul>
                   </div>
                 </div>
-              </FormRow>
+              </FormRow> */}
+              <FormRow label="Sales Owner" required error={errors.salesOwner?.message}>
+  <div className="dropdown dropdown-bottom w-full relative">
+    <label
+      tabIndex={0}
+      className={`btn btn-outline bg-base-100 justify-start font-normal w-full ${
+        errors.salesOwner ? "border-error" : "border-base-300"
+      }`}
+    >
+      {wSalesOwner || "-Select Owner-"}
+    </label>
+
+    <div
+      tabIndex={0}
+      className="dropdown-content absolute left-0 top-full mt-1 z-[999] menu p-2 shadow-lg bg-base-100 rounded-box w-full border border-base-300"
+    >
+      <input
+        type="text"
+        placeholder="Search..."
+        className="input input-sm input-bordered w-full mb-2"
+        value={ownerSearch}
+        onChange={(e) => setOwnerSearch(e.target.value)}
+      />
+
+      <ul className="max-h-60 overflow-y-auto">
+        {filteredOwners.map((rep) => (
+          <li key={rep}>
+            <a
+              onClick={() => {
+                setValue("salesOwner", rep, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+                setOwnerSearch("");
+                (document.activeElement as HTMLElement)?.blur();
+              }}
+            >
+              {rep}
+            </a>
+          </li>
+        ))}
+
+        {filteredOwners.length === 0 && (
+          <li>
+            <span className="text-sm opacity-60">No sales owner found</span>
+          </li>
+        )}
+      </ul>
+    </div>
+  </div>
+</FormRow>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Order Date" required error={errors.orderDate?.message}>
                   <input type="date" {...register("orderDate")} className="input input-bordered w-full" />
@@ -616,15 +739,23 @@ export default function NewOrderForm() {
                           </td>
                           <td className="align-top pt-3">₹{item.retailPrice?.toLocaleString() || "0.00"}</td>
                           <td className="align-top">
-                            <input type="number" step="0.01" {...register(`items.${index}.sellingPrice`)} className="input input-sm input-bordered w-full" />
+                            <input type="number" step="0.01" {...register(`items.${index}.sellingPrice`,{
+                              valueAsNumber:true
+                            })} className="input input-sm input-bordered w-full" />
                             {errors.items?.[index]?.sellingPrice && <p className="text-xs text-error mt-1">Req.</p>}
                           </td>
                           <td className="align-top">
-                            <input type="number" {...register(`items.${index}.quantity`)} className={`input input-sm input-bordered w-full ${stockWarning ? 'input-error bg-error/10' : ''}`} />
+                            <input type="number" {...register(`items.${index}.quantity`,{
+                              valueAsNumber:true
+                            })} className={`input input-sm input-bordered w-full ${stockWarning ? 'input-error bg-error/10' : ''}`} />
                             {errors.items?.[index]?.quantity && <p className="text-xs text-error mt-1">Req.</p>}
                           </td>
-                          <td className="align-top"><input type="number" {...register(`items.${index}.discountPct`)} className="input input-sm input-bordered w-full" /></td>
-                          <td className="align-top"><input type="number" {...register(`items.${index}.taxPct`)} className="input input-sm input-bordered w-full" /></td>
+                          <td className="align-top"><input type="number" {...register(`items.${index}.discountPct`,{
+                            valueAsNumber:true
+                          })} className="input input-sm input-bordered w-full" /></td>
+                          <td className="align-top"><input type="number" {...register(`items.${index}.taxPct`,{
+                            valueAsNumber:true
+                          })} className="input input-sm input-bordered w-full" /></td>
                           <td className="align-top pt-3 font-semibold text-success">
                             ₹{lineTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                             {item.productId && <p className="text-[10px] text-base-content/50 font-normal mt-1">Profit: ₹{profit.toLocaleString()}</p>}
@@ -645,9 +776,9 @@ export default function NewOrderForm() {
                 <button type="button" onClick={() => append({ productId: "", sku: "", stock: 0, retailPrice: 0, costPrice: 0, sellingPrice: 0, quantity: 1, discountPct: 0, taxPct: 0, lineTotal: 0 })} className="btn btn-sm btn-outline btn-primary gap-2">
                   <MdAdd /> Add Row
                 </button>
-                <button type="button" onClick={() => (document.getElementById('add_product_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-ghost gap-2">
+                {/* <button type="button" onClick={() => (document.getElementById('add_product_modal') as HTMLDialogElement).showModal()} className="btn btn-sm btn-ghost gap-2">
                   Quick Add Product
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
@@ -681,11 +812,15 @@ export default function NewOrderForm() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-base-content/70">Shipping Charges</span>
-                    <input type="number" step="0.01" {...register("shippingCharges")} className={`input input-sm input-bordered w-32 text-right ${errors.shippingCharges ? 'input-error' : ''}`} />
+                    <input type="number" step="0.01" {...register("shippingCharges",{
+                      valueAsNumber:true
+                    })} className={`input input-sm input-bordered w-32 text-right ${errors.shippingCharges ? 'input-error' : ''}`} />
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-base-content/70">Adjustment (±)</span>
-                    <input type="number" step="0.01" {...register("adjustment")} className="input input-sm input-bordered w-32 text-right" />
+                    <input type="number" step="0.01" {...register("adjustment",{
+                      valueAsNumber:true
+                    })} className="input input-sm input-bordered w-32 text-right" />
                   </div>
                   <div className="divider my-1"></div>
                   <div className="flex justify-between items-center">
@@ -791,7 +926,7 @@ export default function NewOrderForm() {
           </div>
 
           {/* 8. Approval Workflow */}
-          <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
+          {/* <div className="collapse collapse-arrow bg-base-100 border border-base-300 rounded-xl">
             <input type="checkbox" defaultChecked />
             <div className="collapse-title text-lg font-semibold border-b border-base-200">8. Approval Workflow</div>
             <div className="collapse-content pt-5 space-y-4">
@@ -815,7 +950,7 @@ export default function NewOrderForm() {
                 )}
               </div>
             </div>
-          </div>
+          </div> */}
 
         </div>
 

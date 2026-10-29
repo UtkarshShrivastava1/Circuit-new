@@ -11,6 +11,7 @@ import { createSalesTask } from "@/services/salesTaskServices";
 import { getSalesReps, updateSalesRep } from "@/services/salesRepServices";
 import { PageHeader } from "@/components/common";
 import { createPortal } from "react-dom";
+import { getAllAccounts } from "@/services/salesService";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 const taskSchema = z.object({
@@ -95,6 +96,25 @@ const [isSavingOption, setIsSavingOption] = useState(false);
 }, [repsData]);
 
 console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetched sales reps
+
+const { data: accountsData, isLoading: accountsLoading } = useQuery({
+  queryKey: ["accounts", auth.slug],
+  queryFn: () => getAllAccounts(auth.slug || "default-tenant"),
+  enabled: !!auth.slug,
+});
+
+const accounts = useMemo(() => {
+  const response = accountsData?.data;
+
+  // API response ke possible structures handle karne ke liye
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.accounts)) return response.accounts;
+
+  return [];
+}, [accountsData]);
+console.log(accounts)
+
   const mutation = useMutation({
     mutationFn: (newData: Partial<SalesTask>) => createSalesTask(auth.slug || "default-tenant", newData as Partial<SalesTask>),
     onSuccess: () => {
@@ -109,11 +129,14 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
     }
   });
 
+  
+
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskSchema),
@@ -121,10 +144,11 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
       priority: "Medium",
       status: "Pending",
       progress: 0,
-      probability: 0,
-      expectedDealValue: 0,
+      probability: undefined,
+      expectedDealValue: undefined,
       meetingMode: "",
       tags: [],
+      
       visibility: "Private"
     },
   });
@@ -139,6 +163,8 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
   const wPriority = watch("priority");
   const wValue = watch("expectedDealValue");
   const wAssignedTo = watch("assignedTo");
+  const selectedCustomer = watch("customer");
+const isCustomerSelected = !!selectedCustomer;
   const selectedRep = useMemo(() => {
   return salesReps.find((rep: any) => {
     const repId = rep.memberId?._id || rep.memberId || rep._id;
@@ -146,6 +172,42 @@ console.log("Sales Reps Data:", salesReps); // Debugging line to check the fetch
   });
 }, [salesReps, wAssignedTo]);
 console.log("Selected Rep:", selectedRep); // Debugging line to check the selected sales rep
+const selectedAccount = useMemo(() => {
+  return accounts.find(
+    (account: any) => account._id === watch("customer")
+  );
+}, [accounts, watch("customer")]);
+useEffect(() => {
+  if (!selectedAccount) return;
+
+  const contact = selectedAccount.primaryContact;
+  const address = selectedAccount.billingAddress;
+
+  setValue(
+    "contactPerson",
+    [contact?.firstName, contact?.lastName]
+      .filter(Boolean)
+      .join(" "),
+    { shouldValidate: true }
+  );
+
+  setValue("email", contact?.email || "", {
+    shouldValidate: true,
+  });
+
+  // Phone object/string dono formats handle karne ke liye
+  const phone =
+    typeof contact?.phone === "string"
+      ? contact.phone
+      : contact?.phone?.number || contact?.phone?.phoneNumber || "";
+
+  setValue("phone", phone, {
+    shouldValidate: true,
+  });
+
+  // Agar task form mein address fields add karogi,
+  // toh billing address yahan se fill kar sakti ho.
+}, [selectedAccount, setValue]);
 const availableTeams = selectedRep?.team ?? [];
 const availableTerritories = selectedRep?.salesTerritory ?? [];
 const assignedToRef = useRef<HTMLDivElement>(null);
@@ -599,14 +661,24 @@ useEffect(() => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Customer / Client *</span></label>
-                  <select {...register("customer")} className={`select select-bordered w-full ${errors.customer ? "select-error" : ""}`}>
-                    <option value="">-Search Customer-</option>
-                    <option value="Zager Digital Services">Zager Digital Services</option>
-                    <option value="Acme Corp">Acme Corp</option>
-                  </select>
+                 <select
+  {...register("customer")}
+  className={`select select-bordered w-full ${
+    errors.customer ? "select-error" : ""
+  }`}
+  disabled={accountsLoading}
+>
+  <option value="">-Select Customer-</option>
+
+  {accounts.map((account: any) => (
+    <option key={account._id} value={account._id}>
+      {account.accountName}
+    </option>
+  ))}
+</select>
                   {errors.customer && <span className="text-error text-xs">{errors.customer.message}</span>}
                 </div>
-                
+{/*                 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Lead / Opportunity</span></label>
                   <select {...register("lead")} className="select select-bordered w-full">
@@ -614,22 +686,28 @@ useEffect(() => {
                     <option value="ERP System Revamp">ERP System Revamp</option>
                     <option value="Bulk Order Q3">Bulk Order Q3</option>
                   </select>
-                </div>
+                </div> */}
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Contact Person</span></label>
-                  <input {...register("contactPerson")} type="text" className="input input-bordered w-full" placeholder="John Doe" />
+                  <input {...register("contactPerson")} type="text" 
+                  disabled={isCustomerSelected}
+                  className="input input-bordered w-full" placeholder="John Doe" />
                 </div>
 
                 <div>
                   <label className="label py-1"><span className="label-text font-medium">Phone Number</span></label>
-                  <input {...register("phone")} type="tel" className={`input input-bordered w-full ${errors.phone ? "input-error" : ""}`} placeholder="+1 234 567 8900" />
+                  <input {...register("phone")} type="tel"
+                   disabled={isCustomerSelected} 
+                  className={`input input-bordered w-full ${errors.phone ? "input-error" : ""}`} placeholder="9345678345" />
                   {errors.phone && <span className="text-error text-xs">{errors.phone.message}</span>}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="label py-1"><span className="label-text font-medium">Email Address</span></label>
-                  <input {...register("email")} type="email" className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`} placeholder="john@example.com" />
+                  <input {...register("email")} type="email"
+                   disabled={isCustomerSelected}
+                   className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`} placeholder="john@example.com" />
                   {errors.email && <span className="text-error text-xs">{errors.email.message}</span>}
                 </div>
               </div>

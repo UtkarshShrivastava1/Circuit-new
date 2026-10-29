@@ -418,7 +418,7 @@ export default function AccountsDashboard() {
           label: "Add Account",
           icon: <MdAdd size={16} />,
           variant: "primary",
-          onClick: () => navigate("/sales/leads/new"),
+          onClick: () => navigate("/sales/accounts/new"),
         },
       ]}
       />

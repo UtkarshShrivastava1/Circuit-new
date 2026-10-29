@@ -62,6 +62,8 @@ import {
 } from "recharts";
 import ImportExportActions from "@/components/import-export/ImportExportActions";
 import type { ColumnConfig } from "@/type/importExport.types";
+import { getAllAccounts } from "@/services/salesService";
+import { getAllProducts } from "@/services/productServices";
 
 const caseColumns: ColumnConfig[] = [
   { key: "caseNumber", label: "Case Number", type: "string" },
@@ -122,11 +124,27 @@ export default function AllCase() {
     queryKey: ["cases", auth.slug],
     queryFn: () => getCases(auth.slug || "default-tenant"),
   });
-
+  
   const { data: repsData } = useQuery({
     queryKey: ["salesReps", auth.slug],
     queryFn: () => getSalesReps(auth.slug || "default-tenant"),
   });
+
+  
+const { data: accountsData } = useQuery({
+  queryKey: ["accounts", auth?.slug],
+  queryFn: () => getAllAccounts(auth?.slug || "default-tenant"),
+});
+
+const accounts = accountsData?.data?.data ?? [];
+
+const { data: productsData } = useQuery({
+  queryKey: ["products", auth?.slug],
+  queryFn: () => getAllProducts(auth?.slug || "default-tenant"),
+});
+
+const products = productsData?.data ?? [];
+
 
   const salesReps = useMemo(
     () =>
@@ -141,6 +159,26 @@ export default function AllCase() {
       id: c._id || c.id,
     }));
   }, [data]);
+  console.log(cases);
+  const getCustomerName = (customer: any) => {
+  if (!customer) return "—";
+
+  if (typeof customer === "object") {
+    return customer.accountName || "—";
+  }
+
+  return customer;
+};
+
+const getProductName = (product: any) => {
+  if (!product) return "—";
+
+  if (typeof product === "object") {
+    return product.productName || "—";
+  }
+
+  return product;
+};
 
   // Mutations
   const updateMutation = useMutation({
@@ -160,9 +198,14 @@ export default function AllCase() {
       const searchMatch =
         c.caseNumber?.toLowerCase().includes(search.toLowerCase()) ||
         c.subject?.toLowerCase().includes(search.toLowerCase()) ||
-        c.customer?.toLowerCase().includes(search.toLowerCase()) ||
-        c.product?.toLowerCase().includes(search.toLowerCase());
-
+        // c.customer?.toLowerCase().includes(search.toLowerCase()) ||
+        // c.product?.toLowerCase().includes(search.toLowerCase());
+getCustomerName(c.customer)
+  .toLowerCase()
+  .includes(search.toLowerCase()) ||
+getProductName(c.product)
+  .toLowerCase()
+  .includes(search.toLowerCase())
       const statusMatch = statusFilter === "All" || c.status === statusFilter;
 
       const priorityMatch =
@@ -292,6 +335,22 @@ export default function AllCase() {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!caseToEdit) return;
+    const payload = {
+  ...caseToEdit,
+  customer:
+    typeof caseToEdit.customer === "object"
+      ? caseToEdit.customer?._id
+      : caseToEdit.customer,
+  product:
+    typeof caseToEdit.product === "object"
+      ? caseToEdit.product?._id
+      : caseToEdit.product,
+};
+
+await updateMutation.mutateAsync({
+  id: caseToEdit.id,
+  payload,
+});
     try {
       await updateMutation.mutateAsync({
         id: caseToEdit.id,
@@ -467,7 +526,18 @@ export default function AllCase() {
       }),
       columnHelper.accessor("customer", {
         header: "Customer",
-        cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+        cell: (info) => 
+          {
+    const customer = info.getValue();
+
+    return (
+      <span className="font-medium">
+        {typeof customer === "object" && customer !== null
+          ? customer.accountName || "—"
+          : customer || "—"}
+      </span>
+    );
+  },
       }),
       columnHelper.accessor("priority", {
         header: "Priority",
@@ -998,7 +1068,8 @@ export default function AllCase() {
                             {c.subject}
                           </h4>
                           <p className="text-xs text-base-content/60 truncate">
-                            {c.customer}
+                            {/* {c.customer} */}
+                             {getCustomerName(c.customer)}
                           </p>
                           <div className="mt-3 flex justify-between items-center text-xs text-base-content/50 border-t border-base-200 pt-2">
                           <span>{c.assignedRep?.split(" ")[0] || "Unassigned"}</span>
@@ -1126,7 +1197,8 @@ export default function AllCase() {
                 <p className="text-sm font-medium text-base-content/60 mt-1">
                   Customer:{" "}
                   <span className="text-base-content font-bold">
-                    {selectedCase?.customer}
+                    {/* {selectedCase?.customer} */}
+                    {getCustomerName(selectedCase?.customer)}
                   </span>
                 </p>
               </div>
@@ -1301,7 +1373,8 @@ export default function AllCase() {
                         Product
                       </p>
                       <p className="font-medium">
-                        {selectedCase?.product || "—"}
+                        {/* {selectedCase?.product || "—"} */}
+                        {getProductName(selectedCase?.product)}
                       </p>
                     </div>
                     <div>
@@ -1838,33 +1911,61 @@ export default function AllCase() {
                     required
                   />
                 </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Customer</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={caseToEdit.customer}
-                    onChange={(e) =>
-                      setCaseToEdit({ ...caseToEdit, customer: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Product</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    value={caseToEdit.product || ""}
-                    onChange={(e) =>
-                      setCaseToEdit({ ...caseToEdit, product: e.target.value })
-                    }
-                  />
-                </div>
+  <div className="form-control">
+  <label className="label">
+    <span className="label-text">Customer</span>
+  </label>
+
+ <select
+    className="select select-bordered w-full"
+    value={
+      typeof caseToEdit?.customer === "object"
+        ? caseToEdit.customer?._id || ""
+        : caseToEdit?.customer || ""
+    }
+    onChange={(e) => {
+      setCaseToEdit((prev) =>
+        prev ? { ...prev, customer: e.target.value } : prev
+      );
+    }}
+  >
+    <option value="">Select Customer</option>
+
+    {accounts.map((account: any) => (
+      <option key={account._id} value={account._id}>
+        {account.accountName}
+      </option>
+    ))}
+  </select>
+</div>
+
+<div className="form-control">
+  <label className="label">
+    <span className="label-text">Product</span>
+  </label>
+
+   <select
+    className="select select-bordered w-full"
+    value={
+      typeof caseToEdit?.product === "object"
+        ? caseToEdit.product?._id || ""
+        : caseToEdit?.product || ""
+    }
+    onChange={(e) => {
+      setCaseToEdit((prev) =>
+        prev ? { ...prev, product: e.target.value } : prev
+      );
+    }}
+  >
+    <option value="">Select Product (Optional)</option>
+
+    {products.map((product: any) => (
+      <option key={product._id} value={product._id}>
+        {product.productName}
+      </option>
+    ))}
+  </select>
+</div>
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text">Status</span>

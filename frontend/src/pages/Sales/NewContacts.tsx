@@ -133,7 +133,7 @@ export default function NewContact() {
     defaultValues: {
      
       phone: {
-        countryCode: "+1",
+        countryCode: "+91",
         number: "",
       },
       status: "Active",
@@ -324,7 +324,7 @@ console.log("Sales Reps:", salesReps);
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormRow label="Phone Number" required error={errors.phone?.number?.message}>
                   <div className={`flex border rounded-lg overflow-hidden ${errors.phone?.number ? 'border-error' : 'border-base-300'} focus-within:border-primary transition-colors bg-base-100`}>
-                    <select {...register("phone.countryCode")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent">
+                    <select {...register("phone.countryCode")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 bg-base-100">
                       {PHONE_CODES.map((p) => (
                         <option key={p.code} value={p.code}>{p.flag} {p.code}</option>
                       ))}
@@ -338,7 +338,7 @@ console.log("Sales Reps:", salesReps);
       }
     }}
                      maxLength={10}
-                    className="input input-sm border-none w-full focus:outline-none" placeholder="12345 67890" />
+                    className="input input-sm border-none w-full focus:outline-none" placeholder="9022345632" />
                   </div>
                 </FormRow>
                 <FormRow label="Alt. Phone Number">

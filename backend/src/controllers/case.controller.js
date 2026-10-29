@@ -47,7 +47,7 @@ exports.createCase = async (req, res) => {
 exports.getCases = async (req, res) => {
   try {
     const tenantId = req.organization._id;
-    const cases = await Case.find({ organization: tenantId }).sort({ createdAt: -1 });
+    const cases = await Case.find({ organization: tenantId }).populate("customer","accountName").populate("product","productName").sort({ createdAt: -1 });
     console.log(`Fetched ${cases.length} cases for tenant ${tenantId}`);
     res.status(200).json({ success: true, data: cases });
   } catch (error) {

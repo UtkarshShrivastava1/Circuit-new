@@ -89,10 +89,10 @@ export default function NewAccountForm() {
     resolver: zodResolver(accountSchema),
     defaultValues: {
       accountType: "Business",
-      phoneCountry: "+1",
+      phoneCountry: "+91",
       sameAsBilling: true,
       paymentTerms: "Net 30",
-      billingCountry: "United States"
+      billingCountry: "India"
     }
   });
 
@@ -299,7 +299,7 @@ const payload = {
 
               <FormRow label="Phone Number" required error={errors.phoneNumber?.message}>
                 <div className={`flex border rounded-lg overflow-hidden ${errors.phoneNumber ? 'border-error' : 'border-base-300'} focus-within:border-primary transition-colors bg-base-100`}>
-                  <select {...register("phoneCountry")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent">
+                  <select {...register("phoneCountry")} className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 bg-base-100">
                     <option value="+1">🇺🇸 +1</option>
                     <option value="+91">🇮🇳 +91</option>
                     <option value="+44">🇬🇧 +44</option>
@@ -314,7 +314,7 @@ const payload = {
 
                     })}
                     className="input input-sm border-none w-full focus:outline-none"
-                    placeholder="12345 67890"
+                    placeholder="9209221838"
                   />
                 </div>
               </FormRow>

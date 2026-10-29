@@ -607,6 +607,7 @@ exports.updateEmployee = async (req, res) => {
   try{
     const { userId } = req.params;
     const {
+      customDepartment,customDesignation,
       name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
       emergencyName, emergencyPhone, emergencyRelation,status,
       aadhaar, pan, passport,
@@ -635,6 +636,7 @@ exports.updateEmployee = async (req, res) => {
         organization
       },
       {
+        customDesignation,customDepartment,
         name, email, phone, gender, dateOfBirth, currentAddress, permanentAddress,imageUrl,
         emergencyName, emergencyPhone, emergencyRelation,status,
         aadhaar, pan, passport,

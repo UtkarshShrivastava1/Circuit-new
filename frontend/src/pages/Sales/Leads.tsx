@@ -65,7 +65,7 @@ const defaultLeadValues: LeadFormValues = {
   firstName: "",
   lastName: "",
   email: "",
-  countryCode: "+1",
+  countryCode: "+91",
   customCountryCode: "",
   phoneNumber: "",
   gender: "",
@@ -446,7 +446,7 @@ export default function Leads() {
                 >
                   <select
                     {...register("countryCode")}
-                    className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 focus:bg-transparent text-xs"
+                    className="select select-sm select-ghost w-24 rounded-none border-r border-base-300 bg-base-100 text-xs"
                   >
                     {PHONE_CODES.map((p) => (
                       <option key={p.code} value={p.code}>
