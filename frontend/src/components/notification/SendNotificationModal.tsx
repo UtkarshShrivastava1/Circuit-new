@@ -9,6 +9,7 @@ import type { Notification } from "@/type/notification";
 import { useAuth } from "@/auth/useAuth";
 import { sendNotification, updateNotification } from "@/services/notificationService";
 import { toast } from "react-toastify";
+import { ChevronDown } from "lucide-react";
 
 interface Member {
   id: string;
@@ -44,7 +45,14 @@ export default function SendNotificationModal({
   const [target, setTarget] = useState("all");
   const [existingAttachments, setExistingAttachments] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
+const [isRecipientOpen, setIsRecipientOpen] = useState(false);
+const [memberSearch, setMemberSearch] = useState("");
 
+const filteredMembers = members.filter((member) =>
+  member.name.toLowerCase().includes(memberSearch.toLowerCase())
+);
+
+const selectedMember = members.find((member) => member.id === target);
   // Prefill for edit
   useEffect(() => {
     if (editingNotification) {
@@ -241,7 +249,7 @@ export default function SendNotificationModal({
             </Select>
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="text-sm font-medium text-base-content">Send To</label>
             <Select value={target} onChange={(e) => setTarget(e.target.value)}>
               <option value="all">All Employees</option>
@@ -251,7 +259,82 @@ export default function SendNotificationModal({
                 </option>
               ))}
             </Select>
-          </div>
+          </div> */}
+
+          <div className="space-y-2 relative">
+  <label className="text-sm font-medium text-base-content">
+    Send To
+  </label>
+
+  {/* Dropdown Trigger */}
+  <button
+    type="button"
+    onClick={() => setIsRecipientOpen((prev) => !prev)}
+    className="w-full flex items-center justify-between rounded-xl border border-base-300 bg-base-100 px-3 py-2.5 text-sm text-base-content hover:border-primary transition"
+  >
+    <span>
+      {target === "all"
+        ? "All Employees"
+        : selectedMember?.name || "Select Employee"}
+    </span>
+ <ChevronDown
+    size={18}
+    className={`transition-transform duration-200 ${
+      isRecipientOpen ? "rotate-180" : ""
+    }`}
+  />
+  </button>
+
+ {isRecipientOpen && (
+  <div className="absolute bottom-full mb-2 left-0 w-full z-[100] rounded-lg border border-base-300 bg-base-100 shadow-lg">
+
+    <div className="p-2">
+      <input
+        type="text"
+        placeholder="Search employee..."
+        value={memberSearch}
+        onChange={(e) => setMemberSearch(e.target.value)}
+        className="input input-bordered w-full"
+      />
+    </div>
+
+    <div className="max-h-48 overflow-y-auto p-2">
+      <button
+        type="button"
+        onClick={() => {
+          setTarget("all");
+          setIsRecipientOpen(false);
+          setMemberSearch("");
+        }}
+        className="w-full text-left px-3 py-2 rounded-lg hover:bg-base-200"
+      >
+        All Employees
+      </button>
+
+      {filteredMembers.map((member) => (
+        <button
+          type="button"
+          key={member.id}
+          onClick={() => {
+            setTarget(member.id);
+            setIsRecipientOpen(false);
+            setMemberSearch("");
+          }}
+          className="w-full text-left px-3 py-2 rounded-lg hover:bg-base-200"
+        >
+          {member.name}
+        </button>
+      ))}
+
+      {filteredMembers.length === 0 && (
+        <p className="text-sm text-center p-3 opacity-60">
+          No employees found
+        </p>
+      )}
+    </div>
+  </div>
+)}
+</div>
         </div>
 
         {/* Actions */}

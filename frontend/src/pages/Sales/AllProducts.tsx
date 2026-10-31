@@ -417,7 +417,7 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
                   <MdEdit /> Edit Product
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   onClick={() => {
                     setStockUpdateProduct(row.original);
@@ -426,7 +426,7 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
                 >
                   <MdInventory /> Quick Stock Update
                 </a>
-              </li>
+              </li> */}
               {/* <li>
                 <a
                   onClick={() =>
@@ -550,7 +550,7 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
             />
             <input
               type="text"
-              placeholder="Search by name, SKU, code, brand..."
+              placeholder="Search by name, code.."
               className="input input-xs input-bordered w-full pl-8 pr-3 focus:outline-none focus:border-primary"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -900,7 +900,7 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
               >
                 <MdEdit /> Edit
               </button>
-              <button
+              {/* <button
                 onClick={() => {
                   setStockUpdateProduct(selectedProduct);
                   setStockModalOpen(true);
@@ -908,7 +908,7 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
                 className="btn btn-sm btn-outline bg-base-100 flex-1 gap-2"
               >
                 <MdInventory /> Adjust Stock
-              </button>
+              </button> */}
               <button
                 onClick={() => {
                   if (selectedProduct) {
@@ -927,16 +927,16 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
                 Basic Information
               </h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                <div>
+                {/* <div>
                   <p className="text-base-content/50 mb-1">SKU</p>
                   <p className="font-mono font-semibold">
                     {selectedProduct?.sku}
                   </p>
-                </div>
-                <div>
+                </div> */}
+                {/* <div>
                   <p className="text-base-content/50 mb-1">Barcode</p>
                   <p className="font-mono">{selectedProduct?.barcode || "—"}</p>
-                </div>
+                </div> */}
                 <div className="col-span-2">
                   <p className="text-base-content/50 mb-1">Description</p>
                   <p className="text-base-content leading-relaxed">
@@ -1041,29 +1041,29 @@ const [warehouseFilter, setWarehouseFilter] = useState("All");
                     {selectedProduct?.softwareCategory || "-"}
                   </p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-base-content/50 mb-1">Brand</p>
                   <p className="font-medium">{selectedProduct?.brand}</p>
-                </div>
-                <div>
+                </div> */}
+                {/* <div>
                   <p className="text-base-content/50 mb-1">Tags</p>
                   <div className="flex gap-1 mt-1">
                     <span className="badge badge-sm badge-ghost">Featured</span>
                     <span className="badge badge-sm badge-ghost">New</span>
                   </div>
-                </div>
+                </div> */}
               </div>
             </section>
 
             {/* Audit Info */}
-            <section className="bg-base-200/30 p-4 rounded-xl border border-base-200 text-xs">
+            {/* <section className="bg-base-200/30 p-4 rounded-xl border border-base-200 text-xs">
               <div className="grid grid-cols-2 gap-2 text-base-content/60">
                 <p>Created By: Admin</p>
                 <p>Created On: 2026-01-10</p>
                 <p>Updated By: V VINAY Kumar</p>
                 <p>Last Updated: {selectedProduct?.updatedAt || "—"}</p>
               </div>
-            </section>
+            </section> */}
           </div>
         </div>
       </div>

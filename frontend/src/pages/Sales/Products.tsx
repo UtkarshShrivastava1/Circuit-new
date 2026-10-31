@@ -108,9 +108,9 @@ export default function NewProduct() {
               </div>
             </FormRow>
 
-            <FormRow label="SKU" error={errors.sku?.message}>
+            {/* <FormRow label="SKU" error={errors.sku?.message}>
               <input {...register("sku")} className="input input-bordered w-full" placeholder="Stock Keeping Unit (optional)" />
-            </FormRow>
+            </FormRow> */}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
               <FormRow label="Product Type" required error={errors.productType?.message}>
@@ -195,7 +195,7 @@ export default function NewProduct() {
                 <option value="API Key">API Key</option>
               </select>
             </FormRow>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
               <FormRow label="Validity (Days)">
                 <input {...register("validityDays")} type="number" className="input input-bordered width-full" placeholder="e.g. 365" />
               </FormRow>
@@ -205,7 +205,47 @@ export default function NewProduct() {
               <FormRow label="Maximum Devices">
                 <input {...register("maximumDevices")} type="number" className="input input-bordered width-full" placeholder="e.g. 3" />
               </FormRow>
-            </div>
+            </div> */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
+  <FormRow label="Validity (Days)">
+    <input
+      {...register("validityDays", {
+        setValueAs: (value) =>
+          value === "" ? undefined : Number(value),
+      })}
+      type="number"
+      min={0}
+      className="input input-bordered width-full"
+      placeholder="e.g. 365"
+    />
+  </FormRow>
+
+  <FormRow label="Maximum Users">
+    <input
+      {...register("maxUsers", {
+        setValueAs: (value) =>
+          value === "" ? undefined : Number(value),
+      })}
+      type="number"
+      min={0}
+      className="input input-bordered width-full"
+      placeholder="e.g. 50"
+    />
+  </FormRow>
+
+  <FormRow label="Maximum Devices">
+    <input
+      {...register("maxDevices", {
+        setValueAs: (value) =>
+          value === "" ? undefined : Number(value),
+      })}
+      type="number"
+      min={0}
+      className="input input-bordered width-full"
+      placeholder="e.g. 3"
+    />
+  </FormRow>
+</div>
           </FormSection>
 
           {/* 3. Pricing Information */}

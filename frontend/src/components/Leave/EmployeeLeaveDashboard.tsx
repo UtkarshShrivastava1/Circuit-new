@@ -54,6 +54,7 @@ const normalizeAttachments = (raw: any): string[] => {
 
 export default function EmployeeLeaveDashboard() {
   const { auth } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
    const user = auth.user;
   const [open, setOpen] = useState(false);
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
@@ -153,7 +154,7 @@ export default function EmployeeLeaveDashboard() {
   const handleApplyLeave = async (leave: any) => {
     try {
       // 1. Get Organization ID and User context from Session Storage
-     
+       setIsSubmitting(true);
       // const slug = getOrganizationSlug();
        if (!auth.slug) {
          toast.error("User data not found. Please log in again.");
@@ -227,6 +228,8 @@ const response = await applyLeave(auth.slug, formData);
         message: errorMessage,
         type: "error",
       });
+    } finally{
+        setIsSubmitting(false);
     }
   };
 
@@ -489,6 +492,7 @@ if (!confirmDelete.isConfirmed) return;
         open={open}
         onClose={() => setOpen(false)}
         onSubmit={handleApplyLeave}
+         isSubmitting={isSubmitting}
       />
 
 <MobileLeaveTabs

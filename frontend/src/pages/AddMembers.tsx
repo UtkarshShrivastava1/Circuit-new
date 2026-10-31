@@ -624,15 +624,20 @@ if (
                       <option value="other">Other</option>
                     </select>
                     {formData.designation === "other" && (
-  <Field label="Custom Designation">
-    <input
-      name="customDesignation"
-      value={formData.customDesignation}
-      onChange={handleChange}
-      placeholder="Enter custom designation"
-      className={inputBase}
-    />
-  </Field>
+  <div className="mt-4">
+    <Field
+      label="Custom Designation"
+      error={errors.customDesignation}
+    >
+      <input
+        name="customDesignation"
+        value={formData.customDesignation}
+        onChange={handleChange}
+        placeholder="Enter custom designation"
+        className={inputBase}
+      />
+    </Field>
+  </div>
 )}
                   </Field>
                   <Field label="Department">

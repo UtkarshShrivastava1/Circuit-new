@@ -76434,3 +76434,1013 @@
 2026-05-29T06:39:52.431Z INFO: ----------------------------------------
 2026-05-29T06:39:52.431Z INFO: Get members request
 2026-05-29T06:39:52.439Z INFO: Members retrieved
+2026-10-29T06:19:10.681Z INFO: Get members request
+2026-10-29T06:19:10.731Z INFO: Members retrieved
+2026-10-29T06:19:10.766Z INFO: Employee 6a1e6589b48e9df1a09c593d attendance records: 1
+2026-10-29T06:19:10.793Z INFO: Get members request
+2026-10-29T06:19:10.813Z INFO: Members retrieved
+2026-10-29T06:19:10.838Z INFO: Employee 6a1e6589b48e9df1a09c593d attendance records: 1
+2026-10-29T06:19:47.690Z INFO: Get members request
+2026-10-29T06:19:47.716Z INFO: Members retrieved
+2026-10-29T06:19:47.830Z INFO: Employee 6a1e6589b48e9df1a09c593d attendance records: 1
+2026-10-29T06:20:48.556Z INFO: Get members request
+2026-10-29T06:20:48.650Z INFO: Members retrieved
+2026-10-29T06:20:48.726Z INFO: Employee 6a1e6589b48e9df1a09c593d attendance records: 1
+2026-10-29T06:21:49.713Z WARN: Mongoose disconnected from DB
+2026-10-29T06:21:49.714Z WARN: Mongoose disconnected from DB
+2026-10-29T06:23:29.086Z INFO: Cloudinary configured with cloud name:
+2026-10-29T06:23:39.253Z INFO: [SERVER] Boot sequence started
+2026-10-29T06:25:15.751Z INFO: Cloudinary configured with cloud name:
+2026-10-29T06:25:16.122Z INFO: [SERVER] Boot sequence started
+2026-10-29T06:25:16.187Z INFO: Mongoose connected to DB
+2026-10-29T06:25:16.191Z INFO: MongoDB connected: 127.0.0.1
+2026-10-29T06:25:16.200Z INFO: [SERVER] Running on port 5001
+2026-10-29T06:25:16.187Z INFO: Mongoose connected to DB
+2026-10-29T06:25:21.817Z INFO: Login attempt: ritika.vishwakarma29@gmail.com
+2026-10-29T06:25:21.984Z INFO: Login success: ritika.vishwakarma29@gmail.com
+2026-10-29T06:25:22.603Z INFO: Get members request
+2026-10-29T06:25:22.636Z INFO: Members retrieved
+2026-10-29T06:25:22.657Z INFO: Get members request
+2026-10-29T06:25:22.671Z INFO: Members retrieved
+2026-10-29T06:25:22.674Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:25:22.694Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:25:52.629Z INFO: Get members request
+2026-10-29T06:25:52.668Z INFO: Members retrieved
+2026-10-29T06:25:52.681Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:26:22.653Z INFO: Get members request
+2026-10-29T06:26:22.671Z INFO: Members retrieved
+2026-10-29T06:26:22.698Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:26:52.768Z INFO: Get members request
+2026-10-29T06:26:52.793Z INFO: Members retrieved
+2026-10-29T06:26:52.815Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:27:22.766Z INFO: Get members request
+2026-10-29T06:27:22.784Z INFO: Members retrieved
+2026-10-29T06:27:22.820Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:27:52.766Z INFO: Get members request
+2026-10-29T06:27:52.779Z INFO: Members retrieved
+2026-10-29T06:27:52.818Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:28:22.769Z INFO: Get members request
+2026-10-29T06:28:22.798Z INFO: Members retrieved
+2026-10-29T06:28:22.847Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:29:46.789Z INFO: Get members request
+2026-10-29T06:29:46.803Z INFO: Members retrieved
+2026-10-29T06:29:46.809Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:30:46.775Z INFO: Get members request
+2026-10-29T06:30:46.803Z INFO: Members retrieved
+2026-10-29T06:30:46.840Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:31:46.782Z INFO: Get members request
+2026-10-29T06:31:46.805Z INFO: Members retrieved
+2026-10-29T06:31:46.854Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:32:46.791Z INFO: Get members request
+2026-10-29T06:32:46.806Z INFO: Members retrieved
+2026-10-29T06:32:46.813Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:33:46.782Z INFO: Get members request
+2026-10-29T06:33:46.790Z INFO: Members retrieved
+2026-10-29T06:33:46.817Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:34:46.864Z INFO: Get members request
+2026-10-29T06:34:46.886Z INFO: Members retrieved
+2026-10-29T06:34:46.898Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:35:46.778Z INFO: Get members request
+2026-10-29T06:35:46.792Z INFO: Members retrieved
+2026-10-29T06:35:46.840Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:36:46.772Z INFO: Get members request
+2026-10-29T06:36:46.797Z INFO: Members retrieved
+2026-10-29T06:36:46.826Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:37:46.778Z INFO: Get members request
+2026-10-29T06:37:46.793Z INFO: Members retrieved
+2026-10-29T06:37:46.815Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:43:33.915Z INFO: Get members request
+2026-10-29T06:43:33.927Z INFO: Members retrieved
+2026-10-29T06:43:33.938Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:43:47.193Z INFO: Get members request
+2026-10-29T06:43:47.233Z INFO: Members retrieved
+2026-10-29T06:43:47.264Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T06:43:47.330Z INFO: Get members request
+2026-10-29T06:43:47.351Z INFO: Members retrieved
+2026-10-29T06:43:47.361Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:31:19.278Z INFO: Get members request
+2026-10-29T09:31:19.307Z INFO: Members retrieved
+2026-10-29T09:31:19.325Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:31:19.451Z INFO: Get members request
+2026-10-29T09:31:19.495Z INFO: Members retrieved
+2026-10-29T09:31:19.543Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:31:49.794Z INFO: Get members request
+2026-10-29T09:31:49.805Z INFO: Members retrieved
+2026-10-29T09:31:49.837Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:32:19.795Z INFO: Get members request
+2026-10-29T09:32:19.821Z INFO: Members retrieved
+2026-10-29T09:32:19.830Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:32:49.784Z INFO: Get members request
+2026-10-29T09:32:49.794Z INFO: Members retrieved
+2026-10-29T09:32:49.812Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:33:19.768Z INFO: Get members request
+2026-10-29T09:33:19.792Z INFO: Members retrieved
+2026-10-29T09:33:19.825Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:33:49.831Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:33:49.853Z INFO: Get members request
+2026-10-29T09:33:49.919Z INFO: Members retrieved
+2026-10-29T09:34:19.812Z INFO: Get members request
+2026-10-29T09:34:19.828Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:34:20.259Z INFO: Members retrieved
+2026-10-29T09:34:49.794Z INFO: Get members request
+2026-10-29T09:34:49.811Z INFO: Members retrieved
+2026-10-29T09:34:49.819Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:35:19.795Z INFO: Get members request
+2026-10-29T09:35:19.886Z INFO: Members retrieved
+2026-10-29T09:35:19.919Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:35:49.787Z INFO: Get members request
+2026-10-29T09:35:49.802Z INFO: Members retrieved
+2026-10-29T09:35:49.813Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:36:19.777Z INFO: Get members request
+2026-10-29T09:36:19.792Z INFO: Members retrieved
+2026-10-29T09:36:19.832Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:37:20.787Z INFO: Get members request
+2026-10-29T09:37:20.806Z INFO: Members retrieved
+2026-10-29T09:37:20.843Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:38:21.788Z INFO: Get members request
+2026-10-29T09:38:21.800Z INFO: Members retrieved
+2026-10-29T09:38:21.828Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:39:22.777Z INFO: Get members request
+2026-10-29T09:39:22.798Z INFO: Members retrieved
+2026-10-29T09:39:22.827Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T09:58:39.927Z INFO: Get members request
+2026-10-29T09:58:39.988Z INFO: Members retrieved
+2026-10-29T09:58:40.129Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T13:59:16.346Z INFO: Get members request
+2026-10-29T13:59:16.539Z INFO: Members retrieved
+2026-10-29T13:59:17.066Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T13:59:34.294Z INFO: Get members request
+2026-10-29T13:59:34.318Z INFO: Members retrieved
+2026-10-29T13:59:34.349Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T13:59:34.421Z INFO: Get members request
+2026-10-29T13:59:34.448Z INFO: Members retrieved
+2026-10-29T13:59:34.466Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-29T14:05:35.681Z WARN: Mongoose disconnected from DB
+2026-10-29T14:05:35.672Z WARN: Mongoose disconnected from DB
+2026-10-30T05:17:46.852Z INFO: Cloudinary configured with cloud name:
+2026-10-30T05:17:47.282Z INFO: [SERVER] Boot sequence started
+2026-10-30T05:18:19.642Z INFO: Cloudinary configured with cloud name:
+2026-10-30T05:18:19.907Z INFO: [SERVER] Boot sequence started
+2026-10-30T05:18:19.984Z INFO: Mongoose connected to DB
+2026-10-30T05:18:19.984Z INFO: Mongoose connected to DB
+2026-10-30T05:18:19.987Z INFO: MongoDB connected: 127.0.0.1
+2026-10-30T05:18:19.998Z INFO: [SERVER] Running on port 5001
+2026-10-30T05:18:53.974Z INFO: Get members request
+2026-10-30T05:18:54.030Z INFO: Members retrieved
+2026-10-30T05:18:54.048Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-30T05:18:54.148Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-30T05:18:54.165Z INFO: Get members request
+2026-10-30T05:18:54.190Z INFO: Members retrieved
+2026-10-30T05:19:23.959Z INFO: Get members request
+2026-10-30T05:19:23.982Z INFO: Members retrieved
+2026-10-30T05:19:23.997Z INFO: Employee 6aac172c11fb579b57bfcff3 attendance records: 0
+2026-10-30T05:20:06.486Z INFO: Login attempt: ritika.vishwakarma290@gmail.com
+2026-10-30T05:20:06.724Z INFO: Login success: ritika.vishwakarma290@gmail.com
+2026-10-30T05:20:06.871Z INFO: Get members request
+2026-10-30T05:20:06.881Z INFO: Members retrieved
+2026-10-30T05:20:07.044Z INFO: Get members request
+2026-10-30T05:20:07.144Z INFO: Members retrieved
+2026-10-30T05:20:07.168Z INFO: Get all leaves request
+2026-10-30T05:20:07.166Z INFO: Get all leaves request
+2026-10-30T05:20:07.166Z INFO: Get all leaves request with filters
+2026-10-30T05:20:07.732Z INFO: Get all leaves request
+2026-10-30T05:20:07.758Z INFO: Get all leaves request with filters
+2026-10-30T05:20:07.766Z INFO: Get all leaves request
+2026-10-30T05:20:16.626Z INFO: Get members request
+2026-10-30T05:20:16.636Z INFO: Members retrieved
+2026-10-30T05:20:16.694Z INFO: Get members request
+2026-10-30T05:20:16.713Z INFO: Members retrieved
+2026-10-30T05:30:49.016Z INFO: Get members request
+2026-10-30T05:30:49.308Z INFO: Members retrieved
+2026-10-30T05:30:50.122Z INFO: Get members request
+2026-10-30T05:30:50.153Z INFO: Members retrieved
+2026-10-30T05:30:50.202Z INFO: Get all leaves request
+2026-10-30T05:30:50.205Z INFO: Get all leaves request with filters
+2026-10-30T05:30:50.206Z INFO: Get all leaves request
+2026-10-30T05:30:50.364Z INFO: Get all leaves request
+2026-10-30T05:30:50.365Z INFO: Get all leaves request with filters
+2026-10-30T05:30:50.371Z INFO: Get all leaves request
+2026-10-30T05:30:51.617Z INFO: Get members request
+2026-10-30T05:30:51.664Z INFO: Members retrieved
+2026-10-30T05:30:51.741Z INFO: Get members request
+2026-10-30T05:30:51.872Z INFO: Members retrieved
+2026-10-30T05:32:05.568Z INFO: Get members request
+2026-10-30T05:32:05.587Z INFO: Members retrieved
+2026-10-30T05:32:05.629Z INFO: Get members request
+2026-10-30T05:32:05.658Z INFO: Members retrieved
+2026-10-30T05:32:42.019Z INFO: Get members request
+2026-10-30T05:32:42.171Z INFO: Members retrieved
+2026-10-30T05:32:42.423Z INFO: Members retrieved
+2026-10-30T05:32:42.344Z INFO: Get members request
+2026-10-30T05:32:46.931Z INFO: Get employee by ID request
+2026-10-30T05:32:47.036Z INFO: Employee retrieved by ID
+2026-10-30T05:32:47.225Z INFO: Get employee by ID request
+2026-10-30T05:32:47.353Z INFO: Employee retrieved by ID
+2026-10-30T05:32:47.544Z INFO: Get members request
+2026-10-30T05:32:47.651Z INFO: Members retrieved
+2026-10-30T05:32:47.668Z INFO: Get members request
+2026-10-30T05:32:47.687Z INFO: Members retrieved
+2026-10-30T05:32:47.803Z INFO: Get members request
+2026-10-30T05:32:47.817Z INFO: Members retrieved
+2026-10-30T05:32:47.972Z INFO: Get members request
+2026-10-30T05:32:48.074Z INFO: Members retrieved
+2026-10-30T05:32:48.231Z INFO: Get members request
+2026-10-30T05:32:48.271Z INFO: Members retrieved
+2026-10-30T05:32:48.522Z INFO: Get members request
+2026-10-30T05:32:48.533Z INFO: Members retrieved
+2026-10-30T05:33:05.554Z INFO: Get members request
+2026-10-30T05:33:05.571Z INFO: Members retrieved
+2026-10-30T05:33:05.613Z INFO: Get members request
+2026-10-30T05:33:05.638Z INFO: Members retrieved
+2026-10-30T05:33:11.901Z INFO: Get employee by ID request
+2026-10-30T05:33:12.003Z INFO: Employee retrieved by ID
+2026-10-30T05:33:12.355Z INFO: Get employee by ID request
+2026-10-30T05:33:12.364Z INFO: Employee retrieved by ID
+2026-10-30T05:33:12.852Z INFO: Get members request
+2026-10-30T05:33:13.043Z INFO: Members retrieved
+2026-10-30T05:33:13.367Z INFO: Get members request
+2026-10-30T05:33:13.497Z INFO: Members retrieved
+2026-10-30T05:33:13.640Z INFO: Get members request
+2026-10-30T05:33:14.319Z INFO: Members retrieved
+2026-10-30T05:33:14.677Z INFO: Get members request
+2026-10-30T05:33:14.691Z INFO: Members retrieved
+2026-10-30T05:33:14.838Z INFO: Get members request
+2026-10-30T05:33:15.223Z INFO: Members retrieved
+2026-10-30T05:33:15.341Z INFO: Get members request
+2026-10-30T05:33:15.357Z INFO: Members retrieved
+2026-10-30T05:33:15.493Z INFO: Get members request
+2026-10-30T05:33:15.504Z INFO: Members retrieved
+2026-10-30T05:33:15.680Z INFO: Get members request
+2026-10-30T05:33:15.690Z INFO: Members retrieved
+2026-10-30T05:33:15.790Z INFO: Get members request
+2026-10-30T05:33:16.080Z INFO: Members retrieved
+2026-10-30T05:33:16.206Z INFO: Get members request
+2026-10-30T05:33:16.223Z INFO: Members retrieved
+2026-10-30T05:33:18.746Z INFO: Get members request
+2026-10-30T05:33:18.764Z INFO: Members retrieved
+2026-10-30T05:33:18.970Z INFO: Get members request
+2026-10-30T05:33:19.191Z INFO: Members retrieved
+2026-10-30T05:33:44.991Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/raw/upload/v1793338424/notifications/file_ih6xff
+2026-10-30T05:33:58.322Z INFO: Get members request
+2026-10-30T05:33:58.371Z INFO: Members retrieved
+2026-10-30T05:33:58.537Z INFO: Get members request
+2026-10-30T05:33:58.581Z INFO: Members retrieved
+2026-10-30T05:33:58.782Z INFO: Get all leaves request
+2026-10-30T05:33:58.783Z INFO: Get all leaves request with filters
+2026-10-30T05:33:58.787Z INFO: Get all leaves request
+2026-10-30T05:33:58.921Z INFO: Get all leaves request
+2026-10-30T05:33:58.922Z INFO: Get all leaves request with filters
+2026-10-30T05:33:58.922Z INFO: Get all leaves request
+2026-10-30T05:34:14.087Z INFO: Login attempt: ritika.vishwakarma01@gmail.com
+2026-10-30T05:34:14.569Z INFO: Login success: ritika.vishwakarma01@gmail.com
+2026-10-30T05:34:14.947Z INFO: Get members request
+2026-10-30T05:34:14.954Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T05:34:15.043Z INFO: Members retrieved
+2026-10-30T05:34:15.205Z INFO: Get members request
+2026-10-30T05:34:15.241Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T05:34:15.271Z INFO: Members retrieved
+2026-10-30T05:34:22.330Z INFO: Get members request
+2026-10-30T05:34:22.355Z INFO: Members retrieved
+2026-10-30T05:34:22.439Z INFO: Get members request
+2026-10-30T05:34:22.624Z INFO: Members retrieved
+2026-10-30T05:58:31.168Z WARN: Mongoose disconnected from DB
+2026-10-30T05:58:31.070Z WARN: Mongoose disconnected from DB
+2026-10-30T05:58:38.019Z INFO: Mongoose connected to DB
+2026-10-30T05:58:38.019Z INFO: Mongoose connected to DB
+2026-10-30T05:58:38.425Z INFO: Get members request
+2026-10-30T05:58:38.436Z INFO: Members retrieved
+2026-10-30T05:58:38.504Z INFO: Get members request
+2026-10-30T05:58:38.526Z INFO: Members retrieved
+2026-10-30T05:58:46.921Z INFO: Get members request
+2026-10-30T05:58:46.935Z INFO: Members retrieved
+2026-10-30T05:58:46.979Z INFO: Get members request
+2026-10-30T05:58:46.990Z INFO: Members retrieved
+2026-10-30T05:58:57.753Z INFO: Fetching leave policy
+2026-10-30T05:58:57.761Z INFO: Get all leaves request with filters
+2026-10-30T05:58:57.761Z INFO: Get all leaves request
+2026-10-30T05:58:57.760Z INFO: Get all leaves request
+2026-10-30T05:58:57.817Z INFO: Get all leaves request
+2026-10-30T05:58:57.817Z INFO: Get all leaves request with filters
+2026-10-30T05:58:57.817Z INFO: Get all leaves request
+2026-10-30T05:58:57.826Z INFO: Leave policy fetched successfully
+2026-10-30T05:58:57.944Z INFO: Fetching leave policy
+2026-10-30T05:58:57.964Z INFO: Leave policy fetched successfully
+2026-10-30T05:59:07.114Z INFO: Get my leaves request
+2026-10-30T05:59:07.111Z INFO: Fetching leave policy
+2026-10-30T05:59:07.118Z INFO: Leave policy fetched successfully
+2026-10-30T05:59:07.120Z INFO: Get my leaves response
+2026-10-30T05:59:07.165Z INFO: Fetching leave policy
+2026-10-30T05:59:07.169Z INFO: Get my leaves request
+2026-10-30T05:59:07.173Z INFO: Leave policy fetched successfully
+2026-10-30T05:59:07.174Z INFO: Get my leaves response
+2026-10-30T05:59:48.866Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg
+2026-10-30T05:59:48.867Z INFO: Apply leave request
+2026-10-30T05:59:48.921Z INFO: Leave application activity logged
+2026-10-30T06:00:06.526Z INFO: Get all leaves request
+2026-10-30T06:00:06.536Z INFO: Get all leaves request with filters
+2026-10-30T06:00:06.540Z INFO: Get all leaves request
+2026-10-30T06:00:06.559Z INFO: Fetching leave policy
+2026-10-30T06:00:06.597Z INFO: Leave policy fetched successfully
+2026-10-30T06:00:06.676Z INFO: Fetching leave policy
+2026-10-30T06:00:06.698Z INFO: Get all leaves request
+2026-10-30T06:00:06.689Z INFO: Leave policy fetched successfully
+2026-10-30T06:00:06.703Z INFO: Get all leaves request with filters
+2026-10-30T06:00:06.705Z INFO: Get all leaves request
+2026-10-30T06:00:10.637Z INFO: Update leave status request
+2026-10-30T06:00:10.957Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:00:10.685Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:00:10.638Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:00:25.540Z INFO: Update leave status request
+2026-10-30T06:00:25.573Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'rejected',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:00:25.541Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:00:25.540Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:01:26.592Z INFO: Update leave status request
+2026-10-30T06:01:26.611Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:01:26.593Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:01:26.593Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:02:47.121Z INFO: Get all leaves request
+2026-10-30T06:02:47.121Z INFO: Get all leaves request with filters
+2026-10-30T06:02:47.122Z INFO: Get all leaves request
+2026-10-30T06:02:47.129Z INFO: Fetching leave policy
+2026-10-30T06:02:47.157Z INFO: Leave policy fetched successfully
+2026-10-30T06:02:47.209Z INFO: Fetching leave policy
+2026-10-30T06:02:47.222Z INFO: Leave policy fetched successfully
+2026-10-30T06:02:47.227Z INFO: Get all leaves request
+2026-10-30T06:02:47.232Z INFO: Get all leaves request with filters
+2026-10-30T06:02:47.233Z INFO: Get all leaves request
+2026-10-30T06:02:49.522Z INFO: Update leave status request
+2026-10-30T06:02:49.740Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'rejected',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:02:49.523Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:02:49.522Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:02:54.198Z INFO: Update leave status request
+2026-10-30T06:02:54.328Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:02:54.199Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:02:54.199Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:04:55.544Z INFO: Get all leaves request
+2026-10-30T06:04:55.545Z INFO: Get all leaves request with filters
+2026-10-30T06:04:55.545Z INFO: Get all leaves request
+2026-10-30T06:04:55.554Z INFO: Fetching leave policy
+2026-10-30T06:04:55.589Z INFO: Leave policy fetched successfully
+2026-10-30T06:04:55.675Z INFO: Fetching leave policy
+2026-10-30T06:04:55.707Z INFO: Leave policy fetched successfully
+2026-10-30T06:04:55.714Z INFO: Get all leaves request
+2026-10-30T06:04:55.715Z INFO: Get all leaves request with filters
+2026-10-30T06:04:55.718Z INFO: Get all leaves request
+2026-10-30T06:04:57.406Z INFO: Update leave status request
+2026-10-30T06:04:57.548Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'rejected',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:04:57.419Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:04:57.408Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:06:00.689Z INFO: Update leave status request
+2026-10-30T06:06:00.725Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:06:00.693Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:06:00.692Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:06:08.099Z INFO: Get all leaves request
+2026-10-30T06:06:08.101Z INFO: Get all leaves request with filters
+2026-10-30T06:06:08.103Z INFO: Get all leaves request
+2026-10-30T06:06:08.113Z INFO: Fetching leave policy
+2026-10-30T06:06:08.142Z INFO: Leave policy fetched successfully
+2026-10-30T06:06:08.238Z INFO: Fetching leave policy
+2026-10-30T06:06:08.258Z INFO: Leave policy fetched successfully
+2026-10-30T06:06:08.293Z INFO: Get all leaves request
+2026-10-30T06:06:08.301Z INFO: Get all leaves request with filters
+2026-10-30T06:06:08.306Z INFO: Get all leaves request
+2026-10-30T06:06:10.417Z INFO: Update leave status request
+2026-10-30T06:06:10.585Z INFO: leaves:  {
+  _id: new ObjectId('6a9515fca010a87b4fea4c44'),
+  user: {
+    _id: new ObjectId('69d11af527fc92e1e2519ea6'),
+    name: 'Ruhani Sharma',
+    email: 'ritika@example.com'
+  },
+  slug: 'zager-tech',
+  name: 'Ruhani Sharma',
+  leaveType: 'paternity',
+  startDate: 2026-08-31T00:00:00.000Z,
+  endDate: 2026-08-31T00:00:00.000Z,
+  reason: 'vcnv',
+  attachments: [],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-08-31T05:49:48.628Z,
+  updatedAt: 2026-10-30T06:06:10.420Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:06:10.419Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:10:01.071Z INFO: Get all leaves request
+2026-10-30T06:10:01.070Z INFO: Get all leaves request with filters
+2026-10-30T06:10:01.070Z INFO: Get all leaves request
+2026-10-30T06:10:01.073Z INFO: Fetching leave policy
+2026-10-30T06:10:01.087Z INFO: Leave policy fetched successfully
+2026-10-30T06:10:01.185Z INFO: Fetching leave policy
+2026-10-30T06:10:01.203Z INFO: Leave policy fetched successfully
+2026-10-30T06:10:01.269Z INFO: Get all leaves request
+2026-10-30T06:10:01.287Z INFO: Get all leaves request with filters
+2026-10-30T06:10:01.289Z INFO: Get all leaves request
+2026-10-30T06:10:37.808Z INFO: Update leave status request
+2026-10-30T06:10:37.823Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'rejected',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:10:37.809Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:10:37.808Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:10:39.531Z INFO: Update leave status request
+2026-10-30T06:10:39.537Z INFO: leaves:  {
+  _id: new ObjectId('6ae432540b19e72975d18070'),
+  user: {
+    _id: new ObjectId('69dde3bb99ed31f4e114be88'),
+    name: 'Priyanka Vishwakarma',
+    email: 'ritika.vishwakarma01@gmail.com'
+  },
+  slug: 'zager-tech',
+  name: 'Priyanka Vishwakarma',
+  leaveType: 'casual',
+  startDate: 2026-10-30T00:00:00.000Z,
+  endDate: 2026-10-30T00:00:00.000Z,
+  reason: 'hellooosir',
+  attachments: [
+    'https://res.cloudinary.com/diatdeffd/image/upload/v1793339988/leaves/file_mwlosg.jpg'
+  ],
+  emergency: true,
+  status: 'approved',
+  createdAt: 2026-10-30T05:59:48.874Z,
+  updatedAt: 2026-10-30T06:10:39.531Z,
+  __v: 0,
+  actionDate: 2026-10-30T06:10:39.531Z,
+  approvedBy: new ObjectId('69c2378833b196a73e0b6cf2')
+}
+2026-10-30T06:10:47.262Z INFO: Get my leaves request
+2026-10-30T06:10:47.266Z INFO: Fetching leave policy
+2026-10-30T06:10:47.269Z INFO: Get my leaves response
+2026-10-30T06:10:47.281Z INFO: Leave policy fetched successfully
+2026-10-30T06:10:47.309Z INFO: Get my leaves request
+2026-10-30T06:10:47.314Z INFO: Fetching leave policy
+2026-10-30T06:10:47.319Z INFO: Get my leaves response
+2026-10-30T06:10:47.332Z INFO: Leave policy fetched successfully
+2026-10-30T06:11:02.694Z INFO: Get my leaves request
+2026-10-30T06:11:02.697Z INFO: Fetching leave policy
+2026-10-30T06:11:02.701Z INFO: Get my leaves response
+2026-10-30T06:11:02.704Z INFO: Leave policy fetched successfully
+2026-10-30T06:11:02.737Z INFO: Get my leaves request
+2026-10-30T06:11:02.740Z INFO: Fetching leave policy
+2026-10-30T06:11:02.749Z INFO: Get my leaves response
+2026-10-30T06:11:02.751Z INFO: Leave policy fetched successfully
+2026-10-30T06:15:29.980Z INFO: Get my leaves request
+2026-10-30T06:15:29.987Z INFO: Fetching leave policy
+2026-10-30T06:15:30.003Z INFO: Get my leaves response
+2026-10-30T06:15:30.009Z INFO: Leave policy fetched successfully
+2026-10-30T06:15:30.042Z INFO: Get my leaves request
+2026-10-30T06:15:30.046Z INFO: Fetching leave policy
+2026-10-30T06:15:30.052Z INFO: Get my leaves response
+2026-10-30T06:15:30.056Z INFO: Leave policy fetched successfully
+2026-10-30T06:15:30.103Z INFO: Fetching leave policy
+2026-10-30T06:15:30.096Z INFO: Get my leaves request
+2026-10-30T06:15:30.106Z INFO: Get my leaves response
+2026-10-30T06:15:30.114Z INFO: Leave policy fetched successfully
+2026-10-30T06:16:56.948Z INFO: Apply leave request
+2026-10-30T06:16:57.018Z INFO: Leave application activity logged
+2026-10-30T06:18:04.469Z INFO: Delete leave request
+2026-10-30T06:18:05.937Z ERROR: Socket emit failed
+2026-10-30T06:18:18.141Z INFO: Get all leaves request
+2026-10-30T06:18:18.142Z INFO: Get all leaves request
+2026-10-30T06:18:18.141Z INFO: Get all leaves request with filters
+2026-10-30T06:18:18.146Z INFO: Fetching leave policy
+2026-10-30T06:18:18.165Z INFO: Leave policy fetched successfully
+2026-10-30T06:18:18.201Z INFO: Fetching leave policy
+2026-10-30T06:18:18.206Z INFO: Leave policy fetched successfully
+2026-10-30T06:18:18.223Z INFO: Get all leaves request with filters
+2026-10-30T06:18:18.224Z INFO: Get all leaves request
+2026-10-30T06:18:18.222Z INFO: Get all leaves request
+2026-10-30T06:31:49.199Z INFO: Get members request
+2026-10-30T06:31:49.212Z INFO: Members retrieved
+2026-10-30T06:31:49.241Z INFO: Get members request
+2026-10-30T06:31:49.258Z INFO: Members retrieved
+2026-10-30T06:31:53.106Z INFO: Get members request
+2026-10-30T06:31:53.117Z INFO: Members retrieved
+2026-10-30T06:31:53.134Z INFO: Get members request
+2026-10-30T06:31:53.146Z INFO: Members retrieved
+2026-10-30T06:32:37.375Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793341956/tasks/file_rlo3pd.jpg
+2026-10-30T06:33:20.532Z INFO: Get my leaves request
+2026-10-30T06:33:20.535Z INFO: Fetching leave policy
+2026-10-30T06:33:20.540Z INFO: Get my leaves response
+2026-10-30T06:33:20.544Z INFO: Leave policy fetched successfully
+2026-10-30T06:33:20.567Z INFO: Get my leaves request
+2026-10-30T06:33:20.569Z INFO: Fetching leave policy
+2026-10-30T06:33:20.573Z INFO: Get my leaves response
+2026-10-30T06:33:20.580Z INFO: Leave policy fetched successfully
+2026-10-30T06:33:40.780Z INFO: Get members request
+2026-10-30T06:33:40.790Z INFO: Members retrieved
+2026-10-30T06:33:40.822Z INFO: Get members request
+2026-10-30T06:33:40.836Z INFO: Members retrieved
+2026-10-30T06:33:40.851Z INFO: Get members request
+2026-10-30T06:33:40.860Z INFO: Members retrieved
+2026-10-30T06:33:40.874Z INFO: Get members request
+2026-10-30T06:33:40.886Z INFO: Members retrieved
+2026-10-30T06:33:40.899Z INFO: Get members request
+2026-10-30T06:33:40.906Z INFO: Members retrieved
+2026-10-30T06:33:40.918Z INFO: Get members request
+2026-10-30T06:33:40.927Z INFO: Members retrieved
+2026-10-30T06:33:40.944Z INFO: Members retrieved
+2026-10-30T06:33:40.937Z INFO: Get members request
+2026-10-30T06:33:40.955Z INFO: Get members request
+2026-10-30T06:33:40.963Z INFO: Members retrieved
+2026-10-30T06:33:40.976Z INFO: Get members request
+2026-10-30T06:33:40.984Z INFO: Members retrieved
+2026-10-30T06:33:40.996Z INFO: Get members request
+2026-10-30T06:33:41.003Z INFO: Members retrieved
+2026-10-30T06:34:32.460Z INFO: Adding work update for project 69d49960d355e84eb65eb349 by user 69dde3bb99ed31f4e114be88 in org 69c2378833b196a73e0b6cf0
+2026-10-30T06:34:32.461Z DEBUG: Request body: {"description":"fvndvn"}
+2026-10-30T06:34:34.121Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793342073/work-updates/file_pey6nd.jpg
+2026-10-30T06:34:57.204Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/raw/upload/v1793342096/work-updates/file_isrr5j
+2026-10-30T06:38:11.119Z INFO: Adding work update for project 69ddfb6399ed31f4e114c5e7 by user 69dde3bb99ed31f4e114be88 in org 69c2378833b196a73e0b6cf0
+2026-10-30T06:38:11.121Z DEBUG: Request body: {"description":"fvc"}
+2026-10-30T06:38:31.888Z INFO: Adding work update for project 69ddfb6399ed31f4e114c5e7 by user 69dde3bb99ed31f4e114be88 in org 69c2378833b196a73e0b6cf0
+2026-10-30T06:38:31.888Z DEBUG: Request body: {"description":"fdvdv"}
+2026-10-30T06:38:33.954Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793342313/work-updates/file_unwcgv.jpg
+2026-10-30T06:39:50.173Z INFO: Adding work update for project 69ddfb6399ed31f4e114c5e7 by user 69dde3bb99ed31f4e114be88 in org 69c2378833b196a73e0b6cf0
+2026-10-30T06:39:50.174Z DEBUG: Request body: {"description":"dcnmsdc"}
+2026-10-30T06:39:51.849Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793342391/work-updates/file_swn4le.jpg
+2026-10-30T06:41:01.529Z INFO: Adding work update for project 69ddfb6399ed31f4e114c5e7 by user 69dde3bb99ed31f4e114be88 in org 69c2378833b196a73e0b6cf0
+2026-10-30T06:41:01.529Z DEBUG: Request body: {"description":"dcnn"}
+2026-10-30T06:41:03.435Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793342463/work-updates/file_wu4x5p.pdf
+2026-10-30T06:41:57.067Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:41:57.089Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:41:57.401Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:41:57.414Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:41:57.448Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:41:57.466Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:41:57.481Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:42:00.156Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:42:01.451Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:42:01.485Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 0
+2026-10-30T06:42:03.479Z INFO: User 69dde3bb99ed31f4e114be88 marking attendance for Fri Oct 30 2026
+2026-10-30T06:42:30.667Z INFO: employee Id : 69dde3bb99ed31f4e114be88 PRESENT undefined undefined undefined
+2026-10-30T06:42:30.673Z INFO: Admin 69c2378833b196a73e0b6cf2 approving attendance doc 6ae43c3b0b19e72975d18485 for employee 69dde3bb99ed31f4e114be88
+2026-10-30T06:42:30.978Z INFO: userObjectId : 69dde3bb99ed31f4e114be88
+2026-10-30T06:42:32.188Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 2
+2026-10-30T06:42:46.304Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:42:46.320Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:00.165Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 2
+2026-10-30T06:43:04.907Z INFO: Get members request
+2026-10-30T06:43:04.913Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:04.921Z INFO: Members retrieved
+2026-10-30T06:43:04.970Z INFO: Get members request
+2026-10-30T06:43:04.982Z INFO: Members retrieved
+2026-10-30T06:43:04.988Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:10.167Z INFO: Get members request
+2026-10-30T06:43:10.179Z INFO: Members retrieved
+2026-10-30T06:43:10.215Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:10.236Z INFO: Get members request
+2026-10-30T06:43:10.253Z INFO: Members retrieved
+2026-10-30T06:43:10.272Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:11.489Z INFO: Fetching leave policy
+2026-10-30T06:43:11.490Z INFO: Get my leaves request
+2026-10-30T06:43:11.499Z INFO: Leave policy fetched successfully
+2026-10-30T06:43:11.501Z INFO: Get my leaves response
+2026-10-30T06:43:11.536Z INFO: Get my leaves request
+2026-10-30T06:43:11.539Z INFO: Fetching leave policy
+2026-10-30T06:43:11.540Z INFO: Get my leaves response
+2026-10-30T06:43:11.551Z INFO: Leave policy fetched successfully
+2026-10-30T06:43:13.798Z INFO: Get members request
+2026-10-30T06:43:13.805Z INFO: Members retrieved
+2026-10-30T06:43:13.817Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:13.854Z INFO: Get members request
+2026-10-30T06:43:13.868Z INFO: Members retrieved
+2026-10-30T06:43:13.896Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:43:34.984Z INFO: Fetching unified employee list for payroll
+2026-10-30T06:43:34.994Z INFO: Employee list retrieved
+2026-10-30T06:43:35.014Z INFO: Fetching unified employee list for payroll
+2026-10-30T06:43:35.020Z INFO: Employee list retrieved
+2026-10-30T06:43:41.853Z INFO: Initiating monthly payroll run with payload
+2026-10-30T06:43:47.527Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.526Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.528Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.529Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.529Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.539Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.540Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.547Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.599Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.596Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.629Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.631Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.630Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.633Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.630Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.641Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.644Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.645Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.646Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:47.646Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.285Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.286Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.286Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.286Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.286Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.297Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.303Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.298Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.300Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:43:56.301Z INFO: Enriching payroll slip with employee details
+2026-10-30T06:44:16.250Z INFO: Get members request
+2026-10-30T06:44:16.258Z INFO: Members retrieved
+2026-10-30T06:44:16.278Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:44:16.308Z INFO: Get members request
+2026-10-30T06:44:16.322Z INFO: Members retrieved
+2026-10-30T06:44:16.350Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:44:46.979Z INFO: Get members request
+2026-10-30T06:44:46.989Z INFO: Members retrieved
+2026-10-30T06:44:47.021Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:45:16.715Z INFO: Get members request
+2026-10-30T06:45:16.721Z INFO: Members retrieved
+2026-10-30T06:45:16.736Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:45:46.709Z INFO: Get members request
+2026-10-30T06:45:46.717Z INFO: Members retrieved
+2026-10-30T06:45:46.732Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:46:16.712Z INFO: Get members request
+2026-10-30T06:46:16.719Z INFO: Members retrieved
+2026-10-30T06:46:16.727Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:46:46.733Z INFO: Get members request
+2026-10-30T06:46:46.762Z INFO: Members retrieved
+2026-10-30T06:46:46.784Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:47:16.703Z INFO: Get members request
+2026-10-30T06:47:16.713Z INFO: Members retrieved
+2026-10-30T06:47:16.722Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:47:44.771Z INFO: Get members request
+2026-10-30T06:47:44.780Z INFO: Members retrieved
+2026-10-30T06:47:44.841Z INFO: Get members request
+2026-10-30T06:47:44.856Z INFO: Members retrieved
+2026-10-30T06:47:44.950Z INFO: Get all leaves request
+2026-10-30T06:47:44.951Z INFO: Get all leaves request with filters
+2026-10-30T06:47:44.951Z INFO: Get all leaves request
+2026-10-30T06:47:44.976Z INFO: Get all leaves request with filters
+2026-10-30T06:47:44.974Z INFO: Get all leaves request
+2026-10-30T06:47:44.976Z INFO: Get all leaves request
+2026-10-30T06:47:49.736Z INFO: Get members request
+2026-10-30T06:47:49.748Z INFO: Members retrieved
+2026-10-30T06:47:49.790Z INFO: Get members request
+2026-10-30T06:47:49.801Z INFO: Members retrieved
+2026-10-30T06:47:49.855Z INFO: Get all leaves request
+2026-10-30T06:47:49.856Z INFO: Get all leaves request with filters
+2026-10-30T06:47:49.856Z INFO: Get all leaves request
+2026-10-30T06:47:49.883Z INFO: Get all leaves request
+2026-10-30T06:47:49.884Z INFO: Get all leaves request with filters
+2026-10-30T06:47:49.884Z INFO: Get all leaves request
+2026-10-30T06:47:54.370Z INFO: Get members request
+2026-10-30T06:47:54.380Z INFO: Members retrieved
+2026-10-30T06:47:54.422Z INFO: Get members request
+2026-10-30T06:47:54.434Z INFO: Members retrieved
+2026-10-30T06:47:54.469Z INFO: Get all leaves request
+2026-10-30T06:47:54.469Z INFO: Get all leaves request with filters
+2026-10-30T06:47:54.468Z INFO: Get all leaves request
+2026-10-30T06:47:54.490Z INFO: Get all leaves request
+2026-10-30T06:47:54.491Z INFO: Get all leaves request with filters
+2026-10-30T06:47:54.491Z INFO: Get all leaves request
+2026-10-30T06:47:55.455Z INFO: Get members request
+2026-10-30T06:47:55.462Z INFO: Members retrieved
+2026-10-30T06:47:55.470Z INFO: Get members request
+2026-10-30T06:47:55.474Z INFO: Members retrieved
+2026-10-30T06:47:58.833Z INFO: Get members request
+2026-10-30T06:47:58.839Z INFO: Members retrieved
+2026-10-30T06:47:58.883Z INFO: Get members request
+2026-10-30T06:47:58.889Z INFO: Members retrieved
+2026-10-30T06:47:58.930Z INFO: Get all leaves request
+2026-10-30T06:47:58.931Z INFO: Get all leaves request with filters
+2026-10-30T06:47:58.931Z INFO: Get all leaves request
+2026-10-30T06:47:58.984Z INFO: Get all leaves request with filters
+2026-10-30T06:47:58.984Z INFO: Get all leaves request
+2026-10-30T06:47:58.984Z INFO: Get all leaves request
+2026-10-30T06:48:00.158Z INFO: Get all leaves request with filters
+2026-10-30T06:48:00.157Z INFO: Get all leaves request
+2026-10-30T06:48:00.158Z INFO: Get all leaves request
+2026-10-30T06:48:00.162Z INFO: Fetching leave policy
+2026-10-30T06:48:00.169Z INFO: Leave policy fetched successfully
+2026-10-30T06:48:00.202Z INFO: Fetching leave policy
+2026-10-30T06:48:00.206Z INFO: Get all leaves request
+2026-10-30T06:48:00.206Z INFO: Get all leaves request with filters
+2026-10-30T06:48:00.206Z INFO: Get all leaves request
+2026-10-30T06:48:00.213Z INFO: Leave policy fetched successfully
+2026-10-30T06:48:03.255Z INFO: Get members request
+2026-10-30T06:48:03.263Z INFO: Members retrieved
+2026-10-30T06:48:03.301Z INFO: Get members request
+2026-10-30T06:48:03.307Z INFO: Members retrieved
+2026-10-30T06:48:03.350Z INFO: Get all leaves request
+2026-10-30T06:48:03.351Z INFO: Get all leaves request with filters
+2026-10-30T06:48:03.351Z INFO: Get all leaves request
+2026-10-30T06:48:03.374Z INFO: Get all leaves request
+2026-10-30T06:48:03.375Z INFO: Get all leaves request
+2026-10-30T06:48:03.375Z INFO: Get all leaves request with filters
+2026-10-30T06:48:36.668Z INFO: Get members request
+2026-10-30T06:48:36.681Z INFO: Members retrieved
+2026-10-30T06:48:36.695Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T06:50:12.303Z INFO: Get members request
+2026-10-30T06:50:12.307Z INFO: Members retrieved
+2026-10-30T06:50:12.324Z INFO: Get members request
+2026-10-30T06:50:12.335Z INFO: Members retrieved
+2026-10-30T06:50:12.354Z INFO: Get members request
+2026-10-30T06:50:12.366Z INFO: Members retrieved
+2026-10-30T06:50:12.379Z INFO: Get members request
+2026-10-30T06:50:12.384Z INFO: Members retrieved
+2026-10-30T06:50:12.396Z INFO: Get members request
+2026-10-30T06:50:12.402Z INFO: Members retrieved
+2026-10-30T06:50:12.417Z INFO: Get members request
+2026-10-30T06:50:12.423Z INFO: Members retrieved
+2026-10-30T06:50:12.436Z INFO: Get members request
+2026-10-30T06:50:12.440Z INFO: Members retrieved
+2026-10-30T06:50:12.452Z INFO: Get members request
+2026-10-30T06:50:12.456Z INFO: Members retrieved
+2026-10-30T06:50:12.520Z INFO: Get members request
+2026-10-30T06:50:12.525Z INFO: Members retrieved
+2026-10-30T06:50:12.551Z INFO: Get members request
+2026-10-30T06:50:12.561Z INFO: Members retrieved
+2026-10-30T06:50:12.573Z INFO: Get members request
+2026-10-30T06:50:12.582Z INFO: Members retrieved
+2026-10-30T06:50:12.592Z INFO: Get members request
+2026-10-30T06:50:12.599Z INFO: Members retrieved
+2026-10-30T06:50:12.612Z INFO: Get members request
+2026-10-30T06:50:12.618Z INFO: Members retrieved
+2026-10-30T06:50:12.631Z INFO: Get members request
+2026-10-30T06:50:12.639Z INFO: Members retrieved
+2026-10-30T06:50:12.658Z INFO: Get members request
+2026-10-30T06:50:12.665Z INFO: Members retrieved
+2026-10-30T06:50:12.673Z INFO: Get members request
+2026-10-30T06:50:12.680Z INFO: Members retrieved
+2026-10-30T06:50:12.690Z INFO: Get members request
+2026-10-30T06:50:12.697Z INFO: Members retrieved
+2026-10-30T06:50:12.710Z INFO: Get members request
+2026-10-30T06:50:12.718Z INFO: Members retrieved
+2026-10-30T06:50:12.728Z INFO: Get members request
+2026-10-30T06:50:12.733Z INFO: Members retrieved
+2026-10-30T06:50:12.746Z INFO: Get members request
+2026-10-30T06:50:12.752Z INFO: Members retrieved
+2026-10-30T06:50:31.677Z INFO: Get members request
+2026-10-30T06:50:31.686Z INFO: Members retrieved
+2026-10-30T06:50:31.753Z INFO: Get members request
+2026-10-30T06:50:31.849Z INFO: Members retrieved
+2026-10-30T06:50:44.679Z INFO: Received request to create project with data
+2026-10-30T06:50:45.156Z INFO: Get members request
+2026-10-30T06:50:45.166Z INFO: Members retrieved
+2026-10-30T06:50:45.181Z INFO: Get members request
+2026-10-30T06:50:45.198Z INFO: Members retrieved
+2026-10-30T06:50:45.214Z INFO: Get members request
+2026-10-30T06:50:45.224Z INFO: Members retrieved
+2026-10-30T06:50:45.256Z INFO: Get members request
+2026-10-30T06:50:45.274Z INFO: Members retrieved
+2026-10-30T06:50:45.299Z INFO: Get members request
+2026-10-30T06:50:45.306Z INFO: Members retrieved
+2026-10-30T06:50:45.324Z INFO: Get members request
+2026-10-30T06:50:45.333Z INFO: Members retrieved
+2026-10-30T06:50:45.350Z INFO: Get members request
+2026-10-30T06:50:45.356Z INFO: Members retrieved
+2026-10-30T06:50:45.370Z INFO: Get members request
+2026-10-30T06:50:45.381Z INFO: Members retrieved
+2026-10-30T06:50:45.403Z INFO: Get members request
+2026-10-30T06:50:45.415Z INFO: Members retrieved
+2026-10-30T06:50:45.428Z INFO: Get members request
+2026-10-30T06:50:45.434Z INFO: Members retrieved
+2026-10-30T06:50:45.445Z INFO: Get members request
+2026-10-30T06:50:45.451Z INFO: Members retrieved
+2026-10-30T06:50:45.468Z INFO: Get members request
+2026-10-30T06:50:45.476Z INFO: Members retrieved
+2026-10-30T06:50:45.486Z INFO: Get members request
+2026-10-30T06:50:45.494Z INFO: Members retrieved
+2026-10-30T06:50:45.510Z INFO: Get members request
+2026-10-30T06:50:45.516Z INFO: Members retrieved
+2026-10-30T06:50:45.530Z INFO: Get members request
+2026-10-30T06:50:45.536Z INFO: Members retrieved
+2026-10-30T06:50:45.550Z INFO: Get members request
+2026-10-30T06:50:45.555Z INFO: Members retrieved
+2026-10-30T06:50:45.569Z INFO: Get members request
+2026-10-30T06:50:45.575Z INFO: Members retrieved
+2026-10-30T06:50:45.587Z INFO: Get members request
+2026-10-30T06:50:45.597Z INFO: Members retrieved
+2026-10-30T06:50:45.607Z INFO: Get members request
+2026-10-30T06:50:45.614Z INFO: Members retrieved
+2026-10-30T06:50:45.631Z INFO: Get members request
+2026-10-30T06:50:45.637Z INFO: Members retrieved
+2026-10-30T06:51:35.315Z INFO:  employee request received
+2026-10-30T06:51:35.316Z INFO: Create employee request
+2026-10-30T06:51:37.109Z INFO: Employee created
+2026-10-30T06:51:37.256Z INFO: Get members request
+2026-10-30T06:51:37.273Z INFO: Members retrieved
+2026-10-30T06:51:37.298Z INFO: Get members request
+2026-10-30T06:51:37.311Z INFO: Members retrieved
+2026-10-30T06:51:48.457Z INFO: Get employee by ID request
+2026-10-30T06:51:48.463Z INFO: Employee retrieved by ID
+2026-10-30T06:51:48.480Z INFO: Get employee by ID request
+2026-10-30T06:51:48.483Z INFO: Employee retrieved by ID
+2026-10-30T06:52:15.919Z INFO: Get members request
+2026-10-30T06:52:15.953Z INFO: Members retrieved
+2026-10-30T06:52:15.989Z INFO: Get members request
+2026-10-30T06:52:16.000Z INFO: Members retrieved
+2026-10-30T09:48:17.280Z INFO: Get members request
+2026-10-30T09:48:17.454Z INFO: Members retrieved
+2026-10-30T09:48:17.566Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:48:20.290Z INFO: Get members request
+2026-10-30T09:48:20.327Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:48:20.346Z INFO: Members retrieved
+2026-10-30T09:48:20.510Z INFO: Get members request
+2026-10-30T09:48:20.526Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:48:20.572Z INFO: Members retrieved
+2026-10-30T09:48:50.717Z INFO: Get members request
+2026-10-30T09:48:50.727Z INFO: Members retrieved
+2026-10-30T09:48:50.740Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:48:58.351Z INFO:  organizationId : Fri Oct 30 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-10-30T09:48:58.350Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-10-30T09:48:58.414Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-10-30T09:48:58.415Z INFO:  organizationId : Fri Oct 30 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-10-30T09:49:10.857Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-10-30T09:49:10.933Z INFO:  organizationId : Fri Oct 30 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-10-30T09:49:20.708Z INFO: Get members request
+2026-10-30T09:49:20.847Z INFO: Members retrieved
+2026-10-30T09:49:21.088Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:49:50.721Z INFO: Get members request
+2026-10-30T09:49:50.742Z INFO: Members retrieved
+2026-10-30T09:49:51.031Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:50:20.727Z INFO: Get members request
+2026-10-30T09:50:20.765Z INFO: Members retrieved
+2026-10-30T09:50:21.032Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:50:50.714Z INFO: Get members request
+2026-10-30T09:50:50.732Z INFO: Members retrieved
+2026-10-30T09:50:50.989Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:51:20.735Z INFO: Get members request
+2026-10-30T09:51:20.813Z INFO: Members retrieved
+2026-10-30T09:51:20.947Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:52:39.924Z INFO: Get members request
+2026-10-30T09:52:40.063Z INFO: Members retrieved
+2026-10-30T09:52:40.324Z INFO: Employee 69dde3bb99ed31f4e114be88 attendance records: 1
+2026-10-30T09:59:23.592Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793354362/products/images/file_wppc99.jpg
+2026-10-30T09:59:24.816Z INFO: Buffer uploaded to Cloudinary: https://res.cloudinary.com/diatdeffd/image/upload/v1793354364/products/images/file_hoyqi9.jpg
+2026-10-31T05:47:48.350Z INFO: Cloudinary configured with cloud name:
+2026-10-31T05:47:54.450Z INFO: [SERVER] Boot sequence started
+2026-10-31T05:47:54.538Z INFO: Mongoose connected to DB
+2026-10-31T05:47:54.547Z INFO: MongoDB connected: 127.0.0.1
+2026-10-31T05:47:54.573Z INFO: [SERVER] Running on port 5001
+2026-10-31T05:47:54.539Z INFO: Mongoose connected to DB
+2026-10-31T05:49:24.443Z INFO: Login attempt: ritika.vishwakarma290@gmail.com
+2026-10-31T05:49:24.700Z INFO: Login success: ritika.vishwakarma290@gmail.com

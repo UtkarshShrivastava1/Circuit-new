@@ -25,14 +25,14 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product Code is required"],
       trim: true,
     },
-    sku: {
-      type: String,
-      trim: true,
-    },
-    barcode: {
-      type: String,
-      trim: true,
-    },
+    // sku: {
+    //   type: String,
+    //   trim: true,
+    // },
+    // barcode: {
+    //   type: String,
+    //   trim: true,
+    // },
     status: {
       type: String,
       enum: ["Active", "Inactive", "Discontinued"],

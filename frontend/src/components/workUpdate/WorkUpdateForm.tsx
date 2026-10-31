@@ -108,16 +108,30 @@ console.log("formData", [...formData.entries()]);
   const progress = getProgress();
 
   return (
-    <div className="relative w-full bg-base-100 border border-base-200 shadow-xl rounded-[2rem] p-6 sm:p-8 lg:p-10 transition-shadow duration-300 hover:shadow-2xl overflow-hidden mx-auto max-w-6xl">
+    <div className="relative w-full bg-base-100 border border-base-200 shadow-xl rounded-[2rem] p-6 sm:p-8 lg:p-10 transition-shadow duration-300 hover:shadow-2xl  mx-auto max-w-6xl">
       
       {/* Loading Overlay */}
-      {loading && (
+      {/* {loading && (
         <div className="absolute inset-0 bg-base-100/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-[2rem] animate-fade-in">
           <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
           <h3 className="text-xl font-bold text-base-content">Submitting Update...</h3>
           <p className="text-sm text-base-content/60 mt-1">Please wait while your work update is recorded.</p>
         </div>
-      )}
+      )} */}
+
+      {loading && (
+  <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[9999] flex flex-col items-center justify-center bg-base-100 shadow-xl border border-base-200 rounded-2xl p-8 min-w-[280px]">
+    <span className="loading loading-spinner loading-lg text-primary mb-4"></span>
+
+    <h3 className="text-xl font-bold text-base-content">
+      Submitting Update...
+    </h3>
+
+    <p className="text-sm text-base-content/60 mt-2 text-center">
+      Please wait while your work update is recorded.
+    </p>
+  </div>
+)}
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-8 pb-6 border-b border-base-200">
@@ -252,13 +266,13 @@ console.log("formData", [...formData.entries()]);
               >
                 Cancel
               </button>
-              <button 
+              {/* <button 
                 type="button" 
                 onClick={() => toast.info("Draft saved locally (Coming Soon)")} 
                 className="btn btn-outline border-base-300 w-full sm:w-auto rounded-xl hover:bg-base-200 hover:border-base-300 hover:text-base-content font-semibold"
               >
                 Save Draft
-              </button>
+              </button> */}
               <button
                 type="submit"
                 disabled={loading || !selectedProjectId || !description.trim()}

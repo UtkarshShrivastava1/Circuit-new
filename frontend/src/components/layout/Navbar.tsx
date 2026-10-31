@@ -80,7 +80,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
         </div>
 
         {/* ── Center: Search Bar Trigger (⌘K) ── */}
-        <div className="flex-1 flex items-center justify-center sm:justify-start px-2 sm:px-4">
+        {/* <div className="flex-1 flex items-center justify-center sm:justify-start px-2 sm:px-4">
           <div
             className="w-full max-w-xs sm:max-w-sm relative cursor-text group"
             onClick={() => setSearchOpen(true)}
@@ -96,7 +96,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* ── Right: Actions (Notifications, Theme, Profile) ── */}
         <div className="flex items-center gap-1.5 sm:gap-2">

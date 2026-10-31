@@ -105,6 +105,7 @@ export default function LeaveRequestTable({
 
     <div className="flex flex-col gap-2 sm:flex-row">
       <Button
+      
         size="sm"
         variant="primary"
         onClick={handleBulkApprove}
@@ -198,7 +199,12 @@ export default function LeaveRequestTable({
                           <Button
                             size="xs"
                             variant="primary"
-                            onClick={() => onApprove?.(r.id)}
+                            onClick={(e) =>{   e.preventDefault();
+                              e.stopPropagation();onApprove?.(r.id);
+
+                            }
+
+                            }
                             disabled={r.status === "approved"}
                             className={
                               r.status === "approved"
@@ -211,7 +217,10 @@ export default function LeaveRequestTable({
                           <Button
                             size="xs"
                             variant="error"
-                            onClick={() => onReject?.(r.id)}
+                            onClick={(e) => {  e.preventDefault();
+                              e.stopPropagation();onReject?.(r.id);
+                            
+                            }}
                             disabled={r.status === "rejected"}
                             className={
                               r.status === "rejected"

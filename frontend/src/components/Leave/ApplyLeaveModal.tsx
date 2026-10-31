@@ -16,12 +16,14 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSubmit?: (leave: any) => Promise<void> | void;
+  isSubmitting:boolean
 }
 
 export default function ApplyLeaveModal({
   open,
   onClose,
   onSubmit,
+  isSubmitting,
 }: Props) {
   if (!open) return null;
 
@@ -276,6 +278,7 @@ export default function ApplyLeaveModal({
           <Button
             variant="primary"
             disabled={
+              isSubmitting||
               !leave.fromDate ||
               !leave.reason ||
               (!isHalfDay && !leave.toDate)
@@ -286,7 +289,7 @@ export default function ApplyLeaveModal({
               }
             }}
           >
-            Submit Leave
+         {isSubmitting ? "Submitting..." : "Submit Leave"}
           </Button>
         </div>
       </div>
