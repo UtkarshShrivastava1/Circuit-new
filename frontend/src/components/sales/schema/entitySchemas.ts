@@ -19,7 +19,7 @@ export const entitySchemas: any = {
     { key: "altEmail", label: "Alternate Email" },
     { key: "altPhoneNumber", label: "Alternate Phone" },
 
-    { key: "assignedRep.name", label: "Assigned Rep" },
+    { key: "assignedRep", label: "Assigned Rep" },
   
     { key: "address.addressLine1", label: "Address Line 1" },
     { key: "address.addressLine2", label: "Address Line 2" },
@@ -45,7 +45,7 @@ export const entitySchemas: any = {
   { key: "description", label: "Description" },
 
   // Account Owner
-  { key: "accountOwner.name", label: "Account Owner" },
+  { key: "accountOwner", label: "Account Owner" },
   { key: "accountOwner.email", label: "Owner Email" },
 
   // Primary Contact
@@ -72,8 +72,8 @@ export const entitySchemas: any = {
   { key: "shippingAddress.postalCode", label: "Shipping Postal Code" },
   { key: "shippingAddress.country", label: "Shipping Country" },
 
-  { key: "createdAt", label: "Created At" },
-  { key: "updatedAt", label: "Updated At" },
+  // { key: "createdAt", label: "Created At" },
+  // { key: "updatedAt", label: "Updated At" },
   ],
 
 

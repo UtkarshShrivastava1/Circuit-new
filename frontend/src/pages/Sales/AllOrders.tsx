@@ -96,7 +96,7 @@ export default function AllOrders() {
   }, [repsData]);
   
   const orders = data?.data || [];
-  // console.log(orders);
+  console.log(orders);
   // Mutations
   const updateMutation = useMutation({
     mutationFn: (vars: { id: string; payload: Partial<Order> }) => updateOrder(vars.id, vars.payload, auth.slug || "default-tenant"),
@@ -684,80 +684,197 @@ export default function AllOrders() {
                 </table>
               </div>
             </section> */}
+
+{/* Order Items */}
 <section>
   <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">
     Order Items
   </h3>
 
-  <div className="bg-base-200/30 rounded-xl border border-base-200 overflow-hidden">
-    <table className="table table-sm w-full table-fixed">
-      
-      {/* FIXED COLUMN WIDTHS */}
-      <colgroup>
-        <col className="w-[50%]" />
-        <col className="w-[18%]" />
-        <col className="w-[12%]" />
-        <col className="w-[20%]" />
-      </colgroup>
-
+  <div className="bg-base-200/30 rounded-xl border border-base-200 overflow-x-auto">
+    <table className="table table-sm w-full">
       <thead className="bg-base-200/50">
         <tr>
-          <th className="text-left">Item</th>
-          <th className="text-right">Price</th>
-          <th className="text-center">Qty</th>
-          <th className="text-right">Total</th>
+          <th>Product</th>
+          <th>SKU</th>
+          <th>Retail Price</th>
+          <th>Selling Price</th>
+          <th>Cost Price</th>
+          <th>Qty</th>
+          <th>Discount %</th>
+          <th>Tax %</th>
+          <th>Price</th>
+          <th className="text-right">Line Total</th>
         </tr>
       </thead>
 
       <tbody>
-        {selectedOrder?.items?.map((p, idx) => (
-          <tr key={idx}>
+        {selectedOrder?.items?.map((item: any, idx: number) => {
+          const sellingPrice = Number(item.sellingPrice ?? item.unitPrice ?? 0);
+          const quantity = Number(item.quantity ?? 0);
+          const price = sellingPrice * quantity;
 
-            {/* ITEM */}
-            <td>
-              <p className="font-semibold">
-                {p.productName}
-              </p>
+          const discount = Number(item.discountPct ?? 0);
+          const tax = Number(item.taxPct ?? 0);
 
-              <p className="text-[10px] text-base-content/50 font-mono">
-                {p.sku}
-              </p>
+          const afterDiscount = price - (price * discount / 100);
+          const calculatedTotal = afterDiscount + (afterDiscount * tax / 100);
+
+          const formatPrice = (value: number) =>
+            `₹${value.toLocaleString("en-IN", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`;
+
+          return (
+            <tr key={idx}>
+              <td className="font-semibold">
+                {item.productName ||
+                  (typeof item.productId === "object"
+                    ? item.productId?.productName
+                    : "Product")}
+              </td>
+
+              <td className="font-mono text-xs">
+                {item.sku || item.productCode || "-"}
+              </td>
+
+              <td>{formatPrice(Number(item.retailPrice ?? 0))}</td>
+
+              <td>{formatPrice(sellingPrice)}</td>
+
+              <td>{formatPrice(Number(item.costPrice ?? 0))}</td>
+
+              <td>{quantity}</td>
+
+              <td>{discount}%</td>
+
+              <td>{tax}%</td>
+
+              <td>{formatPrice(price)}</td>
+
+              <td className="text-right font-semibold">
+                {formatPrice(Number(item.lineTotal ?? calculatedTotal))}
+              </td>
+            </tr>
+          );
+        })}
+
+        {(!selectedOrder?.items || selectedOrder.items.length === 0) && (
+          <tr>
+            <td colSpan={10} className="text-center py-5 text-base-content/50">
+              No products added.
             </td>
-
-            {/* PRICE */}
-            <td className="text-right whitespace-nowrap">
-              ₹{p.sellingPrice?.toLocaleString("en-IN")}
-            </td>
-
-            {/* QTY */}
-            <td className="text-center">
-              {p.quantity}
-            </td>
-
-            {/* LINE TOTAL */}
-            <td className="text-right font-medium whitespace-nowrap">
-              ₹{p.lineTotal?.toLocaleString("en-IN")}
-            </td>
-
           </tr>
-        ))}
+        )}
       </tbody>
-
-      <tfoot>
-        <tr className="bg-base-200/30">
-          <td colSpan={3} className="text-right font-bold text-base-content/70">
-            Grand Total
-          </td>
-
-          <td className="text-right font-bold text-lg text-success">
-            ₹{selectedOrder?.grandTotal?.toLocaleString("en-IN")}
-          </td>
-        </tr>
-      </tfoot>
-
     </table>
   </div>
 </section>
+
+{/* Order Summary */}
+<section>
+  <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">
+    Order Summary
+  </h3>
+
+  <div className="bg-base-200/30 border border-base-200 rounded-xl p-4 space-y-3 text-sm">
+    {[
+      ["Subtotal", (selectedOrder as any)?.subtotal],
+      ["Item Discount", (selectedOrder as any)?.itemDiscount],
+      ["Overall Discount", (selectedOrder as any)?.summaryDiscount],
+      ["Tax", (selectedOrder as any)?.summaryTax],
+      ["Shipping Charges", (selectedOrder as any)?.shippingCharges],
+      ["Adjustment", (selectedOrder as any)?.adjustment],
+    ].map(([label, value]: any) => (
+      <div key={label} className="flex justify-between gap-4">
+        <span className="text-base-content/60">{label}</span>
+        <span className="font-medium">
+          ₹{Number(value ?? 0).toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
+      </div>
+    ))}
+
+    <div className="border-t border-base-300 pt-3 flex justify-between items-center">
+      <span className="font-bold">Grand Total</span>
+      <span className="text-xl font-bold text-success">
+        ₹{Number(
+          selectedOrder?.grandTotal ?? selectedOrder?.orderValue ?? 0
+        ).toLocaleString("en-IN", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}
+      </span>
+    </div>
+  </div>
+</section>
+
+{/* Payment Details */}
+<section>
+  <h3 className="font-bold uppercase tracking-wider text-base-content/50 mb-3 text-xs">
+    Payment Details
+  </h3>
+
+  <div className="grid grid-cols-2 gap-4 bg-base-200/30 border border-base-200 rounded-xl p-4 text-sm">
+    <div>
+      <p className="text-xs text-base-content/50 mb-1">Payment Terms</p>
+      <p className="font-semibold">{(selectedOrder as any)?.paymentTerms || "N/A"}</p>
+    </div>
+
+    <div>
+      <p className="text-xs text-base-content/50 mb-1">Payment Method</p>
+      <p className="font-semibold">{(selectedOrder as any)?.paymentMethod || "N/A"}</p>
+    </div>
+
+    <div>
+      <p className="text-xs text-base-content/50 mb-1">Advance Payment</p>
+      <p className="font-semibold">
+        ₹{Number((selectedOrder as any)?.advancePayment ?? 0).toLocaleString("en-IN")}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-xs text-base-content/50 mb-1">Outstanding</p>
+      <p className="font-semibold text-warning">
+        ₹{Number(
+          (selectedOrder as any)?.outstanding ??
+          Math.max(0, Number(selectedOrder?.grandTotal ?? selectedOrder?.orderValue ?? 0) -
+          Number((selectedOrder as any)?.advancePayment ?? 0))
+        ).toLocaleString("en-IN")}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-xs text-base-content/50 mb-1">Payment Status</p>
+      <p className="font-semibold">{selectedOrder?.paymentStatus || "N/A"}</p>
+    </div>
+  </div>
+</section>
+
+{/* Addresses */}
+<section className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div className="bg-base-200/30 p-4 rounded-xl border border-base-200">
+    <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-2">
+      Billing Address
+    </h4>
+    <p className="text-sm whitespace-pre-wrap">
+      {selectedOrder?.billingAddress || "No billing address available."}
+    </p>
+  </div>
+
+  <div className="bg-base-200/30 p-4 rounded-xl border border-base-200">
+    <h4 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-2">
+      Shipping Address
+    </h4>
+    <p className="text-sm whitespace-pre-wrap">
+      {selectedOrder?.shippingAddress || "No shipping address available."}
+    </p>
+  </div>
+</section>
+
             {/* Notes */}
             <section className="grid grid-cols-2 gap-4">
               <div className="bg-warning/10 p-3 rounded-lg border border-warning/20">

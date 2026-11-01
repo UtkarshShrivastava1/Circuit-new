@@ -35,6 +35,9 @@ import { getSalesReps } from "@/services/salesRepServices";
 import ImportExportActions from "@/components/import-export/ImportExportActions";
 import type { ColumnConfig } from "@/type/importExport.types";
 import { PageHeader, StatsGrid } from "@/components/common";
+import EditTaskModal from "@/components/task/EditTaskModel";
+import SalesEditTaskModal from "@/components/sales/SalesEditTaskModal";
+import { getAllAccounts } from "@/services/salesService";
 
 const taskColumns: ColumnConfig[] = [
   { key: "id", label: "Task ID", type: "string" },
@@ -57,6 +60,7 @@ export interface SalesTask {
   id: string;
   title: string;
   customer: string;
+  customerName?:string;
   assignedTo: string;
   assignedToName?: string;
   type: string;
@@ -121,12 +125,13 @@ const [filterAssignee, setFilterAssignee] = useState("All");
   const salesReps = useMemo(() => {
     return repsData?.data || [];
   }, [repsData]);
-
+ console.log(salesReps)
   const getRepName = useCallback((idOrName: string) => {
     if (!idOrName) return "Unassigned";
     const rep = salesReps.find((r: any) => r._id === idOrName || r.memberId?._id === idOrName);
     return rep ? (rep.fullName || rep.memberId?.name || idOrName) : idOrName;
   }, [salesReps]);
+
 
   const filteredReps = useMemo(() => {
     if (!assigneeSearch) return salesReps;
@@ -158,30 +163,96 @@ const [filterAssignee, setFilterAssignee] = useState("All");
   // }, [data]);
 
   // Mutations
-  const tasks = useMemo(() => {
-  return (data?.data || []).map((t: any) => ({
-    id: t._id || t.id,
-    title: t.title,
-    customer: t.customer || "Unknown",
 
-    // sirf id store karo
-   assignedTo: t.assignedTo?._id || "",
-assignedToName: t.assignedTo?.name || "Unassigned",
+  const { data: accountsData, isLoading: accountsLoading } = useQuery({
+  queryKey: ["accounts", auth.slug],
+  queryFn: () => getAllAccounts(auth.slug || "default-tenant"),
+  enabled: !!auth.slug,
+});
 
-    type: t.type || "Other",
-    priority: t.priority || "Medium",
-    status: t.status || "Pending",
-    dealValue: t.expectedDealValue || 0,
-    stage: t.opportunityStage || "N/A",
-    startDate: t.startDate ? new Date(t.startDate).toISOString().split("T")[0] : "",
-    dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
-    followUpDate: t.followUpDate ? new Date(t.followUpDate).toISOString().split("T")[0] : "",
-    progress: t.progress || 0,
-    createdAt: t.createdAt,
-    updatedAt: t.updatedAt,
-    completionNotes: t.completionNotes,
-  }));
-}, [data]);
+const accounts = useMemo(() => {
+  const response = accountsData?.data;
+
+  if (Array.isArray(response)) return response;
+  if (Array.isArray(response?.data)) return response.data;
+  if (Array.isArray(response?.accounts)) return response.accounts;
+
+  return [];
+}, [accountsData]);
+//   const tasks = useMemo(() => {
+    
+//   return (data?.data || []).map((t: any) => ({
+
+//     id: t._id || t.id,
+//     title: t.title,
+//     // customer: t.customer || "Unknown",
+// // customer:
+// //   typeof t.customer === "object"
+// //     ? t.customer?.accountName ||"Unknown"
+// //     : "Unknown",
+//   customer:
+//   typeof t.customer === "object"
+//     ? t.customer?._id || ""
+//     : t.customer || "",
+
+// customerName:
+//   typeof t.customer === "object"
+//     ? t.customer?.accountName || "Unknown"
+//     : "Unknown",
+//     // sirf id store karo
+//    assignedTo: t.assignedTo?._id || "",
+// assignedToName: t.assignedTo?.name || "Unassigned",
+
+//     type: t.type || "Other",
+//     priority: t.priority || "Medium",
+//     status: t.status || "Pending",
+//     dealValue: t.expectedDealValue || 0,
+//     stage: t.opportunityStage || "N/A",
+//     startDate: t.startDate ? new Date(t.startDate).toISOString().split("T")[0] : "",
+//     dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
+//     followUpDate: t.followUpDate ? new Date(t.followUpDate).toISOString().split("T")[0] : "",
+//     progress: t.progress || 0,
+//     createdAt: t.createdAt,
+//     updatedAt: t.updatedAt,
+//     completionNotes: t.completionNotes,
+//   }));
+// }, [data]);
+const tasks = useMemo(() => {
+  return (data?.data || []).map((t: any) => {
+    const customerId =
+      typeof t.customer === "object"
+        ? t.customer?._id || ""
+        : t.customer || "";
+
+    const customerName =
+      (typeof t.customer === "object" ? t.customer?.accountName : "") ||
+      accounts.find((account: any) => account._id === customerId)?.accountName ||
+      "Unknown";
+
+    return {
+      id: t._id || t.id,
+      title: t.title,
+      customer: customerId,
+      customerName,
+      assignedTo: t.assignedTo?._id || "",
+      assignedToName: t.assignedTo?.name || "Unassigned",
+      type: t.type || "Other",
+      priority: t.priority || "Medium",
+      status: t.status || "Pending",
+      dealValue: t.expectedDealValue || 0,
+      stage: t.opportunityStage || "N/A",
+      startDate: t.startDate ? new Date(t.startDate).toISOString().split("T")[0] : "",
+      dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
+      followUpDate: t.followUpDate ? new Date(t.followUpDate).toISOString().split("T")[0] : "",
+      progress: t.progress || 0,
+      createdAt: t.createdAt,
+      updatedAt: t.updatedAt,
+      completionNotes: t.completionNotes,
+    };
+  });
+}, [data, accounts]);
+
+
 console.log(data?.data);
   
   
@@ -245,9 +316,15 @@ console.log(data?.data);
         </span>
       ),
     }),
-    columnHelper.accessor("customer", {
-      header: "Customer",
-    }),
+    // columnHelper.accessor("customer", {
+    //   header: "Customer",
+    // }),
+    columnHelper.accessor("customerName", {
+  header: "Customer",
+  cell: (info) => (
+    <span>{info.getValue() || "Unknown"}</span>
+  ),
+}),
     columnHelper.accessor("assignedTo", {
       header: "Assigned To",
       cell: (info) => {
@@ -324,7 +401,7 @@ console.log(data?.data);
 
     const searchMatch =
       t.title.toLowerCase().includes(search.toLowerCase()) ||
-      t.customer.toLowerCase().includes(search.toLowerCase());
+      t.customerName.toLowerCase().includes(search.toLowerCase());
 
     const typeMatch =
       filterType === "All" || t.type === filterType;
@@ -763,7 +840,7 @@ console.log(data?.data);
                         </span>
                       </div>
                       <h4 className="font-semibold text-sm mb-1 leading-tight">{task.title}</h4>
-                      <p className="text-xs text-base-content/70 mb-3">{task.customer}</p>
+                      <p className="text-xs text-base-content/70 mb-3">{task.customerName}</p>
                       <div className="flex justify-between items-center mt-2 border-t border-base-200 pt-2">
                         <div className="avatar placeholder" title={task.assignedToName}>
                           <div className="bg-neutral text-neutral-content rounded-full w-6">
@@ -854,7 +931,7 @@ console.log(data?.data);
             <section>
               <h3 className="text-sm font-bold uppercase tracking-wider text-base-content/50 mb-4">Basic Information</h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
-                <div><p className="text-base-content/50 mb-1">Customer</p><p className="font-semibold">{selectedTask?.customer}</p></div>
+                <div><p className="text-base-content/50 mb-1">Customer</p><p className="font-semibold">{selectedTask?.customerName}</p></div>
                 <div><p className="text-base-content/50 mb-1">Task Type</p><p className="font-semibold">{selectedTask?.type}</p></div>
                 <div><p className="text-base-content/50 mb-1">Assigned To</p><p className="font-semibold">{selectedTask?.assignedToName}</p></div>
                 <div><p className="text-base-content/50 mb-1">Priority</p>
@@ -988,7 +1065,7 @@ console.log(data?.data);
         </div>
       </dialog> 
 
-      <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+      {/* <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
         <div className="modal-box max-w-4xl">
           <h3 className="font-bold text-lg mb-4">Edit Task</h3>
           {taskToEdit && (
@@ -1096,7 +1173,19 @@ console.log(data?.data);
             </form>
           )}
         </div>
-      </dialog>
+      </dialog> */}
+      <SalesEditTaskModal
+  editModalOpen={editModalOpen}
+  taskToEdit={taskToEdit}
+  setTaskToEdit={setTaskToEdit}
+  setEditModalOpen={setEditModalOpen}
+  handleEditSubmit={handleEditSubmit}
+  salesReps={salesReps}
+  getRepName={getRepName}
+  accounts={accounts}
+  accountsLoading={accountsLoading}
+  
+/>
 
       <dialog className={`modal ${followUpModalOpen ? 'modal-open' : ''}`}>
         <div className="modal-box">

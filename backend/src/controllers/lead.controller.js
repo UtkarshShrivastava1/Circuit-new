@@ -134,20 +134,85 @@ const getAllLeads = async (req, res) => {
 
 
 
+// const updateLead = async (req, res) => {
+//   try {
+//     const { leadId } = req.params;
+//     logger.info(`Updating lead with ID: ${leadId}`);
+//     const organizationId = req.organization._id;
+//     logger.info(`Organization ID: ${organizationId}`);
+
+
+//     const lead = await LeadModel.findOne({
+//       _id: leadId,
+//       organizationId,
+//     });
+
+
+
+//     if (!lead) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Lead not found",
+//       });
+//     }
+
+//     // Email duplicate check (if email is being updated)
+//     if (req.body.email) {
+//       const existingLead = await LeadModel.findOne({
+//         email: req.body.email,
+//         organizationId,
+//         _id: { $ne: leadId },
+//       });
+
+//       if (existingLead) {
+//         return res.status(409).json({
+//           success: false,
+//           message: "Lead already exists with this email",
+//         });
+//       }
+//     }
+
+//     const updatedLead = await LeadModel.findByIdAndUpdate(
+//       leadId,
+//       {
+//         ...req.body,
+//       },
+//       {
+//         new: true,
+//         runValidators: true,
+//       }
+//     );
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Lead updated successfully",
+//       data: updatedLead,
+//     });
+//   } catch (error) {
+//     console.error("Update Lead Error:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal Server Error",
+//       error: error.message,
+//     });
+//   }
+// };
+
+
 const updateLead = async (req, res) => {
   try {
     const { leadId } = req.params;
-    logger.info(`Updating lead with ID: ${leadId}`);
     const organizationId = req.organization._id;
+
+    logger.info(`Updating lead with ID: ${leadId}`);
     logger.info(`Organization ID: ${organizationId}`);
 
-
+    // Check lead belongs to this organization
     const lead = await LeadModel.findOne({
       _id: leadId,
       organizationId,
     });
-
-
 
     if (!lead) {
       return res.status(404).json({
@@ -156,7 +221,7 @@ const updateLead = async (req, res) => {
       });
     }
 
-    // Email duplicate check (if email is being updated)
+    // Duplicate email check
     if (req.body.email) {
       const existingLead = await LeadModel.findOne({
         email: req.body.email,
@@ -172,10 +237,51 @@ const updateLead = async (req, res) => {
       }
     }
 
-    const updatedLead = await LeadModel.findByIdAndUpdate(
-      leadId,
+    // Only allow these fields to be updated
+    const allowedFields = [
+      "leadOwner",
+      "leadSource",
+      "customLeadSource",
+      "industry",
+      "customIndustry",
+      "leadStatus",
+      "priority",
+
+      "firstName",
+      "lastName",
+      "email",
+      "gender",
+      "countryCode",
+      "customCountryCode",
+      "phoneNumber",
+
+      "companyName",
+      "addressLine1",
+      "addressLine2",
+      "city",
+      "state",
+      "postalCode",
+      "country",
+      "customCountry",
+
+      "description",
+    ];
+
+    const updateData = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+
+    const updatedLead = await LeadModel.findOneAndUpdate(
       {
-        ...req.body,
+        _id: leadId,
+        organizationId,
+      },
+      {
+        $set: updateData,
       },
       {
         new: true,
@@ -188,6 +294,7 @@ const updateLead = async (req, res) => {
       message: "Lead updated successfully",
       data: updatedLead,
     });
+
   } catch (error) {
     console.error("Update Lead Error:", error);
 
@@ -198,7 +305,6 @@ const updateLead = async (req, res) => {
     });
   }
 };
-
 /**
  * Converts a Lead into an Account and Contact
  * POST /api/:slug/sales/leads/:leadId/convert

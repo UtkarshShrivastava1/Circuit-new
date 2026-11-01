@@ -9,6 +9,8 @@ import { getSalesEmployees } from "@/services/memberService";
 import { useAuth } from "@/auth/useAuth";
 import { createLead } from "@/services/leadServices";
 import { PageHeader } from "@/components/common";
+import { useRef } from "react";
+import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── Zod Schema ─────────────────────────── */
 
@@ -96,8 +98,8 @@ const PHONE_CODES = [
 
 const DEFAULT_COUNTRIES = [
   "India",
-  "United States",
-  "United Kingdom",
+  "USA/Canada",
+  "UK",
   "Australia",
   "Canada",
   "Germany",
@@ -139,32 +141,47 @@ export default function Leads() {
 
   const { auth } = useAuth();
   const slug = auth?.slug;
-
+const emailRef = useRef<HTMLInputElement>(null);
   const {
     register,
     handleSubmit,
     watch,
     reset,
+    setError,
     formState: { errors },
   } = useForm<LeadFormValues>({
     resolver: zodResolver(leadSchema),
     defaultValues: defaultLeadValues,
   });
 
+  // useEffect(() => {
+  //   if (!slug) return;
+  //   const fetchOwners = async () => {
+  //     try {
+  //       const res = await getSalesEmployees(slug);
+  //       setOwners(res.data?.data || res.data || []);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
+
+  //   fetchOwners();
+  // }, [slug]);
+
   useEffect(() => {
-    if (!slug) return;
-    const fetchOwners = async () => {
-      try {
-        const res = await getSalesEmployees(slug);
-        setOwners(res.data?.data || res.data || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  if (!slug) return;
 
-    fetchOwners();
-  }, [slug]);
+  const fetchOwners = async () => {
+    try {
+      const res = await getSalesReps(slug);
+      setOwners(res.data?.data || res.data || []);
+    } catch (err) {
+      console.error("Failed to fetch sales reps:", err);
+    }
+  };
 
+  fetchOwners();
+}, [slug]);
   const watchLeadSource = watch("leadSource");
   const watchIndustry = watch("industry");
   const watchCountryCode = watch("countryCode");
@@ -187,41 +204,93 @@ export default function Leads() {
     setIsSubmitting(true);
 
     try {
-      const payload = {
-        ...data,
-        leadOwner: data.leadOwner,
+      // const payload = {
+      //   ...data,
+      //   leadOwner: data.leadOwner,
 
-        leadSource:
-          data.leadSource === "Other" ? data.customLeadSource : data.leadSource,
+      //   leadSource:
+      //     data.leadSource === "Other" ? data.customLeadSource : data.leadSource,
 
-        industry:
-          data.industry === "Other" ? data.customIndustry : data.industry,
+      //   industry:
+      //     data.industry === "Other" ? data.customIndustry : data.industry,
 
-        countryCode:
-          data.countryCode === "Other"
-            ? data.customCountryCode
-            : data.countryCode,
+      //   countryCode:
+      //     data.countryCode === "Other"
+      //       ? data.customCountryCode
+      //       : data.countryCode,
 
-        country: data.country || undefined,
-      };
+      //   country: data.country || undefined,
+      // };
+const payload = {
+  ...data,
 
+  leadOwner: data.leadOwner,
+
+  // Keep enum value as Other
+  leadSource: data.leadSource || undefined,
+  customLeadSource:
+    data.leadSource === "Other"
+      ? data.customLeadSource?.trim()
+      : "",
+
+  industry: data.industry || undefined,
+  customIndustry:
+    data.industry === "Other"
+      ? data.customIndustry?.trim()
+      : "",
+
+  countryCode: data.countryCode || "+91",
+  customCountryCode:
+    data.countryCode === "Other"
+      ? data.customCountryCode?.trim()
+      : "",
+
+  country: data.country || undefined,
+};
       console.log("Payload to submit:", payload);
       await createLead(slug, payload);
 
       toast.success("Lead created successfully!");
       reset(defaultLeadValues);
       navigate('/sales/leads');
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to create lead.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch (err: any) {
+  console.error(err);
+
+  if (err.response?.status === 409) {
+    setError("email", {
+      type: "server",
+      message: "A lead with this email already exists.",
+    });
+     requestAnimationFrame(() => {
+    emailRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    emailRef.current?.focus();
+  });
+
+    return;
+  }
+
+  toast.error("Failed to create lead.");
+} finally {
+  setIsSubmitting(false);
+}
   };
 
   const submitLead = handleSubmit(onSubmit);
-  const selectedOwner = owners.find((o: any) => o._id === wOwner || o.id === wOwner);
+  // const selectedOwner = owners.find((o: any) => o._id === wOwner || o.id === wOwner);
+const selectedOwner = owners.find((rep: any) => {
+  const member = rep.memberId || rep;
+  const memberId =
+    typeof member === "object" ? member?._id : member;
 
+  return memberId === wOwner;
+});
+
+const selectedOwnerName =
+  selectedOwner?.memberId?.name || selectedOwner?.name;
   if (!slug) {
     return (
       <div className="min-h-screen bg-base-200 p-4 flex items-center justify-center font-sans">
@@ -271,7 +340,7 @@ export default function Leads() {
                 required
                 error={errors.leadOwner?.message}
               >
-                <select
+                {/* <select
                   {...register("leadOwner")}
                   className="select select-bordered w-full"
                 >
@@ -284,7 +353,33 @@ export default function Leads() {
                       {o.name}
                     </option>
                   ))}
-                </select>
+                </select> */}
+                <select
+  {...register("leadOwner")}
+  className="select select-bordered w-full"
+>
+  <option disabled value="">
+    -Select Owner-
+  </option>
+
+  {owners.map((rep: any) => {
+    const member = rep.memberId || rep;
+
+    const memberId =
+      typeof member === "object" ? member?._id : member;
+
+    const memberName =
+      typeof member === "object" ? member?.name : rep.name;
+
+    if (!memberId) return null;
+
+    return (
+      <option key={memberId} value={memberId}>
+        {memberName || "Unknown"}
+      </option>
+    );
+  })}
+</select>
               </FormRow>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -417,6 +512,10 @@ export default function Leads() {
                   <input
                     type="email"
                     {...register("email")}
+                     ref={(e) => {
+    register("email").ref(e);
+    emailRef.current = e;
+  }}
                     className={`input input-bordered w-full ${errors.email ? "input-error" : ""}`}
                     placeholder="john@company.com"
                   />
@@ -627,7 +726,9 @@ export default function Leads() {
                   Lead Owner
                 </span>
                 <p className="font-medium text-xs mt-0.5 truncate">
-                  {selectedOwner ? selectedOwner.name : "—"}
+                  {/* {selectedOwner ? selectedOwner.name : "—"} */}
+                    {selectedOwnerName || "—"}
+
                 </p>
               </div>
             </div>

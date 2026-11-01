@@ -332,41 +332,89 @@ getProductName(c.product)
     setDeleteModalOpen(true);
   };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!caseToEdit) return;
+//   const handleEditSubmit = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!caseToEdit) return;
+//     const payload = {
+//   ...caseToEdit,
+//   customer:
+//     typeof caseToEdit.customer === "object"
+//       ? caseToEdit.customer?._id
+//       : caseToEdit.customer,
+//   product:
+//     typeof caseToEdit.product === "object"
+//       ? caseToEdit.product?._id
+//       : caseToEdit.product,
+// };
+
+// await updateMutation.mutateAsync({
+//   id: caseToEdit.id,
+//   payload,
+// });
+//     try {
+//       await updateMutation.mutateAsync({
+//         id: caseToEdit.id,
+//         payload: caseToEdit,
+//       });
+//       setEditModalOpen(false);
+//       setSuccessMessage("Case updated successfully!");
+//       setSuccessModalOpen(true);
+//       if (selectedCase?.id === caseToEdit.id) {
+//         setSelectedCase(caseToEdit);
+//       }
+//     } catch (error) {
+//       toast.error("Failed to update case.");
+//     }
+//   };
+
+
+const handleEditSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!caseToEdit) return;
+
+  try {
+    const customerId =
+      typeof caseToEdit.customer === "object"
+        ? (caseToEdit.customer as any)?._id || ""
+        : caseToEdit.customer || "";
+
+    const productId =
+      typeof caseToEdit.product === "object"
+        ? (caseToEdit.product as any)?._id || ""
+        : caseToEdit.product || "";
+
     const payload = {
-  ...caseToEdit,
-  customer:
-    typeof caseToEdit.customer === "object"
-      ? caseToEdit.customer?._id
-      : caseToEdit.customer,
-  product:
-    typeof caseToEdit.product === "object"
-      ? caseToEdit.product?._id
-      : caseToEdit.product,
-};
+      subject: caseToEdit.subject,
+      description: caseToEdit.description,
+      customer: customerId,
+      contactPerson: caseToEdit.contactPerson || "",
+      product: productId,
+      relatedOrder: caseToEdit.relatedOrder || "",
+      type: caseToEdit.type,
+      priority: caseToEdit.priority,
+      status: caseToEdit.status,
+      assignedRep: caseToEdit.assignedRep || "",
+      dueDate: caseToEdit.dueDate || "",
+      resolutionNotes: caseToEdit.resolutionNotes || "",
+    };
 
-await updateMutation.mutateAsync({
-  id: caseToEdit.id,
-  payload,
-});
-    try {
-      await updateMutation.mutateAsync({
-        id: caseToEdit.id,
-        payload: caseToEdit,
-      });
-      setEditModalOpen(false);
-      setSuccessMessage("Case updated successfully!");
-      setSuccessModalOpen(true);
-      if (selectedCase?.id === caseToEdit.id) {
-        setSelectedCase(caseToEdit);
-      }
-    } catch (error) {
-      toast.error("Failed to update case.");
+    await updateMutation.mutateAsync({
+      id: caseToEdit.id,
+      payload,
+    });
+
+    setEditModalOpen(false);
+    setSuccessMessage("Case updated successfully!");
+    setSuccessModalOpen(true);
+
+    if (selectedCase?.id === caseToEdit.id) {
+      setSelectedCase({ ...caseToEdit });
     }
-  };
-
+  } catch (error) {
+    toast.error("Failed to update case.");
+    console.error(error);
+  }
+};
   const handleStatusChange = async (id: string, status: Case["status"]) => {
     try {
       await updateMutation.mutateAsync({ id, payload: { status } });
@@ -580,24 +628,24 @@ await updateMutation.mutateAsync({
           );
         },
       }),
-      columnHelper.accessor("slaStatus", {
-        header: "SLA",
-        cell: (info) => {
-          const val = info.getValue();
-          const color =
-            val === "On Track"
-              ? "text-success"
-              : val === "Near Breach"
-                ? "text-warning"
-                : "text-error font-bold";
-          return (
-            <span className={`text-xs ${color} flex items-center gap-1`}>
-              {val === "Breached" && <MdWarning />}
-              {val}
-            </span>
-          );
-        },
-      }),
+      // columnHelper.accessor("slaStatus", {
+      //   header: "SLA",
+      //   cell: (info) => {
+      //     const val = info.getValue();
+      //     const color =
+      //       val === "On Track"
+      //         ? "text-success"
+      //         : val === "Near Breach"
+      //           ? "text-warning"
+      //           : "text-error font-bold";
+      //     return (
+      //       <span className={`text-xs ${color} flex items-center gap-1`}>
+      //         {val === "Breached" && <MdWarning />}
+      //         {val}
+      //       </span>
+      //     );
+      //   },
+      // }),
       columnHelper.accessor("assignedRep", { header: "Assigned To" }),
       columnHelper.accessor("dueDate", {
         header: "Due Date",
@@ -1891,7 +1939,7 @@ await updateMutation.mutateAsync({
       </dialog>
 
       {/* ── Edit Case Modal ── */}
-      <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+      {/* <dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
         <div className="modal-box max-w-3xl">
           <h3 className="font-bold text-lg mb-4">Edit Case</h3>
           {caseToEdit && (
@@ -2063,7 +2111,354 @@ await updateMutation.mutateAsync({
             </form>
           )}
         </div>
-      </dialog>
+      </dialog> */}
+      {/* ── Edit Case Modal ── */}
+<dialog className={`modal ${editModalOpen ? "modal-open" : ""}`}>
+  <div className="modal-box max-w-4xl max-h-[90vh] overflow-y-auto">
+    <h3 className="font-bold text-xl mb-5">Edit Case</h3>
+
+    {caseToEdit && (
+      <form onSubmit={handleEditSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          {/* Case Number */}
+          <div className="form-control md:col-span-2">
+            <label className="label">
+              <span className="label-text">Case Number</span>
+            </label>
+            <input
+              type="text"
+              value={caseToEdit.caseNumber || ""}
+              readOnly
+              className="input input-bordered w-full bg-base-200"
+            />
+          </div>
+
+          {/* Subject */}
+          <div className="form-control md:col-span-2">
+            <label className="label">
+              <span className="label-text">Subject *</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={caseToEdit.subject || ""}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  subject: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          {/* Description */}
+          <div className="form-control md:col-span-2">
+            <label className="label">
+              <span className="label-text">Description *</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              rows={4}
+              value={caseToEdit.description || ""}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  description: e.target.value,
+                })
+              }
+              required
+            />
+          </div>
+
+          {/* Case Type */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Case Type *</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={caseToEdit.type || "Support Request"}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  type: e.target.value as Case["type"],
+                })
+              }
+            >
+              {[
+                "Complaint",
+                "Support Request",
+                "Product Issue",
+                "Refund Request",
+                "Warranty Claim",
+                "Escalation",
+                "Service Request",
+              ].map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Priority */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Priority *</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={caseToEdit.priority || "Medium"}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  priority: e.target.value as Case["priority"],
+                })
+              }
+            >
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+              <option value="Critical">Critical</option>
+            </select>
+          </div>
+
+          {/* Customer */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Customer *</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={
+                typeof caseToEdit.customer === "object"
+                  ? (caseToEdit.customer as any)?._id || ""
+                  : caseToEdit.customer || ""
+              }
+              onChange={(e) => {
+                const customerId = e.target.value;
+
+                const account = accounts.find(
+                  (a: any) => a._id === customerId
+                );
+
+                const contactPerson = account
+                  ? `${account.primaryContact?.firstName || ""} ${
+                      account.primaryContact?.lastName || ""
+                    }`.trim()
+                  : "";
+
+                setCaseToEdit((prev) =>
+                  prev
+                    ? {
+                        ...prev,
+                        customer: customerId,
+                        contactPerson,
+                      }
+                    : prev
+                );
+              }}
+              required
+            >
+              <option value="">Select Customer</option>
+              {accounts.map((account: any) => (
+                <option key={account._id} value={account._id}>
+                  {account.accountName}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Contact Person */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Contact Person</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full bg-base-200"
+              value={caseToEdit.contactPerson || ""}
+              readOnly
+              placeholder="Auto-filled from customer"
+            />
+          </div>
+
+          {/* Product */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Related Product</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={
+                typeof caseToEdit.product === "object"
+                  ? (caseToEdit.product as any)?._id || ""
+                  : caseToEdit.product || ""
+              }
+              onChange={(e) =>
+                setCaseToEdit((prev) =>
+                  prev
+                    ? { ...prev, product: e.target.value }
+                    : prev
+                )
+              }
+            >
+              <option value="">Select Product (Optional)</option>
+              {products.map((product: any) => (
+                <option key={product._id} value={product._id}>
+                  {product.productName ?? product.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Related Order */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Related Order</span>
+            </label>
+            <input
+              type="text"
+              className="input input-bordered w-full"
+              value={caseToEdit.relatedOrder || ""}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  relatedOrder: e.target.value,
+                })
+              }
+              placeholder="e.g. SO-2026-..."
+            />
+          </div>
+
+          {/* Assigned Representative */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Assigned Representative</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={caseToEdit.assignedRep || ""}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  assignedRep: e.target.value,
+                })
+              }
+            >
+              <option value="">Select Representative</option>
+              {salesReps.map((rep: string) => (
+                <option key={rep} value={rep}>
+                  {rep}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Status *</span>
+            </label>
+            <select
+              className="select select-bordered w-full"
+              value={caseToEdit.status || "Open"}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  status: e.target.value as Case["status"],
+                })
+              }
+            >
+              {[
+                "Open",
+                "Assigned",
+                "In Progress",
+                "Waiting For Customer",
+                "Resolved",
+                "Closed",
+                "Escalated",
+              ].map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Due Date */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Due Date</span>
+            </label>
+            <input
+              type="date"
+              className="input input-bordered w-full"
+              value={
+                caseToEdit.dueDate
+                  ? new Date(caseToEdit.dueDate).toISOString().split("T")[0]
+                  : ""
+              }
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  dueDate: e.target.value,
+                })
+              }
+            />
+          </div>
+
+          {/* Resolution Notes */}
+          <div className="form-control md:col-span-2">
+            <label className="label">
+              <span className="label-text">Resolution Notes</span>
+            </label>
+            <textarea
+              className="textarea textarea-bordered w-full"
+              rows={4}
+              value={caseToEdit.resolutionNotes || ""}
+              onChange={(e) =>
+                setCaseToEdit({
+                  ...caseToEdit,
+                  resolutionNotes: e.target.value,
+                })
+              }
+              placeholder="Initial thoughts or proposed resolution..."
+            />
+          </div>
+        </div>
+
+        {/* Modal Actions */}
+        <div className="modal-action border-t border-base-300 pt-4">
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => {
+              setEditModalOpen(false);
+              setCaseToEdit(null);
+            }}
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={updateMutation.isPending}
+          >
+            {updateMutation.isPending ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : (
+              "Save Changes"
+            )}
+          </button>
+        </div>
+      </form>
+    )}
+  </div>
+</dialog>
     </div>
   );
 }

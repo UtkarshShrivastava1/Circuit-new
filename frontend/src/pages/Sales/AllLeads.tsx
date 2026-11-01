@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+ // apne actual service path ke according
 import {
   useReactTable,
   getCoreRowModel,
@@ -29,8 +31,39 @@ import { deleteLead, getLeads, updateLead, convertLeadToCustomer, bulkDeleteLead
 import { useAuth } from "@/auth/useAuth";
 import { toast } from "react-toastify";
 import {PageHeader ,StatsGrid,} from "@/components/common";
+import { getSalesReps } from "@/services/salesRepServices";
 
 /* ─────────────────────────── types ─────────────────────────── */
+// export interface Lead {
+//   _id: string;
+//   firstName: string;
+//   lastName: string;
+//   companyName: string;
+//   email: string;
+//   phoneNumber: string;
+//   leadOwner:
+//     | string
+//     | {
+//         _id: string;
+//         name: string;
+//         email: string;
+//       };
+//   leadSource: string;
+//   industry: string;
+//   leadStatus:
+//     | "New"
+//     | "Contacted"
+//     | "Qualified"
+//     | "Proposal Sent"
+//     | "Negotiation"
+//     | "Won"
+//     | "Lost";
+//   priority: "Low" | "Medium" | "High" | "Urgent";
+//   createdAt: string;
+//   lastContacted: string;
+//   value?: number;
+// }
+
 export interface Lead {
   _id: string;
   firstName: string;
@@ -38,6 +71,7 @@ export interface Lead {
   companyName: string;
   email: string;
   phoneNumber: string;
+
   leadOwner:
     | string
     | {
@@ -45,8 +79,13 @@ export interface Lead {
         name: string;
         email: string;
       };
+
   leadSource: string;
+  customLeadSource?: string;
+
   industry: string;
+  customIndustry?: string;
+
   leadStatus:
     | "New"
     | "Contacted"
@@ -55,18 +94,89 @@ export interface Lead {
     | "Negotiation"
     | "Won"
     | "Lost";
+
   priority: "Low" | "Medium" | "High" | "Urgent";
+
+  gender?: string;
+  countryCode?: string;
+  customCountryCode?: string;
+
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  customCountry?: string;
+
+  description?: string;
   createdAt: string;
   lastContacted: string;
   value?: number;
 }
+const LEAD_SOURCES = [
+  "Website",
+  "Referral",
+  "Cold Call",
+  "Trade Show",
+  "Other",
+];
 
+const INDUSTRIES = [
+  "IT",
+  "Healthcare",
+  "Education",
+  "Finance",
+  "Manufacturing",
+  "Retail",
+  "Real Estate",
+  "Telecom",
+  "Construction",
+  "Other",
+];
 
+const LEAD_STATUSES = [
+  "New",
+  "Contacted",
+  "Qualified",
+  "Proposal Sent",
+  "Negotiation",
+  "Won",
+  "Lost",
+];
+
+const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
+
+const PHONE_CODES = [
+  "+91",
+  "+1",
+  "+44",
+  "+61",
+  "+971",
+  "+65",
+  "+49",
+  "+33",
+  "+81",
+  "+86",
+  "Other",
+];
+const COUNTRIES = [
+  "India",
+  "USA/Canada",
+  "UK",
+  "Australia",
+  "Canada",
+  "Singapore",
+  "Germany",
+  "France",
+  "UAE",
+  "Other",
+];
 
 /* ─────────────────────────── component ─────────────────────── */
 export default function AllLeads() {
   const navigate = useNavigate();
-
+const [isLeadMenuOpen, setIsLeadMenuOpen] = useState(false);
   // State
   const [statusFilter, setStatusFilter] = useState("All");
 const [sourceFilter, setSourceFilter] = useState("All");
@@ -88,6 +198,16 @@ const [ownerFilter, setOwnerFilter] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
   const { auth } = useAuth();
   const slug = auth?.slug;
+   const { data: repsData } = useQuery({
+  queryKey: ["salesReps", auth.slug],
+  queryFn: () => getSalesReps(auth.slug || "default-tenant"),
+});
+
+const salesReps = useMemo(() => {
+  return repsData?.data || [];
+}, [repsData]);
+
+console.log("Sales Reps:", salesReps);
   useEffect(() => {
     const fetchLeads = async () => {
       try {
@@ -104,11 +224,11 @@ const [ownerFilter, setOwnerFilter] = useState("All");
     }
   }, [slug]);
   console.log(leads);
-  useEffect(() => {
-    if (selectedLead) {
-      setEditData(selectedLead);
-    }
-  }, [selectedLead]);
+  // useEffect(() => {
+  //   if (selectedLead) {
+  //     setEditData(selectedLead);
+  //   }
+  // }, [selectedLead]);
 
 
   const handleDelete = async (leadId: string) => {
@@ -148,28 +268,131 @@ const [ownerFilter, setOwnerFilter] = useState("All");
     }
   };
 
+  // const handleUpdateLead = async () => {
+  //   try {
+  //     if (!selectedLead?._id) return;
+
+  //     const res = await updateLead(selectedLead._id, editData as any, slug || "");
+
+  //     const updatedLead = res.data as unknown as Lead;
+
+  //     setLeads((prev) =>
+  //       prev.map((lead) => (lead._id === updatedLead._id ? updatedLead : lead)),
+  //     );
+
+  //     setSelectedLead(updatedLead);
+  //     setIsEditing(false);
+
+  //     toast.success("Lead updated successfully");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Failed to update lead");
+  //   }
+  // };
+  
+  
   const handleUpdateLead = async () => {
-    try {
-      if (!selectedLead?._id) return;
+  try {
+    if (!selectedLead?._id) return;
 
-      const res = await updateLead(selectedLead._id, editData as any, slug || "");
-
-      const updatedLead = res.data as unknown as Lead;
-
-      setLeads((prev) =>
-        prev.map((lead) => (lead._id === updatedLead._id ? updatedLead : lead)),
-      );
-
-      setSelectedLead(updatedLead);
-      setIsEditing(false);
-
-      toast.success("Lead updated successfully");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to update lead");
+    if (editData.industry === "Other" && !editData.customIndustry?.trim()) {
+      toast.error("Please enter custom industry");
+      return;
     }
-  };
 
+    if (editData.leadSource === "Other" && !editData.customLeadSource?.trim()) {
+      toast.error("Please enter custom lead source");
+      return;
+    }
+
+    if (editData.countryCode === "Other" && !editData.customCountryCode?.trim()) {
+      toast.error("Please enter custom country code");
+      return;
+    }
+
+    if (editData.country === "Other" && !editData.customCountry?.trim()) {
+      toast.error("Please enter custom country");
+      return;
+    }
+
+    const payload = {
+      ...editData,
+
+      leadSource: editData.leadSource,
+      customLeadSource:
+        editData.leadSource === "Other"
+          ? editData.customLeadSource?.trim()
+          : "",
+
+      industry: editData.industry,
+      customIndustry:
+        editData.industry === "Other"
+          ? editData.customIndustry?.trim()
+          : "",
+
+      countryCode: editData.countryCode || "+91",
+      customCountryCode:
+        editData.countryCode === "Other"
+          ? editData.customCountryCode?.trim()
+          : "",
+
+      country: editData.country || "India",
+      customCountry:
+        editData.country === "Other"
+          ? editData.customCountry?.trim()
+          : "",
+    };
+
+    const res = await updateLead(
+      selectedLead._id,
+      payload as any,
+      slug || ""
+    );
+
+    const updatedLead = (res.data?.data || res.data) as Lead;
+
+    setLeads((prev) =>
+      prev.map((lead) =>
+        lead._id === updatedLead._id ? updatedLead : lead
+      )
+    );
+
+    setSelectedLead(updatedLead);
+    setEditData(updatedLead);
+    setIsEditing(false);
+
+    toast.success("Lead updated successfully");
+  } catch (error: any) {
+    console.error("Update lead error:", error);
+    toast.error(
+      error.response?.data?.message || "Failed to update lead"
+    );
+  }
+};
+const startEditingLead = (lead: Lead) => {
+  setEditData({
+    ...lead,
+
+    leadSource: lead.leadSource || "Website",
+    customLeadSource: lead.customLeadSource || "",
+
+    industry: lead.industry || "IT",
+    customIndustry: lead.customIndustry || "",
+
+    countryCode: lead.countryCode || "+91",
+    customCountryCode: lead.customCountryCode || "",
+
+    country: lead.country || "India",
+    customCountry: lead.customCountry || "",
+
+    leadOwner:
+      typeof lead.leadOwner === "object"
+        ? lead.leadOwner._id
+        : lead.leadOwner,
+  });
+
+  setIsEditing(true);
+};
   const handleConvertToCustomer = async (leadToConvert: Lead | null) => {
     if (!leadToConvert?._id) return;
     try {
@@ -299,23 +522,38 @@ const [ownerFilter, setOwnerFilter] = useState("All");
           );
         },
       }),
-      // columnHelper.accessor("leadOwner", {
-      //   header: "Owner",
+    
+      
+//       columnHelper.accessor("leadOwner", {
+//   header: "Owner",
+//   cell: (info) => {
+//     const owner = info.getValue();
 
-      //   cell: (info) => (
-      //     <span className="text-xs">{info.getValue()?.name || "N/A"}</span>
-      //   ),
-      // }),
-      
-      
-      columnHelper.accessor("leadOwner", {
+//     return (
+//       <span className="text-xs">
+//         {typeof owner === "string" ? owner : owner?.name || "N/A"}
+//       </span>
+//     );
+//   },
+// }),
+columnHelper.accessor("leadOwner", {
   header: "Owner",
   cell: (info) => {
     const owner = info.getValue();
 
+    const ownerId =
+      typeof owner === "string" ? owner : owner?._id;
+
+    const ownerName =
+      typeof owner === "object" && owner?.name
+        ? owner.name
+        : salesReps.find(
+            (rep: any) => rep.memberId?._id === ownerId
+          )?.memberId?.name;
+
     return (
       <span className="text-xs">
-        {typeof owner === "string" ? owner : owner?.name || "N/A"}
+        {ownerName || "N/A"}
       </span>
     );
   },
@@ -356,6 +594,7 @@ const [ownerFilter, setOwnerFilter] = useState("All");
     setSelectedLead(row.original);
     setEditData(row.original);
     setIsEditing(true);
+     startEditingLead(row.original);
   }}
 >
   <MdEdit size={16} /> Edit Lead
@@ -573,7 +812,7 @@ const [ownerFilter, setOwnerFilter] = useState("All");
                               <label className="text-xs font-bold text-base-content/70 mb-1 block uppercase">
                                 Lead Owner
                               </label>
-                            <select
+                            {/* <select
                     className="select select-sm select-bordered w-full"
                     value={ownerFilter}
                     onChange={(e) => setOwnerFilter(e.target.value)}
@@ -597,7 +836,20 @@ const [ownerFilter, setOwnerFilter] = useState("All");
                         {name}
                       </option>
                     ))}
-                  </select>
+                           </select> */}
+                          <select
+  className="select select-sm select-bordered w-full"
+  value={ownerFilter}
+  onChange={(e) => setOwnerFilter(e.target.value)}
+>
+  <option value="All">All</option>
+
+  {salesReps.map((rep: any) => (
+    <option key={rep.memberId?._id} value={rep.memberId?._id || ""}>
+      {rep.memberId?.name || "Unknown"}
+    </option>
+  ))}
+</select>
                             </div>
                             <div className="flex items-end gap-2">
                             
@@ -786,7 +1038,7 @@ const [ownerFilter, setOwnerFilter] = useState("All");
               <button className="btn btn-outline btn-sm flex-1 bg-base-100">
                 <MdEmail /> Email
               </button> */}
-              <div className="dropdown dropdown-end">
+              {/* <div className="dropdown dropdown-end">
                 <button
                   tabIndex={0}
                   className="btn btn-outline btn-sm btn-square bg-base-100"
@@ -797,16 +1049,16 @@ const [ownerFilter, setOwnerFilter] = useState("All");
                   tabIndex={0}
                   className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-40 mt-1 border border-base-200"
                 >
-                  <li>
-                   <a
-                    onClick={() => {
-                      setEditData(selectedLead || {});
-                      setIsEditing(true);
-                    }}
-                  >
-                    Edit Lead
-                  </a>
-                  </li>
+                 <li>
+  <a
+    onClick={(e) => {
+      (e.currentTarget as HTMLElement).blur();
+      startEditingLead(selectedLead!);
+    }}
+  >
+    Edit Lead
+  </a>
+</li>
                   <li>
                 <a onClick={() => handleConvertToCustomer(selectedLead)}>
                   Convert to Customer
@@ -822,7 +1074,54 @@ const [ownerFilter, setOwnerFilter] = useState("All");
                     </a>
                   </li>
                 </ul>
-              </div>
+              </div> */}
+              <div className={`dropdown dropdown-end ${isLeadMenuOpen ? "dropdown-open" : ""}`}>
+  <button
+    type="button"
+    className="btn btn-outline btn-sm btn-square bg-base-100"
+    onClick={() => setIsLeadMenuOpen((prev) => !prev)}
+  >
+    <MdMoreVert size={18} />
+  </button>
+
+  <ul className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box w-40 mt-1 border border-base-200">
+    <li>
+      <a
+        onClick={() => {
+          setIsLeadMenuOpen(false);
+          if (selectedLead) startEditingLead(selectedLead);
+        }}
+      >
+        Edit Lead
+      </a>
+    </li>
+
+    <li>
+      <a
+        onClick={() => {
+          setIsLeadMenuOpen(false);
+          handleConvertToCustomer(selectedLead);
+        }}
+      >
+        Convert to Customer
+      </a>
+    </li>
+
+    <div className="divider my-1"></div>
+
+    <li>
+      <a
+        className="text-error"
+        onClick={() => {
+          setIsLeadMenuOpen(false);
+          setDeleteModalOpen(true);
+        }}
+      >
+        Delete Lead
+      </a>
+    </li>
+  </ul>
+</div>
             </div>
 
             {/* Drawer Tabs */}
@@ -850,295 +1149,521 @@ const [ownerFilter, setOwnerFilter] = useState("All");
 
           {/* Drawer Body */}
           <div className="flex-1 overflow-y-auto p-6 bg-base-100">
-            {activeTab === "overview" && (
-              <div className="space-y-8 animate-fade-in">
-                <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs">
-                  {/* First Name */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">First Name</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.firstName || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            firstName: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.firstName}</p>
-                    )}
-                  </div>
+          {activeTab === "overview" && (
+  <div className="space-y-6 animate-fade-in">
 
-                  {/* Last Name */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Last Name</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.lastName || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            lastName: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.lastName}</p>
-                    )}
-                  </div>
+    {/* LEAD DETAILS */}
+    <section>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-4">
+        Lead Details
+      </h3>
 
-                  {/* Company */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Company</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm w-full overflow-hidden"
-                        value={editData.companyName || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            companyName: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.companyName}</p>
-                    )}
-                  </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                  {/* Email */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Email</p>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.email || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.email}</p>
-                    )}
-                  </div>
+        {/* Lead Owner */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Lead Owner</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={
+                typeof editData.leadOwner === "string"
+                  ? editData.leadOwner
+                  : editData.leadOwner?._id || ""
+              }
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  leadOwner: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Lead Owner</option>
+              {salesReps.map((rep: any) => (
+                <option key={rep.memberId?._id} value={rep.memberId?._id || ""}>
+                  {rep.memberId?.name || "Unknown"}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">
+              {typeof selectedLead?.leadOwner === "object"
+                ? selectedLead.leadOwner?.name
+                : salesReps.find(
+                    (rep: any) =>
+                      rep.memberId?._id === selectedLead?.leadOwner
+                  )?.memberId?.name || "N/A"}
+            </p>
+          )}
+        </div>
 
-                  {/* Phone */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Phone</p>
-                    {isEditing ? (
-                      <input
-                       type="tel"
-                        maxLength={10}
-                        inputMode="numeric"
-                        pattern="[0-9]{10}"
-                                              
-                        className="input input-bordered input-sm w-full"
-                        value={editData.phoneNumber || ""}
-                         onChange={(e) => {
-                        const value = e.target.value.replace(/[^0-9]/g, "");
+        {/* Lead Source */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Lead Source</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.leadSource || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  leadSource: e.target.value,
+                  customLeadSource: "",
+                }))
+              }
+            >
+              {LEAD_SOURCES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">
+              {selectedLead?.leadSource === "Other"
+                ? selectedLead?.customLeadSource || "Other"
+                : selectedLead?.leadSource || "N/A"}
+            </p>
+          )}
+        </div>
 
-                        if (value.length <= 10) {
-                          setEditData((prev) => ({
-                            ...prev,
-                            phoneNumber: value,
-                          }));
-                        }
-                      }}
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.phoneNumber}</p>
-                    )}
-                  </div>
+        {isEditing && editData.leadSource === "Other" && (
+          <div>
+            <label className="text-xs text-base-content/50 mb-1 block">
+              Custom Lead Source
+            </label>
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.customLeadSource || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  customLeadSource: e.target.value,
+                }))
+              }
+              placeholder="Enter lead source"
+            />
+          </div>
+        )}
 
-                  {/* Lead Source */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Lead Source</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.leadSource || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            leadSource: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.leadSource}</p>
-                    )}
-                  </div>
+        {/* Industry */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Industry</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.industry || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  industry: e.target.value,
+                  customIndustry: "",
+                }))
+              }
+            >
+              {INDUSTRIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">
+              {selectedLead?.industry === "Other"
+                ? selectedLead?.customIndustry || "Other"
+                : selectedLead?.industry || "N/A"}
+            </p>
+          )}
+        </div>
 
-                  {/* Industry */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Industry</p>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.industry || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            industry: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <p className="font-medium">{selectedLead?.industry}</p>
-                    )}
-                  </div>
+        {isEditing && editData.industry === "Other" && (
+          <div>
+            <label className="text-xs text-base-content/50 mb-1 block">
+              Custom Industry
+            </label>
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.customIndustry || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  customIndustry: e.target.value,
+                }))
+              }
+              placeholder="Enter industry"
+            />
+          </div>
+        )}
 
-                  {/* Status */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Status</p>
-                    {isEditing ? (
-                      <select
-                        className="select select-bordered select-sm w-full"
-                        value={editData.leadStatus || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            leadStatus: e.target.value as Lead["leadStatus"],
-                          }))
-                        }
-                      >
-                        <option>New</option>
-                        <option>Contacted</option>
-                        <option>Qualified</option>
-                        <option>Proposal Sent</option>
-                        <option>Negotiation</option>
-                        <option>Won</option>
-                        <option>Lost</option>
-                      </select>
-                    ) : (
-                      <p className="font-medium">{selectedLead?.leadStatus}</p>
-                    )}
-                  </div>
+        {/* Status */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Lead Status</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.leadStatus || "New"}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  leadStatus: e.target.value as Lead["leadStatus"],
+                }))
+              }
+            >
+              {LEAD_STATUSES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.leadStatus || "N/A"}</p>
+          )}
+        </div>
 
-                  {/* Priority */}
-                  <div>
-                    <p className="text-base-content/50 mb-1">Priority</p>
-                    {isEditing ? (
-                      <select
-                        className="select select-bordered select-sm w-full"
-                        value={editData.priority || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            priority: e.target.value as Lead["priority"],
-                          }))
-                        }
-                      >
-                        <option>Low</option>
-                        <option>Medium</option>
-                        <option>High</option>
-                        <option>Urgent</option>
-                      </select>
-                    ) : (
-                      <p className="font-medium">{selectedLead?.priority}</p>
-                    )}
-                  </div>
-                </div>
+        {/* Priority */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Priority</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.priority || "Medium"}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  priority: e.target.value as Lead["priority"],
+                }))
+              }
+            >
+              {PRIORITIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.priority || "N/A"}</p>
+          )}
+        </div>
+      </div>
+    </section>
 
-                <div className="divider my-0"></div>
+    <div className="divider my-0" />
 
-                  <section>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-4 flex items-center gap-2">
-                    <MdBusiness /> Contact Details
-                  </h3>
+    {/* PERSONAL / CONTACT INFORMATION */}
+    <section>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-4">
+        Contact Information
+      </h3>
 
-                  <div className="grid grid-cols-1 gap-y-4 text-xs bg-base-200/50 p-4 rounded-xl border border-base-200">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                  <div>
-                    <p className="text-base-content/50 mb-1">Email</p>
-                    {isEditing ? (
-                      <input
-                        type="email"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.email || ""}
-                        onChange={(e) =>
-                          setEditData((prev) => ({
-                            ...prev,
-                            email: e.target.value,
-                          }))
-                        }
-                      />
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <MdEmail className="text-base-content/40" size={18} />
-                        <a
-                          href={`mailto:${selectedLead?.email}`}
-                          className="text-primary hover:underline"
-                        >
-                          {selectedLead?.email}
-                        </a>
-                      </div>
-                    )}
-                  </div>
+        {/* First Name */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">First Name</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.firstName || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, firstName: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.firstName || "N/A"}</p>
+          )}
+        </div>
 
-                  <div>
-                    <p className="text-base-content/50 mb-1">Phone Number</p>
-                    {isEditing ? (
-                      <input
-                        type="tel"
-                  maxLength={10}
-                  inputMode="numeric"
-                        className="input input-bordered input-sm w-full"
-                        value={editData.phoneNumber || ""}
-                        onChange={(e) => {
-                  const value = e.target.value.replace(/[^0-9]/g, "");
+        {/* Last Name */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Last Name</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.lastName || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, lastName: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.lastName || "N/A"}</p>
+          )}
+        </div>
 
-                  if (value.length <= 10) {
-                    setEditData((prev) => ({
-                      ...prev,
-                      phoneNumber: value,
-                    }));
-                  }
-                }}
-                      />
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <MdPhone className="text-base-content/40" size={18} />
-                        <a
-                          href={`tel:${selectedLead?.phoneNumber}`}
-                          className="text-primary hover:underline"
-                        >
-                          {selectedLead?.phoneNumber}
-                        </a>
-                      </div>
-                    )}
-                  </div>
+        {/* Email */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Email</label>
+          {isEditing ? (
+            <input
+              type="email"
+              className="input input-bordered input-sm w-full"
+              value={editData.email || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, email: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium break-all">{selectedLead?.email || "N/A"}</p>
+          )}
+        </div>
 
-                </div>
-              </section>
+        {/* Gender */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Gender</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.gender || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, gender: e.target.value }))}
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.gender || "N/A"}</p>
+          )}
+        </div>
 
-                      <section className="bg-base-200/30 p-4 rounded-xl border border-base-200 text-xs">
-                        <div className="grid grid-cols-2 gap-2 text-base-content/60">
-                          <p>
-                            Created:{" "}
-                            {selectedLead?.createdAt &&
-                              new Date(selectedLead?.createdAt).toLocaleDateString(
-                                "en-GH",
-                              )}
-                          </p>
-                          {/* <p>Last Contact: {selectedLead?.lastContacted}</p> */}
-                        </div>
-                      </section>
-                    </div>
-                  )}
+        {/* Country Code */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Country Code</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.countryCode || "+91"}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  countryCode: e.target.value,
+                  customCountryCode: "",
+                }))
+              }
+            >
+              {PHONE_CODES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">
+              {selectedLead?.countryCode || "N/A"}
+            </p>
+          )}
+        </div>
+
+        {isEditing && editData.countryCode === "Other" && (
+          <div>
+            <label className="text-xs text-base-content/50 mb-1 block">
+              Custom Country Code
+            </label>
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.customCountryCode || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  customCountryCode: e.target.value,
+                }))
+              }
+              placeholder="Enter country code"
+            />
+          </div>
+        )}
+
+        {/* Phone */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Phone Number</label>
+          {isEditing ? (
+            <input
+              type="tel"
+              maxLength={15}
+              inputMode="numeric"
+              className="input input-bordered input-sm w-full"
+              value={editData.phoneNumber || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  phoneNumber: e.target.value.replace(/[^0-9]/g, ""),
+                }))
+              }
+            />
+          ) : (
+            <p className="text-sm font-medium">
+              {selectedLead?.phoneNumber || "N/A"}
+            </p>
+          )}
+        </div>
+      </div>
+    </section>
+
+    <div className="divider my-0" />
+
+    {/* COMPANY INFORMATION */}
+    <section>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-4">
+        Company Information
+      </h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        {/* Company */}
+        <div className="sm:col-span-2">
+          <label className="text-xs text-base-content/50 mb-1 block">Company Name</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.companyName || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, companyName: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.companyName || "N/A"}</p>
+          )}
+        </div>
+
+        {/* Address Line 1 */}
+        <div className="sm:col-span-2">
+          <label className="text-xs text-base-content/50 mb-1 block">Address Line 1</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.addressLine1 || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, addressLine1: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.addressLine1 || "N/A"}</p>
+          )}
+        </div>
+
+        {/* Address Line 2 */}
+        <div className="sm:col-span-2">
+          <label className="text-xs text-base-content/50 mb-1 block">Address Line 2</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.addressLine2 || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, addressLine2: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.addressLine2 || "N/A"}</p>
+          )}
+        </div>
+
+        {/* City */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">City</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.city || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, city: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.city || "N/A"}</p>
+          )}
+        </div>
+
+        {/* State */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">State</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.state || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, state: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.state || "N/A"}</p>
+          )}
+        </div>
+
+        {/* Postal Code */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Postal Code</label>
+          {isEditing ? (
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.postalCode || ""}
+              onChange={(e) => setEditData((prev) => ({ ...prev, postalCode: e.target.value }))}
+            />
+          ) : (
+            <p className="text-sm font-medium">{selectedLead?.postalCode || "N/A"}</p>
+          )}
+        </div>
+
+        {/* Country */}
+        <div>
+          <label className="text-xs text-base-content/50 mb-1 block">Country</label>
+          {isEditing ? (
+            <select
+              className="select select-bordered select-sm w-full"
+              value={editData.country || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  country: e.target.value,
+                  customCountry: "",
+                }))
+              }
+            >
+              <option value="">Select Country</option>
+              {COUNTRIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-sm font-medium">
+              {selectedLead?.country === "Other"
+                ? selectedLead?.customCountry || "Other"
+                : selectedLead?.country || "N/A"}
+            </p>
+          )}
+        </div>
+
+        {isEditing && editData.country === "Other" && (
+          <div>
+            <label className="text-xs text-base-content/50 mb-1 block">
+              Custom Country
+            </label>
+            <input
+              className="input input-bordered input-sm w-full"
+              value={editData.customCountry || ""}
+              onChange={(e) =>
+                setEditData((prev) => ({
+                  ...prev,
+                  customCountry: e.target.value,
+                }))
+              }
+              placeholder="Enter country"
+            />
+          </div>
+        )}
+      </div>
+    </section>
+
+    <div className="divider my-0" />
+
+    {/* DESCRIPTION */}
+    <section>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-base-content/50 mb-3">
+        Additional Notes / Description
+      </h3>
+
+      {isEditing ? (
+        <textarea
+          className="textarea textarea-bordered w-full min-h-28 text-sm"
+          value={editData.description || ""}
+          onChange={(e) =>
+            setEditData((prev) => ({
+              ...prev,
+              description: e.target.value,
+            }))
+          }
+          placeholder="Enter lead description..."
+        />
+      ) : (
+        <p className="text-sm whitespace-pre-wrap bg-base-200/50 p-4 rounded-lg">
+          {selectedLead?.description || "No description added."}
+        </p>
+      )}
+    </section>
+
+    {/* CREATED DATE */}
+    <section className="bg-base-200/50 p-4 rounded-xl border border-base-200">
+      <p className="text-xs text-base-content/50 mb-1">Created Date</p>
+      <p className="text-sm font-medium">
+        {selectedLead?.createdAt
+          ? new Date(selectedLead.createdAt).toLocaleDateString("en-IN")
+          : "N/A"}
+      </p>
+    </section>
+  </div>
+)}
 
             {activeTab === "timeline" && (
               <div className="animate-fade-in">

@@ -9,6 +9,7 @@ import { createAccount } from "@/services/salesService";
 import { useAuth } from "@/auth/useAuth";
 import { getSalesEmployees } from "@/services/memberService";
 import { PageHeader } from "@/components/common";
+import { getSalesReps } from "@/services/salesRepServices";
 
 const COUNTRIES = [
   "India", "United States", "United Kingdom", "Canada", "Australia",
@@ -104,23 +105,27 @@ export default function NewAccountForm() {
   const wSameAsBilling = watch("sameAsBilling");
  const {auth}=useAuth();
   const slug=auth?.slug;
-  if (!slug) {
+  
+ 
+  useEffect(() => {
+  if (!slug) return;
+
+  const fetchOwners = async () => {
+    try {
+      const res = await getSalesReps(slug);
+      const reps = res.data?.data || res.data || [];
+      setOwners(reps);
+    } catch (err) {
+      console.error("Failed to fetch sales reps:", err);
+    }
+  };
+
+  fetchOwners();
+}, [slug]);
+if (!slug) {
     return null;
   }
- 
-   useEffect(() => {
-     const fetchOwners = async () => {
-       try {
-         const res = await getSalesEmployees(slug);
-         setOwners(res.data.data);
-       } catch (err) {
-         console.log(err);
-       }
-     };
- 
-     fetchOwners();
-   }, []);
-   console.log(owners)
+  //  console.log(owners)
   const onSubmit = async (data: AccountFormValues) => {
   setIsSubmitting(true);
 const payload = {
@@ -173,7 +178,7 @@ const payload = {
 
     const response = await createAccount(slug, payload);
     
-    console.log("Account Created:", response.data);
+    // console.log("Account Created:", response.data);
 
     toast.success("Account created successfully!");
     navigate("/sales/accounts");
@@ -216,12 +221,36 @@ const payload = {
             </div>
             <div className="collapse-content pt-5 space-y-4">
               <FormRow label="Account Owner" required error={errors.accountOwner?.message}>
-                <select {...register("accountOwner")} className={`select select-bordered w-full ${errors.accountOwner ? "select-error" : ""}`}>
+                {/* <select {...register("accountOwner")} className={`select select-bordered w-full ${errors.accountOwner ? "select-error" : ""}`}>
                   <option value="">-Select Owner-</option>
                   {owners.map((o: any) => (
                     <option key={o._id} value={o._id}>{o.name}</option>
                   ))}
-                </select>
+                </select> */}
+                <select
+  {...register("accountOwner")}
+  className={`select select-bordered w-full ${
+    errors.accountOwner ? "select-error" : ""
+  }`}
+>
+  <option value="">-Select Owner-</option>
+
+  {owners.map((rep: any) => {
+    const member = rep.memberId || rep;
+    const memberId =
+      typeof member === "object" ? member?._id : member;
+    const memberName =
+      typeof member === "object" ? member?.name : rep.name;
+
+    if (!memberId) return null;
+
+    return (
+      <option key={memberId} value={memberId}>
+        {memberName || "Unknown"}
+      </option>
+    );
+  })}
+</select>
               </FormRow>
               
               <FormRow label="Account Name" required error={errors.accountName?.message}>

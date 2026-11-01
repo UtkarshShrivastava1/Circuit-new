@@ -201,6 +201,8 @@ const wItems = useWatch({
 });
 
 console.log("Watched items:", wItems);
+const selectedCustomerId = watch("customerId");
+const isCustomerSelected = !!selectedCustomerId;
   // Summary Calculations
   // const calculatedSubtotal = useMemo(() => {
   //   return wItems.reduce((sum, item) => {
@@ -221,7 +223,7 @@ const calculatedSubtotal = useMemo(() => {
     const discount = Number(item.discountPct) || 0;
     const tax = Number(item.taxPct) || 0;
 
-    const base = price * qty;
+    const base = price;
     const afterDiscount = base - (base * discount / 100);
     const finalTotal = afterDiscount + (afterDiscount * tax / 100);
 
@@ -233,10 +235,23 @@ useEffect(() => {
   console.log("Calculated Subtotal:", calculatedSubtotal);
 }, [wItems, calculatedSubtotal]);
 
-  const grandTotal = Math.max(0, calculatedSubtotal - (wSubDisc || 0) + (wSubTax || 0) + (wShipping || 0) + (wAdjustment || 0));
-  const outstanding = Math.max(0, grandTotal - (wAdvance || 0));
-  const amountInWords = useMemo(() => numberToWords(grandTotal), [grandTotal]);
+  // const grandTotal = Math.max(0, calculatedSubtotal - (wSubDisc || 0) + (wSubTax || 0) + (wShipping || 0) + (wAdjustment || 0));
+  // const outstanding = Math.max(0, grandTotal - (wAdvance || 0));
+  // const amountInWords = useMemo(() => numberToWords(grandTotal), [grandTotal]);
+const grandTotal = Math.max(
+  0,
+  calculatedSubtotal
+    - (Number(wSubDisc) || 0)
+    + (Number(wSubTax) || 0)
+    + (Number(wShipping) || 0)
+    + (Number(wAdjustment) || 0)
+);
 
+const outstanding = Math.max(
+  0,
+  grandTotal - (Number(wAdvance) || 0)
+);
+const amountInWords = useMemo(() => numberToWords(grandTotal), [grandTotal]);
   // Sync Calculations to Form State
   useEffect(() => {
     setValue("subtotal", calculatedSubtotal);
@@ -650,22 +665,22 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="form-control">
                   <label className="label text-xs font-semibold text-base-content/60">Contact Person</label>
-                  <input {...register("contactPerson")} className="input input-sm input-bordered bg-base-200" readOnly />
+                  <input disabled={isCustomerSelected} {...register("contactPerson")} className="input input-sm input-bordered bg-base-200" readOnly />
                 </div>
                 <div className="form-control">
                   <label className="label text-xs font-semibold text-base-content/60">Phone</label>
-                  <input {...register("phone")} className="input input-sm input-bordered bg-base-200" readOnly />
+                  <input disabled={isCustomerSelected} {...register("phone")} className="input input-sm input-bordered bg-base-200" readOnly />
                 </div>
                 <div className="form-control">
                   <label className="label text-xs font-semibold text-base-content/60">Email</label>
-                  <input {...register("email")} className="input input-sm input-bordered bg-base-200" readOnly />
+                  <input disabled={isCustomerSelected} {...register("email")} className="input input-sm input-bordered bg-base-200" readOnly />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div>
                   <label className="label font-medium">Billing Address *</label>
-                  <textarea {...register("billingAddress")} className={`textarea textarea-bordered w-full ${errors.billingAddress ? 'textarea-error' : ''}`} rows={3}></textarea>
+                  <textarea disabled={isCustomerSelected} {...register("billingAddress")} className={`textarea textarea-bordered w-full ${errors.billingAddress ? 'textarea-error' : ''}`} rows={3}></textarea>
                   {errors.billingAddress && <p className="text-xs text-error mt-1">{errors.billingAddress.message}</p>}
                 </div>
                 <div>
@@ -696,10 +711,10 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
                   <tr className="bg-base-200/50">
                     <th className="w-10">#</th>
                     <th className="w-64">Product *</th>
-                    <th>SKU / Stock</th>
+                    <th>SKU</th>
                     <th>Retail Price</th>
                     <th>Selling Price *</th>
-                    <th className="w-24">Qty *</th>
+                    {/* <th className="w-24">Qty *</th> */}
                     <th className="w-20">Disc %</th>
                     <th className="w-20">Tax %</th>
                     <th>Line Total</th>
@@ -711,12 +726,12 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
                     const item = wItems[index];
                     const sp = item.sellingPrice || 0;
                     const qty = item.quantity || 0;
-                    const base = sp * qty;
+                    const base = sp;
                     const afterDisc = base - (base * (item.discountPct || 0) / 100);
                     const lineTotal = afterDisc + (afterDisc * (item.taxPct || 0) / 100);
                     const profit = (sp - (item.costPrice || 0)) * qty;
                     
-                    const stockWarning = item.stock !== undefined && qty > item.stock;
+                    // const stockWarning = item.stock !== undefined && qty > item.stock;
 
                     return (
                       <React.Fragment key={field.id}>
@@ -729,14 +744,19 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
                             </select>
                             {errors.items?.[index]?.productId && <p className="text-xs text-error mt-1">{errors.items[index]?.productId?.message}</p>}
                           </td>
-                          <td className="align-top pt-3">
+                          {/* <td className="align-top pt-3">
                             <div className="flex flex-col gap-0.5">
                               <span className="text-xs font-mono font-semibold">{item.sku || "—"}</span>
                               <span className={`text-[10px] ${stockWarning ? 'text-error font-bold flex items-center gap-1' : 'text-base-content/60'}`}>
                                 Stock: {item.stock || 0} {stockWarning && <MdWarning size={12}/>}
                               </span>
                             </div>
-                          </td>
+                          </td> */}
+                          <td className="align-top pt-3">
+  <span className="text-xs font-mono font-semibold">
+    {item.sku || "—"}
+  </span>
+</td>
                           <td className="align-top pt-3">₹{item.retailPrice?.toLocaleString() || "0.00"}</td>
                           <td className="align-top">
                             <input type="number" step="0.01" {...register(`items.${index}.sellingPrice`,{
@@ -744,12 +764,12 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
                             })} className="input input-sm input-bordered w-full" />
                             {errors.items?.[index]?.sellingPrice && <p className="text-xs text-error mt-1">Req.</p>}
                           </td>
-                          <td className="align-top">
+                          {/* <td className="align-top">
                             <input type="number" {...register(`items.${index}.quantity`,{
                               valueAsNumber:true
                             })} className={`input input-sm input-bordered w-full ${stockWarning ? 'input-error bg-error/10' : ''}`} />
                             {errors.items?.[index]?.quantity && <p className="text-xs text-error mt-1">Req.</p>}
-                          </td>
+                          </td> */}
                           <td className="align-top"><input type="number" {...register(`items.${index}.discountPct`,{
                             valueAsNumber:true
                           })} className="input input-sm input-bordered w-full" /></td>
@@ -973,10 +993,10 @@ const handleProductChange = (index: number, e: React.ChangeEvent<HTMLSelectEleme
                   <span className="text-xs text-base-content/60 uppercase font-semibold">Total Items</span>
                   <p className="font-medium mt-1">{fields.length}</p>
                 </div>
-                <div>
+                {/* <div>
                   <span className="text-xs text-base-content/60 uppercase font-semibold">Total Qty</span>
                   <p className="font-medium mt-1">{wItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0)}</p>
-                </div>
+                </div> */}
               </div>
               <div>
                 <span className="text-xs text-base-content/60 uppercase font-semibold">Grand Total</span>

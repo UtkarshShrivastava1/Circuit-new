@@ -10,7 +10,11 @@ const salesTaskSchema = new mongoose.Schema({
   status: { type: String, enum: ["Pending", "In Progress", "Completed", "On Hold", "Cancelled"], default: "Pending" },
   assignedTo: { type: mongoose.Schema.Types.ObjectId,ref:"User", required: true }, 
   team: { type: String },
-  customer: { type: String, required: true },
+  customer: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Account", // Apne actual Customer model ka naam use karna
+  required: true
+},
   lead: { type: String },
   contactPerson: { type: String },
   phone: { type: String },

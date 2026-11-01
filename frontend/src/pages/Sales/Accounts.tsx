@@ -161,6 +161,8 @@ export default function AccountsDashboard() {
   }
 };
   useEffect(() => {
+    if(!slug) return ;
+  
     const fetchAccount = async () => {
       try {
         const response = await getAllAccounts(slug!);
@@ -289,7 +291,7 @@ export default function AccountsDashboard() {
               tabIndex={0}
               className="dropdown-content z-50 menu p-2 shadow-lg bg-base-100 rounded-box w-48 border border-base-200"
             >
-              <li>
+              {/* <li>
                 <a
                   onClick={() => {
                     setSelectedAccount(row.original);
@@ -298,7 +300,7 @@ export default function AccountsDashboard() {
                 >
                   <MdBusiness size={16} /> View Dashboard
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a
                   onClick={() => {
@@ -310,11 +312,11 @@ export default function AccountsDashboard() {
                   <MdEdit size={16} /> Edit Account
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a>
                   <MdAssignmentInd size={16} /> Assign Rep
                 </a>
-              </li>
+              </li> */}
               <div className="divider my-1"></div>
               <li>
                 <a

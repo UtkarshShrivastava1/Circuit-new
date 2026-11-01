@@ -227,16 +227,41 @@ console.log("Sales Reps:", salesReps);
 
 
 
-    const response = await createContact(
-      slug,
-      payload
-    );
+    const response = await createContact(slug, payload);
 
-    toast.success(
-      response?.data?.message ||
-      "Contact created successfully"
-    );
+toast.success(
+  response?.data?.message || "Contact created successfully"
+);
 
+// Clear all fields after successful creation
+reset({
+  firstName: "",
+  lastName: "",
+  gender: "",
+  dob: "",
+  email: "",
+  altEmail: "",
+  phone: {
+    countryCode: "+91",
+    number: "",
+  },
+  altPhoneNumber: "",
+  account: "",
+  department: "",
+  designation: "",
+  leadSource: "",
+  assignedRep: "",
+  status: "Active",
+  address: {
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "",
+    countryOther: "",
+  },
+});
     
 
   } catch (error) {

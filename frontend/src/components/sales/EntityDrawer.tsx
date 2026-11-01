@@ -1,8 +1,9 @@
 import { useAuth } from "@/auth/useAuth";
 import { updateAccount, updateContact } from "@/services/salesService";
 import { useEffect, useState } from "react";
-
+import { getSalesReps } from "@/services/salesRepServices";
 import { entitySchemas } from "./schema/entitySchemas";
+import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;
@@ -25,7 +26,7 @@ export default function EntityDrawer({
   const [editMode, setEditMode] = useState(mode === "edit");
   const isAccount = type === "account";
 const isContact = type === "contact";
-
+const [owners, setOwners] = useState<any[]>([]);
   const {auth}=useAuth();
   const slug=auth?.slug;
 //  console.log("Drawer data:", data);
@@ -52,6 +53,21 @@ useEffect(() => {
 
  
 }, [data, open, mode]);
+useEffect(() => {
+  if (!slug || !open) return;
+
+  const fetchOwners = async () => {
+    try {
+      const res = await getSalesReps(slug);
+      const reps = res.data?.data || res.data || [];
+      setOwners(reps);
+    } catch (err) {
+      console.error("Failed to fetch sales reps:", err);
+    }
+  };
+
+  fetchOwners();
+}, [slug, open]);
 
   if(!slug){
     return null;
@@ -68,11 +84,48 @@ const fullName = isAccount
       [key]: value,
     }));
   };
+// const handleSave = async () => {
+//   try {
+//     const payload = isAccount
+//       ? {
+//           ...form,
+//           primaryContact: {
+//             ...form.primaryContact,
+//             phone: form.primaryContact?.phone,
+//           },
+//         }
+//       : {
+//           ...form,
+//           phone: {
+//             number: form?.phone?.number,
+//           },
+//         };
+
+//     const api = isAccount
+//       ? updateAccount
+//       : updateContact;
+
+//     const res = await api(slug, form._id, payload);
+
+//   onSave?.(res.data.data); // 👈 ye
+// setForm(res.data.data);  // 👈 ye bhi
+// setEditMode(false);
+//     // console.log("API Response", res.data);
+//     setEditMode(false);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
 const handleSave = async () => {
   try {
     const payload = isAccount
       ? {
           ...form,
+          accountOwner:
+            typeof form.accountOwner === "object"
+              ? form.accountOwner?._id
+              : form.accountOwner,
           primaryContact: {
             ...form.primaryContact,
             phone: form.primaryContact?.phone,
@@ -81,25 +134,46 @@ const handleSave = async () => {
       : {
           ...form,
           phone: {
-            number: form?.phone?.number,
+            ...form.phone,
           },
         };
 
-    const api = isAccount
-      ? updateAccount
-      : updateContact;
+    const api = isAccount ? updateAccount : updateContact;
 
     const res = await api(slug, form._id, payload);
 
-  onSave?.(res.data.data); // 👈 ye
-setForm(res.data.data);  // 👈 ye bhi
-setEditMode(false);
-    // console.log("API Response", res.data);
+    const updatedData = res.data?.data;
+
+    if (!updatedData) {
+      throw new Error("Updated data not received from server");
+    }
+
+    setForm(
+      isAccount
+        ? {
+            ...updatedData,
+            primaryContact: updatedData.primaryContact || {},
+            phone: updatedData.primaryContact?.phone || {},
+          }
+        : updatedData
+    );
+
+    onSave?.(updatedData);
     setEditMode(false);
-  } catch (err) {
-    console.error(err);
+
+    toast.success(
+      `${isAccount ? "Account" : "Contact"} updated successfully!`
+    );
+  } catch (err: any) {
+    console.error("Update failed:", err);
+
+    toast.error(
+      err.response?.data?.message || "Failed to update. Please try again."
+    );
   }
 };
+
+
 const getValue = (obj: any, path: string) => {
   return path.split(".").reduce((acc, key) => acc?.[key], obj);
 };
@@ -177,8 +251,10 @@ return (
           {entitySchemas[type]?.map((field: any) => (
             <FieldEdit
               key={field.key}
+              fieldKey={field.key}
               label={field.label}
               value={getValue(form, field.key)}
+               owners={owners}
               editable={editMode}
               onChange={(val: any) =>
                 setForm((prev: any) =>
@@ -217,20 +293,56 @@ return (
   </div>
 );
 }
-function FieldEdit({ label, value, editable, onChange }: any) {
-  const isDate =
-    label === "Created At" ||
-    label === "Updated At";
+function FieldEdit({fieldKey, label, value, editable, onChange,owners=[] }: any) {
+ const isDateField =
+  fieldKey === "dob" ||
+  label === "Created At" ||
+  label === "Updated At";
+  const isPhoneField =
+  fieldKey === "phone.number" ||
+  fieldKey === "altPhoneNumber";
+// const isOwnerField =
+//   fieldKey === "accountOwner.name" ||
+//   fieldKey === "assignedRep.name";
+const isOwnerField =
+  fieldKey === "accountOwner" ||
+  fieldKey === "assignedRep";
+  // const displayValue =
+  //   isDate && value
+  //     ? new Date(value).toLocaleString("en-IN", {
+  //         day: "2-digit",
+  //         month: "short",
+  //         year: "numeric",
+  //         hour: "2-digit",
+  //         minute: "2-digit",
+  //       })
+  //   : value;
 
-  const displayValue =
-    isDate && value
-      ? new Date(value).toLocaleString("en-IN", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        })
+  
+  const displayValue = isOwnerField
+  ? typeof value === "object"
+    ? value?.name
+    : owners.find((rep: any) => {
+        const member = rep.memberId || rep;
+        const memberId =
+          typeof member === "object" ? member?._id : member;
+
+        return memberId === value;
+      })?.memberId?.name ||
+      owners.find((rep: any) => {
+        const member = rep.memberId || rep;
+        const memberId =
+          typeof member === "object" ? member?._id : member;
+
+        return memberId === value;
+      })?.name ||
+      "-"
+  : isDateField && value
+    ? new Date(value).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      })
     : value;
   const accountTypeOptions = [
     "Individual",
@@ -316,6 +428,7 @@ fieldKey === "assignedRep.name" ||
   fieldKey === "status" ||
   fieldKey === "gender"||
   fieldKey === "phone.countryCode"||
+   fieldKey === "primaryContact.phone.countryCode" ||
     fieldKey === "paymentTerms";
 
   const getOptions = () => {
@@ -342,7 +455,8 @@ fieldKey === "assignedRep.name" ||
     case "gender":
       return genderOptions;
     case "phone.countryCode":
-      return countryCodeOptions;
+    case "primaryContact.phone.countryCode":
+       return countryCodeOptions;
       default:
         return [];
     }
@@ -353,7 +467,7 @@ console.log("FIELD:", fieldKey, "VALUE:", value);
     <div className="bg-base-200 p-3 rounded-lg">
       <div className="text-xs text-gray-500">{label}</div>
 
-     {editable ? (
+     {/* {editable ? (
   <input
     className="w-full bg-transparent outline-none font-medium"
     value={value || ""}
@@ -370,6 +484,103 @@ console.log("FIELD:", fieldKey, "VALUE:", value);
   <div className="font-medium break-words">
     {displayValue || "-"}
   </div>
+)} */}
+
+{editable ? (
+  isOwnerField ? (
+    <select
+      className="select w-full  outline-none font-medium"
+      value={
+        typeof value === "object"
+          ? value?._id || ""
+          : value || ""
+      }
+      onChange={(e) => {
+        const selectedRep = owners.find((rep: any) => {
+          const member = rep.memberId || rep;
+          const memberId =
+            typeof member === "object" ? member?._id : member;
+
+          return memberId === e.target.value;
+        });
+
+        const member = selectedRep?.memberId || selectedRep;
+        onChange?.(member);
+      }}
+    >
+      <option value="">Select Owner</option>
+
+      {owners.map((rep: any) => {
+        const member = rep.memberId || rep;
+        const memberId =
+          typeof member === "object" ? member?._id : member;
+        const memberName =
+          typeof member === "object" ? member?.name : rep.name;
+
+        if (!memberId) return null;
+
+        return (
+          <option key={memberId} value={memberId}>
+            {memberName || "Unknown"}
+          </option>
+        );
+      })}
+    </select>
+  ) : isSelect ? (
+    <select
+      className=" select w-full mt-1  outline-none font-medium"
+      value={value || ""}
+      onChange={(e) => onChange?.(e.target.value)}
+    >
+      <option value="">Select {label}</option>
+
+      {/* {getOptions().map((option: string) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))} */}
+
+      {getOptions().map((option: string) => (
+  <option key={option} value={option}>
+    {option}
+  </option>
+))}
+    </select>
+  ) : (
+  <input
+  type={
+    fieldKey === "dob"
+      ? "date"
+      : isPhoneField
+      ? "tel"
+      : "text"
+  }
+  maxLength={isPhoneField ? 10 : undefined}
+  inputMode={isPhoneField ? "numeric" : undefined}
+  className="w-full bg-transparent outline-none font-medium"
+  value={
+    fieldKey === "dob" && value
+      ? new Date(value).toISOString().split("T")[0]
+      : value ?? ""
+  }
+  onChange={(e) => {
+    const newValue = isPhoneField
+      ? e.target.value.replace(/\D/g, "").slice(0, 10)
+      : e.target.value;
+
+    onChange?.(newValue);
+  }}
+/>
+  )
+) : (
+  // <div className="font-medium break-words">
+  //   {displayValue?.name || displayValue || "-"}
+  // </div>
+  <div className="font-medium break-words">
+  {typeof value === "object"
+    ? value?.name || "-"
+    : displayValue || "-"}
+</div>
 )}
     </div>
   );

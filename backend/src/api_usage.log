@@ -77444,3 +77444,87 @@
 2026-10-31T05:47:54.539Z INFO: Mongoose connected to DB
 2026-10-31T05:49:24.443Z INFO: Login attempt: ritika.vishwakarma290@gmail.com
 2026-10-31T05:49:24.700Z INFO: Login success: ritika.vishwakarma290@gmail.com
+2026-10-31T12:49:53.520Z INFO: Updating lead with ID: 6ae5de8f539af63949122571
+2026-10-31T12:49:53.530Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-10-31T12:52:27.853Z INFO: Cloudinary configured with cloud name:
+2026-10-31T12:52:31.504Z INFO: [SERVER] Boot sequence started
+2026-10-31T12:52:31.579Z INFO: Mongoose connected to DB
+2026-10-31T12:52:31.586Z INFO: MongoDB connected: 127.0.0.1
+2026-10-31T12:52:31.597Z INFO: [SERVER] Running on port 5001
+2026-10-31T12:52:31.580Z INFO: Mongoose connected to DB
+2026-10-31T12:52:41.046Z INFO: Updating lead with ID: 6ae5de8f539af63949122571
+2026-10-31T12:52:41.048Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-10-31T12:59:10.851Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-10-31T12:59:10.845Z INFO: Updating lead with ID: 6ae5de8f539af63949122571
+2026-11-01T08:02:34.931Z WARN: Mongoose disconnected from DB
+2026-11-01T08:02:34.923Z WARN: Mongoose disconnected from DB
+2026-11-01T08:02:41.743Z WARN: Authentication failed: token missing
+2026-11-01T08:02:44.956Z INFO: Mongoose connected to DB
+2026-11-01T08:02:44.957Z INFO: Mongoose connected to DB
+2026-11-01T08:06:15.258Z WARN: Authentication failed: token missing
+2026-11-01T08:06:17.023Z WARN: Authentication failed: token missing
+2026-11-01T08:06:17.039Z WARN: Authentication failed: token missing
+2026-11-01T08:06:41.784Z INFO: Login attempt: ritika.vishwakarma290@gmail.com
+2026-11-01T08:06:41.972Z INFO: Login success: ritika.vishwakarma290@gmail.com
+2026-11-01T08:06:42.404Z INFO: Get members request
+2026-11-01T08:06:42.455Z INFO: Members retrieved
+2026-11-01T08:06:42.538Z INFO: Get members request
+2026-11-01T08:06:42.560Z INFO: Members retrieved
+2026-11-01T08:06:42.656Z INFO: Get all leaves request
+2026-11-01T08:06:42.657Z INFO: Get all leaves request with filters
+2026-11-01T08:06:42.657Z INFO: Get all leaves request
+2026-11-01T08:06:42.692Z INFO: Get all leaves request
+2026-11-01T08:06:42.692Z INFO: Get all leaves request with filters
+2026-11-01T08:06:42.693Z INFO: Get all leaves request
+2026-11-01T09:18:03.307Z WARN: Mongoose disconnected from DB
+2026-11-01T09:18:03.387Z WARN: Mongoose disconnected from DB
+2026-11-01T09:18:13.439Z INFO: Mongoose connected to DB
+2026-11-01T09:18:13.439Z INFO: Mongoose connected to DB
+2026-11-01T12:31:51.465Z INFO: Updating contact with ID: 6ae72fcf87bc33ad615d187d
+2026-11-01T12:31:51.476Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:31:51.482Z INFO: Found contact: Yes
+2026-11-01T12:31:51.515Z INFO: Updated contact: Yes
+2026-11-01T12:33:02.896Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:33:02.896Z INFO: Updating contact with ID: 6ae72fcf87bc33ad615d187d
+2026-11-01T12:33:02.898Z INFO: Found contact: Yes
+2026-11-01T12:33:02.906Z INFO: Updated contact: Yes
+2026-11-01T12:33:41.917Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:33:41.913Z INFO: Updating contact with ID: 6a2ba42f5a36a32b23b6785b
+2026-11-01T12:33:41.948Z INFO: Found contact: Yes
+2026-11-01T12:33:41.969Z INFO: Updated contact: Yes
+2026-11-01T12:36:57.245Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:36:57.244Z INFO: Updating contact with ID: 6ae72fcf87bc33ad615d187d
+2026-11-01T12:36:57.247Z INFO: Found contact: Yes
+2026-11-01T12:36:57.261Z INFO: Updated contact: Yes
+2026-11-01T12:41:36.857Z INFO: Updating contact with ID: 6a2ba42f5a36a32b23b6785b
+2026-11-01T12:41:36.860Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:41:36.869Z INFO: Found contact: Yes
+2026-11-01T12:41:36.885Z INFO: Updated contact: Yes
+2026-11-01T12:41:55.667Z INFO: Updating contact with ID: 6ae72fcf87bc33ad615d187d
+2026-11-01T12:41:55.668Z INFO: Organization ID: 69c2378833b196a73e0b6cf0
+2026-11-01T12:41:55.681Z INFO: Found contact: Yes
+2026-11-01T12:41:55.724Z INFO: Updated contact: Yes
+2026-11-01T12:55:19.698Z INFO: Cloudinary configured with cloud name:
+2026-11-01T12:55:23.756Z INFO: [SERVER] Boot sequence started
+2026-11-01T12:55:24.011Z INFO: Mongoose connected to DB
+2026-11-01T12:55:24.013Z INFO: Mongoose connected to DB
+2026-11-01T12:55:24.487Z INFO: MongoDB connected: 127.0.0.1
+2026-11-01T12:55:24.523Z INFO: [SERVER] Running on port 5001
+2026-11-01T12:59:09.138Z INFO: Cloudinary configured with cloud name:
+2026-11-01T12:59:09.509Z INFO: [SERVER] Boot sequence started
+2026-11-01T12:59:09.572Z INFO: Mongoose connected to DB
+2026-11-01T12:59:09.573Z INFO: Mongoose connected to DB
+2026-11-01T12:59:09.578Z INFO: MongoDB connected: 127.0.0.1
+2026-11-01T12:59:09.589Z INFO: [SERVER] Running on port 5001
+2026-11-01T12:59:58.413Z INFO: Cloudinary configured with cloud name:
+2026-11-01T12:59:58.717Z INFO: [SERVER] Boot sequence started
+2026-11-01T12:59:58.776Z INFO: Mongoose connected to DB
+2026-11-01T12:59:58.777Z INFO: Mongoose connected to DB
+2026-11-01T12:59:58.782Z INFO: MongoDB connected: 127.0.0.1
+2026-11-01T12:59:58.798Z INFO: [SERVER] Running on port 5001
+2026-11-01T13:54:20.558Z INFO: Cloudinary configured with cloud name:
+2026-11-01T13:54:27.271Z INFO: [SERVER] Boot sequence started
+2026-11-01T13:54:27.420Z INFO: Mongoose connected to DB
+2026-11-01T13:54:27.435Z INFO: MongoDB connected: 127.0.0.1
+2026-11-01T13:54:27.499Z INFO: [SERVER] Running on port 5001
+2026-11-01T13:54:27.421Z INFO: Mongoose connected to DB
