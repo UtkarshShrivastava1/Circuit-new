@@ -1,60 +1,164 @@
+// import { useNavigate, useParams } from "react-router-dom";
+// import { useEffect, useState } from "react";
+// import ProfileSidebar from "@/components/members/ProfileSidebar";
+// import MemberRightSection from "@/components/members/MemberRightSection";
+// import type { Member } from "@/type/member";
+// import { getMemberById } from "@/services/memberService";
+
+// import { useAuth } from "@/auth/useAuth";
+// import { ArrowLeft } from "lucide-react";
+
+// // 1. Define the shape of your route parameters
+// interface RouteParams {
+//   id: string;
+//   [key: string]: string | undefined; // Optional: handles extra params safely
+// }
+// const MemberDetails = () => {
+//   const { id } = useParams<RouteParams>();
+//   const {auth} = useAuth();
+//   const slug = auth.slug;
+//   const [member, setMember] = useState<Member | null>(null);
+
+ 
+// const navigate = useNavigate();
+//   useEffect(() => {
+//     const fetchMember = async () => {
+      
+//       try {
+//         const response = await getMemberById(slug, id);
+//         // Note: Depending on your API, the member data might be nested inside response.data
+//         const foundMember = response?.data?.member || response?.data || response;
+        
+//         if (foundMember) {
+//           setMember(foundMember?.user || foundMember); // Adjust based on actual API response structure
+//         }
+//       } catch (error) {
+//         console.error("Error fetching member details:", error);
+//       }
+//     };
+
+//     fetchMember();
+//   }, [id]);
+
+
+
+//   if (!member) return <p>Member not found</p>;
+
+//   return (
+//     <div className="flex flex-col lg:flex-column xl:flex-row gap-4 sm:gap-6 px-3 sm:px-4 lg:px-6 xl:px-7 py-4">
+//       <div>
+//        <button
+//         onClick={() => navigate(-1)}
+//         className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg bg-primary hover:bg-primary/90 text-primary-content"
+//       >
+//         <ArrowLeft size={16} />
+      
+//       </button>
+//       </div>
+//       <ProfileSidebar member={member} />
+
+//       <div className="flex-1">
+//         <MemberRightSection memberId={member._id} />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default MemberDetails;
+
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ProfileSidebar from "@/components/members/ProfileSidebar";
 import MemberRightSection from "@/components/members/MemberRightSection";
 import type { Member } from "@/type/member";
 import { getMemberById } from "@/services/memberService";
-
 import { useAuth } from "@/auth/useAuth";
 import { ArrowLeft } from "lucide-react";
 
-// 1. Define the shape of your route parameters
-interface RouteParams {
-  id: string;
-  [key: string]: string | undefined; // Optional: handles extra params safely
-}
 const MemberDetails = () => {
-  const { id } = useParams<RouteParams>();
-  const {auth} = useAuth();
+  const { id } = useParams<{ id: string }>();
+  const { auth } = useAuth();
   const slug = auth.slug;
-  const [member, setMember] = useState<Member | null>(null);
 
- 
-const navigate = useNavigate();
+  const navigate = useNavigate();
+
+  const [member, setMember] = useState<Member | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
     const fetchMember = async () => {
-      
+      if (!slug || !id) return;
+
       try {
+        setLoading(true);
+        setError("");
+        setMember(null);
+
         const response = await getMemberById(slug, id);
-        // Note: Depending on your API, the member data might be nested inside response.data
-        const foundMember = response?.data?.member || response?.data || response;
-        
-        if (foundMember) {
-          setMember(foundMember?.user || foundMember); // Adjust based on actual API response structure
+
+        const foundMember =
+          response?.data?.member ||
+          response?.data?.user ||
+          response?.data ||
+          response;
+
+        const memberData = foundMember?.user || foundMember;
+
+        if (memberData?._id) {
+          setMember(memberData);
+        } else {
+          setError("Member not found");
         }
       } catch (error) {
         console.error("Error fetching member details:", error);
+        setError("Failed to load member details");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMember();
-  }, [id]);
+  }, [slug, id]);
 
+  if (loading) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+        <p className="mt-4 text-base-content/70">
+          Loading member details...
+        </p>
+      </div>
+    );
+  }
 
-
-  if (!member) return <p>Member not found</p>;
+  if (error || !member) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen gap-3">
+        <p className="text-base-content/70">
+          {error || "Member not found"}
+        </p>
+        <button
+          onClick={() => navigate(-1)}
+          className="px-4 py-2 rounded-lg bg-primary text-primary-content"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-column xl:flex-row gap-4 sm:gap-6 px-3 sm:px-4 lg:px-6 xl:px-7 py-4">
       <div>
-       <button
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg bg-primary hover:bg-primary/90 text-primary-content"
-      >
-        <ArrowLeft size={16} />
-      
-      </button>
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg bg-primary hover:bg-primary/90 text-primary-content"
+        >
+          <ArrowLeft size={16} />
+        </button>
       </div>
+
       <ProfileSidebar member={member} />
 
       <div className="flex-1">

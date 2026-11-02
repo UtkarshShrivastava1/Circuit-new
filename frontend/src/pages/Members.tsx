@@ -18,7 +18,7 @@ export default function Members() {
    
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -54,27 +54,47 @@ toast.success("Member deleted successfully");
     toast.error("Failed to delete member. Please try again.");
   }
 };
+  // useEffect(() => {
+  //   const fetchMembers = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const members = await getMembers(slug);
+  //       //   backend call
+       
+       
+  //       setMembers(members.data?.members);
+
+  //     } catch (err) {
+  //       console.error("Error fetching members:", err);
+  //       setError("Failed to fetch members");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchMembers();
+  // }, [slug]);
+
   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        setLoading(true);
-        const members = await getMembers(slug);
-        //   backend call
-       
-       
-        setMembers(members.data?.members);
+  const fetchMembers = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-      } catch (err) {
-        console.error("Error fetching members:", err);
-        setError("Failed to fetch members");
-      } finally {
-        setLoading(false);
-      }
-    };
+      const response = await getMembers(slug);
+      setMembers(response.data?.members || []);
+    } catch (err) {
+      console.error("Error fetching members:", err);
+      setError("Failed to fetch members");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  if (slug) {
     fetchMembers();
-  }, []);
-
+  }
+}, [slug]);
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -160,11 +180,27 @@ toast.success("Member deleted successfully");
           className="w-full text-sm max-w-sm px-3 py-1.5 border border-base-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-100"
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {paginatedMembers.map((member) => (
           <MemberCard key={member._id} member={member} isAdmin={true} onDelete={handleDelete} />
         ))}
-      </div>
+      </div> */}
+      {!loading && paginatedMembers.length === 0 ? (
+  <p className="text-center py-8 text-base-content/60">
+    No members found.
+  </p>
+) : (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    {paginatedMembers.map((member) => (
+      <MemberCard
+        key={member._id}
+        member={member}
+        isAdmin={true}
+        onDelete={handleDelete}
+      />
+    ))}
+  </div>
+)}
       {totalPages > 1 && (
         <Pagination
           currentPage={validPage}
