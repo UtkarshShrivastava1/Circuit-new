@@ -1485,7 +1485,25 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
   }`);
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
+const attendanceRecords = await Attendance.find({
+  organization: orgId,
+  date: { $gte: today, $lt: tomorrow }
+}).select("date records");
 
+console.log(
+  JSON.stringify(
+    attendanceRecords.map(a => ({
+      date: a.date,
+      records: a.records.map(r => ({
+        employee: r.employee,
+        status: r.status,
+        approval: r.approval
+      }))
+    })),
+    null,
+    2
+  )
+);
   const aggregationResult = await Attendance.aggregate([
     // 1. Find all attendance sheets for today in the organization
     {
@@ -1506,11 +1524,10 @@ const getAdminDashboard = asyncHandler(async (req, res) => {
       }
     },
     {
-  $match: {
-    "records.status": {
-      $in: ["PRESENT", "PENDING"],
-    },
-  },
+ $match: {
+  'records.status': { $in: ['PRESENT', 'PENDING'] },
+  'records.approval': 'Pending'
+}
 },
 
     { $unwind: { path: '$employeeDetails', preserveNullAndEmptyArrays: true } },

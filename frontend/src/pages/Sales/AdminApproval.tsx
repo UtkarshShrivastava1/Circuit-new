@@ -35,7 +35,8 @@ const {
   employees,
 } = data;
   console.log(`Data from : ${approvals}` )
-   
+   console.log("Current approvals:", approvals);
+// console.log("Current user:", useAuth().auth);
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <AdminKpiCards kpis={kpis} />

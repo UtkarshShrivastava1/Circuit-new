@@ -77528,3 +77528,189 @@
 2026-11-01T13:54:27.435Z INFO: MongoDB connected: 127.0.0.1
 2026-11-01T13:54:27.499Z INFO: [SERVER] Running on port 5001
 2026-11-01T13:54:27.421Z INFO: Mongoose connected to DB
+2026-11-02T04:53:18.394Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:53:18.407Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:53:18.507Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:53:18.508Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:53:25.741Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:53:25.741Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:54:24.501Z WARN: Authentication failed: token missing
+2026-11-02T04:54:24.531Z WARN: Authentication failed: token missing
+2026-11-02T04:54:27.884Z INFO: Login attempt: ritika@example.com
+2026-11-02T04:54:28.066Z INFO: Login success: ritika@example.com
+2026-11-02T04:54:28.439Z INFO: Get members request
+2026-11-02T04:54:28.528Z INFO: Members retrieved
+2026-11-02T04:54:28.555Z INFO: Employee 69d11af527fc92e1e2519ea6 attendance records: 0
+2026-11-02T04:54:28.631Z INFO: Get members request
+2026-11-02T04:54:28.696Z INFO: Members retrieved
+2026-11-02T04:54:28.746Z INFO: Employee 69d11af527fc92e1e2519ea6 attendance records: 0
+2026-11-02T04:54:35.718Z INFO: Get members request
+2026-11-02T04:54:35.745Z INFO: Members retrieved
+2026-11-02T04:54:36.062Z INFO: Get members request
+2026-11-02T04:54:36.185Z INFO: Members retrieved
+2026-11-02T04:54:36.265Z INFO: Get all leaves request
+2026-11-02T04:54:36.265Z INFO: Get all leaves request with filters
+2026-11-02T04:54:36.266Z INFO: Get all leaves request
+2026-11-02T04:54:36.487Z INFO: Get all leaves request
+2026-11-02T04:54:36.487Z INFO: Get all leaves request with filters
+2026-11-02T04:54:36.488Z INFO: Get all leaves request
+2026-11-02T04:54:44.963Z INFO: Get members request
+2026-11-02T04:54:45.079Z INFO: Members retrieved
+2026-11-02T04:54:45.284Z INFO: Get members request
+2026-11-02T04:54:45.303Z INFO: Members retrieved
+2026-11-02T04:54:51.651Z INFO: Get employee by ID request
+2026-11-02T04:54:51.665Z INFO: Employee retrieved by ID
+2026-11-02T04:54:52.370Z INFO: Get employee by ID request
+2026-11-02T04:54:52.605Z INFO: Employee retrieved by ID
+2026-11-02T04:54:53.221Z INFO: Get members request
+2026-11-02T04:54:53.329Z INFO: Members retrieved
+2026-11-02T04:54:53.434Z INFO: Get members request
+2026-11-02T04:54:53.476Z INFO: Members retrieved
+2026-11-02T04:54:53.615Z INFO: Get members request
+2026-11-02T04:54:53.767Z INFO: Members retrieved
+2026-11-02T04:54:54.022Z INFO: Get members request
+2026-11-02T04:54:54.114Z INFO: Members retrieved
+2026-11-02T04:54:58.972Z INFO: Get members request
+2026-11-02T04:54:59.030Z INFO: Employee 69d11af527fc92e1e2519ea6 attendance records: 0
+2026-11-02T04:54:59.144Z INFO: Members retrieved
+2026-11-02T04:55:02.360Z INFO: Get members request
+2026-11-02T04:55:02.460Z INFO: Members retrieved
+2026-11-02T04:55:03.003Z INFO: Get members request
+2026-11-02T04:55:03.317Z INFO: Members retrieved
+2026-11-02T04:55:05.261Z INFO: Get employee by ID request
+2026-11-02T04:55:05.279Z INFO: Employee retrieved by ID
+2026-11-02T04:55:05.625Z INFO: Get employee by ID request
+2026-11-02T04:55:06.061Z INFO: Employee retrieved by ID
+2026-11-02T04:55:06.954Z INFO: Get members request
+2026-11-02T04:55:07.118Z INFO: Members retrieved
+2026-11-02T04:55:07.544Z INFO: Get members request
+2026-11-02T04:55:07.566Z INFO: Members retrieved
+2026-11-02T04:55:07.852Z INFO: Get members request
+2026-11-02T04:55:07.945Z INFO: Members retrieved
+2026-11-02T04:55:08.039Z INFO: Get members request
+2026-11-02T04:55:08.203Z INFO: Members retrieved
+2026-11-02T04:55:09.050Z INFO: Get members request
+2026-11-02T04:55:09.133Z INFO: Members retrieved
+2026-11-02T04:55:09.285Z INFO: Get members request
+2026-11-02T04:55:09.404Z INFO: Members retrieved
+2026-11-02T04:55:11.070Z INFO: Get employee by ID request
+2026-11-02T04:55:11.120Z INFO: Employee retrieved by ID
+2026-11-02T04:55:11.292Z INFO: Get employee by ID request
+2026-11-02T04:55:11.300Z INFO: Employee retrieved by ID
+2026-11-02T04:55:12.214Z INFO: Members retrieved
+2026-11-02T04:55:12.204Z INFO: Get members request
+2026-11-02T04:55:12.297Z INFO: Get members request
+2026-11-02T04:55:12.393Z INFO: Members retrieved
+2026-11-02T04:55:14.078Z INFO: Get members request
+2026-11-02T04:55:14.112Z INFO: Members retrieved
+2026-11-02T04:55:14.447Z INFO: Get members request
+2026-11-02T04:55:14.590Z INFO: Members retrieved
+2026-11-02T04:55:16.363Z INFO: Get employee by ID request
+2026-11-02T04:55:16.480Z INFO: Employee retrieved by ID
+2026-11-02T04:55:16.900Z INFO: Get employee by ID request
+2026-11-02T04:55:16.964Z INFO: Employee retrieved by ID
+2026-11-02T04:55:17.225Z INFO: Get members request
+2026-11-02T04:55:17.373Z INFO: Members retrieved
+2026-11-02T04:55:17.674Z INFO: Get members request
+2026-11-02T04:55:17.681Z INFO: Members retrieved
+2026-11-02T04:55:19.100Z INFO: Get members request
+2026-11-02T04:55:19.118Z INFO: Members retrieved
+2026-11-02T04:55:19.164Z INFO: Get members request
+2026-11-02T04:55:19.244Z INFO: Members retrieved
+2026-11-02T04:55:25.928Z INFO: Get employee by ID request
+2026-11-02T04:55:25.939Z INFO: Employee retrieved by ID
+2026-11-02T04:55:25.977Z INFO: Get employee by ID request
+2026-11-02T04:55:26.001Z INFO: Employee retrieved by ID
+2026-11-02T04:55:28.863Z INFO: Get members request
+2026-11-02T04:55:29.003Z INFO: Members retrieved
+2026-11-02T04:55:30.280Z INFO: Employee 69d11af527fc92e1e2519ea6 attendance records: 0
+2026-11-02T04:55:50.957Z INFO: Login attempt: ritika.vishwakarma124@gmail.com
+2026-11-02T04:55:51.236Z INFO: Login success: ritika.vishwakarma124@gmail.com
+2026-11-02T04:56:05.422Z INFO: User 6a2ba2005a36a32b23b67515 marking attendance for Mon Nov 02 2026
+2026-11-02T04:56:16.732Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:56:16.755Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:56:16.938Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:56:16.938Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:56:39.613Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:56:39.614Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T04:56:39.695Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T04:56:39.710Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:06:18.338Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:06:18.332Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:06:18.499Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:06:18.505Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:08:46.650Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:08:46.651Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:08:52.152Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:08:52.185Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:08:52.421Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:08:52.463Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:12:32.186Z INFO: Cloudinary configured with cloud name:
+2026-11-02T05:12:43.178Z INFO: [SERVER] Boot sequence started
+2026-11-02T05:12:43.372Z INFO: Mongoose connected to DB
+2026-11-02T05:12:43.395Z INFO: MongoDB connected: 127.0.0.1
+2026-11-02T05:12:43.422Z INFO: [SERVER] Running on port 5001
+2026-11-02T05:12:43.374Z INFO: Mongoose connected to DB
+2026-11-02T05:22:29.838Z WARN: Mongoose disconnected from DB
+2026-11-02T05:22:29.845Z WARN: Mongoose disconnected from DB
+2026-11-02T05:22:39.867Z INFO: Mongoose connected to DB
+2026-11-02T05:22:39.867Z INFO: Mongoose connected to DB
+2026-11-02T05:22:59.147Z INFO: Login attempt: ritika.vishwakarma290@gmail.com
+2026-11-02T05:22:59.316Z INFO: Login success: ritika.vishwakarma290@gmail.com
+2026-11-02T05:23:01.711Z INFO: Get members request
+2026-11-02T05:23:01.852Z INFO: Members retrieved
+2026-11-02T05:23:02.210Z INFO: Get members request
+2026-11-02T05:23:02.286Z INFO: Members retrieved
+2026-11-02T05:23:02.730Z INFO: Get all leaves request
+2026-11-02T05:23:02.731Z INFO: Get all leaves request with filters
+2026-11-02T05:23:02.732Z INFO: Get all leaves request
+2026-11-02T05:23:02.897Z INFO: Get all leaves request
+2026-11-02T05:23:02.897Z INFO: Get all leaves request with filters
+2026-11-02T05:23:02.898Z INFO: Get all leaves request
+2026-11-02T05:23:27.129Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:23:27.129Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:23:27.175Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:23:27.175Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:29:26.653Z INFO: Cloudinary configured with cloud name:
+2026-11-02T05:29:29.819Z INFO: [SERVER] Boot sequence started
+2026-11-02T05:29:29.887Z INFO: Mongoose connected to DB
+2026-11-02T05:29:29.894Z INFO: MongoDB connected: 127.0.0.1
+2026-11-02T05:29:29.910Z INFO: [SERVER] Running on port 5001
+2026-11-02T05:29:29.888Z INFO: Mongoose connected to DB
+2026-11-02T05:29:38.762Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:29:38.762Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:29:39.535Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:29:39.536Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:31:48.434Z INFO: Cloudinary configured with cloud name:
+2026-11-02T05:31:48.834Z INFO: [SERVER] Boot sequence started
+2026-11-02T05:31:48.907Z INFO: Mongoose connected to DB
+2026-11-02T05:31:48.916Z INFO: MongoDB connected: 127.0.0.1
+2026-11-02T05:31:48.929Z INFO: [SERVER] Running on port 5001
+2026-11-02T05:31:48.908Z INFO: Mongoose connected to DB
+2026-11-02T05:31:55.653Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:31:55.653Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:31:55.814Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:31:55.815Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:32:03.669Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:32:03.669Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:32:03.701Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:32:03.702Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:36:48.487Z INFO: Get members request
+2026-11-02T05:36:48.515Z INFO: Members retrieved
+2026-11-02T05:36:48.590Z INFO: Get members request
+2026-11-02T05:36:48.615Z INFO: Members retrieved
+2026-11-02T05:36:48.697Z INFO: Get all leaves request
+2026-11-02T05:36:48.699Z INFO: Get all leaves request with filters
+2026-11-02T05:36:48.700Z INFO: Get all leaves request
+2026-11-02T05:36:48.747Z INFO: Get all leaves request
+2026-11-02T05:36:48.748Z INFO: Get all leaves request with filters
+2026-11-02T05:36:48.748Z INFO: Get all leaves request
+2026-11-02T05:36:56.603Z INFO: employee Id : 6a2ba2005a36a32b23b67515 PRESENT undefined undefined undefined
+2026-11-02T05:36:56.604Z INFO: Admin 69c2378833b196a73e0b6cf2 approving attendance doc 6ae817e5476472e01bad0737 for employee 6a2ba2005a36a32b23b67515
+2026-11-02T05:36:56.625Z INFO: userObjectId : 6a2ba2005a36a32b23b67515
+2026-11-02T05:37:02.903Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:37:02.904Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:37:02.968Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
+2026-11-02T05:37:02.967Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:37:07.144Z INFO:  organizationId : 69c2378833b196a73e0b6cf0
+2026-11-02T05:37:07.145Z INFO:  organizationId : Mon Nov 02 2026 00:00:00 GMT+0530 (India Standard Time)
